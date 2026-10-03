@@ -2939,6 +2939,10 @@ create policy "friends drop" on public.friends
   function sbErr(e){
     var m = (e && e.message) || "ошибка";
     if(/invalid api key/i.test(m)) return "проект не принял ключ. Проверь в Project Settings → API Keys, какие ключи активны: если legacy-ключи отключены, нужен publishable (sb_publishable_…), если включены — подойдёт и anon public.";
+    if(/schema cache|does not exist|undefined table|relation .* does not exist/i.test(m))
+      return "в базе ещё нет таблиц для друзей. Открой ниже «Подключение базы», скопируй оттуда второй SQL-запрос и выполни его в Supabase: SQL Editor → New query → вставить → Run.";
+    if(/permission denied|violates row-level security/i.test(m))
+      return "база не пускает: похоже, не выполнены правила доступа из SQL-запроса в блоке «Подключение базы».";
     if(/invalid login credentials/i.test(m)) return "почта или пароль не подходят. Если аккаунта ещё нет, нажми «Создать аккаунт».";
     if(/user already registered/i.test(m)) return "такой аккаунт уже есть, нажми «Войти».";
     if(/email not confirmed/i.test(m)) return "почта не подтверждена. Подтверди письмо или выключи Confirm email в Authentication → Sign In / Providers → Email.";
@@ -3944,7 +3948,7 @@ create policy "friends drop" on public.friends
         FR.loading = false; FR.loaded = Date.now();
         renderProfile();
       })
-      .catch(function(e){ FR.loading = false; FR.err = sbErr(e); renderProfile(); });
+      .catch(function(e){ FR.loading = false; FR.loaded = Date.now(); FR.err = sbErr(e); renderProfile(); });
   }
   function frAdd(){
     var el = document.getElementById("frCode"), code = ((el && el.value) || "").trim().toUpperCase().replace(/[^0-9A-F]/g, "");
