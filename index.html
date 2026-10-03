@@ -517,13 +517,34 @@ body.has-hold .wrap{padding-bottom:140px}
 .hb-track{max-width:720px;margin:8px auto 0;height:5px;border-radius:3px;background:var(--line);overflow:hidden}
 .hb-track i{display:block;height:100%;background:var(--accent);border-radius:3px;transition:width .25s linear}
 @media (prefers-reduced-motion: reduce){.chip.run{animation:none}}
+
+/* профиль и аккаунт */
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--s4)}
+.accbtn{flex:0 0 auto;width:48px;height:48px;border-radius:var(--r-pill);border:1px solid var(--line-strong);background:var(--surface);display:grid;place-items:center;color:var(--muted);box-shadow:var(--shadow-1);transition:transform var(--dur-1) var(--ease), border-color var(--dur-1)}
+.accbtn:active{transform:translateY(1px)}
+.accbtn.on{border-color:var(--accent)}
+.accbtn[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.ava{display:grid;place-items:center;width:34px;height:34px;border-radius:var(--r-pill);background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:16px;line-height:1}
+.ava.guest{background:transparent;color:var(--muted);width:26px;height:26px}
+.ava.guest svg{width:26px;height:26px}
+.ava.big{width:56px;height:56px;font-size:24px}
+.ava.big.guest{border:2px dashed var(--line-strong)}
+.pf-head{display:flex;align-items:center;gap:var(--s3);margin-bottom:var(--s4)}
+.pf-head h2{font-size:var(--fs-lg);letter-spacing:-.01em;margin:0}
+.pf-head .hint{margin:4px 0 0}
+#panel-profile .panel{margin-top:var(--s3)}
+.lockbox{display:flex;flex-direction:column;align-items:flex-start;gap:var(--s3);padding:var(--s4);border:1px dashed var(--line-strong);border-radius:var(--r-md);background:var(--bg)}
+.lockbox .hint{margin:0}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header>
+  <header class="topbar">
+    <div>
     <h1>Тренировки</h1>
     <p class="lede">Пять программ на одной странице. Турник идёт по расписанию восьми недель, отжимания, приседания и растяжка — цепочками занятий в твоём темпе, а во вкладке «Создать» собирается своя программа и подставляется в любой раздел. Принцип везде один: вместо одной тяжёлой тренировки много коротких подходов в течение дня, всегда с запасом сил.</p>
+    </div>
+    <button type="button" class="accbtn" id="accBtn" data-act="acc" aria-label="Войти в аккаунт" aria-pressed="false"></button>
   </header>
 
   <div class="tabs" role="tablist" aria-label="Программы">
@@ -535,6 +556,12 @@ body.has-hold .wrap{padding-bottom:140px}
   </div>
 
   <section class="panel todaypanel" id="todayBox" aria-label="Сегодня"></section>
+
+
+  <section id="panel-profile" role="region" aria-label="Профиль" hidden>
+    <section class="panel" id="profileBox"></section>
+    <p class="hint" style="margin-top:12px">Заниматься можно и без аккаунта: программы, таймеры и счётчик по камере работают всегда. Вход нужен, чтобы видеть общий прогресс и держать его одинаковым на всех устройствах.</p>
+  </section>
 
   <section id="panel-pull" role="tabpanel" aria-labelledby="tab-pull">
     <nav class="rig pushrig" aria-label="Тренировки программы">
@@ -916,20 +943,6 @@ create policy "update own" on public.progress
         </details>
       </div>
 
-      <div id="sbLogin" hidden>
-        <p class="hint" id="sbProjInfo"></p>
-        <div class="test">
-          <label class="field" for="sbMail">Почта<input type="email" id="sbMail" placeholder="you@mail.com" autocomplete="username"></label>
-          <label class="field" for="sbPass">Пароль<input type="password" id="sbPass" placeholder="не короче 6 символов" autocomplete="current-password"></label>
-        </div>
-        <div class="test">
-          <button type="button" class="primary" data-act="sb-in">Войти</button>
-          <button type="button" class="linkbtn" data-act="sb-up">Создать аккаунт</button>
-          <button type="button" class="linkbtn alt" data-act="sb-edit">Поправить ключ</button>
-        <button type="button" class="linkbtn alt" id="sbResetBtn" data-act="sb-forget" hidden>Вернуть базу по умолчанию</button>
-        </div>
-      </div>
-
       <details id="sbAdvanced" hidden>
         <summary>Своя база и настройка приложения</summary>
         <p class="hint">Сейчас страница подключена к базе, прошитой в файле. Чтобы вшить свой проект, впиши эту строку в начало скрипта в index.html — после этого всем пользователям хватит почты и пароля:</p>
@@ -941,14 +954,6 @@ create policy "update own" on public.progress
         </div>
       </details>
 
-      <div id="sbIn" hidden>
-        <p class="hint" id="sbWho"></p>
-        <div class="test">
-          <button type="button" class="primary" data-act="sb-sync">Синхронизировать сейчас</button>
-          <button type="button" class="linkbtn" data-act="sb-out">Выйти на этом устройстве</button>
-          <button type="button" class="linkbtn alt" data-act="sb-forget">Сменить проект</button>
-        </div>
-      </div>
     </div>
 
     <div id="syncGit" hidden>
@@ -1945,6 +1950,7 @@ create policy "update own" on public.progress
       el("capLeft").textContent = "Пройдено " + done + " из " + CCOUNT;
     }
     function renderRing(){
+      if(!loggedIn()){ el("ring").innerHTML = lockHtml(); return; }
       var total = C.total(), steps = [100, 250, 500, 1000, 2500, 5000, 10000], goal = steps[steps.length - 1], prev = 0, i;
       for(i = 0; i < steps.length; i++){ if(total < steps[i]){ goal = steps[i]; prev = i ? steps[i - 1] : 0; break; } }
       var frac = goal > prev ? Math.min(1, (total - prev) / (goal - prev)) : 1, R = 52, Cc = 2 * Math.PI * R;
@@ -2441,7 +2447,12 @@ create policy "update own" on public.progress
   try { GH.token = localStorage.getItem(GH.tkey) || null; GH.gist = localStorage.getItem(GH.gkey) || null; } catch(e){}
   function ghOn(){ return !!(GH.token && GH.gist); }
   function ghHeaders(){ return {Authorization: "Bearer " + GH.token, Accept: "application/vnd.github+json", "Content-Type": "application/json"}; }
-  function syncStatus(t){ var el = document.getElementById("syncStatus"); if(el) el.textContent = t; }
+  function syncStatus(t){
+    var el = document.getElementById("syncStatus");
+    if(el) el.textContent = t;
+    var pn = document.getElementById("pfNote");
+    if(pn) pn.textContent = t;
+  }
   function renderSound(){
     var box = document.getElementById("soundTest");
     if(!box) return;
@@ -2463,7 +2474,8 @@ create policy "update own" on public.progress
     modeBox.innerHTML = h + '</div>';
 
     var git = document.getElementById("syncGit"), sb = document.getElementById("syncSb");
-    git.hidden = m !== "gist"; sb.hidden = m !== "sb";
+    if(git) git.hidden = m !== "gist";
+    if(sb) sb.hidden = m !== "sb";
     var setup = document.getElementById("syncSetup"), on = document.getElementById("syncOn");
     if(setup) setup.hidden = ghOn();
     if(on) on.hidden = !ghOn();
@@ -2471,11 +2483,9 @@ create policy "update own" on public.progress
     if(where && GH.gist) where.textContent = "Данные лежат в приватном gist " + GH.gist + ". На другом устройстве вставь тот же токен — страница найдёт этот же gist сама.";
 
     var sbProj = document.getElementById("sbProject"), sbLogin = document.getElementById("sbLogin"), sbIn = document.getElementById("sbIn");
-    if(sbProj){
-      sbProj.hidden = sbSetup() && !sbEditing;
-      sbLogin.hidden = !sbSetup() || sbOn() || sbEditing;
-      sbIn.hidden = !sbOn() || sbEditing;
-    }
+    if(sbProj) sbProj.hidden = sbSetup() && !sbEditing;
+    if(sbLogin) sbLogin.hidden = !sbSetup() || sbOn() || sbEditing;
+    if(sbIn) sbIn.hidden = !sbOn() || sbEditing;
     var adv = document.getElementById("sbAdvanced");
     if(adv) adv.hidden = !sbSetup();
     var snip = document.getElementById("sbSnippet");
@@ -2645,7 +2655,8 @@ create policy "update own" on public.progress
       .then(function(t){ if(!t || !t.access_token) throw new Error("сессия истекла"); sbSaveTok(t); return t; });
   }
   function sbAuth(mode){
-    var em = (document.getElementById("sbMail") || {}).value, pw = (document.getElementById("sbPass") || {}).value;
+    var em = (document.getElementById("pfMail") || document.getElementById("sbMail") || {}).value,
+        pw = (document.getElementById("pfPass") || document.getElementById("sbPass") || {}).value;
     em = (em || "").trim();
     if(!sbSetup()){ syncStatus("Сначала сохрани адрес проекта и ключ."); return; }
     if(!em || !pw || pw.length < 6){ syncStatus("Нужны почта и пароль не короче 6 символов."); return; }
@@ -2658,16 +2669,16 @@ create policy "update own" on public.progress
           return;
         }
         sbSaveTok(t); sbUser();
-        var pwEl = document.getElementById("sbPass"); if(pwEl) pwEl.value = "";
+        var pwEl = document.getElementById("pfPass") || document.getElementById("sbPass"); if(pwEl) pwEl.value = "";
         return sbSync();
       })
-      .then(function(){ renderSync(); })
+      .then(function(){ render(); })
       .catch(function(e){ syncStatus("Не вышло: " + sbErr(e)); });
   }
   function sbOut(){
     sbSaveTok(null); SB.mail = null; SB.last = 0;
-    renderSync();
-    syncStatus("Вышел. Прогресс остался в этом браузере.");
+    render();
+    syncStatus("Вышел. Прогресс остался в этом браузере, а в аккаунте сохранён.");
   }
   function sbSync(silent){
     if(!sbOn() || SB.busy) return Promise.resolve();
@@ -2688,7 +2699,7 @@ create policy "update own" on public.progress
           body: JSON.stringify([{user_id: uid, data: JSON.parse(JSON.stringify(state)), updated_at: new Date().toISOString()}])
         });
       })
-      .then(function(){ SB.last = Date.now(); SB.busy = false; renderSync(); })
+      .then(function(){ SB.last = Date.now(); SB.busy = false; renderSync(); renderAcc(); renderProfile(); })
       .catch(function(e){ SB.busy = false; syncStatus("Синхронизация не прошла: " + sbErr(e)); });
   }
   function sbSchedule(){
@@ -2912,6 +2923,7 @@ create policy "update own" on public.progress
     document.getElementById("tcapLeft").textContent = "Пройдено " + done + " из " + TCOUNT;
   }
   function renderTRing(){
+    if(!loggedIn()){ document.getElementById("tring").innerHTML = lockHtml(); return; }
     var f0 = state.t.front, s0 = state.t.side, f = tMeasure("front"), s2 = tMeasure("side");
     function bar(name, from, now){
       var pct = from > 0 ? Math.max(0, Math.min(100, Math.round(100 * (from - now) / from))) : (now === 0 ? 100 : 0);
@@ -3589,6 +3601,71 @@ create policy "update own" on public.progress
       '</div></div><div class="hb-track"><i style="width:' + pct.toFixed(1) + '%"></i></div>';
   }
 
+  // ---------- профиль и вход ----------
+  var prevTab = "pull";
+  function loggedIn(){ return sbOn(); }
+  function lockHtml(){
+    return '<div class="lockbox">' +
+      '<p class="hint">Прогресс, кольца и история тестов видны после входа. Заниматься и отмечать подходы можно без аккаунта — отметки сохранятся в этом браузере и подтянутся, когда войдёшь.</p>' +
+      '<button type="button" class="primary" data-act="go-profile">Войти или создать аккаунт</button></div>';
+  }
+  function avatarLetter(){
+    if(!loggedIn()) return "";
+    sbUser();
+    var m = (SB.mail || "").trim();
+    return m ? m.charAt(0).toUpperCase() : "·";
+  }
+  function renderAcc(){
+    var b = document.getElementById("accBtn");
+    if(!b) return;
+    var on = loggedIn();
+    b.classList.toggle("on", on);
+    b.setAttribute("aria-label", on ? "Профиль: " + (SB.mail || "аккаунт") : "Войти в аккаунт");
+    b.setAttribute("aria-pressed", TAB === "profile");
+    b.innerHTML = on
+      ? '<span class="ava">' + esc(avatarLetter()) + '</span>'
+      : '<span class="ava guest" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.8 20c.9-3.6 3.8-5.6 7.2-5.6s6.3 2 7.2 5.6" stroke-linecap="round"/></svg></span>';
+  }
+  function profileStats(){
+    var rows = [
+      {v: PULL.total(), u: ["подтягивание","подтягивания","подтягиваний"], tail: ""},
+      {v: PUSH.total() + BOARD.total(), u: ["отжимание","отжимания","отжиманий"], tail: ""},
+      {v: SQUAT.total(), u: ["приседание","приседания","приседаний"], tail: ""},
+      {v: tMinutes(), u: ["минута","минуты","минут"], tail: " растяжки"}
+    ];
+    var h = '<div class="nums">';
+    rows.forEach(function(r){
+      h += '<div><strong>' + r.v + '</strong><span>' + plural(r.v, r.u) + r.tail + '</span></div>';
+    });
+    return h + '</div>';
+  }
+  function renderProfile(){
+    var box = document.getElementById("profileBox");
+    if(!box) return;
+    var h = "";
+    if(loggedIn()){
+      sbUser();
+      h += '<div class="pf-head"><span class="ava big">' + esc(avatarLetter()) + '</span><div><h2>' + esc(SB.mail || "Аккаунт") + '</h2>' +
+        '<p class="hint">' + (SB.last ? "Синхронизировано в " + new Date(SB.last).toLocaleTimeString("ru-RU", {hour: "2-digit", minute: "2-digit"}) : "Ждём первой синхронизации") + '</p></div></div>';
+      h += profileStats();
+      h += '<p class="hint">Прогресс хранится в твоём аккаунте: открой страницу на другом устройстве, войди теми же почтой и паролем, и отметки будут общими.</p>';
+      h += '<div class="test"><button type="button" class="primary" data-act="sb-sync">Синхронизировать сейчас</button>' +
+        '<button type="button" class="linkbtn" data-act="sb-out">Выйти</button></div>';
+    } else {
+      h += '<div class="pf-head"><span class="ava big guest" aria-hidden="true">?</span><div><h2>Гость</h2>' +
+        '<p class="hint">Отметки сохраняются только в этом браузере.</p></div></div>';
+      h += '<p class="hint">Заведи аккаунт, чтобы прогресс не потерялся и совпадал на телефоне и компьютере. Почта нужна только для входа, писем не будет.</p>';
+      h += '<div class="test">' +
+        '<label class="field" for="pfMail">Почта<input type="email" id="pfMail" placeholder="you@mail.com" autocomplete="username"></label>' +
+        '<label class="field" for="pfPass">Пароль<input type="password" id="pfPass" placeholder="не короче 6 символов" autocomplete="current-password"></label></div>';
+      h += '<div class="test"><button type="button" class="primary" data-act="sb-up">Создать аккаунт</button>' +
+        '<button type="button" class="linkbtn" data-act="sb-in">Войти</button></div>';
+      h += '<p class="hint" id="pfNote" aria-live="polite"></p>';
+      h += '<p class="hint">Уже отмеченные тренировки не пропадут: после входа они сложатся с тем, что лежит в аккаунте.</p>';
+    }
+    box.innerHTML = h;
+  }
+
   function renderTabs(){
     var els = document.querySelectorAll('[data-act="tab"]');
     for(var i = 0; i < els.length; i++){
@@ -3601,6 +3678,14 @@ create policy "update own" on public.progress
     document.getElementById("panel-squat").hidden = TAB !== "squat";
     document.getElementById("panel-stretch").hidden = TAB !== "stretch";
     document.getElementById("panel-custom").hidden = TAB !== "custom";
+    var pp = document.getElementById("panel-profile");
+    if(pp) pp.hidden = TAB !== "profile";
+    if(TAB === "profile"){
+      ["pull", "push", "squat", "stretch", "custom"].forEach(function(t){
+        var el2 = document.getElementById("panel-" + t);
+        if(el2) el2.hidden = true;
+      });
+    }
     var panel = document.getElementById("counterPanel"), slotEl = document.getElementById(TAB === "squat" ? "scounterSlot" : "pcounterSlot");
     if(panel && slotEl && panel.parentNode !== slotEl) slotEl.appendChild(panel);
   }
@@ -3628,7 +3713,7 @@ create policy "update own" on public.progress
     var pv = document.getElementById("pvariant");
     if(pv) pv.innerHTML = variantToggle();
     renderToday();
-    PULL.render(); pushChain().render(); SQUAT.render(); renderStretch(); renderCustom(); renderAllMounted(); renderCounter(); renderSync(); renderSound();
+    PULL.render(); pushChain().render(); SQUAT.render(); renderStretch(); renderCustom(); renderAllMounted(); renderCounter(); renderSync(); renderSound(); renderAcc(); renderProfile();
     animateFills();
     renderHold();
     renderTimer();
@@ -3695,7 +3780,7 @@ create policy "update own" on public.progress
       return;
     }
     if(act === "theme"){ theme = theme === "light" ? "dark" : theme === "dark" ? "auto" : "light"; try { localStorage.setItem(THKEY, theme); } catch(e){} applyTheme(); return; }
-    if(act === "tab"){ var tv2 = b.getAttribute("data-tab"); if(cam) camFinish(false); TAB = (tv2 === "push" || tv2 === "squat" || tv2 === "stretch" || tv2 === "custom") ? tv2 : "pull"; sel = null; cntVal = null; try { localStorage.setItem(TKEY, TAB); } catch(e){} render(); return; }
+    if(act === "tab"){ var tv2 = b.getAttribute("data-tab"); prevTab = tv2; if(cam) camFinish(false); TAB = (tv2 === "push" || tv2 === "squat" || tv2 === "stretch" || tv2 === "custom") ? tv2 : "pull"; sel = null; cntVal = null; try { localStorage.setItem(TKEY, TAB); } catch(e){} render(); return; }
     if(act === "cmax-" || act === "cmax+"){
       var cpre = b.getAttribute("data-c");
       if(cpre === "p") cpre = pushChain().cfg.pre;
@@ -3729,6 +3814,14 @@ create policy "update own" on public.progress
       return;
     }
     if(act === "hold-stop"){ holdStop(); flash("Таймер остановлен"); return; }
+    if(act === "go-profile" || act === "acc"){
+      if(TAB === "profile"){ TAB = prevTab || "pull"; }
+      else { prevTab = TAB; TAB = "profile"; }
+      try { localStorage.setItem(TKEY, TAB === "profile" ? prevTab : TAB); } catch(e){}
+      sel = null; render();
+      if(TAB === "profile") window.scrollTo({top: 0, behavior: REDUCED ? "auto" : "smooth"});
+      return;
+    }
     if(act === "today-more"){
       todayOpen = !todayOpen;
       try { localStorage.setItem(TODAY_OPEN, todayOpen ? "1" : "0"); } catch(e){}
