@@ -2756,14 +2756,39 @@ create policy "friends drop" on public.friends
   function mergeStates(a, b){
     var newer = (a.updatedAt || 0) >= (b.updatedAt || 0) ? a : b, older = newer === a ? b : a;
     var out = normalize(JSON.parse(JSON.stringify(newer)));
-    Object.keys(older.logs || {}).forEach(function(k){
-      var ol = older.logs[k];
+    var old = normalize(JSON.parse(JSON.stringify(older)));
+    // отметки: объединяем, ничего не теряем
+    Object.keys(old.logs || {}).forEach(function(k){
+      var ol = old.logs[k];
       if(!Array.isArray(ol)) return;
       var nl = out.logs[k];
       if(!Array.isArray(nl)){ out.logs[k] = ol.slice(); return; }
       for(var i = 0; i < ol.length; i++) if(nl[i] == null && ol[i] != null) nl[i] = ol[i];
     });
-    Object.keys(older.times || {}).forEach(function(k){ out.times[k] = Math.max(out.times[k] || 0, older.times[k] || 0); });
+    Object.keys(old.times || {}).forEach(function(k){ out.times[k] = Math.max(out.times[k] || 0, old.times[k] || 0); });
+    Object.keys(old.fin || {}).forEach(function(k){ if(!out.fin[k]) out.fin[k] = old.fin[k]; });
+    // профиль: пустое поле не затирает заполненное
+    out.profile = {
+      name: (out.profile && out.profile.name) || (old.profile && old.profile.name) || "",
+      photo: (out.profile && out.profile.photo) || (old.profile && old.profile.photo) || ""
+    };
+    // максимумы и тесты программ
+    ["u", "p", "s", "b", "g"].forEach(function(k){
+      if(!out[k] || !old[k]) return;
+      Object.keys(old[k].tests || {}).forEach(function(i){ if(out[k].tests[i] == null) out[k].tests[i] = old[k].tests[i]; });
+      if(out[k].max == null && old[k].max != null) out[k].max = old[k].max;
+      if(k === "u") out[k].legacy = Math.max(out[k].legacy || 0, old[k].legacy || 0);
+    });
+    Object.keys((old.t && old.t.tests) || {}).forEach(function(i){
+      if(!out.t.tests[i]) out.t.tests[i] = old.t.tests[i];
+    });
+    // свои программы: объединяем по идентификатору
+    var byId = {};
+    (out.custom.progs || []).forEach(function(p){ byId[p.id] = true; });
+    (old.custom.progs || []).forEach(function(p){ if(!byId[p.id]) out.custom.progs.push(p); });
+    Object.keys(old.custom.mount || {}).forEach(function(tb){
+      if(!out.custom.mount[tb] && old.custom.mount[tb]) out.custom.mount[tb] = old.custom.mount[tb];
+    });
     out.updatedAt = Math.max(a.updatedAt || 0, b.updatedAt || 0);
     return out;
   }
