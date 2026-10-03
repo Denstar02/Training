@@ -533,6 +533,10 @@ body.has-hold .wrap{padding-bottom:140px}
 .pf-head h2{font-size:var(--fs-lg);letter-spacing:-.01em;margin:0}
 .pf-head .hint{margin:4px 0 0}
 #panel-profile .panel{margin-top:var(--s3)}
+
+.ava.photo{background-size:cover;background-position:center}
+.pf-edit{margin:0 0 var(--s4)}
+.pf-edit .field{flex:1 1 200px}
 .lockbox{display:flex;flex-direction:column;align-items:flex-start;gap:var(--s3);padding:var(--s4);border:1px dashed var(--line-strong);border-radius:var(--r-md);background:var(--bg)}
 .lockbox .hint{margin:0}
 </style>
@@ -551,6 +555,7 @@ body.has-hold .wrap{padding-bottom:140px}
     <button type="button" role="tab" id="tab-pull" data-act="tab" data-tab="pull" aria-controls="panel-pull" aria-selected="true">Турник</button>
     <button type="button" role="tab" id="tab-push" data-act="tab" data-tab="push" aria-controls="panel-push" aria-selected="false">Отжимания</button>
     <button type="button" role="tab" id="tab-squat" data-act="tab" data-tab="squat" aria-controls="panel-squat" aria-selected="false">Приседания</button>
+    <button type="button" role="tab" id="tab-dumb" data-act="tab" data-tab="dumb" aria-controls="panel-dumb" aria-selected="false">Гантели</button>
     <button type="button" role="tab" id="tab-stretch" data-act="tab" data-tab="stretch" aria-controls="panel-stretch" aria-selected="false">Растяжка</button>
     <button type="button" role="tab" id="tab-custom" data-act="tab" data-tab="custom" aria-controls="panel-custom" aria-selected="false">Создать</button>
   </div>
@@ -560,6 +565,55 @@ body.has-hold .wrap{padding-bottom:140px}
 
   <section id="panel-profile" role="region" aria-label="Профиль" hidden>
     <section class="panel" id="profileBox"></section>
+
+    <details class="panel">
+      <summary>Настройка приложения</summary>
+      <p class="hint">Нужно только тем, кто разворачивает эту страницу у себя: здесь подключается своя база.</p>
+      <div id="syncSb">
+      <div id="sbProject" hidden>
+        <p class="hint">Подключение базы. Нужно один раз на всё приложение: дальше людям хватит почты и пароля.</p>
+        <div class="test">
+          <label class="field" for="sbUrl">Адрес проекта<input type="url" id="sbUrl" placeholder="https://xxxx.supabase.co" autocomplete="off" spellcheck="false"></label>
+          <label class="field" for="sbKey">Ключ anon или publishable<input type="text" id="sbKey" name="supabase-key" placeholder="eyJhbGciOi… или sb_publishable_…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"></label>
+          <button type="button" class="primary" data-act="sb-save">Сохранить проект</button>
+          <button type="button" class="linkbtn" data-act="sb-check">Проверить ключ</button>
+        </div>
+        <details>
+          <summary>Как завести проект за пять минут</summary>
+          <ul>
+            <li>Зайди на supabase.com, Sign up, New project. План Free, пароль базы придумай любой.</li>
+            <li>Settings → API: скопируй Project URL и ключ anon public в поля выше.</li>
+            <li>Authentication → Providers → Email: выключи Confirm email, чтобы входить сразу.</li>
+            <li>SQL Editor → New query: вставь код ниже и нажми Run.</li>
+          </ul>
+          <pre><code>create table if not exists public.progress (
+  user_id uuid primary key references auth.users on delete cascade,
+  data jsonb not null,
+  updated_at timestamptz not null default now()
+);
+alter table public.progress enable row level security;
+create policy "read own" on public.progress
+  for select using (auth.uid() = user_id);
+create policy "insert own" on public.progress
+  for insert with check (auth.uid() = user_id);
+create policy "update own" on public.progress
+  for update using (auth.uid() = user_id) with check (auth.uid() = user_id);</code></pre>
+          <p class="hint">Ключ anon публичный по задумке: сами данные закрыты правилами выше, их видит только владелец строки.</p>
+        </details>
+      </div>
+      <details id="sbAdvanced" hidden>
+        <summary>Своя база и настройка приложения</summary>
+        <p class="hint">Сейчас страница подключена к базе, прошитой в файле. Чтобы вшить свой проект, впиши эту строку в начало скрипта в index.html — после этого всем пользователям хватит почты и пароля:</p>
+        <pre><code id="sbSnippet"></code></pre>
+        <div class="test">
+          <button type="button" class="linkbtn" data-act="sb-copy">Скопировать строку</button>
+          <button type="button" class="linkbtn alt" data-act="sb-edit">Подключить другой проект</button>
+          <button type="button" class="linkbtn alt" data-act="sb-forget">Вернуть базу по умолчанию</button>
+        </div>
+      </details>
+      </div>
+      <p class="hint" id="syncStatus" aria-live="polite"></p>
+    </details>
     <p class="hint" style="margin-top:12px">Заниматься можно и без аккаунта: программы, таймеры и счётчик по камере работают всегда. Вход нужен, чтобы видеть общий прогресс и держать его одинаковым на всех устройствах.</p>
   </section>
 
@@ -792,6 +846,59 @@ body.has-hold .wrap{padding-bottom:140px}
     </details>
   </section>
 
+  <section id="panel-dumb" role="tabpanel" aria-labelledby="tab-dumb" hidden>
+    <nav class="rig pushrig" aria-label="Тренировки программы">
+      <div class="bar" aria-hidden="true"></div>
+      <div class="weeks" id="gweeks"></div>
+      <div class="rig-cap"><span id="gcapRange"></span><span id="gcapLeft"></span></div>
+    </nav>
+
+    <div class="maxrow">
+      <p id="gmaxText"></p>
+      <div class="stepper" role="group" aria-label="Рабочий максимум повторений с гантелями">
+        <button type="button" data-act="cmax-" data-c="g" aria-label="Уменьшить">−</button>
+        <output id="gmaxOut">12</output>
+        <button type="button" data-act="cmax+" data-c="g" aria-label="Увеличить">+</button>
+      </div>
+      <div class="modebox" id="gmode"></div>
+    </div>
+
+    <p class="pstatus" id="gstatus"></p>
+
+    <div class="pnav">
+      <button type="button" id="gprev" data-act="cprev" data-c="g" aria-label="Предыдущая тренировка">‹</button>
+      <p id="gnavLabel"></p>
+      <button type="button" id="gnext" data-act="cnext" data-c="g" aria-label="Следующая тренировка">›</button>
+    </div>
+
+    <main><div id="gwork"></div></main>
+
+    <div class="legend" aria-hidden="true">
+      <span><i></i>Запланировано, нажми после подхода</span>
+      <span><i class="d"></i>Выполнено</span>
+      <span><i class="p"></i>Меньше плана</span>
+      <span><i class="h"></i>Секунды: планка</span>
+    </div>
+
+    <section class="panel">
+      <h2>Прогресс</h2>
+      <p class="hint">Тридцать тренировок подряд: верх тела, ноги, круг, лёгкая, и так по кругу. Каждая двенадцатая — тест максимума. Переключаться между тренировками можно по шкале наверху.</p>
+      <div id="gring"></div>
+    </section>
+
+    <details>
+      <summary>Правила для гантелей</summary>
+      <ul>
+        <li>Максимум считается в жиме гантелей лёжа: сколько чистых повторений выходит с твоим весом. От него строятся все подходы.</li>
+        <li>Не доходи до отказа: заканчивай подход, когда в запасе ещё 2–3 повторения.</li>
+        <li>Спина всегда прямая, движение без рывков, опускание медленнее подъёма.</li>
+        <li>Когда план начнёт даваться легко, бери гантели потяжелее и заново измерь максимум в день теста.</li>
+        <li>В выпадах и тягах считается подход на каждую сторону, чередуй ноги и руки.</li>
+        <li>Если гантель одна, делай подходы поочерёдно на каждую руку с тем же числом повторений.</li>
+      </ul>
+    </details>
+  </section>
+
   <section id="panel-stretch" role="tabpanel" aria-labelledby="tab-stretch" hidden>
     <nav class="rig pushrig" aria-label="Занятия программы">
       <div class="bar" aria-hidden="true"></div>
@@ -898,87 +1005,13 @@ body.has-hold .wrap{padding-bottom:140px}
   </section>
 
 
-  <section class="panel install">
-    <h2>Установка на телефон</h2>
-    <p class="hint" id="installText" aria-live="polite"></p>
-    <div class="test"><button type="button" class="primary" id="installBtn" hidden>Установить приложение</button></div>
-    <p class="hint">После установки страница открывается с иконки на весь экран и работает без интернета: программы, счётчик по камере и таймер остаются на месте. Прогресс хранится в телефоне, а если включить синхронизацию ниже, совпадает с компьютером.</p>
-  </section>
-
-  <details class="panel sync" id="syncBox">
-    <summary>Синхронизация между устройствами</summary>
-    <p class="hint" id="syncStatus" aria-live="polite"></p>
-    <div class="modebox" id="syncMode"></div>
-
-    <div id="syncSb" hidden>
-      <div id="sbProject" hidden>
-        <p class="hint">Подключение базы. Нужно один раз на всё приложение: дальше людям хватит почты и пароля.</p>
-        <div class="test">
-          <label class="field" for="sbUrl">Адрес проекта<input type="url" id="sbUrl" placeholder="https://xxxx.supabase.co" autocomplete="off" spellcheck="false"></label>
-          <label class="field" for="sbKey">Ключ anon или publishable<input type="text" id="sbKey" name="supabase-key" placeholder="eyJhbGciOi… или sb_publishable_…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"></label>
-          <button type="button" class="primary" data-act="sb-save">Сохранить проект</button>
-          <button type="button" class="linkbtn" data-act="sb-check">Проверить ключ</button>
-        </div>
-        <details>
-          <summary>Как завести проект за пять минут</summary>
-          <ul>
-            <li>Зайди на supabase.com, Sign up, New project. План Free, пароль базы придумай любой.</li>
-            <li>Settings → API: скопируй Project URL и ключ anon public в поля выше.</li>
-            <li>Authentication → Providers → Email: выключи Confirm email, чтобы входить сразу.</li>
-            <li>SQL Editor → New query: вставь код ниже и нажми Run.</li>
-          </ul>
-          <pre><code>create table if not exists public.progress (
-  user_id uuid primary key references auth.users on delete cascade,
-  data jsonb not null,
-  updated_at timestamptz not null default now()
-);
-alter table public.progress enable row level security;
-create policy "read own" on public.progress
-  for select using (auth.uid() = user_id);
-create policy "insert own" on public.progress
-  for insert with check (auth.uid() = user_id);
-create policy "update own" on public.progress
-  for update using (auth.uid() = user_id) with check (auth.uid() = user_id);</code></pre>
-          <p class="hint">Ключ anon публичный по задумке: сами данные закрыты правилами выше, их видит только владелец строки.</p>
-        </details>
-      </div>
-
-      <details id="sbAdvanced" hidden>
-        <summary>Своя база и настройка приложения</summary>
-        <p class="hint">Сейчас страница подключена к базе, прошитой в файле. Чтобы вшить свой проект, впиши эту строку в начало скрипта в index.html — после этого всем пользователям хватит почты и пароля:</p>
-        <pre><code id="sbSnippet"></code></pre>
-        <div class="test">
-          <button type="button" class="linkbtn" data-act="sb-copy">Скопировать строку</button>
-          <button type="button" class="linkbtn alt" data-act="sb-edit">Подключить другой проект</button>
-          <button type="button" class="linkbtn alt" data-act="sb-forget">Вернуть базу по умолчанию</button>
-        </div>
-      </details>
-
-    </div>
-
-    <div id="syncGit" hidden>
-    <div id="syncSetup">
-      <p class="hint">Чтобы телефон и компьютер видели один и тот же прогресс, страница может хранить его в приватном gist на твоём GitHub. Нужен токен с единственным правом на Gists.</p>
-      <div class="test">
-        <label class="field" for="ghToken">Токен GitHub<input type="password" id="ghToken" class="tokenfield" placeholder="github_pat_… или ghp_…" autocomplete="off" spellcheck="false"></label>
-        <button type="button" class="primary" data-act="gh-connect">Подключить</button>
-      </div>
-      <p class="hint">Где взять: GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token. В разделе Account permissions включи Gists: Read and write, остальное не нужно. Токен хранится только в этом браузере и уходит только на api.github.com.</p>
-      <p class="hint">На втором устройстве открой эту же страницу и вставь тот же токен — она сама найдёт нужный gist.</p>
-    </div>
-    <div id="syncOn" hidden>
-      <div class="test">
-        <button type="button" class="primary" data-act="gh-sync">Синхронизировать сейчас</button>
-        <button type="button" class="linkbtn alt" style="margin-top:0" data-act="gh-off">Отключить на этом устройстве</button>
-      </div>
-      <p class="hint" id="syncWhere"></p>
-      <p class="hint">Страница синхронизируется сама: через несколько секунд после отметки и каждый раз, когда ты возвращаешься на вкладку. Отметки с разных устройств складываются, ничего не теряется.</p>
-    </div>
-    </div>
-  </details>
 
   <details class="panel settings">
     <summary>Настройки и данные</summary>
+    <h3 class="camset-label" style="margin-top:4px">Установка на телефон</h3>
+    <p class="hint" id="installText" aria-live="polite"></p>
+    <div class="test"><button type="button" class="primary" id="installBtn" hidden>Установить на Android</button></div>
+    <p class="hint">После установки страница открывается с иконки на весь экран и работает без интернета: программы, счётчик по камере и таймер остаются на месте. Прогресс хранится в телефоне, а если включить синхронизацию ниже, совпадает с компьютером.</p>
       <p class="hint">Каждая программа подаёт свой сигнал, чтобы на слух было понятно, какой таймер сработал. Нажми, чтобы послушать:</p>
       <div class="picker" id="soundTest"></div>
 
@@ -1259,10 +1292,10 @@ create policy "update own" on public.progress
   }
   applyTheme();
   var TAB = "pull";
-  try { var tb = localStorage.getItem(TKEY); if(tb === "push" || tb === "squat" || tb === "stretch" || tb === "custom") TAB = tb; } catch(e){}
+  try { var tb = localStorage.getItem(TKEY); if(tb === "push" || tb === "squat" || tb === "dumb" || tb === "stretch" || tb === "custom") TAB = tb; } catch(e){}
   var SETS = ["подход","подхода","подходов"];
   // тип дня: 0 — смазка канавки, 1 — удержания и подходы, 2 — лесенки/тест
-  function fresh(){ return {v:3, updatedAt:0, mode:{pull:"short", push:"short", squat:"short", stretch:"short"}, variant:{push:"classic"}, start:null, timer:null, p:{startMax:15, max:null, tests:{}}, s:{startMax:25, max:null, tests:{}}, b:{startMax:12, max:null, tests:{}}, t:{front:40, side:45, tests:{}}, u:{startMax:4, max:null, tests:{}}, custom:{progs:[], cur:null, mount:{pull:null, push:null, squat:null, stretch:null}}, startMax:4, test4:null, test8:null, logs:{}, times:{}, cycles:[]}; }
+  function fresh(){ return {v:4, profile:{name:"", photo:""}, updatedAt:0, mode:{pull:"short", push:"short", squat:"short", stretch:"short"}, variant:{push:"classic"}, start:null, timer:null, p:{startMax:15, max:null, tests:{}}, s:{startMax:25, max:null, tests:{}}, b:{startMax:12, max:null, tests:{}}, g:{startMax:12, max:null, tests:{}}, t:{front:40, side:45, tests:{}}, u:{startMax:4, max:null, tests:{}, legacy:0}, custom:{progs:[], cur:null, mount:{pull:null, push:null, squat:null, stretch:null}}, startMax:4, test4:null, test8:null, logs:{}, times:{}, cycles:[]}; }
   function normalize(s){
     var f = fresh();
     if(!s || typeof s !== "object") return f;
@@ -1297,25 +1330,53 @@ create policy "update own" on public.progress
         else if(tk) f.timer.key = "tq" + tk[1];
       }
     })();
-    f.v = 3;
+    f.v = 4;
     f.updatedAt = typeof s.updatedAt === "number" ? s.updatedAt : 0;
     f.start = (typeof s.start === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s.start)) ? s.start : null;
+    var PR = s.profile && typeof s.profile === "object" ? s.profile : {};
+    f.profile = {
+      name: String(PR.name || "").slice(0, 40),
+      photo: (typeof PR.photo === "string" && /^data:image\/(png|jpeg|webp);base64,/.test(PR.photo) && PR.photo.length < 400000) ? PR.photo : ""
+    };
     var MD = s.mode && typeof s.mode === "object" ? s.mode : MD0;
     f.mode = {};
-    ["pull","push","squat","stretch"].forEach(function(tb){
+    ["pull","push","squat","dumb","stretch"].forEach(function(tb){
       f.mode[tb] = (MD[tb] === "short" || MD[tb] === "day") ? MD[tb] : "short";
     });
     f.variant = {push: (s.variant && s.variant.push === "board") ? "board" : "classic"};
     var U0 = s.u && typeof s.u === "object" ? s.u : {};
     f.u = {
+      legacy: U0.legacy == null ? null : clampInt(U0.legacy, 0, 100000, 0),
       startMax: clampInt(U0.startMax, 1, 100, clampInt(s.startMax, 1, 100, 4)),
       max: U0.max != null ? clampInt(U0.max, 1, 100, null) : (s.test8 != null ? clampInt(s.test8, 1, 100, null) : (s.test4 != null ? clampInt(s.test4, 1, 100, null) : null)),
-      tests: (U0.tests && typeof U0.tests === "object" && !Array.isArray(U0.tests)) ? U0.tests : {}
+      tests: (U0.tests && typeof U0.tests === "object" && !Array.isArray(U0.tests)) ? U0.tests : {},
+      legacy: clampInt(U0.legacy, 0, 100000, 0)
     };
+    if(!(s.v >= 4)){
+      var legacySum = 0;
+      Object.keys(f.logs).forEach(function(k){
+        if(!/^\d+-(0|1|2|x)$/.test(k)) return;
+        (f.logs[k] || []).forEach(function(v){ if(typeof v === "number" && v > 0 && v <= 20) legacySum += v; });
+        delete f.logs[k];
+        delete f.times[k];
+      });
+      if(legacySum) f.u.legacy += legacySum;
+    }
+    // старые отметки турника по расписанию: сохраняем их объём, чтобы прогресс не обнулился
+    if(f.u && f.u.legacy == null){
+      var old = 0;
+      Object.keys(f.logs || {}).forEach(function(k3){
+        if(!/^\d+-(\d|x)$/.test(k3)) return;
+        (f.logs[k3] || []).forEach(function(v3){
+          if(typeof v3 === "number" && v3 > 0 && v3 <= 15) old += v3;
+        });
+      });
+      f.u.legacy = old;
+    }
     var C0 = s.custom && typeof s.custom === "object" ? s.custom : {};
     f.custom = {progs: [], cur: typeof C0.cur === "string" ? C0.cur : null, mount: {}};
     var M0 = C0.mount && typeof C0.mount === "object" ? C0.mount : {};
-    ["pull", "push", "squat", "stretch"].forEach(function(tb2){ f.custom.mount[tb2] = typeof M0[tb2] === "string" ? M0[tb2] : null; });
+    ["pull", "push", "squat", "dumb", "stretch"].forEach(function(tb2){ f.custom.mount[tb2] = typeof M0[tb2] === "string" ? M0[tb2] : null; });
     (Array.isArray(C0.progs) ? C0.progs : []).forEach(function(p){
       if(!p || typeof p !== "object" || typeof p.id !== "string") return;
       var days = (Array.isArray(p.days) ? p.days : []).map(function(d){
@@ -1328,7 +1389,7 @@ create policy "update own" on public.progress
               kind: (e && e.kind) === "sec" ? "sec" : "rep",
               val: clampInt(e && e.val, 0, 600, 0),
               rest: clampInt(e && e.rest, 0, 10800, 0),
-              cat: ["pull","push","squat","stretch"].indexOf(e && e.cat) >= 0 ? e.cat : "",
+              cat: ["pull","push","squat","dumb","stretch"].indexOf(e && e.cat) >= 0 ? e.cat : "",
               hint: String((e && e.hint) || "").slice(0, 200)
             };
           })
@@ -1342,7 +1403,7 @@ create policy "update own" on public.progress
       side: clampInt(T.side, 0, 120, 45),
       tests: (T.tests && typeof T.tests === "object" && !Array.isArray(T.tests)) ? T.tests : {}
     };
-    [["p", 15], ["s", 25], ["b", 12]].forEach(function(pair){
+    [["p", 15], ["s", 25], ["b", 12], ["g", 12]].forEach(function(pair){
       var src = s[pair[0]] && typeof s[pair[0]] === "object" ? s[pair[0]] : {};
       f[pair[0]] = {
         startMax: clampInt(src.startMax, 1, 500, pair[1]),
@@ -1356,7 +1417,7 @@ create policy "update own" on public.progress
   function clampInt(v, lo, hi, dflt){ v = parseInt(v, 10); if(isNaN(v)) return dflt; return Math.min(hi, Math.max(lo, v)); }
 
   var state = fresh();
-  try { var raw = localStorage.getItem(KEY); if(raw) state = normalize(JSON.parse(raw)); } catch(e){}
+  try { var raw = localStorage.getItem(KEY); if(raw){ state = normalize(JSON.parse(raw)); persistLocal(); } } catch(e){}
   var sel = null;
   var db = null, writing = false, dirty = false, timer = null;
 
@@ -1496,6 +1557,7 @@ create policy "update own" on public.progress
     return '<div class="fig">' + s + '</div>';
   }
   function figure(kind){
+    if(typeof DFIG !== "undefined" && DFIG[kind]) return dumbFigure(kind);
     if(SFIG[kind]) return stretchFigure(kind);
     if(PANIMS[kind]) return pushFigure(kind);
     if(SANIMS[kind]) return squatFigure(kind);
@@ -1605,7 +1667,7 @@ create policy "update own" on public.progress
   function pad(n){ return (n < 10 ? "0" : "") + n; }
   function scrollTo(el){ if(el && el.scrollIntoView) try { el.scrollIntoView({behavior: REDUCED ? "auto" : "smooth", block: "start"}); } catch(e){} }
   function goToCard(key){
-    var cg0 = /^([psub])[dq](\d+)$/.exec(key);
+    var cg0 = /^([psubg])[dq](\d+)$/.exec(key);
     if(cg0){
       var ch0 = CHAINS[cg0[1]];
       if(TAB !== ch0.cfg.tab){ TAB = ch0.cfg.tab; try { localStorage.setItem(TKEY, TAB); } catch(e){} }
@@ -1633,7 +1695,7 @@ create policy "update own" on public.progress
   var SKEY = "pullups-sound", soundOn = true, audio = null, alerted = null, baseTitle = document.title;
   try { soundOn = localStorage.getItem(SKEY) !== "0"; } catch(e){}
   function dayOfKey(key){
-    var cm0 = /^([psub])([dq])(\d+)$/.exec(key);
+    var cm0 = /^([psubg])([dq])(\d+)$/.exec(key);
     if(cm0) return CHAINS[cm0[1]].build(+cm0[3] - 1, cm0[2] === "q" ? "short" : "day");
     var tm0 = /^t([dq])(\d+)$/.exec(key);
     if(tm0) return buildTDay(+tm0[2] - 1, tm0[1] === "q" ? "short" : "day");
@@ -1664,11 +1726,11 @@ create policy "update own" on public.progress
     var it = itemOf(t.key, t.next); if(!it) return "";
     var mk2 = /^m([a-z]+)_[a-z0-9]+-(\d+)$/.exec(t.key);
     var xk = /^x([a-z0-9]+)-(\d+)$/.exec(t.key);
-    var cm2 = /^([psub])[dq](\d+)$/.exec(t.key);
+    var cm2 = /^([psubg])[dq](\d+)$/.exec(t.key);
     var tm2 = /^t[dq](\d+)$/.exec(t.key);
     var dname = mk2 ? (MTABS[mk2[1]] || "Своя программа") + ", занятие " + mk2[2]
       : xk ? "Своя программа, занятие " + xk[2]
-      : cm2 ? ({p: "Отжимания", s: "Приседания", u: "Турник", b: "Доска"})[cm2[1]] + ", тренировка " + cm2[2]
+      : cm2 ? ({p: "Отжимания", s: "Приседания", u: "Турник", b: "Доска", g: "Гантели"})[cm2[1]] + ", тренировка " + cm2[2]
       : tm2 ? "Растяжка, занятие " + tm2[1]
       : "Тренировка";
     var all = items(dayOfKey(t.key)), n = 0;
@@ -1892,7 +1954,7 @@ create policy "update own" on public.progress
       return statsOf(w, C.key(i)).reps;
     };
     C.current = function(){ for(var i = 0; i < CCOUNT; i++) if(!C.done(i)) return i; return CCOUNT - 1; };
-    C.total = function(){ var t = 0; for(var i = 0; i < CCOUNT; i++) t += C.reps(i); return t; };
+    C.total = function(){ var t = +(st().legacy || 0); for(var i = 0; i < CCOUNT; i++) t += C.reps(i); return t; };
     C.lastTime = function(){ var t = 0; for(var i = 0; i < CCOUNT; i++){ var v = state.times[C.key(i)]; if(v > t) t = v; } return t; };
     C.v = function(){ if(C.view == null) C.view = C.current(); return Math.max(0, Math.min(CCOUNT - 1, C.view)); };
     C.fill = function(i){
@@ -1964,6 +2026,7 @@ create policy "update own" on public.progress
         '<text x="65" y="62" text-anchor="middle" class="big">' + total + '</text>' +
         '<text x="65" y="82" text-anchor="middle">из ' + goal + '</text></svg>' +
         '<p class="hint">Всего ' + cfg.unit[2] + ' за программу. До отметки ' + goal + ' осталось ' + Math.max(0, goal - total) + '.</p></div>';
+      if(st().legacy) h += '<p class="hint">Включая ' + st().legacy + " " + plural(st().legacy, cfg.unit) + ' из прежней программы по расписанию.</p>';
       var tests = Object.keys(st().tests).sort(function(a, b){ return a - b; });
       if(tests.length) h += '<p class="hint">Тесты: ' + tests.map(function(k){ return "тренировка " + (+k + 1) + " — " + st().tests[k]; }).join(", ") + '. Стартовый максимум был ' + st().startMax + '.</p>';
       el("ring").innerHTML = h;
@@ -2102,8 +2165,114 @@ create policy "update own" on public.progress
     });
     return h + '</div>';
   }
-  var CHAINS = {p: PUSH, s: SQUAT, u: PULL, b: BOARD};
-  function chainOfTab(){ return TAB === "squat" ? SQUAT : PUSH; }
+  // ---------- фигурки с гантелями ----------
+  var DFIG = {
+    dbpress: {label: "Жим гантелей лёжа", head: [34, 92], head2: [34, 92],
+      seg: [[[44, 98], [112, 100]], [[112, 100], [128, 86], [140, 104]], [[52, 96], [58, 76], [54, 58]]],
+      seg2: [[[44, 98], [112, 100]], [[112, 100], [128, 86], [140, 104]], [[52, 96], [68, 82], [54, 76]]],
+      db: [[54, 58]], db2: [[54, 76]], dur: 3.2},
+    dbrow: {label: "Тяга гантелей в наклоне", head: [118, 60], head2: [116, 62],
+      seg: [[[70, 108], [70, 84]], [[70, 84], [108, 66]], [[108, 66], [104, 96]]],
+      seg2: [[[70, 108], [70, 84]], [[70, 84], [106, 68]], [[106, 68], [90, 80]]],
+      db: [[104, 96]], db2: [[90, 80]], dur: 3},
+    dblunge: {label: "Выпады с гантелями", head: [78, 38], head2: [78, 48],
+      seg: [[[78, 78], [104, 84], [104, 108]], [[78, 78], [52, 98], [38, 106]], [[78, 78], [78, 48]]],
+      seg2: [[[78, 88], [104, 90], [104, 108]], [[78, 88], [48, 104], [34, 108]], [[78, 88], [78, 58]]],
+      db: [[50, 72], [106, 72]], db2: [[50, 82], [106, 82]], dur: 3.4},
+    dbpressup: {label: "Жим гантелей над головой", head: [76, 36], head2: [76, 36],
+      seg: [[[76, 108], [76, 46]], [[76, 54], [56, 44], [56, 26]], [[76, 54], [96, 44], [96, 26]]],
+      seg2: [[[76, 108], [76, 46]], [[76, 54], [52, 58], [58, 46]], [[76, 54], [100, 58], [94, 46]]],
+      db: [[56, 26], [96, 26]], db2: [[58, 46], [94, 46]], dur: 3.2}
+  };
+  function dumbFigure(name){
+    var f = DFIG[name], two = !!f.seg2, dur = f.dur || 3.2, kt = "0;0.5;1";
+    var s2 = '<svg viewBox="0 0 160 120" role="img" aria-label="' + f.label + '">';
+    s2 += '<line x1="6" y1="108" x2="154" y2="108" stroke="var(--steel)" stroke-width="5" stroke-linecap="round"/>';
+    s2 += '<g fill="none" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">';
+    f.seg.forEach(function(seg, i){
+      var d = sfPath(seg);
+      s2 += '<path d="' + d + '">' + (two && !REDUCED ? '<animate attributeName="d" values="' + d + ";" + sfPath(f.seg2[i]) + ";" + d + '" keyTimes="' + kt + '" dur="' + dur + 's" repeatCount="indefinite"/>' : '') + '</path>';
+    });
+    s2 += '<circle cx="' + f.head[0] + '" cy="' + f.head[1] + '" r="8">';
+    if(two && !REDUCED){
+      s2 += '<animate attributeName="cx" values="' + f.head[0] + ";" + f.head2[0] + ";" + f.head[0] + '" keyTimes="' + kt + '" dur="' + dur + 's" repeatCount="indefinite"/>';
+      s2 += '<animate attributeName="cy" values="' + f.head[1] + ";" + f.head2[1] + ";" + f.head[1] + '" keyTimes="' + kt + '" dur="' + dur + 's" repeatCount="indefinite"/>';
+    }
+    s2 += '</circle></g>';
+    (f.db || []).forEach(function(p, i){
+      var q = (f.db2 || [])[i] || p;
+      s2 += '<rect x="' + (p[0] - 10) + '" y="' + (p[1] - 4) + '" width="20" height="8" rx="3" fill="var(--accent)">';
+      if(two && !REDUCED){
+        s2 += '<animate attributeName="x" values="' + (p[0] - 10) + ";" + (q[0] - 10) + ";" + (p[0] - 10) + '" keyTimes="' + kt + '" dur="' + dur + 's" repeatCount="indefinite"/>';
+        s2 += '<animate attributeName="y" values="' + (p[1] - 4) + ";" + (q[1] - 4) + ";" + (p[1] - 4) + '" keyTimes="' + kt + '" dur="' + dur + 's" repeatCount="indefinite"/>';
+      }
+      s2 += '</rect>';
+    });
+    return '<div class="fig">' + s2 + '</svg></div>';
+  }
+
+  // ---------- программа с гантелями ----------
+  var DUMB_EX = {
+    press: {n: "Жим гантелей лёжа", h: "Лёжа на полу или на скамье: гантели от груди вверх, локти под 45 градусов, поясница прижата.", a: "dbpress"},
+    row: {n: "Тяга гантелей в наклоне", h: "Наклон корпуса вперёд, спина прямая, тянешь гантели к поясу и сводишь лопатки.", a: "dbrow"},
+    squat: {n: "Приседания с гантелями", h: "Гантели у плеч или вдоль корпуса, пятки на полу, колени идут по носкам.", a: "squat"},
+    dead: {n: "Румынская тяга", h: "Ноги чуть согнуты, таз уходит назад, гантели скользят вдоль бёдер, спина прямая.", a: "squatslow"},
+    lunge: {n: "Выпады с гантелями", h: "Шаг вперёд, заднее колено почти до пола, корпус вертикальный. Считается шаг каждой ногой.", a: "dblunge"},
+    curl: {n: "Подъёмы на бицепс", h: "Локти прижаты к корпусу, подъём без рывка, опускание медленное.", a: "dbpressup"},
+    shoulder: {n: "Жим гантелей над головой", h: "Стоя, живот подтянут, гантели от плеч вверх, поясница не прогибается.", a: "dbpressup"},
+    plank: {n: "Планка с протяжкой гантели", h: "Упор лёжа, поочерёдно подтягиваешь гантель к поясу, таз не разворачивается.", a: "plank"}
+  };
+  function dumbDay(ctx){
+    var t = ctx.type, MP = ctx.MP, list = ctx.list, re = ctx.re, b = ctx.block, base = ctx.base, groups = [], next = "";
+    function g(ex, sets, reps, rest, slow){
+      var e = DUMB_EX[ex];
+      groups.push({title: e.n + ": " + sets + " " + plural(sets, SETS) + " по " + reps,
+        hint: e.h + (slow ? " Опускай 3 секунды, поднимай за 1." : "") + " " + MP.setHint,
+        rows: [list(sets, reps, slow ? "slow" : "rep", rest)], anim: e.a});
+    }
+    if(t === "vol"){
+      g("press", MP.volSets(b), re(base), MP.restSet);
+      g("row", Math.max(2, MP.volSets(b) - 1), re(base), MP.restSet);
+      next = "Следующую тренировку делай завтра или через день.";
+    } else if(t === "slow"){
+      g("squat", MP.slowSets(b), re(base), MP.restSet, true);
+      g("dead", Math.max(2, MP.slowSets(b) - 1), re(base - 0.05), MP.restSet, true);
+      next = "После медленных ноги могут побаливать: следующую тренировку лучше через день.";
+    } else if(t === "lad"){
+      var rounds = MP.ladRounds(b), r = re(base - 0.15), order = ["press", "row", "lunge", "curl"], rows = [];
+      for(var q = 0; q < rounds; q++) rows.push(order.map(function(ex, j){
+        var last = j === order.length - 1, lastRound = q === rounds - 1;
+        return list(1, r, "rep", null, last ? (lastRound ? null : MP.ladOut) : MP.ladIn)[0];
+      }));
+      groups.push({title: rounds + " " + plural(rounds, ["круг","круга","кругов"]) + " по " + r + " " + plural(r, ["повторению","повторения","повторений"]),
+        hint: "Круг — четыре упражнения подряд: жим, тяга, выпады, бицепс. Между ними отдых 45–60 секунд. " + MP.ladHint,
+        rows: rows, ladder: true, anim: "dbpress"});
+      next = "Следующую тренировку делай завтра или через день.";
+    } else {
+      var sec = Math.min(45, 25 + 5 * b), rl = Math.max(1, Math.floor(0.3 * ctx.max)), ls = MP.lightSets;
+      groups.push({title: DUMB_EX.plank.n + ": 3 " + plural(3, SETS) + " по " + sec + " " + plural(sec, ["секунде","секунды","секунд"]),
+        hint: DUMB_EX.plank.h + " " + MP.holdHint,
+        rows: [list(3, sec, "plank", MP.holdRest, MP.holdOut)], anim: "plank"});
+      g("shoulder", ls, rl, MP.lightRest);
+      next = "Лёгкая тренировка восстанавливает: следующую можно уже завтра.";
+    }
+    return {no: ctx.i + 1, title: ctx.name(t), groups: groups, next: next};
+  }
+  var DUMB = makeChain({
+    pre: "g", dom: "g", tab: "dumb",
+    unit: ["повторение","повторения","повторений"],
+    maxLabel: "Рабочий максимум повторений с гантелями",
+    pace: "Заниматься можно каждый день или через день, как удобно.",
+    didToday: "занимался",
+    names: {vol: "Верх тела", slow: "Ноги", lad: "Круг", easy: "Лёгкая"},
+    form: "", slowHint: "",
+    hold: {title: "Планка", hint: "", kind: "plank"},
+    anim: {rep: "dbpress", slow: "squatslow", hold: "plank"},
+    buildDay: dumbDay,
+    testHint: "Разомнись двумя лёгкими подходами. Через 5 минут — один подход жима гантелей лёжа до момента, когда техника начнёт ломаться. Это и есть рабочий максимум."
+  });
+  var CHAINS = {p: PUSH, s: SQUAT, u: PULL, b: BOARD, g: DUMB};
+  function chainOfTab(){ return TAB === "squat" ? SQUAT : TAB === "dumb" ? DUMB : TAB === "pull" ? PULL : pushChain(); }
 
   // ---------- свои программы ----------
   var custView = {};
@@ -2190,7 +2359,7 @@ create policy "update own" on public.progress
     h += '<article class="day head-card" id="card-' + key + '"><div class="day-head"><div><p class="when">Занятие ' + (i + 1) +
       (i === cur ? ' <span class="badge">текущее</span>' : custDone(prog, i) ? ' <span class="badge ok">готово</span>' : "") + '</p><h2>' + esc(w.title) + '</h2></div>' +
       '<div class="tally"><strong>' + st2.done + '</strong> из ' + st2.plan + " " + plural(st2.plan, SETS) + '</div></div></article>';
-    w.groups.forEach(function(g){ h += '<article class="day">' + groupsHtml({groups: [g]}, key, gi) + '</article>'; });
+    w.groups.forEach(function(g, gi){ h += '<article class="day">' + groupsHtml({groups: [g]}, key, gi) + '</article>'; });
     if(custDone(prog, i) && i < total - 1) h += '<div class="test"><button type="button" class="primary" data-act="cust-go" data-i="' + (i + 1) + '">Дальше: занятие ' + (i + 2) + '</button></div>';
     work.innerHTML = h;
   }
@@ -2242,7 +2411,7 @@ create policy "update own" on public.progress
       var d2 = prog.days[+el.getAttribute("data-di")]; if(!d2) return;
       var ex = d2.ex[+el.getAttribute("data-xi")]; if(!ex) return;
       if(k === "n") ex.n = v.slice(0, 60);
-      else if(k === "cat") ex.cat = ["pull","push","squat","stretch"].indexOf(v) >= 0 ? v : "";
+      else if(k === "cat") ex.cat = ["pull","push","squat","dumb","stretch"].indexOf(v) >= 0 ? v : "";
       else if(k === "hint") ex.hint = v.slice(0, 200);
       else if(k === "kind") ex.kind = v === "sec" ? "sec" : "rep";
       else if(k === "sets") ex.sets = Math.max(1, Math.min(30, parseInt(v, 10) || 1));
@@ -2252,7 +2421,7 @@ create policy "update own" on public.progress
   }
 
   // ---------- своя программа, разложенная по разделам ----------
-  var MTABS = {pull: "Турник", push: "Отжимания", squat: "Приседания", stretch: "Растяжка"};
+  var MTABS = {pull: "Турник", push: "Отжимания", squat: "Приседания", dumb: "Гантели", stretch: "Растяжка"};
   var mountView = {};
   function mountedProg(tab){ var id = state.custom.mount ? state.custom.mount[tab] : null; return id ? custProgById(id) : null; }
   function mountedDays(prog, tab){
@@ -2379,7 +2548,7 @@ create policy "update own" on public.progress
       rows.push({tab: tab, title: title, line: (unitWord || "Тренировка") + " " + (i + 1) + " из " + total + ", " + (w.title || "").toLowerCase(),
         done: st.done, plan: st.plan, key: key, today: dayStamp(state.times[key]) === today});
     }
-    [["pull", PULL], ["push", pushChain()], ["squat", SQUAT]].forEach(function(pair){
+    [["pull", PULL], ["push", pushChain()], ["squat", SQUAT], ["dumb", DUMB]].forEach(function(pair){
       var tab = pair[0], C = pair[1], mp = mountedProg(tab);
       if(mp){
         var mi = mountedCurrent(tab, mp);
@@ -2464,15 +2633,15 @@ create policy "update own" on public.progress
   }
   function renderSync(){
     var modeBox = document.getElementById("syncMode");
-    if(!modeBox) return;
     var m = syncMode();
-    var names = {off: "Выключена", sb: "Аккаунт", gist: "GitHub gist"};
-    var h = '<span class="seg-label">Где хранить прогресс</span><div class="seg" role="radiogroup" aria-label="Способ синхронизации">';
-    ["off", "sb", "gist"].forEach(function(k){
-      h += '<button type="button" role="radio" data-act="sync-mode" data-m="' + k + '" aria-checked="' + (m === k) + '">' + names[k] + '</button>';
-    });
-    modeBox.innerHTML = h + '</div>';
-
+    if(modeBox){
+      var names = {off: "Выключена", sb: "Аккаунт", gist: "GitHub gist"};
+      var h = '<span class="seg-label">Где хранить прогресс</span><div class="seg" role="radiogroup" aria-label="Способ синхронизации">';
+      ["off", "sb", "gist"].forEach(function(k){
+        h += '<button type="button" role="radio" data-act="sync-mode" data-m="' + k + '" aria-checked="' + (m === k) + '">' + names[k] + '</button>';
+      });
+      modeBox.innerHTML = h + '</div>';
+    }
     var git = document.getElementById("syncGit"), sb = document.getElementById("syncSb");
     if(git) git.hidden = m !== "gist";
     if(sb) sb.hidden = m !== "sb";
@@ -2756,10 +2925,10 @@ create policy "update own" on public.progress
   }
   // общий диспетчер синхронизации
   function syncMode(){
-    try { var m = localStorage.getItem("pullups-sync-mode"); if(m === "sb" || m === "gist" || m === "off") return m; } catch(e){}
+    if(sbOn()) return "sb";
+    try { var m = localStorage.getItem("pullups-sync-mode"); if(m === "gist" && ghOn()) return "gist"; } catch(e){}
     if(ghOn()) return "gist";
-    if(sbOn() || sbSetup()) return "sb";
-    return "off";
+    return sbSetup() ? "sb" : "off";
   }
   function syncSchedule(){ var m = syncMode(); if(m === "gist") ghSchedule(); else if(m === "sb") sbSchedule(); }
   function syncNow(silent){ var m = syncMode(); if(m === "gist") return ghSync(silent); if(m === "sb") return sbSync(silent); return Promise.resolve(); }
@@ -3609,11 +3778,40 @@ create policy "update own" on public.progress
       '<p class="hint">Прогресс, кольца и история тестов видны после входа. Заниматься и отмечать подходы можно без аккаунта — отметки сохранятся в этом браузере и подтянутся, когда войдёшь.</p>' +
       '<button type="button" class="primary" data-act="go-profile">Войти или создать аккаунт</button></div>';
   }
+  function profName(){ return (state.profile && state.profile.name || "").trim(); }
+  function profPhoto(){ return (state.profile && state.profile.photo) || ""; }
   function avatarLetter(){
     if(!loggedIn()) return "";
     sbUser();
-    var m = (SB.mail || "").trim();
-    return m ? m.charAt(0).toUpperCase() : "·";
+    var n = profName() || (SB.mail || "").trim();
+    return n ? n.charAt(0).toUpperCase() : "·";
+  }
+  function avatarHtml(cls){
+    var ph = loggedIn() ? profPhoto() : "";
+    if(ph) return '<span class="ava photo' + (cls ? " " + cls : "") + '" style="background-image:url(' + ph + ')"></span>';
+    return '<span class="ava' + (cls ? " " + cls : "") + '">' + esc(avatarLetter()) + '</span>';
+  }
+  function photoPick(file){
+    if(!file) return;
+    var fr = new FileReader();
+    fr.onload = function(){
+      var img = new Image();
+      img.onload = function(){
+        try {
+          var sz = 160, cv = document.createElement("canvas");
+          cv.width = sz; cv.height = sz;
+          var ctx = cv.getContext("2d"), side = Math.min(img.width, img.height);
+          ctx.drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, sz, sz);
+          state.profile.photo = cv.toDataURL("image/jpeg", 0.82);
+          save(); render();
+          flash("Фото обновлено");
+        } catch(e){ flash("Не получилось обработать картинку"); }
+      };
+      img.onerror = function(){ flash("Это не картинка"); };
+      img.src = fr.result;
+    };
+    fr.onerror = function(){ flash("Файл не прочитался"); };
+    fr.readAsDataURL(file);
   }
   function renderAcc(){
     var b = document.getElementById("accBtn");
@@ -3623,7 +3821,7 @@ create policy "update own" on public.progress
     b.setAttribute("aria-label", on ? "Профиль: " + (SB.mail || "аккаунт") : "Войти в аккаунт");
     b.setAttribute("aria-pressed", TAB === "profile");
     b.innerHTML = on
-      ? '<span class="ava">' + esc(avatarLetter()) + '</span>'
+      ? avatarHtml("")
       : '<span class="ava guest" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.8 20c.9-3.6 3.8-5.6 7.2-5.6s6.3 2 7.2 5.6" stroke-linecap="round"/></svg></span>';
   }
   function profileStats(){
@@ -3631,6 +3829,7 @@ create policy "update own" on public.progress
       {v: PULL.total(), u: ["подтягивание","подтягивания","подтягиваний"], tail: ""},
       {v: PUSH.total() + BOARD.total(), u: ["отжимание","отжимания","отжиманий"], tail: ""},
       {v: SQUAT.total(), u: ["приседание","приседания","приседаний"], tail: ""},
+      {v: DUMB.total(), u: ["повторение","повторения","повторений"], tail: " с гантелями"},
       {v: tMinutes(), u: ["минута","минуты","минут"], tail: " растяжки"}
     ];
     var h = '<div class="nums">';
@@ -3645,8 +3844,13 @@ create policy "update own" on public.progress
     var h = "";
     if(loggedIn()){
       sbUser();
-      h += '<div class="pf-head"><span class="ava big">' + esc(avatarLetter()) + '</span><div><h2>' + esc(SB.mail || "Аккаунт") + '</h2>' +
-        '<p class="hint">' + (SB.last ? "Синхронизировано в " + new Date(SB.last).toLocaleTimeString("ru-RU", {hour: "2-digit", minute: "2-digit"}) : "Ждём первой синхронизации") + '</p></div></div>';
+      h += '<div class="pf-head">' + avatarHtml("big") + '<div><h2>' + esc(profName() || SB.mail || "Аккаунт") + '</h2>' +
+        '<p class="hint">' + (profName() ? esc(SB.mail || "") + ", " : "") + (SB.last ? "синхронизировано в " + new Date(SB.last).toLocaleTimeString("ru-RU", {hour: "2-digit", minute: "2-digit"}) : "ждём первой синхронизации") + '</p></div></div>';
+      h += '<div class="test pf-edit">' +
+        '<label class="field" for="pfName">Никнейм<input type="text" id="pfName" maxlength="40" placeholder="как тебя называть" value="' + esc(profName()) + '"></label>' +
+        '<button type="button" class="linkbtn" data-act="pf-photo">' + (profPhoto() ? "Сменить фото" : "Загрузить фото") + '</button>' +
+        (profPhoto() ? '<button type="button" class="linkbtn alt" data-act="pf-nophoto">Убрать фото</button>' : "") +
+        '<input type="file" id="pfPhotoFile" accept="image/*" hidden></div>';
       h += profileStats();
       h += '<p class="hint">Прогресс хранится в твоём аккаунте: открой страницу на другом устройстве, войди теми же почтой и паролем, и отметки будут общими.</p>';
       h += '<div class="test"><button type="button" class="primary" data-act="sb-sync">Синхронизировать сейчас</button>' +
@@ -3676,12 +3880,14 @@ create policy "update own" on public.progress
     document.getElementById("panel-pull").hidden = TAB !== "pull";
     document.getElementById("panel-push").hidden = TAB !== "push";
     document.getElementById("panel-squat").hidden = TAB !== "squat";
+    var dp = document.getElementById("panel-dumb");
+    if(dp) dp.hidden = TAB !== "dumb";
     document.getElementById("panel-stretch").hidden = TAB !== "stretch";
     document.getElementById("panel-custom").hidden = TAB !== "custom";
     var pp = document.getElementById("panel-profile");
     if(pp) pp.hidden = TAB !== "profile";
     if(TAB === "profile"){
-      ["pull", "push", "squat", "stretch", "custom"].forEach(function(t){
+      ["pull", "push", "squat", "dumb", "stretch", "custom"].forEach(function(t){
         var el2 = document.getElementById("panel-" + t);
         if(el2) el2.hidden = true;
       });
@@ -3713,7 +3919,7 @@ create policy "update own" on public.progress
     var pv = document.getElementById("pvariant");
     if(pv) pv.innerHTML = variantToggle();
     renderToday();
-    PULL.render(); pushChain().render(); SQUAT.render(); renderStretch(); renderCustom(); renderAllMounted(); renderCounter(); renderSync(); renderSound(); renderAcc(); renderProfile();
+    PULL.render(); pushChain().render(); SQUAT.render(); DUMB.render(); renderStretch(); renderCustom(); renderAllMounted(); renderCounter(); renderSync(); renderSound(); renderAcc(); renderProfile();
     animateFills();
     renderHold();
     renderTimer();
@@ -3780,7 +3986,7 @@ create policy "update own" on public.progress
       return;
     }
     if(act === "theme"){ theme = theme === "light" ? "dark" : theme === "dark" ? "auto" : "light"; try { localStorage.setItem(THKEY, theme); } catch(e){} applyTheme(); return; }
-    if(act === "tab"){ var tv2 = b.getAttribute("data-tab"); prevTab = tv2; if(cam) camFinish(false); TAB = (tv2 === "push" || tv2 === "squat" || tv2 === "stretch" || tv2 === "custom") ? tv2 : "pull"; sel = null; cntVal = null; try { localStorage.setItem(TKEY, TAB); } catch(e){} render(); return; }
+    if(act === "tab"){ var tv2 = b.getAttribute("data-tab"); prevTab = tv2; if(cam) camFinish(false); TAB = (tv2 === "push" || tv2 === "squat" || tv2 === "dumb" || tv2 === "stretch" || tv2 === "custom") ? tv2 : "pull"; sel = null; cntVal = null; try { localStorage.setItem(TKEY, TAB); } catch(e){} render(); return; }
     if(act === "cmax-" || act === "cmax+"){
       var cpre = b.getAttribute("data-c");
       if(cpre === "p") cpre = pushChain().cfg.pre;
@@ -3814,6 +4020,8 @@ create policy "update own" on public.progress
       return;
     }
     if(act === "hold-stop"){ holdStop(); flash("Таймер остановлен"); return; }
+    if(act === "pf-photo"){ var fi2 = document.getElementById("pfPhotoFile"); if(fi2){ fi2.value = ""; fi2.click(); } return; }
+    if(act === "pf-nophoto"){ state.profile.photo = ""; save(); render(); flash("Фото убрано"); return; }
     if(act === "go-profile" || act === "acc"){
       if(TAB === "profile"){ TAB = prevTab || "pull"; }
       else { prevTab = TAB; TAB = "profile"; }
@@ -3992,6 +4200,20 @@ create policy "update own" on public.progress
     }
   });
 
+  document.addEventListener("input", function(ev){
+    var t2 = ev.target;
+    if(!t2) return;
+    if(t2.getAttribute && t2.getAttribute("data-f")){ custEdit(t2); save(); return; }
+    if(t2.id === "pfName"){ state.profile.name = String(t2.value || "").slice(0, 40); save(); renderAcc(); }
+  });
+  document.addEventListener("change", function(ev){
+    var t3 = ev.target;
+    if(!t3) return;
+    if(t3.id === "pfPhotoFile"){ photoPick(t3.files && t3.files[0]); return; }
+    if(t3.id === "pfName"){ state.profile.name = String(t3.value || "").slice(0, 40); save(); render(); return; }
+    if(t3.getAttribute && t3.getAttribute("data-f")){ custEdit(t3); save(); render(); return; }
+  });
+
   var camFileInput = document.getElementById("camFile");
   if(camFileInput) camFileInput.addEventListener("change", function(ev){
     var f = ev.target.files && ev.target.files[0];
@@ -4047,11 +4269,11 @@ create policy "update own" on public.progress
   function set(t){ if(txt) txt.textContent = t; }
   if(standalone) set("Ты уже в установленном приложении. Новая версия подтягивается сама при запуске с интернетом.");
   else if(ios) set("На iPhone: открой эту страницу в Safari, нажми «Поделиться» и выбери «На экран „Домой“». Дальше она запускается с иконки и работает без интернета.");
-  else set("На Android: открой страницу в Chrome — здесь появится кнопка «Установить приложение». Если её нет, зайди в меню браузера и выбери «Установить приложение» или «Добавить на главный экран».");
+  else set("На Android: открой страницу в Chrome — здесь появится кнопка «Установить на Android». Если её нет, зайди в меню браузера и выбери «Установить приложение» или «Добавить на главный экран».");
   window.addEventListener("beforeinstallprompt", function(e){
     e.preventDefault(); deferred = e;
     if(btn) btn.hidden = false;
-    set("Нажми «Установить приложение» — появится иконка на экране, и страница будет работать без интернета.");
+    set("Нажми «Установить на Android» — появится иконка на экране, и страница будет работать без интернета.");
   });
   if(btn) btn.addEventListener("click", function(){
     if(!deferred) return;
