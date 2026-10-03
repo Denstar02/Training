@@ -881,6 +881,63 @@ body.has-hold .wrap{padding-bottom:140px}
   <details class="panel sync" id="syncBox">
     <summary>Синхронизация между устройствами</summary>
     <p class="hint" id="syncStatus" aria-live="polite"></p>
+    <div class="modebox" id="syncMode"></div>
+
+    <div id="syncSb" hidden>
+      <div id="sbProject" hidden>
+        <p class="hint">Бесплатная база Supabase: входишь почтой и паролем, прогресс летит между телефоном и компьютером сам. Проект заводится один раз за пару минут.</p>
+        <div class="test">
+          <label class="field" for="sbUrl">Адрес проекта<input type="url" id="sbUrl" placeholder="https://xxxx.supabase.co" autocomplete="off" spellcheck="false"></label>
+          <label class="field" for="sbKey">Ключ anon<input type="password" id="sbKey" placeholder="eyJhbGciOi…" autocomplete="off" spellcheck="false"></label>
+          <button type="button" class="primary" data-act="sb-save">Сохранить проект</button>
+        </div>
+        <details>
+          <summary>Как завести проект за пять минут</summary>
+          <ul>
+            <li>Зайди на supabase.com, Sign up, New project. План Free, пароль базы придумай любой.</li>
+            <li>Settings → API: скопируй Project URL и ключ anon public в поля выше.</li>
+            <li>Authentication → Providers → Email: выключи Confirm email, чтобы входить сразу.</li>
+            <li>SQL Editor → New query: вставь код ниже и нажми Run.</li>
+          </ul>
+          <pre><code>create table if not exists public.progress (
+  user_id uuid primary key references auth.users on delete cascade,
+  data jsonb not null,
+  updated_at timestamptz not null default now()
+);
+alter table public.progress enable row level security;
+create policy "read own" on public.progress
+  for select using (auth.uid() = user_id);
+create policy "insert own" on public.progress
+  for insert with check (auth.uid() = user_id);
+create policy "update own" on public.progress
+  for update using (auth.uid() = user_id) with check (auth.uid() = user_id);</code></pre>
+          <p class="hint">Ключ anon публичный по задумке: сами данные закрыты правилами выше, их видит только владелец строки.</p>
+        </details>
+      </div>
+
+      <div id="sbLogin" hidden>
+        <div class="test">
+          <label class="field" for="sbMail">Почта<input type="email" id="sbMail" placeholder="you@mail.com" autocomplete="username"></label>
+          <label class="field" for="sbPass">Пароль<input type="password" id="sbPass" placeholder="не короче 6 символов" autocomplete="current-password"></label>
+        </div>
+        <div class="test">
+          <button type="button" class="primary" data-act="sb-in">Войти</button>
+          <button type="button" class="linkbtn" data-act="sb-up">Создать аккаунт</button>
+          <button type="button" class="linkbtn alt" data-act="sb-forget">Сменить проект</button>
+        </div>
+      </div>
+
+      <div id="sbIn" hidden>
+        <p class="hint" id="sbWho"></p>
+        <div class="test">
+          <button type="button" class="primary" data-act="sb-sync">Синхронизировать сейчас</button>
+          <button type="button" class="linkbtn" data-act="sb-out">Выйти на этом устройстве</button>
+          <button type="button" class="linkbtn alt" data-act="sb-forget">Сменить проект</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="syncGit" hidden>
     <div id="syncSetup">
       <p class="hint">Чтобы телефон и компьютер видели один и тот же прогресс, страница может хранить его в приватном gist на твоём GitHub. Нужен токен с единственным правом на Gists.</p>
       <div class="test">
@@ -897,6 +954,7 @@ body.has-hold .wrap{padding-bottom:140px}
       </div>
       <p class="hint" id="syncWhere"></p>
       <p class="hint">Страница синхронизируется сама: через несколько секунд после отметки и каждый раз, когда ты возвращаешься на вкладку. Отметки с разных устройств складываются, ничего не теряется.</p>
+    </div>
     </div>
   </details>
 
@@ -1624,7 +1682,7 @@ body.has-hold .wrap{padding-bottom:140px}
     } else renderTimer();
   }
   setInterval(tick, 1000);
-  document.addEventListener("visibilitychange", function(){ if(!document.hidden){ renderTimer(); ghSync(true); } });
+  document.addEventListener("visibilitychange", function(){ if(!document.hidden){ renderTimer(); syncNow(true); } });
   function unlockAudio(){
     try {
       if(!audio){ var AC = window.AudioContext || window.webkitAudioContext; if(AC) audio = new AC(); }
@@ -2375,16 +2433,35 @@ body.has-hold .wrap{padding-bottom:140px}
     box.innerHTML = h;
   }
   function renderSync(){
+    var modeBox = document.getElementById("syncMode");
+    if(!modeBox) return;
+    var m = syncMode();
+    var names = {off: "Выключена", sb: "База Supabase", gist: "GitHub gist"};
+    var h = '<span class="seg-label">Где хранить прогресс</span><div class="seg" role="radiogroup" aria-label="Способ синхронизации">';
+    ["off", "sb", "gist"].forEach(function(k){
+      h += '<button type="button" role="radio" data-act="sync-mode" data-m="' + k + '" aria-checked="' + (m === k) + '">' + names[k] + '</button>';
+    });
+    modeBox.innerHTML = h + '</div>';
+
+    var git = document.getElementById("syncGit"), sb = document.getElementById("syncSb");
+    git.hidden = m !== "gist"; sb.hidden = m !== "sb";
     var setup = document.getElementById("syncSetup"), on = document.getElementById("syncOn");
-    if(!setup) return;
-    setup.hidden = ghOn();
-    on.hidden = !ghOn();
+    if(setup) setup.hidden = ghOn();
+    if(on) on.hidden = !ghOn();
     var where = document.getElementById("syncWhere");
     if(where && GH.gist) where.textContent = "Данные лежат в приватном gist " + GH.gist + ". На другом устройстве вставь тот же токен — страница найдёт этот же gist сама.";
-    if(!ghOn() && db) syncStatus("Эта версия страницы уже синхронизируется через твой аккаунт Claude.");
-    else if(!ghOn()) syncStatus("Сейчас прогресс хранится только в этом браузере.");
-    else if(GH.last) syncStatus("Синхронизировано в " + new Date(GH.last).toLocaleTimeString("ru-RU", {hour: "2-digit", minute: "2-digit"}) + ".");
-    else syncStatus("Подключено к GitHub.");
+
+    var sbProj = document.getElementById("sbProject"), sbLogin = document.getElementById("sbLogin"), sbIn = document.getElementById("sbIn");
+    if(sbProj){ sbProj.hidden = sbSetup(); sbLogin.hidden = !sbSetup() || sbOn(); sbIn.hidden = !sbOn(); }
+    var uEl = document.getElementById("sbUrl"), kEl = document.getElementById("sbKey");
+    if(uEl && SB.url && !uEl.value) uEl.value = SB.url;
+    if(kEl && SB.key && !kEl.value) kEl.value = SB.key;
+    var who = document.getElementById("sbWho");
+    if(who && sbOn()){ sbUser(); who.textContent = "Вошёл как " + (SB.mail || "пользователь") + ". Прогресс лежит в твоём проекте Supabase, на другом устройстве просто войди тем же логином."; }
+
+    if(m === "off") syncStatus(db ? "Эта версия страницы и так синхронизируется через твой аккаунт Claude." : "Сейчас прогресс хранится только в этом браузере.");
+    else if(m === "gist") syncStatus(!ghOn() ? "Вставь токен GitHub, чтобы включить." : GH.last ? "Синхронизировано в " + new Date(GH.last).toLocaleTimeString("ru-RU", {hour: "2-digit", minute: "2-digit"}) + "." : "Подключено к GitHub.");
+    else syncStatus(!sbSetup() ? "Укажи адрес проекта и ключ anon." : !sbOn() ? "Проект подключён, осталось войти." : SB.last ? "Синхронизировано в " + new Date(SB.last).toLocaleTimeString("ru-RU", {hour: "2-digit", minute: "2-digit"}) + "." : "Вошёл, жду первой синхронизации.");
   }
   function ghFetch(url, opts){
     return fetch(url, opts).then(function(r){
@@ -2458,6 +2535,127 @@ body.has-hold .wrap{padding-bottom:140px}
       syncStatus("Не получилось: " + ((e && e.message) || "ошибка") + ". Если страница открыта как файл с диска, браузер мог заблокировать запрос — выложи её на свой сайт или пользуйся выгрузкой копии.");
     });
   }
+  // ---------- Supabase: бесплатная база с входом по почте ----------
+  var SB = {ukey: "pullups-sb-url", kkey: "pullups-sb-key", tkey: "pullups-sb-tok",
+            url: null, key: null, tok: null, busy: false, timer: null, last: 0, mail: null};
+  try {
+    SB.url = localStorage.getItem(SB.ukey) || null;
+    SB.key = localStorage.getItem(SB.kkey) || null;
+    SB.tok = JSON.parse(localStorage.getItem(SB.tkey) || "null");
+  } catch(e){}
+  function sbSetup(){ return !!(SB.url && SB.key); }
+  function sbOn(){ return sbSetup() && !!(SB.tok && SB.tok.access_token); }
+  function sbSaveTok(t){
+    SB.tok = t;
+    try { t ? localStorage.setItem(SB.tkey, JSON.stringify(t)) : localStorage.removeItem(SB.tkey); } catch(e){}
+  }
+  function sbUser(){
+    try {
+      var p = SB.tok.access_token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+      var o = JSON.parse(decodeURIComponent(escape(atob(p + "===".slice((p.length + 3) % 4)))));
+      SB.mail = o.email || null;
+      return o.sub;
+    } catch(e){ return null; }
+  }
+  function sbBase(){ return (SB.url || "").replace(/\/+$/, ""); }
+  function sbReq(path, opts, auth){
+    opts = opts || {};
+    var h = {apikey: SB.key, "Content-Type": "application/json"};
+    if(opts.headers) for(var k in opts.headers) h[k] = opts.headers[k];
+    if(auth !== false && SB.tok) h.Authorization = "Bearer " + SB.tok.access_token;
+    return fetch(sbBase() + path, {method: opts.method || "GET", headers: h, body: opts.body})
+      .then(function(r){
+        if(r.status === 401 && auth !== false && SB.tok && SB.tok.refresh_token && !opts.retried){
+          return sbRefresh().then(function(){ opts.retried = true; return sbReq(path, opts, auth); });
+        }
+        return r.text().then(function(txt){
+          var data = null;
+          try { data = txt ? JSON.parse(txt) : null; } catch(e){ data = null; }
+          if(!r.ok) throw new Error((data && (data.msg || data.message || data.error_description || data.error)) || ("ответ " + r.status));
+          return data;
+        });
+      });
+  }
+  function sbRefresh(){
+    return sbReq("/auth/v1/token?grant_type=refresh_token", {method: "POST", body: JSON.stringify({refresh_token: SB.tok.refresh_token})}, false)
+      .then(function(t){ if(!t || !t.access_token) throw new Error("сессия истекла"); sbSaveTok(t); return t; });
+  }
+  function sbAuth(mode){
+    var em = (document.getElementById("sbMail") || {}).value, pw = (document.getElementById("sbPass") || {}).value;
+    em = (em || "").trim();
+    if(!sbSetup()){ syncStatus("Сначала сохрани адрес проекта и ключ."); return; }
+    if(!em || !pw || pw.length < 6){ syncStatus("Нужны почта и пароль не короче 6 символов."); return; }
+    syncStatus(mode === "up" ? "Создаю аккаунт…" : "Вхожу…");
+    var path = mode === "up" ? "/auth/v1/signup" : "/auth/v1/token?grant_type=password";
+    sbReq(path, {method: "POST", body: JSON.stringify({email: em, password: pw})}, false)
+      .then(function(t){
+        if(!t || !t.access_token){
+          syncStatus("Аккаунт создан. Подтверди письмо на почте и войди, либо отключи подтверждение почты в настройках проекта.");
+          return;
+        }
+        sbSaveTok(t); sbUser();
+        var pwEl = document.getElementById("sbPass"); if(pwEl) pwEl.value = "";
+        return sbSync();
+      })
+      .then(function(){ renderSync(); })
+      .catch(function(e){ syncStatus("Не вышло: " + ((e && e.message) || "ошибка") + "."); });
+  }
+  function sbOut(){
+    sbSaveTok(null); SB.mail = null; SB.last = 0;
+    renderSync();
+    syncStatus("Вышел. Прогресс остался в этом браузере.");
+  }
+  function sbSync(silent){
+    if(!sbOn() || SB.busy) return Promise.resolve();
+    var uid = sbUser();
+    if(!uid) return Promise.resolve();
+    SB.busy = true;
+    if(!silent) syncStatus("Синхронизирую…");
+    return sbReq("/rest/v1/progress?select=data&limit=1")
+      .then(function(rows){
+        var remote = (rows && rows[0] && rows[0].data) ? normalize(rows[0].data) : null;
+        if(remote){
+          var merged = mergeStates(state, remote);
+          if(JSON.stringify(merged) !== JSON.stringify(state)){ state = merged; persistLocal(); render(); }
+        }
+        return sbReq("/rest/v1/progress", {
+          method: "POST",
+          headers: {Prefer: "resolution=merge-duplicates,return=minimal"},
+          body: JSON.stringify([{user_id: uid, data: JSON.parse(JSON.stringify(state)), updated_at: new Date().toISOString()}])
+        });
+      })
+      .then(function(){ SB.last = Date.now(); SB.busy = false; renderSync(); })
+      .catch(function(e){ SB.busy = false; syncStatus("Синхронизация не прошла: " + ((e && e.message) || "ошибка сети") + "."); });
+  }
+  function sbSchedule(){
+    if(!sbOn()) return;
+    clearTimeout(SB.timer);
+    SB.timer = setTimeout(function(){ sbSync(true); }, 4000);
+  }
+  function sbSaveProject(){
+    var u = (document.getElementById("sbUrl") || {}).value, k = (document.getElementById("sbKey") || {}).value;
+    u = (u || "").trim().replace(/\/+$/, ""); k = (k || "").trim();
+    if(!/^https:\/\/[\w-]+\.supabase\.co$/.test(u)){ syncStatus("Адрес проекта выглядит как https://xxxx.supabase.co"); return; }
+    if(k.length < 30){ syncStatus("Ключ anon слишком короткий, проверь копирование."); return; }
+    SB.url = u; SB.key = k;
+    try { localStorage.setItem(SB.ukey, u); localStorage.setItem(SB.kkey, k); } catch(e){}
+    renderSync();
+    syncStatus("Проект сохранён. Теперь войди по почте и паролю.");
+  }
+  function sbForget(){
+    SB.url = null; SB.key = null; sbSaveTok(null); SB.mail = null;
+    try { localStorage.removeItem(SB.ukey); localStorage.removeItem(SB.kkey); } catch(e){}
+    renderSync();
+    syncStatus("Настройки проекта удалены с этого устройства.");
+  }
+  // общий диспетчер синхронизации
+  function syncMode(){
+    try { var m = localStorage.getItem("pullups-sync-mode"); if(m === "sb" || m === "gist" || m === "off") return m; } catch(e){}
+    return ghOn() ? "gist" : sbOn() ? "sb" : "off";
+  }
+  function syncSchedule(){ var m = syncMode(); if(m === "gist") ghSchedule(); else if(m === "sb") sbSchedule(); }
+  function syncNow(silent){ var m = syncMode(); if(m === "gist") return ghSync(silent); if(m === "sb") return sbSync(silent); return Promise.resolve(); }
+
   function ghOff(){
     GH.token = null; GH.gist = null; GH.last = 0;
     try { localStorage.removeItem(GH.tkey); localStorage.removeItem(GH.gkey); } catch(e){}
@@ -3351,7 +3549,7 @@ body.has-hold .wrap{padding-bottom:140px}
     state.updatedAt = Date.now();
     persistLocal();
     if(db){ clearTimeout(timer); timer = setTimeout(flush, 700); }
-    ghSchedule();
+    syncSchedule();
   }
   function flush(){
     if(!db) return;
@@ -3537,6 +3735,19 @@ body.has-hold .wrap{padding-bottom:140px}
     if(act === "timer-close"){ state.timer = null; save(); renderTimer(); return; }
     if(act === "timer-go"){ var tk = state.timer && state.timer.key; if(tk) goToCard(tk); return; }
     if(act === "sound"){ soundOn = !soundOn; try { localStorage.setItem(SKEY, soundOn ? "1" : "0"); } catch(e){} if(soundOn) beep(1); renderTimer(); return; }
+    if(act === "sync-mode"){
+      var sm = b.getAttribute("data-m");
+      try { localStorage.setItem("pullups-sync-mode", sm); } catch(e){}
+      renderSync();
+      if(sm !== "off") syncNow();
+      return;
+    }
+    if(act === "sb-save"){ sbSaveProject(); return; }
+    if(act === "sb-forget"){ sbForget(); return; }
+    if(act === "sb-in"){ sbAuth("in"); return; }
+    if(act === "sb-up"){ sbAuth("up"); return; }
+    if(act === "sb-out"){ sbOut(); return; }
+    if(act === "sb-sync"){ sbSync(); return; }
     if(act === "gh-connect"){ ghConnect(); return; }
     if(act === "gh-sync"){ ghSync(); return; }
     if(act === "gh-off"){ ghOff(); return; }
@@ -3608,7 +3819,7 @@ body.has-hold .wrap{padding-bottom:140px}
   });
 
   render();
-  if(ghOn()) ghSync(true);
+  syncNow(true);
 
   if(window.claude && typeof window.claude.use === "function"){
     window.claude.use("db").then(function(d){
