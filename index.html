@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Тренировки — турник и отжимания</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2A52D6">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Тренировки">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@600;700&display=swap&subset=cyrillic" rel="stylesheet">
@@ -265,7 +272,7 @@ body.has-timer .wrap{padding-bottom:130px}
 <div class="wrap">
   <header>
     <h1>Тренировки</h1>
-    <p class="lede">Две программы. Турник — восемь недель по расписанию: понедельник, вторник и пятница, плюс лёгкая среда. Отжимания — тридцать тренировок подряд в своём темпе, хоть каждый день. В обеих вместо одной тяжёлой тренировки много коротких подходов в течение дня, всегда с запасом сил.</p>
+    <p class="lede">Пять программ на одной странице. Турник идёт по расписанию восьми недель, отжимания, приседания и растяжка — цепочками занятий в твоём темпе, а во вкладке «Создать» собирается своя программа и подставляется в любой раздел. Принцип везде один: вместо одной тяжёлой тренировки много коротких подходов в течение дня, всегда с запасом сил.</p>
   </header>
 
   <div class="tabs" role="tablist" aria-label="Программы">
@@ -607,6 +614,13 @@ body.has-timer .wrap{padding-bottom:130px}
     </details>
   </section>
 
+
+  <section class="panel install">
+    <h2>Установка на телефон</h2>
+    <p class="hint" id="installText"></p>
+    <div class="test"><button type="button" class="primary" id="installBtn" hidden>Установить приложение</button></div>
+    <p class="hint">После установки страница открывается с иконки на весь экран и работает без интернета: программы, счётчик по камере и таймер остаются на месте. Прогресс хранится в телефоне, а если включить синхронизацию ниже, совпадает с компьютером.</p>
+  </section>
 
   <details class="panel sync" id="syncBox">
     <summary>Синхронизация между устройствами</summary>
@@ -3132,6 +3146,40 @@ body.has-timer .wrap{padding-bottom:130px}
         setStatus(true);
       });
     }).catch(function(){ setStatus(false); });
+  }
+})();
+</script>
+<script>
+(function(){
+  var btn = document.getElementById("installBtn"), txt = document.getElementById("installText"), deferred = null;
+  var standalone = (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || window.navigator.standalone === true;
+  var ios = /iphone|ipad|ipod/i.test(navigator.userAgent || "");
+  function set(t){ if(txt) txt.textContent = t; }
+  if(standalone) set("Ты уже в установленном приложении. Новая версия подтягивается сама при запуске с интернетом.");
+  else if(ios) set("На iPhone: открой эту страницу в Safari, нажми «Поделиться» и выбери «На экран „Домой“». Дальше она запускается с иконки и работает без интернета.");
+  else set("На Android: открой страницу в Chrome — здесь появится кнопка «Установить приложение». Если её нет, зайди в меню браузера и выбери «Установить приложение» или «Добавить на главный экран».");
+  window.addEventListener("beforeinstallprompt", function(e){
+    e.preventDefault(); deferred = e;
+    if(btn) btn.hidden = false;
+    set("Нажми «Установить приложение» — появится иконка на экране, и страница будет работать без интернета.");
+  });
+  if(btn) btn.addEventListener("click", function(){
+    if(!deferred) return;
+    deferred.prompt();
+    deferred.userChoice.then(function(r){
+      deferred = null; btn.hidden = true;
+      set(r && r.outcome === "accepted" ? "Готово, иконка на экране." : "Хорошо, можно установить позже.");
+    });
+  });
+  window.addEventListener("appinstalled", function(){ if(btn) btn.hidden = true; set("Приложение установлено."); });
+  if("serviceWorker" in navigator && /^https?:$/.test(location.protocol)){
+    navigator.serviceWorker.register("sw.js").catch(function(){});
+    navigator.serviceWorker.addEventListener("message", function(e){
+      if(e.data === "updated"){
+        var el = document.getElementById("toast");
+        if(el){ el.textContent = "Есть новая версия — обнови страницу"; el.hidden = false; }
+      }
+    });
   }
 })();
 </script>
