@@ -926,6 +926,7 @@ create policy "update own" on public.progress
           <button type="button" class="primary" data-act="sb-in">Войти</button>
           <button type="button" class="linkbtn" data-act="sb-up">Создать аккаунт</button>
           <button type="button" class="linkbtn alt" data-act="sb-edit">Поправить ключ</button>
+        <button type="button" class="linkbtn alt" id="sbResetBtn" data-act="sb-forget" hidden>Вернуть базу по умолчанию</button>
         </div>
       </div>
 
@@ -2486,6 +2487,8 @@ create policy "update own" on public.progress
     if(pinfo) pinfo.textContent = sbSetup()
       ? (sbOwnProject() ? "Свой проект: " + sbBase().replace("https://", "") + ", ключ " + sbMask() + "." : "Регистрация и вход по почте, как на обычном сайте. Прогресс будет виден на всех твоих устройствах.")
       : "";
+    var rb = document.getElementById("sbResetBtn");
+    if(rb) rb.hidden = !(sbOwnProject() && SB_HAS_BUILTIN);
     var who = document.getElementById("sbWho");
     if(who && sbOn()){ sbUser(); who.textContent = "Вошёл как " + (SB.mail || "пользователь") + ". Прогресс лежит в твоём проекте Supabase, на другом устройстве просто войди тем же логином."; }
 
@@ -2573,10 +2576,19 @@ create policy "update own" on public.progress
     SB.key = localStorage.getItem(SB.kkey) || null;
     SB.tok = JSON.parse(localStorage.getItem(SB.tkey) || "null");
   } catch(e){}
+  function sbValidKey(k){
+    k = (k || "").trim();
+    if(!k || k.length > 400 || /\s/.test(k)) return false;
+    return /^eyJ[\w-]+\.[\w-]+\.[\w-]+$/.test(k) || /^sb_(publishable|secret)_[\w-]{10,}$/.test(k);
+  }
   var SB_KEYS = (SB_BUILTIN && (SB_BUILTIN.keys || (SB_BUILTIN.key ? [SB_BUILTIN.key] : [])) || []).filter(function(k){ return k && k.length > 20; });
   var SB_HAS_BUILTIN = !!(SB_BUILTIN && SB_BUILTIN.url && SB_KEYS.length);
   var sbKeyIdx = 0;
   try { sbKeyIdx = Math.max(0, Math.min(SB_KEYS.length - 1, parseInt(localStorage.getItem("pullups-sb-keyidx") || "0", 10) || 0)); } catch(e){}
+  if(SB.key && !sbValidKey(SB.key)){
+    SB.key = null; SB.url = null;
+    try { localStorage.removeItem(SB.kkey); localStorage.removeItem(SB.ukey); } catch(e){}
+  }
   if(!SB.url && SB_HAS_BUILTIN){ SB.url = SB_BUILTIN.url; SB.key = SB_KEYS[sbKeyIdx]; }
   function sbOwnProject(){ return !!(SB.url && SB.key) && !(SB_HAS_BUILTIN && SB.url === SB_BUILTIN.url && SB_KEYS.indexOf(SB.key) >= 0); }
   function sbKeyKind(k){ return /^sb_publishable_/.test(k || "") ? "publishable" : /^eyJ/.test(k || "") ? "anon" : "ключ"; }
@@ -2717,7 +2729,7 @@ create policy "update own" on public.progress
     var u = (document.getElementById("sbUrl") || {}).value, k = (document.getElementById("sbKey") || {}).value;
     u = (u || "").trim().replace(/\/+$/, ""); k = (k || "").trim();
     if(!/^https:\/\/[\w-]+\.supabase\.co$/.test(u)){ syncStatus("Адрес проекта выглядит как https://xxxx.supabase.co"); return; }
-    if(k.length < 30){ syncStatus("Ключ anon слишком короткий, проверь копирование."); return; }
+    if(!sbValidKey(k)){ syncStatus("Это не похоже на ключ. Он начинается с sb_publishable_ или с eyJ, идёт одной строкой без пробелов и переносов."); return; }
     SB.url = u; SB.key = k; sbEditing = false;
     try { localStorage.setItem(SB.ukey, u); localStorage.setItem(SB.kkey, k); } catch(e){}
     renderSync();
