@@ -537,6 +537,14 @@ body.has-hold .wrap{padding-bottom:140px}
 .ava.photo{background-size:cover;background-position:center}
 .pf-edit{margin:0 0 var(--s4)}
 .pf-edit .field{flex:1 1 200px}
+.jumprow{display:flex;justify-content:center;margin:0 0 var(--s2)}
+.jumprow .linkbtn{margin-top:0}
+/* шапка по центру */
+.topbar{display:block;position:relative;text-align:center;padding-top:4px}
+.topbar h1{margin:0 auto}
+.topbar .lede{margin-left:auto;margin-right:auto}
+.topbar .accbtn{position:absolute;top:0;right:0}
+@media (max-width:520px){.topbar{padding-top:56px}.topbar .accbtn{top:0}}
 .finishbar{margin-top:var(--s4);align-items:center}
 .finishbar .hint{flex:1 1 200px;margin:0}
 .lockbox{display:flex;flex-direction:column;align-items:flex-start;gap:var(--s3);padding:var(--s4);border:1px dashed var(--line-strong);border-radius:var(--r-md);background:var(--bg)}
@@ -548,7 +556,7 @@ body.has-hold .wrap{padding-bottom:140px}
   <header class="topbar">
     <div>
     <h1>Тренировки</h1>
-    <p class="lede">Пять программ на одной странице. Турник идёт по расписанию восьми недель, отжимания, приседания и растяжка — цепочками занятий в твоём темпе, а во вкладке «Создать» собирается своя программа и подставляется в любой раздел. Принцип везде один: вместо одной тяжёлой тренировки много коротких подходов в течение дня, всегда с запасом сил.</p>
+    <p class="lede">Шесть программ: турник, отжимания, приседания, гантели, растяжка и своя. Везде короткие подходы вместо одной тяжёлой тренировки — в своём темпе и с запасом сил.</p>
     </div>
     <button type="button" class="accbtn" id="accBtn" data-act="acc" aria-label="Войти в аккаунт" aria-pressed="false"></button>
   </header>
@@ -2046,10 +2054,10 @@ create policy "update own" on public.progress
     }
     function renderWork(){
       var i = C.v(), w = C.build(i), key = C.key(i), cur = C.current(), h = "";
-      el("navLabel").innerHTML = "Тренировка <strong>" + (i + 1) + "</strong> из " + CCOUNT + ", " + C.name(C.type(i)).toLowerCase() +
-        (i !== cur ? ' <button type="button" class="linkbtn alt" style="margin:0 0 0 8px" data-act="cgo" data-c="' + cfg.pre + '" data-i="' + cur + '">К текущей</button>' : "");
+      el("navLabel").innerHTML = "Тренировка <strong>" + (i + 1) + "</strong> из " + CCOUNT + ", " + C.name(C.type(i)).toLowerCase();
       el("prev").disabled = i === 0;
       el("next").disabled = i === CCOUNT - 1;
+      if(i !== cur) h += '<div class="jumprow"><button type="button" class="linkbtn alt" data-act="cgo" data-c="' + cfg.pre + '" data-i="' + cur + '">Перейти к тренировке ' + (cur + 1) + '</button></div>';
       h += '<article class="day' + (i === cur ? " today" : "") + '" id="card-' + key + '"><div class="day-head"><div><p class="when">Тренировка ' + (i + 1) +
         (i === cur ? ' <span class="badge">текущая</span>' : C.done(i) ? ' <span class="badge ok">готово</span>' : "") + '</p><h2>' + esc(w.title) + '</h2></div>';
       if(w.test){
@@ -2363,12 +2371,12 @@ create policy "update own" on public.progress
     var prog = custCur(), nav = document.getElementById("custNav"), work = document.getElementById("custWork");
     if(!prog){ nav.textContent = "Программа не выбрана"; work.innerHTML = ""; document.getElementById("custPrev").disabled = true; document.getElementById("custNext").disabled = true; return; }
     var i = custV(prog), total = custCount(prog), cur = custCurrent(prog), w = custBuild(prog, i), key = custKey(prog, i);
-    nav.innerHTML = "Занятие <strong>" + (i + 1) + "</strong> из " + total + ", " + esc(w ? w.title : "") +
-      (i !== cur ? ' <button type="button" class="linkbtn alt" style="margin:0 0 0 8px" data-act="cust-go" data-i="' + cur + '">К текущему</button>' : "");
+    nav.innerHTML = "Занятие <strong>" + (i + 1) + "</strong> из " + total + ", " + esc(w ? w.title : "");
     document.getElementById("custPrev").disabled = i === 0;
     document.getElementById("custNext").disabled = i === total - 1;
     if(!w || !w.groups.length){ work.innerHTML = '<article class="day"><p class="hint">В этой программе пока нет упражнений. Добавь их в редакторе ниже.</p></article>'; return; }
     var st2 = statsOf(w, key), h = "";
+    if(i !== cur) h += '<div class="jumprow"><button type="button" class="linkbtn alt" data-act="cust-go" data-i="' + cur + '">Перейти к занятию ' + (cur + 1) + '</button></div>';
     h += '<article class="day head-card" id="card-' + key + '"><div class="day-head"><div><p class="when">Занятие ' + (i + 1) +
       (i === cur ? ' <span class="badge">текущее</span>' : custDone(prog, i) ? ' <span class="badge ok">готово</span>' : "") + '</p><h2>' + esc(w.title) + '</h2></div>' +
       '<div class="tally"><strong>' + st2.done + '</strong> из ' + st2.plan + " " + plural(st2.plan, SETS) + '</div></div></article>';
@@ -2502,10 +2510,11 @@ create policy "update own" on public.progress
       '<button type="button" class="linkbtn alt" data-act="m-unmount" data-tab="' + tab + '">Вернуть стандартную программу</button></div>';
     h += '<div class="pnav"><button type="button" data-act="m-prev" data-tab="' + tab + '" aria-label="Предыдущее занятие"' + (idx === 0 ? " disabled" : "") + '>‹</button>' +
       '<p>Занятие <strong>' + (idx + 1) + '</strong> из ' + total + ', ' + esc(w ? w.title : "") +
-      (idx !== cur ? ' <button type="button" class="linkbtn alt" style="margin:0 0 0 8px" data-act="m-go" data-tab="' + tab + '" data-i="' + cur + '">К текущему</button>' : "") + '</p>' +
+ + '</p>' +
       '<button type="button" data-act="m-next" data-tab="' + tab + '" aria-label="Следующее занятие"' + (idx === total - 1 ? " disabled" : "") + '>›</button></div>';
     if(w){
       var st2 = statsOf(w, key);
+      if(idx !== cur) h += '<div class="jumprow"><button type="button" class="linkbtn alt" data-act="m-go" data-tab="' + tab + '" data-i="' + cur + '">Перейти к занятию ' + (cur + 1) + '</button></div>';
       h += '<main><article class="day head-card" id="card-' + key + '"><div class="day-head"><div><p class="when">Занятие ' + (idx + 1) +
         (idx === cur ? ' <span class="badge">текущее</span>' : mountedDone(tab, prog, idx) ? ' <span class="badge ok">готово</span>' : "") + '</p><h2>' + esc(w.title) + '</h2></div>' +
         '<div class="tally"><strong>' + st2.done + '</strong> из ' + st2.plan + " " + plural(st2.plan, SETS) + '</div></div></article>';
@@ -3123,11 +3132,11 @@ create policy "update own" on public.progress
   }
   function renderTWork(){
     var i = tV(), w = buildTDay(i), key = keyT(i), cur = tCurrent(), h = "";
-    document.getElementById("tnavLabel").innerHTML = "Занятие <strong>" + (i + 1) + "</strong> из " + TCOUNT + ", " + TNAME[tType(i)].toLowerCase() +
-      (i !== cur ? ' <button type="button" class="linkbtn alt" style="margin:0 0 0 8px" data-act="tgo" data-i="' + cur + '">К текущему</button>' : "");
+    document.getElementById("tnavLabel").innerHTML = "Занятие <strong>" + (i + 1) + "</strong> из " + TCOUNT + ", " + TNAME[tType(i)].toLowerCase();
     document.getElementById("tprev").disabled = i === 0;
     document.getElementById("tnext").disabled = i === TCOUNT - 1;
     var st2 = statsOf(w, key);
+    if(i !== cur) h += '<div class="jumprow"><button type="button" class="linkbtn alt" data-act="tgo" data-i="' + cur + '">Перейти к занятию ' + (cur + 1) + '</button></div>';
     h += '<article class="day head-card" id="card-' + key + '"><div class="day-head"><div><p class="when">Занятие ' + (i + 1) +
       (i === cur ? ' <span class="badge">текущее</span>' : tDone(i) ? ' <span class="badge ok">готово</span>' : "") + '</p><h2>' + esc(w.title) + '</h2></div>' +
       '<div class="tally"><strong>' + st2.done + '</strong> из ' + st2.plan + " " + plural(st2.plan, SETS) + '</div></div></article>';
