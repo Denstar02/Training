@@ -537,6 +537,13 @@ body.has-hold .wrap{padding-bottom:140px}
 .ava.photo{background-size:cover;background-position:center}
 .pf-edit{margin:0 0 var(--s4)}
 .pf-edit .field{flex:1 1 200px}
+.friends{margin-top:var(--s3)}
+.friends .code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.06em}
+.frcard{display:flex;align-items:flex-start;gap:var(--s3);padding:var(--s3);margin-top:var(--s2);border:1px solid var(--line);border-radius:var(--r-sm);background:var(--bg)}
+.frmain{flex:1;min-width:0}
+.frtop{display:flex;align-items:center;gap:var(--s2);flex-wrap:wrap}
+.frcard .hint{margin:4px 0 0}
+.badge.quiet{background:var(--line);color:var(--muted)}
 .jumprow{display:flex;justify-content:center;margin:0 0 var(--s2)}
 .jumprow .linkbtn{margin-top:0}
 /* шапка по центру */
@@ -575,6 +582,7 @@ body.has-hold .wrap{padding-bottom:140px}
 
   <section id="panel-profile" role="region" aria-label="Профиль" hidden>
     <section class="panel" id="profileBox"></section>
+    <div id="friendsBox"></div>
 
     <details class="panel">
       <summary>Подключение базы: для тех, кто разворачивает страницу у себя</summary>
@@ -608,7 +616,35 @@ create policy "insert own" on public.progress
   for insert with check (auth.uid() = user_id);
 create policy "update own" on public.progress
   for update using (auth.uid() = user_id) with check (auth.uid() = user_id);</code></pre>
-          <p class="hint">Ключ anon публичный по задумке: сами данные закрыты правилами выше, их видит только владелец строки.</p>
+          <p class="hint">Для друзей нужны ещё две таблицы, выполни этот запрос в SQL Editor:</p>
+        <pre><code>create table if not exists public.profiles (
+  user_id uuid primary key references auth.users on delete cascade,
+  code text unique not null,
+  nick text, photo text, stats jsonb,
+  updated_at timestamptz not null default now()
+);
+alter table public.profiles enable row level security;
+create policy "profiles read" on public.profiles
+  for select to authenticated using (true);
+create policy "profiles insert own" on public.profiles
+  for insert to authenticated with check (auth.uid() = user_id);
+create policy "profiles update own" on public.profiles
+  for update to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+create table if not exists public.friends (
+  user_id uuid not null references auth.users on delete cascade,
+  friend_id uuid not null references auth.users on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (user_id, friend_id)
+);
+alter table public.friends enable row level security;
+create policy "friends read" on public.friends
+  for select to authenticated using (auth.uid() = user_id or auth.uid() = friend_id);
+create policy "friends add" on public.friends
+  for insert to authenticated with check (auth.uid() = user_id);
+create policy "friends drop" on public.friends
+  for delete to authenticated using (auth.uid() = user_id);</code></pre>
+        <p class="hint">Ключ anon публичный по задумке: сами данные закрыты правилами выше, их видит только владелец строки.</p>
         </details>
       </div>
       <details id="sbAdvanced" hidden>
@@ -2891,6 +2927,7 @@ create policy "update own" on public.progress
           body: JSON.stringify([{user_id: uid, data: JSON.parse(JSON.stringify(state)), updated_at: new Date().toISOString()}])
         });
       })
+      .then(function(){ return sbPutProfile(); })
       .then(function(){ SB.last = Date.now(); SB.busy = false; renderSync(); renderAcc(); renderProfile(); })
       .catch(function(e){ SB.busy = false; syncStatus("Синхронизация не прошла: " + sbErr(e)); });
   }
@@ -3860,6 +3897,124 @@ create policy "update own" on public.progress
     });
     return h + '</div>';
   }
+  // ---------- друзья ----------
+  var FR = {list: [], mutual: {}, loading: false, loaded: 0, err: ""};
+  function myCode(){
+    var uid = sbUser();
+    return uid ? uid.replace(/-/g, "").slice(0, 8).toUpperCase() : "";
+  }
+  function myStats(){
+    return {
+      pull: PULL.total(), push: PUSH.total() + BOARD.total(), squat: SQUAT.total(),
+      dumb: DUMB.total(), stretch: tMinutes(), ts: Date.now()
+    };
+  }
+  function sbPutProfile(){
+    if(!sbOn()) return Promise.resolve();
+    var uid = sbUser();
+    if(!uid) return Promise.resolve();
+    return sbReq("/rest/v1/profiles", {
+      method: "POST",
+      headers: {Prefer: "resolution=merge-duplicates,return=minimal"},
+      body: JSON.stringify([{user_id: uid, code: myCode(), nick: profName() || null, photo: profPhoto() || null,
+                             stats: myStats(), updated_at: new Date().toISOString()}])
+    }).catch(function(){});
+  }
+  function sbFriends(){
+    if(!sbOn() || FR.loading) return Promise.resolve();
+    var uid = sbUser();
+    if(!uid) return Promise.resolve();
+    FR.loading = true; FR.err = "";
+    var ids = [];
+    return sbReq("/rest/v1/friends?select=friend_id&user_id=eq." + uid)
+      .then(function(rows){
+        ids = (rows || []).map(function(r){ return r.friend_id; });
+        return sbReq("/rest/v1/friends?select=user_id&friend_id=eq." + uid);
+      })
+      .then(function(back){
+        FR.mutual = {};
+        (back || []).forEach(function(r){ FR.mutual[r.user_id] = true; });
+        if(!ids.length){ FR.list = []; return null; }
+        return sbReq("/rest/v1/profiles?select=user_id,code,nick,photo,stats,updated_at&user_id=in.(" + ids.join(",") + ")");
+      })
+      .then(function(profs){
+        FR.list = (profs || []).slice().sort(function(a, b){
+          return ((b.stats && b.stats.ts) || 0) - ((a.stats && a.stats.ts) || 0);
+        });
+        FR.loading = false; FR.loaded = Date.now();
+        renderProfile();
+      })
+      .catch(function(e){ FR.loading = false; FR.err = sbErr(e); renderProfile(); });
+  }
+  function frAdd(){
+    var el = document.getElementById("frCode"), code = ((el && el.value) || "").trim().toUpperCase().replace(/[^0-9A-F]/g, "");
+    if(code.length !== 8){ FR.err = "Код состоит из восьми знаков, например 7F3A91C0."; renderProfile(); return; }
+    if(code === myCode()){ FR.err = "Это твой собственный код."; renderProfile(); return; }
+    FR.err = "";
+    sbReq("/rest/v1/profiles?select=user_id,nick&code=eq." + code)
+      .then(function(rows){
+        if(!rows || !rows.length) throw new Error("Человек с таким кодом не найден. Попроси его зайти в профиль — код появляется после первого входа.");
+        var fid = rows[0].user_id;
+        return sbReq("/rest/v1/friends", {
+          method: "POST",
+          headers: {Prefer: "resolution=merge-duplicates,return=minimal"},
+          body: JSON.stringify([{user_id: sbUser(), friend_id: fid}])
+        }).then(function(){
+          if(el) el.value = "";
+          flash("Добавлен: " + (rows[0].nick || "друг"));
+          return sbFriends();
+        });
+      })
+      .catch(function(e){ FR.err = sbErr(e); renderProfile(); });
+  }
+  function frDrop(fid){
+    sbReq("/rest/v1/friends?user_id=eq." + sbUser() + "&friend_id=eq." + fid, {method: "DELETE", headers: {Prefer: "return=minimal"}})
+      .then(function(){ flash("Убрал из друзей"); return sbFriends(); })
+      .catch(function(e){ FR.err = sbErr(e); renderProfile(); });
+  }
+  function frWhen(ts){
+    if(!ts) return "давно";
+    var d0 = new Date(), today = new Date(d0.getFullYear(), d0.getMonth(), d0.getDate());
+    var t = new Date(ts), day = new Date(t.getFullYear(), t.getMonth(), t.getDate());
+    var days = Math.round((today - day) / 864e5);
+    return days <= 0 ? "сегодня" : days === 1 ? "вчера" : days + " " + plural(days, ["день","дня","дней"]) + " назад";
+  }
+  function frCard(p){
+    var st = p.stats || {}, name = p.nick || "Без имени";
+    var ava = p.photo
+      ? '<span class="ava photo" style="background-image:url(' + esc(p.photo) + ')"></span>'
+      : '<span class="ava">' + esc(name.charAt(0).toUpperCase()) + '</span>';
+    var rows = [
+      {v: st.pull || 0, u: ["подтягивание","подтягивания","подтягиваний"]},
+      {v: st.push || 0, u: ["отжимание","отжимания","отжиманий"]},
+      {v: st.squat || 0, u: ["приседание","приседания","приседаний"]},
+      {v: st.dumb || 0, u: ["повторение","повторения","повторений"], tail: " с гантелями"},
+      {v: st.stretch || 0, u: ["минута","минуты","минут"], tail: " растяжки"}
+    ].filter(function(r){ return r.v > 0; });
+    var line = rows.length
+      ? rows.map(function(r){ return r.v + " " + plural(r.v, r.u) + (r.tail || ""); }).join(", ")
+      : "пока без отметок";
+    return '<div class="frcard">' + ava +
+      '<div class="frmain"><div class="frtop"><strong>' + esc(name) + '</strong>' +
+      (FR.mutual[p.user_id] ? '<span class="badge ok">взаимно</span>' : '<span class="badge quiet">в одну сторону</span>') + '</div>' +
+      '<p class="hint">' + esc(line) + '</p>' +
+      '<p class="hint">Последняя отметка: ' + frWhen(st.ts) + ', код ' + esc(p.code || "") + '</p></div>' +
+      '<button type="button" class="linkbtn alt" data-act="fr-drop" data-id="' + esc(p.user_id) + '">Убрать</button></div>';
+  }
+  function friendsHtml(){
+    var h = '<section class="panel friends"><h2>Друзья</h2>';
+    h += '<p class="hint">Твой код: <strong class="code">' + esc(myCode()) + '</strong> — дай его другу, чтобы он тебя добавил. ' +
+      '<button type="button" class="linkbtn alt" data-act="fr-copy">Скопировать</button></p>';
+    h += '<div class="test"><label class="field" for="frCode">Код друга<input type="text" id="frCode" maxlength="8" placeholder="например 7F3A91C0" autocomplete="off" spellcheck="false"></label>' +
+      '<button type="button" class="primary" data-act="fr-add">Добавить друга</button>' +
+      '<button type="button" class="linkbtn" data-act="fr-reload">Обновить</button></div>';
+    if(FR.err) h += '<p class="hint">' + esc(FR.err) + '</p>';
+    if(FR.loading) h += '<p class="hint">Загружаю список…</p>';
+    else if(!FR.list.length) h += '<p class="hint">Друзей пока нет. Обменяйтесь кодами — и увидите цифры друг друга: сколько подтягиваний, отжиманий, приседаний и минут растяжки набрано и когда была последняя отметка.</p>';
+    else FR.list.forEach(function(p){ h += frCard(p); });
+    return h + '</section>';
+  }
+
   function renderProfile(){
     var box = document.getElementById("profileBox");
     if(!box) return;
@@ -3877,6 +4032,11 @@ create policy "update own" on public.progress
       h += '<p class="hint">Прогресс хранится в твоём аккаунте: открой страницу на другом устройстве, войди теми же почтой и паролем, и отметки будут общими.</p>';
       h += '<div class="test"><button type="button" class="primary" data-act="sb-sync">Синхронизировать сейчас</button>' +
         '<button type="button" class="linkbtn" data-act="sb-out">Выйти</button></div>';
+      box.innerHTML = h;
+      var fb = document.getElementById("friendsBox");
+      if(fb) fb.innerHTML = friendsHtml();
+      if(!FR.loaded && !FR.loading) sbFriends();
+      return;
     } else {
       h += '<div class="pf-head"><span class="ava big guest" aria-hidden="true">?</span><div><h2>Гость</h2>' +
         '<p class="hint">Отметки сохраняются только в этом браузере.</p></div></div>';
@@ -3888,6 +4048,8 @@ create policy "update own" on public.progress
         '<button type="button" class="linkbtn" data-act="sb-in">Войти</button></div>';
       h += '<p class="hint" id="pfNote" aria-live="polite"></p>';
       h += '<p class="hint">Уже отмеченные тренировки не пропадут: после входа они сложатся с тем, что лежит в аккаунте.</p>';
+      var fb0 = document.getElementById("friendsBox");
+      if(fb0) fb0.innerHTML = "";
     }
     box.innerHTML = h;
   }
@@ -4049,6 +4211,17 @@ create policy "update own" on public.progress
       state.times[fk] = Date.now();
       sel = null; save(); render();
       flash("Тренировка засчитана");
+      return;
+    }
+    if(act === "fr-add"){ frAdd(); return; }
+    if(act === "fr-drop"){ frDrop(b.getAttribute("data-id")); return; }
+    if(act === "fr-reload"){ FR.loaded = 0; sbFriends(); flash("Обновляю"); return; }
+    if(act === "fr-copy"){
+      var code = myCode();
+      try {
+        if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(code).then(function(){ flash("Код скопирован"); }, function(){ flash("Код: " + code); });
+        else flash("Код: " + code);
+      } catch(e){ flash("Код: " + code); }
       return;
     }
     if(act === "pf-photo"){ var fi2 = document.getElementById("pfPhotoFile"); if(fi2){ fi2.value = ""; fi2.click(); } return; }
