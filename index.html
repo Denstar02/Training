@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Тренировки — турник и отжимания</title>
+<title>Тренировки — силовые программы и растяжка</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#2A52D6">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -537,6 +537,8 @@ body.has-hold .wrap{padding-bottom:140px}
 .ava.photo{background-size:cover;background-position:center}
 .pf-edit{margin:0 0 var(--s4)}
 .pf-edit .field{flex:1 1 200px}
+.finishbar{margin-top:var(--s4);align-items:center}
+.finishbar .hint{flex:1 1 200px;margin:0}
 .lockbox{display:flex;flex-direction:column;align-items:flex-start;gap:var(--s3);padding:var(--s4);border:1px dashed var(--line-strong);border-radius:var(--r-md);background:var(--bg)}
 .lockbox .hint{margin:0}
 </style>
@@ -567,7 +569,7 @@ body.has-hold .wrap{padding-bottom:140px}
     <section class="panel" id="profileBox"></section>
 
     <details class="panel">
-      <summary>Настройка приложения</summary>
+      <summary>Подключение базы: для тех, кто разворачивает страницу у себя</summary>
       <p class="hint">Нужно только тем, кто разворачивает эту страницу у себя: здесь подключается своя база.</p>
       <div id="syncSb">
       <div id="sbProject" hidden>
@@ -1007,11 +1009,10 @@ create policy "update own" on public.progress
 
 
   <details class="panel settings">
-    <summary>Настройки и данные</summary>
+    <summary>Звук, тема и данные</summary>
     <h3 class="camset-label" style="margin-top:4px">Установка на телефон</h3>
+    <div class="test"><button type="button" class="primary" id="installBtn">Установить на Android</button></div>
     <p class="hint" id="installText" aria-live="polite"></p>
-    <div class="test"><button type="button" class="primary" id="installBtn" hidden>Установить на Android</button></div>
-    <p class="hint">После установки страница открывается с иконки на весь экран и работает без интернета: программы, счётчик по камере и таймер остаются на месте. Прогресс хранится в телефоне, а если включить синхронизацию ниже, совпадает с компьютером.</p>
       <p class="hint">Каждая программа подаёт свой сигнал, чтобы на слух было понятно, какой таймер сработал. Нажми, чтобы послушать:</p>
       <div class="picker" id="soundTest"></div>
 
@@ -1295,7 +1296,7 @@ create policy "update own" on public.progress
   try { var tb = localStorage.getItem(TKEY); if(tb === "push" || tb === "squat" || tb === "dumb" || tb === "stretch" || tb === "custom") TAB = tb; } catch(e){}
   var SETS = ["подход","подхода","подходов"];
   // тип дня: 0 — смазка канавки, 1 — удержания и подходы, 2 — лесенки/тест
-  function fresh(){ return {v:4, profile:{name:"", photo:""}, updatedAt:0, mode:{pull:"short", push:"short", squat:"short", stretch:"short"}, variant:{push:"classic"}, start:null, timer:null, p:{startMax:15, max:null, tests:{}}, s:{startMax:25, max:null, tests:{}}, b:{startMax:12, max:null, tests:{}}, g:{startMax:12, max:null, tests:{}}, t:{front:40, side:45, tests:{}}, u:{startMax:4, max:null, tests:{}, legacy:0}, custom:{progs:[], cur:null, mount:{pull:null, push:null, squat:null, stretch:null}}, startMax:4, test4:null, test8:null, logs:{}, times:{}, cycles:[]}; }
+  function fresh(){ return {v:4, profile:{name:"", photo:""}, fin:{}, updatedAt:0, mode:{pull:"short", push:"short", squat:"short", stretch:"short"}, variant:{push:"classic"}, start:null, timer:null, p:{startMax:15, max:null, tests:{}}, s:{startMax:25, max:null, tests:{}}, b:{startMax:12, max:null, tests:{}}, g:{startMax:12, max:null, tests:{}}, t:{front:40, side:45, tests:{}}, u:{startMax:4, max:null, tests:{}, legacy:0}, custom:{progs:[], cur:null, mount:{pull:null, push:null, squat:null, stretch:null}}, startMax:4, test4:null, test8:null, logs:{}, times:{}, cycles:[]}; }
   function normalize(s){
     var f = fresh();
     if(!s || typeof s !== "object") return f;
@@ -1303,6 +1304,7 @@ create policy "update own" on public.progress
     f.test4 = s.test4 == null ? null : clampInt(s.test4, 0, 60, null);
     f.test8 = s.test8 == null ? null : clampInt(s.test8, 0, 60, null);
     f.logs = (s.logs && typeof s.logs === "object") ? s.logs : {};
+    f.fin = (s.fin && typeof s.fin === "object" && !Array.isArray(s.fin)) ? s.fin : {};
     f.times = (s.times && typeof s.times === "object") ? s.times : {};
     f.cycles = Array.isArray(s.cycles) ? s.cycles : [];
     // старые ключи без режима переводим в режим «на весь день»
@@ -1583,6 +1585,18 @@ create policy "update own" on public.progress
   }
 
   function items(day){ var a = []; day.groups.forEach(function(g){ g.rows.forEach(function(r){ a = a.concat(r); }); }); return a; }
+  function allLogged(day, key){
+    if(!day || day.test) return false;
+    var lg = state.logs[key] || [], all = items(day);
+    if(!all.length) return false;
+    for(var i = 0; i < all.length; i++) if(lg[all[i].idx] == null) return false;
+    return true;
+  }
+  function isFin(key){ return !!(state.fin && state.fin[key]); }
+  function finishHtml(key){
+    return '<div class="test finishbar"><button type="button" class="primary" data-act="finish" data-key="' + key + '">Завершить тренировку</button>' +
+      '<span class="hint">Все подходы отмечены. Нажми, когда закончишь на сегодня.</span></div>';
+  }
   function statsOf(day, key){
     var z = {plan: 0, done: 0, reps: 0, planned: 0};
     if(!day) return z;
@@ -1939,9 +1953,8 @@ create policy "update own" on public.progress
     C.done = function(i){
       var w = C.build(i); if(!w) return false;
       if(w.test) return st().tests[i] != null;
-      var log = state.logs[C.key(i)] || [], all = items(w);
-      for(var j = 0; j < all.length; j++) if(log[all[j].idx] == null) return false;
-      return all.length > 0;
+      var k = C.key(i);
+      return allLogged(w, k) && isFin(k);
     };
     C.any = function(i){
       var w = C.build(i); if(!w) return false;
@@ -2052,7 +2065,8 @@ create policy "update own" on public.progress
         var s2 = statsOf(w, key);
         h += '<div class="tally"><strong>' + s2.reps + '</strong> из ' + s2.planned + ' повт.</div></div>' + groupsHtml(w, key);
         h += '<p class="last">' + esc(w.next) + '</p>';
-        if(C.done(i) && i < CCOUNT - 1) h += '<div class="test"><button type="button" class="primary" data-act="cgo" data-c="' + cfg.pre + '" data-i="' + (i + 1) + '">Дальше: тренировка ' + (i + 2) + '</button></div>';
+        if(!C.done(i) && allLogged(w, key)) h += finishHtml(key);
+        else if(C.done(i) && i < CCOUNT - 1) h += '<div class="test"><button type="button" class="primary" data-act="cgo" data-c="' + cfg.pre + '" data-i="' + (i + 1) + '">Дальше: тренировка ' + (i + 2) + '</button></div>';
       }
       el("work").innerHTML = h + '</article>';
     }
@@ -2300,9 +2314,8 @@ create policy "update own" on public.progress
   }
   function custDone(prog, i){
     var w = custBuild(prog, i); if(!w) return false;
-    var lg = state.logs[custKey(prog, i)] || [], all = items(w);
-    for(var j = 0; j < all.length; j++) if(lg[all[j].idx] == null) return false;
-    return all.length > 0;
+    var k = custKey(prog, i);
+    return allLogged(w, k) && isFin(k);
   }
   function custFill(prog, i){ var w = custBuild(prog, i); if(!w) return 0; var s2 = statsOf(w, custKey(prog, i)); return s2.plan ? Math.round(100 * s2.done / s2.plan) : 0; }
   function custCurrent(prog){ for(var i = 0; i < custCount(prog); i++) if(!custDone(prog, i)) return i; return custCount(prog) - 1; }
@@ -2360,7 +2373,8 @@ create policy "update own" on public.progress
       (i === cur ? ' <span class="badge">текущее</span>' : custDone(prog, i) ? ' <span class="badge ok">готово</span>' : "") + '</p><h2>' + esc(w.title) + '</h2></div>' +
       '<div class="tally"><strong>' + st2.done + '</strong> из ' + st2.plan + " " + plural(st2.plan, SETS) + '</div></div></article>';
     w.groups.forEach(function(g, gi){ h += '<article class="day">' + groupsHtml({groups: [g]}, key, gi) + '</article>'; });
-    if(custDone(prog, i) && i < total - 1) h += '<div class="test"><button type="button" class="primary" data-act="cust-go" data-i="' + (i + 1) + '">Дальше: занятие ' + (i + 2) + '</button></div>';
+    if(!custDone(prog, i) && allLogged(w, key)) h += finishHtml(key);
+    else if(custDone(prog, i) && i < total - 1) h += '<div class="test"><button type="button" class="primary" data-act="cust-go" data-i="' + (i + 1) + '">Дальше: занятие ' + (i + 2) + '</button></div>';
     work.innerHTML = h;
   }
   function renderCustEditor(){
@@ -2449,9 +2463,8 @@ create policy "update own" on public.progress
   }
   function mountedDone(tab, prog, i){
     var w = mountedBuild(tab, prog, i); if(!w) return false;
-    var lg = state.logs[mountedKey(tab, prog, i)] || [], all = items(w);
-    for(var j = 0; j < all.length; j++) if(lg[all[j].idx] == null) return false;
-    return all.length > 0;
+    var k = mountedKey(tab, prog, i);
+    return allLogged(w, k) && isFin(k);
   }
   function mountedCurrent(tab, prog){ var n = custCount(prog); for(var i = 0; i < n; i++) if(!mountedDone(tab, prog, i)) return i; return n - 1; }
   function mountedV(tab, prog){
@@ -2497,7 +2510,8 @@ create policy "update own" on public.progress
         (idx === cur ? ' <span class="badge">текущее</span>' : mountedDone(tab, prog, idx) ? ' <span class="badge ok">готово</span>' : "") + '</p><h2>' + esc(w.title) + '</h2></div>' +
         '<div class="tally"><strong>' + st2.done + '</strong> из ' + st2.plan + " " + plural(st2.plan, SETS) + '</div></div></article>';
       w.groups.forEach(function(g, gi2){ h += '<article class="day">' + groupsHtml({groups: [g]}, key, gi2) + '</article>'; });
-      if(mountedDone(tab, prog, idx) && idx < total - 1) h += '<div class="test"><button type="button" class="primary" data-act="m-go" data-tab="' + tab + '" data-i="' + (idx + 1) + '">Дальше: занятие ' + (idx + 2) + '</button></div>';
+      if(!mountedDone(tab, prog, idx) && allLogged(w, key)) h += finishHtml(key);
+      else if(mountedDone(tab, prog, idx) && idx < total - 1) h += '<div class="test"><button type="button" class="primary" data-act="m-go" data-tab="' + tab + '" data-i="' + (idx + 1) + '">Дальше: занятие ' + (idx + 2) + '</button></div>';
       h += '</main>';
     }
     box.innerHTML = h;
@@ -3022,10 +3036,8 @@ create policy "update own" on public.progress
   }
   function tDone(i){
     var w = buildTDay(i); if(!w) return false;
-    var log = state.t.logs ? null : null;
-    var lg = state.logs[keyT(i)] || [], all = items(w);
-    for(var j = 0; j < all.length; j++) if(lg[all[j].idx] == null) return false;
-    return all.length > 0;
+    var k = keyT(i);
+    return allLogged(w, k) && isFin(k);
   }
   function tAny(i){ var w = buildTDay(i); return w ? statsOf(w, keyT(i)).done > 0 : false; }
   function tCurrent(){ for(var i = 0; i < TCOUNT; i++) if(!tDone(i)) return i; return TCOUNT - 1; }
@@ -3135,7 +3147,8 @@ create policy "update own" on public.progress
         '<button type="button" data-act="tmeas+" data-i="' + i + '" data-k="side" data-base="' + tMeasure("side") + '" aria-label="Увеличить">+</button></div></div></div></article>';
     }
     h += '<p class="last plan-note">' + esc(w.next) + '</p>';
-    if(tDone(i) && i < TCOUNT - 1) h += '<div class="test"><button type="button" class="primary" data-act="tgo" data-i="' + (i + 1) + '">Дальше: занятие ' + (i + 2) + '</button></div>';
+    if(!tDone(i) && allLogged(w, key)) h += finishHtml(key);
+    else if(tDone(i) && i < TCOUNT - 1) h += '<div class="test"><button type="button" class="primary" data-act="tgo" data-i="' + (i + 1) + '">Дальше: занятие ' + (i + 2) + '</button></div>';
     document.getElementById("twork").innerHTML = h;
   }
   function renderStretch(){ renderTMode(); renderTMax(); renderTStatus(); renderTTrack(); renderTRing(); renderTWork(); }
@@ -4020,6 +4033,15 @@ create policy "update own" on public.progress
       return;
     }
     if(act === "hold-stop"){ holdStop(); flash("Таймер остановлен"); return; }
+    if(act === "finish"){
+      var fk = b.getAttribute("data-key");
+      if(!state.fin) state.fin = {};
+      state.fin[fk] = Date.now();
+      state.times[fk] = Date.now();
+      sel = null; save(); render();
+      flash("Тренировка засчитана");
+      return;
+    }
     if(act === "pf-photo"){ var fi2 = document.getElementById("pfPhotoFile"); if(fi2){ fi2.value = ""; fi2.click(); } return; }
     if(act === "pf-nophoto"){ state.profile.photo = ""; save(); render(); flash("Фото убрано"); return; }
     if(act === "go-profile" || act === "acc"){
@@ -4266,31 +4288,34 @@ create policy "update own" on public.progress
   var btn = document.getElementById("installBtn"), txt = document.getElementById("installText"), deferred = null;
   var standalone = (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || window.navigator.standalone === true;
   var ios = /iphone|ipad|ipod/i.test(navigator.userAgent || "");
-  function set(t){ if(txt) txt.textContent = t; }
-  if(standalone) set("Ты уже в установленном приложении. Новая версия подтягивается сама при запуске с интернетом.");
-  else if(ios) set("На iPhone: открой эту страницу в Safari, нажми «Поделиться» и выбери «На экран „Домой“». Дальше она запускается с иконки и работает без интернета.");
-  else set("На Android: открой страницу в Chrome — здесь появится кнопка «Установить на Android». Если её нет, зайди в меню браузера и выбери «Установить приложение» или «Добавить на главный экран».");
-  window.addEventListener("beforeinstallprompt", function(e){
-    e.preventDefault(); deferred = e;
+  function set(t){ if(txt) txt.textContent = t || ""; }
+  function toast(t){
+    var el = document.getElementById("toast");
+    if(el){ el.textContent = t; el.hidden = false; setTimeout(function(){ el.hidden = true; }, 3200); }
+    else set(t);
+  }
+  if(standalone){ if(btn) btn.hidden = true; set("Ты уже в установленном приложении."); }
+  else if(ios){
+    if(btn) btn.hidden = true;
+    set("На iPhone: нажми «Поделиться» в нижней панели Safari, пролистай список вниз и выбери «На экран „Домой“», затем «Добавить». Появится иконка, с которой страница открывается на весь экран и работает без интернета.");
+  } else {
     if(btn) btn.hidden = false;
-    set("Нажми «Установить на Android» — появится иконка на экране, и страница будет работать без интернета.");
-  });
+    set("");
+  }
+  window.addEventListener("beforeinstallprompt", function(e){ e.preventDefault(); deferred = e; if(btn) btn.hidden = standalone || ios; });
   if(btn) btn.addEventListener("click", function(){
-    if(!deferred) return;
+    if(!deferred){ toast("Открой меню браузера и выбери «Установить приложение»"); return; }
     deferred.prompt();
     deferred.userChoice.then(function(r){
-      deferred = null; btn.hidden = true;
-      set(r && r.outcome === "accepted" ? "Готово, иконка на экране." : "Хорошо, можно установить позже.");
+      deferred = null;
+      if(r && r.outcome === "accepted"){ btn.hidden = true; set("Готово, иконка на экране."); }
     });
   });
   window.addEventListener("appinstalled", function(){ if(btn) btn.hidden = true; set("Приложение установлено."); });
   if("serviceWorker" in navigator && /^https?:$/.test(location.protocol)){
     navigator.serviceWorker.register("sw.js").catch(function(){});
     navigator.serviceWorker.addEventListener("message", function(e){
-      if(e.data === "updated"){
-        var el = document.getElementById("toast");
-        if(el){ el.textContent = "Есть новая версия — обнови страницу"; el.hidden = false; }
-      }
+      if(e.data === "updated") toast("Есть новая версия — обнови страницу");
     });
   }
 })();
