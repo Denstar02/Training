@@ -537,6 +537,17 @@ body.has-hold .wrap{padding-bottom:140px}
 .ava.photo{background-size:cover;background-position:center}
 .pf-edit{margin:0 0 var(--s4)}
 .pf-edit .field{flex:1 1 200px}
+.onb-card{max-width:460px;text-align:left}
+.onb-card h2{font-size:var(--fs-lg);margin-top:var(--s2)}
+.onb-list{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s3)}
+.onb-list .blockbtn{flex:1 1 180px}
+.onb-row{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);margin-top:var(--s3)}
+.noterow{margin-top:var(--s4)}
+.noterow .field{flex:1 1 100%}
+.noterow input{width:100%}
+.react{margin-top:var(--s2)}
+.tchart{display:block;width:100%;height:auto;margin:var(--s3) 0}
+.tchart text{fill:var(--muted);font-family:"Onest",system-ui,sans-serif;font-size:10px}
 .feed{margin-top:var(--s4)}
 .feedlist{margin:8px 0 0;padding-left:18px}
 .feedlist li{margin:4px 0;font-size:var(--fs-sm);color:var(--muted)}
@@ -698,6 +709,7 @@ create policy "friends drop" on public.friends
     <div class="legend" aria-hidden="true">
       <span><i></i>Запланировано, нажми после подхода</span>
       <span><i class="d"></i>Выполнено</span>
+      <span>Пробел на компьютере — отметить следующий подход</span>
       <span><i class="p"></i>Меньше плана</span>
       <span><i class="h"></i>Секунды: удержание и вис</span>
     </div>
@@ -911,6 +923,7 @@ create policy "friends drop" on public.friends
         <output id="gmaxOut">12</output>
         <button type="button" data-act="cmax+" data-c="g" aria-label="Увеличить">+</button>
       </div>
+      <label class="field" for="gweight" style="flex:0 0 auto">Вес гантели, кг<input type="number" id="gweight" min="0" max="200" step="0.5" placeholder="например 12"></label>
       <div class="modebox" id="gmode"></div>
     </div>
 
@@ -1070,12 +1083,14 @@ create policy "friends drop" on public.friends
     <span class="io">
       <button type="button" class="danger" data-act="export">Сохранить копию прогресса</button>
       <label class="danger filebtn">Загрузить копию<input type="file" id="importFile" accept="application/json,.json" hidden></label>
+      <button type="button" class="themebtn" data-act="csv">Выгрузить в CSV</button>
       <button type="button" class="themebtn" id="themeBtn" data-act="theme">Тёмная тема</button>
       <button type="button" class="danger" id="reset" data-act="reset">Сбросить весь прогресс</button>
     </span>
   </details>
 </div>
 
+<div id="onb" class="warm" role="dialog" aria-modal="true" hidden></div>
 <div id="holdbar" class="holdbar" hidden></div>
 <div id="timerbar" class="timerbar" hidden></div>
 <div id="toast" class="toast" role="status" hidden></div>
@@ -1346,7 +1361,7 @@ create policy "friends drop" on public.friends
   try { var tb = localStorage.getItem(TKEY); if(tb === "push" || tb === "squat" || tb === "dumb" || tb === "stretch" || tb === "custom") TAB = tb; } catch(e){}
   var SETS = ["подход","подхода","подходов"];
   // тип дня: 0 — смазка канавки, 1 — удержания и подходы, 2 — лесенки/тест
-  function fresh(){ return {v:4, profile:{name:"", photo:""}, fin:{}, lastEvent:null, updatedAt:0, mode:{pull:"short", push:"short", squat:"short", stretch:"short"}, variant:{push:"classic"}, start:null, timer:null, p:{startMax:15, max:null, tests:{}}, s:{startMax:25, max:null, tests:{}}, b:{startMax:12, max:null, tests:{}}, g:{startMax:12, max:null, tests:{}}, t:{front:40, side:45, tests:{}}, u:{startMax:4, max:null, tests:{}, legacy:0}, custom:{progs:[], cur:null, mount:{pull:null, push:null, squat:null, stretch:null}}, startMax:4, test4:null, test8:null, logs:{}, times:{}, cycles:[]}; }
+  function fresh(){ return {v:4, profile:{name:"", photo:""}, fin:{}, lastEvent:null, notes:{}, reacts:{}, onb:{done:false}, updatedAt:0, mode:{pull:"short", push:"short", squat:"short", stretch:"short"}, variant:{push:"classic"}, start:null, timer:null, p:{startMax:15, max:null, tests:{}}, s:{startMax:25, max:null, tests:{}}, b:{startMax:12, max:null, tests:{}}, g:{startMax:12, max:null, tests:{}, weight:0, autoAt:0}, t:{front:40, side:45, tests:{}}, u:{startMax:4, max:null, tests:{}, legacy:0}, custom:{progs:[], cur:null, mount:{pull:null, push:null, squat:null, stretch:null}}, startMax:4, test4:null, test8:null, logs:{}, times:{}, cycles:[]}; }
   function normalize(s){
     var f = fresh();
     if(!s || typeof s !== "object") return f;
@@ -1355,6 +1370,9 @@ create policy "friends drop" on public.friends
     f.test8 = s.test8 == null ? null : clampInt(s.test8, 0, 60, null);
     f.logs = (s.logs && typeof s.logs === "object") ? s.logs : {};
     f.fin = (s.fin && typeof s.fin === "object" && !Array.isArray(s.fin)) ? s.fin : {};
+    f.notes = (s.notes && typeof s.notes === "object" && !Array.isArray(s.notes)) ? s.notes : {};
+    f.reacts = (s.reacts && typeof s.reacts === "object" && !Array.isArray(s.reacts)) ? s.reacts : {};
+    f.onb = {done: !!(s.onb && s.onb.done)};
     f.lastEvent = (s.lastEvent && typeof s.lastEvent === "object" && typeof s.lastEvent.title === "string") ? s.lastEvent : null;
     f.times = (s.times && typeof s.times === "object") ? s.times : {};
     f.cycles = Array.isArray(s.cycles) ? s.cycles : [];
@@ -1403,7 +1421,8 @@ create policy "friends drop" on public.friends
       startMax: clampInt(U0.startMax, 1, 100, clampInt(s.startMax, 1, 100, 4)),
       max: U0.max != null ? clampInt(U0.max, 1, 100, null) : (s.test8 != null ? clampInt(s.test8, 1, 100, null) : (s.test4 != null ? clampInt(s.test4, 1, 100, null) : null)),
       tests: (U0.tests && typeof U0.tests === "object" && !Array.isArray(U0.tests)) ? U0.tests : {},
-      legacy: clampInt(U0.legacy, 0, 100000, 0)
+      legacy: clampInt(U0.legacy, 0, 100000, 0),
+      weight: 0, autoAt: clampInt(U0.autoAt, 0, 1000, 0), breakAt: typeof U0.breakAt === "number" ? U0.breakAt : 0
     };
     if(!(s.v >= 4)){
       var legacySum = 0;
@@ -1460,6 +1479,9 @@ create policy "friends drop" on public.friends
       var src = s[pair[0]] && typeof s[pair[0]] === "object" ? s[pair[0]] : {};
       f[pair[0]] = {
         startMax: clampInt(src.startMax, 1, 500, pair[1]),
+      weight: (function(){ var w = parseFloat(src.weight); return isFinite(w) && w > 0 && w <= 200 ? Math.round(w * 2) / 2 : 0; })(),
+      autoAt: clampInt(src.autoAt, 0, 1000, 0),
+      breakAt: typeof src.breakAt === "number" ? src.breakAt : 0,
         max: src.max == null ? null : clampInt(src.max, 1, 500, null),
         tests: (src.tests && typeof src.tests === "object" && !Array.isArray(src.tests)) ? src.tests : {}
       };
@@ -1938,6 +1960,49 @@ create policy "friends drop" on public.friends
     });
     return h + '</div>';
   }
+  // ---------- автоподсказка по нагрузке ----------
+  function chainAudit(C){
+    var doneIdx = [], i;
+    for(i = 0; i < CCOUNT; i++) if(C.done(i) && !C.isTest(i)) doneIdx.push(i);
+    var clean = 0, weak = 0, taken = 0;
+    for(i = doneIdx.length - 1; i >= 0 && taken < 3; i--){
+      taken++;
+      var w = C.build(doneIdx[i]), key = C.key(doneIdx[i]), log = state.logs[key] || [];
+      var under = 0, total = 0;
+      items(w).forEach(function(it){
+        if(isSec(it.kind)) return;
+        total++;
+        if((log[it.idx] || 0) < it.target) under++;
+      });
+      if(!total) continue;
+      if(under === 0) clean++;
+      if(under / total >= 0.34) weak++;
+    }
+    return {count: doneIdx.length, clean: clean, weak: weak};
+  }
+  function chainAdvice(C){
+    var st2 = state[C.cfg.pre];
+    if(!st2) return null;
+    var a = chainAudit(C);
+    if(a.count <= (st2.autoAt || 0)) return null;
+    if(a.clean >= 3 && a.count >= 3) return {dir: 1, count: a.count};
+    if(a.weak >= 2) return {dir: -1, count: a.count};
+    return null;
+  }
+  function adviceHtmlFor(C){
+    var adv = chainAdvice(C);
+    if(!adv) return "";
+    var now = C.max(), next = Math.max(1, now + adv.dir);
+    return '<div class="advice"><p><strong>' +
+      (adv.dir > 0 ? "Три тренировки подряд закрыты полностью." : "Последние тренировки давались тяжело.") + '</strong> ' +
+      (adv.dir > 0
+        ? "Можно поднять рабочий максимум с " + now + " до " + next + " — подходы станут чуть длиннее."
+        : "Можно снизить рабочий максимум с " + now + " до " + next + " — подходы станут короче. Это нормально: главное не доходить до отказа.") + '</p>' +
+      '<div class="test"><button type="button" class="primary" data-act="auto-yes" data-c="' + C.cfg.pre + '" data-d="' + adv.dir + '" data-n="' + adv.count + '">' +
+      (adv.dir > 0 ? "Поднять до " + next : "Снизить до " + next) + '</button>' +
+      '<button type="button" class="linkbtn alt" data-act="auto-no" data-c="' + C.cfg.pre + '" data-n="' + adv.count + '">Оставить как есть</button></div></div>';
+  }
+
   function makeChain(cfg){
     var C = {cfg: cfg, view: null};
     function st(){ return state[cfg.pre]; }
@@ -2039,7 +2104,7 @@ create policy "friends drop" on public.friends
 
     function renderMax(){
       el("maxOut").textContent = st().startMax;
-      var t = cfg.maxLabel + ": <strong>" + C.max() + "</strong>.";
+      var t = (typeof cfg.maxLabel === "function" ? cfg.maxLabel() : cfg.maxLabel) + ": <strong>" + C.max() + "</strong>.";
       t += st().max ? " Он взят из последнего теста. Кнопками справа меняется стартовый максимум: " + st().startMax + "."
                     : " От него считаются все подходы — поставь свой кнопками справа.";
       el("maxText").innerHTML = t;
@@ -2091,6 +2156,7 @@ create policy "friends drop" on public.friends
         '<text x="65" y="62" text-anchor="middle" class="big">' + total + '</text>' +
         '<text x="65" y="82" text-anchor="middle">из ' + goal + '</text></svg>' +
         '<p class="hint">Всего ' + cfg.unit[2] + ' за программу. До отметки ' + goal + ' осталось ' + Math.max(0, goal - total) + '.</p></div>';
+      h += testChart(C);
       if(st().legacy) h += '<p class="hint">Включая ' + st().legacy + " " + plural(st().legacy, cfg.unit) + ' из прежней программы по расписанию.</p>';
       var tests = Object.keys(st().tests).sort(function(a, b){ return a - b; });
       if(tests.length) h += '<p class="hint">Тесты: ' + tests.map(function(k){ return "тренировка " + (+k + 1) + " — " + st().tests[k]; }).join(", ") + '. Стартовый максимум был ' + st().startMax + '.</p>';
@@ -2101,6 +2167,7 @@ create policy "friends drop" on public.friends
       el("navLabel").innerHTML = "Тренировка <strong>" + (i + 1) + "</strong> из " + CCOUNT + ", " + C.name(C.type(i)).toLowerCase();
       el("prev").disabled = i === 0;
       el("next").disabled = i === CCOUNT - 1;
+      h += breakHtml(C) + adviceHtmlFor(C);
       if(i !== cur) h += '<div class="jumprow"><button type="button" class="linkbtn alt" data-act="cgo" data-c="' + cfg.pre + '" data-i="' + cur + '">Перейти к тренировке ' + (cur + 1) + '</button></div>';
       h += '<article class="day' + (i === cur ? " today" : "") + '" id="card-' + key + '"><div class="day-head"><div><p class="when">Тренировка ' + (i + 1) +
         (i === cur ? ' <span class="badge">текущая</span>' : C.done(i) ? ' <span class="badge ok">готово</span>' : "") + '</p><h2>' + esc(w.title) + '</h2></div>';
@@ -2117,6 +2184,7 @@ create policy "friends drop" on public.friends
         var s2 = statsOf(w, key);
         h += '<div class="tally"><strong>' + s2.reps + '</strong> из ' + s2.planned + ' повт.</div></div>' + groupsHtml(w, key);
         h += '<p class="last">' + esc(w.next) + '</p>';
+        h += noteHtml(key);
         if(!C.done(i) && allLogged(w, key)) h += finishHtml(key);
         else if(C.done(i) && i < CCOUNT - 1) h += '<div class="test"><button type="button" class="primary" data-act="cgo" data-c="' + cfg.pre + '" data-i="' + (i + 1) + '">Дальше: тренировка ' + (i + 2) + '</button></div>';
       }
@@ -2327,7 +2395,10 @@ create policy "friends drop" on public.friends
   var DUMB = makeChain({
     pre: "g", dom: "g", tab: "dumb",
     unit: ["повторение","повторения","повторений"],
-    maxLabel: "Рабочий максимум повторений с гантелями",
+    maxLabel: function(){
+      var w = state.g && state.g.weight;
+      return "Рабочий максимум повторений" + (w ? " с гантелями по " + w + " кг" : " с гантелями");
+    },
     pace: "Заниматься можно каждый день или через день, как удобно.",
     didToday: "занимался",
     names: {vol: "Верх тела", slow: "Ноги", lad: "Круг", easy: "Лёгкая"},
@@ -3229,7 +3300,7 @@ create policy "friends drop" on public.friends
         '<output>' + (m.side != null ? m.side : "—") + '</output>' +
         '<button type="button" data-act="tmeas+" data-i="' + i + '" data-k="side" data-base="' + tMeasure("side") + '" aria-label="Увеличить">+</button></div></div></div></article>';
     }
-    h += '<p class="last plan-note">' + esc(w.next) + '</p>';
+    h += noteHtml(key) + '<p class="last plan-note">' + esc(w.next) + '</p>';
     if(!tDone(i) && allLogged(w, key)) h += finishHtml(key);
     else if(tDone(i) && i < TCOUNT - 1) h += '<div class="test"><button type="button" class="primary" data-act="tgo" data-i="' + (i + 1) + '">Дальше: занятие ' + (i + 2) + '</button></div>';
     document.getElementById("twork").innerHTML = h;
@@ -3943,7 +4014,7 @@ create policy "friends drop" on public.friends
   function myStats(){
     return {
       pull: PULL.total(), push: PUSH.total() + BOARD.total(), squat: SQUAT.total(),
-      dumb: DUMB.total(), stretch: tMinutes(), ts: Date.now(), last: state.lastEvent || null
+      dumb: DUMB.total(), stretch: tMinutes(), ts: Date.now(), last: state.lastEvent || null, reacts: state.reacts || {}
     };
   }
   function sbPutProfile(){
@@ -4035,7 +4106,11 @@ create policy "friends drop" on public.friends
       '<div class="frmain"><div class="frtop"><strong>' + esc(name) + '</strong>' +
       (FR.mutual[p.user_id] ? '<span class="badge ok">взаимно</span>' : '<span class="badge quiet">в одну сторону</span>') + '</div>' +
       '<p class="hint">' + esc(line) + '</p>' +
-      '<p class="hint">Последняя отметка: ' + frWhen(st.ts) + ', код ' + esc(p.code || "") + '</p></div>' +
+      '<p class="hint">Последняя отметка: ' + frWhen(st.ts) + ', код ' + esc(p.code || "") + (theirReact(p) ? " · тебе поставили " + theirReact(p) : "") + '</p>' +
+      (st.last && st.last.title
+        ? '<button type="button" class="linkbtn alt react" data-act="react" data-id="' + esc(p.user_id) + '" data-ts="' + (st.last.ts || 0) + '">' +
+          (myReact(p.user_id, st.last.ts) ? "🔥 отмечено" : "🔥 поддержать") + '</button>'
+        : "") + '</div>' +
       '<button type="button" class="linkbtn alt" data-act="fr-drop" data-id="' + esc(p.user_id) + '">Убрать</button></div>';
   }
   function friendsHtml(){
@@ -4158,6 +4233,259 @@ create policy "friends drop" on public.friends
     setTimeout(function(){ render(); syncStatus("Задай новый пароль."); }, 0);
   }
 
+  // ---------- первый запуск: короткий опрос ----------
+  var ONB = null;
+  var ONB_GEAR = [
+    {k: "bar", n: "Турник"},
+    {k: "board", n: "Доска для отжиманий"},
+    {k: "dumb", n: "Гантели"},
+    {k: "none", n: "Ничего, только пол"}
+  ];
+  function onbNeeded(){
+    if(state.onb && state.onb.done) return false;
+    var any = Object.keys(state.logs || {}).length > 0;
+    return !any;
+  }
+  function onbStart(){
+    ONB = {step: 0, gear: {}, mode: "short", max: {u: 4, p: 15, s: 25, g: 12}};
+    renderOnb();
+  }
+  function onbClose(skip){
+    if(!state.onb) state.onb = {};
+    state.onb.done = true;
+    if(!skip && ONB){
+      ["pull", "push", "squat", "dumb", "stretch"].forEach(function(t){ state.mode[t] = ONB.mode; });
+      if(ONB.gear.board) state.variant.push = "board";
+      state.u.startMax = ONB.max.u;
+      state.p.startMax = ONB.max.p;
+      state.b.startMax = Math.max(1, Math.round(ONB.max.p * 0.8));
+      state.s.startMax = ONB.max.s;
+      state.g.startMax = ONB.max.g;
+      TAB = ONB.gear.bar ? "pull" : ONB.gear.dumb ? "dumb" : ONB.gear.board ? "push" : "push";
+    }
+    ONB = null;
+    document.getElementById("onb").hidden = true;
+    save(); render();
+  }
+  function onbSet(k, v){
+    if(!ONB) return;
+    if(k === "gear"){ ONB.gear[v] = !ONB.gear[v]; if(v === "none") ONB.gear = {none: ONB.gear.none}; else ONB.gear.none = false; }
+    else if(k === "mode") ONB.mode = v;
+    else if(k === "step") ONB.step = Math.max(0, Math.min(2, ONB.step + (+v)));
+    else ONB.max[k] = Math.max(1, Math.min(200, (ONB.max[k] || 1) + (+v)));
+    renderOnb();
+  }
+  function onbMaxRow(k, label){
+    return '<div class="onb-row"><span>' + label + '</span>' +
+      '<div class="stepper"><button type="button" data-act="onb" data-k="' + k + '" data-v="-1">−</button>' +
+      '<output>' + ONB.max[k] + '</output>' +
+      '<button type="button" data-act="onb" data-k="' + k + '" data-v="1">+</button></div></div>';
+  }
+  function renderOnb(){
+    var box = document.getElementById("onb");
+    if(!box) return;
+    if(!ONB){ box.hidden = true; box.innerHTML = ""; return; }
+    box.hidden = false;
+    var h = '<div class="warm-card onb-card"><div class="warm-top"><span>Настройка, шаг ' + (ONB.step + 1) + ' из 3</span>' +
+      '<button type="button" class="tb-icon" data-act="onb-skip" aria-label="Пропустить">✕</button></div>';
+    if(ONB.step === 0){
+      h += '<h2>Что есть дома?</h2><p class="hint">Можно выбрать несколько. От этого зависит, с какого раздела начнём.</p><div class="onb-list">';
+      ONB_GEAR.forEach(function(g){
+        h += '<button type="button" class="blockbtn" data-act="onb" data-k="gear" data-v="' + g.k + '" aria-pressed="' + (!!ONB.gear[g.k]) + '">' + g.n + '</button>';
+      });
+      h += '</div>';
+    } else if(ONB.step === 1){
+      h += '<h2>Как удобнее заниматься?</h2><p class="hint">Это можно поменять в любой момент переключателем «Темп».</p><div class="onb-list">' +
+        '<button type="button" class="blockbtn" data-act="onb" data-k="mode" data-v="short" aria-pressed="' + (ONB.mode === "short") + '">Подряд, 20–30 минут</button>' +
+        '<button type="button" class="blockbtn" data-act="onb" data-k="mode" data-v="day" aria-pressed="' + (ONB.mode === "day") + '">Понемногу весь день</button></div>';
+    } else {
+      h += '<h2>Сколько можешь сейчас?</h2><p class="hint">Примерно, по одному подходу до лёгкой усталости. Потом уточним тестом.</p>';
+      if(ONB.gear.bar) h += onbMaxRow("u", "Подтягивания");
+      h += onbMaxRow("p", "Отжимания");
+      h += onbMaxRow("s", "Приседания");
+      if(ONB.gear.dumb) h += onbMaxRow("g", "Повторений с гантелями");
+    }
+    h += '<div class="warm-actions">' +
+      (ONB.step > 0 ? '<button type="button" class="linkbtn alt" data-act="onb" data-k="step" data-v="-1">Назад</button>' : '<button type="button" class="linkbtn alt" data-act="onb-skip">Пропустить</button>') +
+      '<button type="button" class="primary" data-act="' + (ONB.step === 2 ? "onb-done" : "onb") + '" data-k="step" data-v="1">' + (ONB.step === 2 ? "Готово" : "Дальше") + '</button></div></div>';
+    box.innerHTML = h;
+  }
+
+  // ---------- возвращение после перерыва ----------
+  function breakHtml(C){
+    var st2 = state[C.cfg.pre];
+    if(!st2) return "";
+    var last = 0, i;
+    for(i = 0; i < CCOUNT; i++){ var v = state.times[C.key(i)]; if(v > last) last = v; }
+    if(!last) return "";
+    var days = Math.round((Date.now() - last) / 864e5);
+    if(days < 14) return "";
+    if((st2.breakAt || 0) >= last) return "";
+    var now = C.max(), soft = Math.max(1, Math.round(now * 0.8));
+    if(soft === now) return "";
+    return '<div class="advice"><p><strong>Перерыв ' + days + " " + plural(days, ["день","дня","дней"]) + '.</strong> ' +
+      'После паузы лучше войти мягче: сбавить рабочий максимум с ' + now + ' до ' + soft + ' и вернуть его, когда подходы снова будут даваться легко.</p>' +
+      '<div class="test"><button type="button" class="primary" data-act="break-yes" data-c="' + C.cfg.pre + '" data-n="' + soft + '" data-t="' + last + '">Сбавить до ' + soft + '</button>' +
+      '<button type="button" class="linkbtn alt" data-act="break-no" data-c="' + C.cfg.pre + '" data-t="' + last + '">Продолжить как есть</button></div></div>';
+  }
+
+  // ---------- заметка к тренировке ----------
+  function noteHtml(key){
+    var v = (state.notes && state.notes[key]) || "";
+    return '<div class="noterow"><label class="field" for="note-' + key + '">Заметка к тренировке' +
+      '<input type="text" id="note-' + key + '" data-note="' + key + '" maxlength="140" placeholder="резина, вес, самочувствие" value="' + esc(v) + '"></label></div>';
+  }
+
+  // ---------- рекорды ----------
+  function records(){
+    var best = 0, bestKey = "", day = 0, dayKey = "", hold = 0, holdKey = "";
+    Object.keys(state.logs || {}).forEach(function(k){
+      var w = dayOfKey(k);
+      if(!w) return;
+      var log = state.logs[k] || [], sum = 0;
+      items(w).forEach(function(it){
+        var v = log[it.idx];
+        if(v == null) return;
+        if(isSec(it.kind)){ if(v > hold){ hold = v; holdKey = k; } return; }
+        sum += v;
+        if(v > best){ best = v; bestKey = k; }
+      });
+      if(sum > day){ day = sum; dayKey = k; }
+    });
+    return {best: best, bestKey: bestKey, day: day, dayKey: dayKey, hold: hold, holdKey: holdKey};
+  }
+  function keyName(k){
+    var m = /^([psubg])[dq]\d+$/.exec(k);
+    if(m) return ({p: "отжимания", s: "приседания", u: "турник", b: "доска", g: "гантели"})[m[1]];
+    if(/^t[dq]\d+$/.test(k)) return "растяжка";
+    if(/^x/.test(k)) return "своя программа";
+    var mm = /^m([a-z]+)_/.exec(k);
+    if(mm) return (MTABS[mm[1]] || "своя программа").toLowerCase();
+    return "тренировка";
+  }
+  function recordsHtml(){
+    var r = records();
+    if(!r.best && !r.hold) return "";
+    var h = '<h3 class="camset-label">Личные рекорды</h3><div class="nums">';
+    if(r.best) h += '<div><strong>' + r.best + '</strong><span>лучший подход, ' + keyName(r.bestKey) + '</span></div>';
+    if(r.day) h += '<div><strong>' + r.day + '</strong><span>повторений за тренировку</span></div>';
+    if(r.hold) h += '<div><strong>' + r.hold + '</strong><span>секунд удержания</span></div>';
+    return h + '</div>';
+  }
+
+  // ---------- график тестов ----------
+  function testChart(C){
+    var st2 = state[C.cfg.pre];
+    if(!st2) return "";
+    var pts = [{i: 0, v: st2.startMax}];
+    Object.keys(st2.tests || {}).sort(function(a, b){ return a - b; }).forEach(function(k){
+      if(st2.tests[k] != null) pts.push({i: +k + 1, v: st2.tests[k]});
+    });
+    if(pts.length < 2) return '<p class="hint">После первого теста максимума здесь появится график роста.</p>';
+    var W = 320, H = 110, pad = 26, maxV = 1, minV = Infinity;
+    pts.forEach(function(p){ maxV = Math.max(maxV, p.v); minV = Math.min(minV, p.v); });
+    if(minV === maxV) minV = Math.max(0, maxV - 1);
+    var x = function(i){ return pad + (W - pad - 8) * (i / Math.max(1, pts.length - 1)); };
+    var y = function(v){ return H - 22 - (H - 40) * ((v - minV) / Math.max(1, maxV - minV)); };
+    var d = pts.map(function(p, i){ return (i ? "L" : "M") + x(i).toFixed(1) + " " + y(p.v).toFixed(1); }).join(" ");
+    var s2 = '<svg viewBox="0 0 ' + W + ' ' + H + '" class="tchart" role="img" aria-label="Рост максимума: от ' + pts[0].v + ' до ' + pts[pts.length - 1].v + '">';
+    s2 += '<line x1="' + pad + '" x2="' + W + '" y1="' + (H - 20) + '" y2="' + (H - 20) + '" stroke="var(--line)"/>';
+    s2 += '<text x="0" y="14">' + maxV + '</text><text x="0" y="' + (H - 22) + '">' + minV + '</text>';
+    s2 += '<path d="' + d + '" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>';
+    pts.forEach(function(p, i){
+      s2 += '<circle cx="' + x(i).toFixed(1) + '" cy="' + y(p.v).toFixed(1) + '" r="4" fill="var(--accent)"/>';
+      s2 += '<text x="' + x(i).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="middle">' + (i ? "тест " + p.i : "старт") + '</text>';
+    });
+    return s2 + '</svg>';
+  }
+
+  // ---------- выгрузка в CSV ----------
+  function csvDump(){
+    var rows = [["программа", "тренировка", "подход", "тип", "план", "сделано", "дата"]];
+    Object.keys(state.logs || {}).sort().forEach(function(k){
+      var w = dayOfKey(k);
+      if(!w) return;
+      var log = state.logs[k] || [], when = state.times[k] ? new Date(state.times[k]).toISOString().slice(0, 10) : "";
+      items(w).forEach(function(it, n){
+        if(log[it.idx] == null) return;
+        rows.push([keyName(k), (w.no || "") + " " + (w.title || ""), n + 1,
+                   isSec(it.kind) ? "секунды" : "повторы", it.target, log[it.idx], when]);
+      });
+    });
+    var csv = rows.map(function(r){
+      return r.map(function(c){ var t = String(c); return /[;"\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t; }).join(";");
+    }).join("\n");
+    try {
+      var blob = new Blob(["\ufeff" + csv], {type: "text/csv;charset=utf-8"});
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "trenirovki-" + new Date().toISOString().slice(0, 10) + ".csv";
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+      flash("Файл выгружен");
+    } catch(e){ flash("Не получилось выгрузить"); }
+  }
+  // ---------- реакции в ленте ----------
+  function reactOn(fid, ts){
+    if(!state.reacts) state.reacts = {};
+    var cur = state.reacts[fid];
+    if(cur && cur.ts === ts) delete state.reacts[fid];
+    else state.reacts[fid] = {ts: ts, e: "🔥"};
+    save();
+    sbPutProfile();
+    renderProfile();
+  }
+  function myReact(fid, ts){
+    var r = state.reacts && state.reacts[fid];
+    return r && r.ts === ts ? r.e : "";
+  }
+  function theirReact(p){
+    var uid = sbUser(), rs = p.stats && p.stats.reacts;
+    var r = rs && uid ? rs[uid] : null;
+    return (r && state.lastEvent && r.ts === state.lastEvent.ts) ? r.e : "";
+  }
+
+  // ---------- свайпы и клавиши ----------
+  function swipeTarget(){
+    if(TAB === "stretch") return {prev: "tprev", next: "tnext"};
+    if(TAB === "custom") return {prev: "custPrev", next: "custNext"};
+    if(TAB === "pull") return {prev: "uprev", next: "unext"};
+    if(TAB === "push") return {prev: "pprev", next: "pnext"};
+    if(TAB === "squat") return {prev: "sprev", next: "snext"};
+    if(TAB === "dumb") return {prev: "gprev", next: "gnext"};
+    return null;
+  }
+  function bindSwipe(){
+    var sx = 0, sy = 0, on = false;
+    document.addEventListener("touchstart", function(ev){
+      if(!ev.touches || ev.touches.length !== 1) return;
+      var t = ev.target;
+      if(t && t.closest && t.closest("input, select, textarea, .tb-strip, .weeks, .cam-view, .holdbar, .timerbar")) return;
+      sx = ev.touches[0].clientX; sy = ev.touches[0].clientY; on = true;
+    }, {passive: true});
+    document.addEventListener("touchend", function(ev){
+      if(!on) return;
+      on = false;
+      var t = ev.changedTouches && ev.changedTouches[0];
+      if(!t) return;
+      var dx = t.clientX - sx, dy = t.clientY - sy;
+      if(Math.abs(dx) < 70 || Math.abs(dy) > Math.abs(dx) * 0.6) return;
+      var ids = swipeTarget();
+      if(!ids) return;
+      var btn = document.getElementById(dx < 0 ? ids.next : ids.prev);
+      if(btn && !btn.disabled) btn.click();
+    }, {passive: true});
+  }
+  function spaceMark(){
+    var panel = document.getElementById("panel-" + TAB);
+    if(!panel || panel.hidden) return false;
+    var chip = panel.querySelector(".chip:not(.done):not(.part)") || panel.querySelector(".chip:not(.done)");
+    if(!chip) return false;
+    chip.click();
+    scrollTo(chip);
+    return true;
+  }
+
   function renderProfile(){
     var box = document.getElementById("profileBox");
     if(!box) return;
@@ -4172,6 +4500,7 @@ create policy "friends drop" on public.friends
         (profPhoto() ? '<button type="button" class="linkbtn alt" data-act="pf-nophoto">Убрать фото</button>' : "") +
         '<input type="file" id="pfPhotoFile" accept="image/*" hidden></div>';
       h += profileStats();
+      h += recordsHtml();
       h += '<p class="hint">Прогресс хранится в твоём аккаунте: открой страницу на другом устройстве, войди теми же почтой и паролем, и отметки будут общими.</p>';
       if(pwMode){
         h += '<div class="test"><label class="field" for="pfNewPass">Новый пароль<input type="password" id="pfNewPass" placeholder="не короче 6 символов" autocomplete="new-password"></label>' +
@@ -4252,6 +4581,8 @@ create policy "friends drop" on public.friends
     renderTabs();
     var pv = document.getElementById("pvariant");
     if(pv) pv.innerHTML = variantToggle();
+    var gw = document.getElementById("gweight");
+    if(gw && document.activeElement !== gw) gw.value = (state.g && state.g.weight) ? String(state.g.weight) : "";
     renderToday();
     PULL.render(); pushChain().render(); SQUAT.render(); DUMB.render(); renderStretch(); renderCustom(); renderAllMounted(); renderCounter(); renderSync(); renderSound(); renderNotify(); renderAcc(); renderProfile();
     animateFills();
@@ -4365,6 +4696,38 @@ create policy "friends drop" on public.friends
       flash("Тренировка засчитана");
       return;
     }
+    if(act === "auto-yes" || act === "auto-no"){
+      var ac = CHAINS[b.getAttribute("data-c")];
+      if(!ac) return;
+      var sa = state[ac.cfg.pre];
+      sa.autoAt = +b.getAttribute("data-n") || 0;
+      if(act === "auto-yes"){
+        var dir = +b.getAttribute("data-d") || 1;
+        if(sa.max != null) sa.max = Math.max(1, sa.max + dir);
+        else sa.startMax = Math.max(1, sa.startMax + dir);
+        flash(dir > 0 ? "Нагрузка поднята" : "Нагрузка снижена");
+      }
+      save(); render();
+      return;
+    }
+    if(act === "onb"){ onbSet(b.getAttribute("data-k"), b.getAttribute("data-v")); return; }
+    if(act === "onb-done"){ onbClose(false); return; }
+    if(act === "onb-skip"){ onbClose(true); return; }
+    if(act === "break-yes" || act === "break-no"){
+      var bc = CHAINS[b.getAttribute("data-c")];
+      if(!bc) return;
+      var sb2 = state[bc.cfg.pre];
+      sb2.breakAt = +b.getAttribute("data-t") || Date.now();
+      if(act === "break-yes"){
+        var soft = +b.getAttribute("data-n");
+        if(sb2.max != null) sb2.max = soft; else sb2.startMax = soft;
+        flash("Нагрузка сбавлена, возвращайся спокойно");
+      }
+      save(); render();
+      return;
+    }
+    if(act === "react"){ reactOn(b.getAttribute("data-id"), +b.getAttribute("data-ts") || 0); return; }
+    if(act === "csv"){ csvDump(); return; }
     if(act === "notify"){ notifyAsk(); return; }
     if(act === "pw-forgot"){ sbRecover(); return; }
     if(act === "pw-mode"){ pwMode = true; renderProfile(); return; }
@@ -4541,6 +4904,11 @@ create policy "friends drop" on public.friends
   });
 
   document.addEventListener("keydown", function(ev){
+    if(ev.key === " " || ev.code === "Space"){
+      var t4 = ev.target;
+      if(t4 && t4.closest && t4.closest("input, textarea, select, button, [contenteditable]")) return;
+      if(spaceMark()){ ev.preventDefault(); return; }
+    }
     var seg = ev.target && ev.target.closest && ev.target.closest(".seg");
     if(!seg) return;
     var dir = {ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1}[ev.key];
@@ -4565,13 +4933,33 @@ create policy "friends drop" on public.friends
     var t2 = ev.target;
     if(!t2) return;
     if(t2.getAttribute && t2.getAttribute("data-f")){ custEdit(t2); save(); return; }
-    if(t2.id === "pfName"){ state.profile.name = String(t2.value || "").slice(0, 40); save(); renderAcc(); }
+    if(t2.id === "pfName"){ state.profile.name = String(t2.value || "").slice(0, 40); save(); renderAcc(); return; }
+    if(t2.getAttribute && t2.getAttribute("data-note")){
+      if(!state.notes) state.notes = {};
+      var nk2 = t2.getAttribute("data-note"), nv2 = String(t2.value || "").slice(0, 140);
+      if(nv2) state.notes[nk2] = nv2; else delete state.notes[nk2];
+      save();
+    }
   });
   document.addEventListener("change", function(ev){
     var t3 = ev.target;
     if(!t3) return;
     if(t3.id === "pfPhotoFile"){ photoPick(t3.files && t3.files[0]); return; }
     if(t3.id === "pfName"){ state.profile.name = String(t3.value || "").slice(0, 40); save(); render(); return; }
+    if(t3.getAttribute && t3.getAttribute("data-note")){
+      if(!state.notes) state.notes = {};
+      var nk = t3.getAttribute("data-note"), nv = String(t3.value || "").slice(0, 140);
+      if(nv) state.notes[nk] = nv; else delete state.notes[nk];
+      save();
+      return;
+    }
+    if(t3.id === "gweight"){
+      var wv = parseFloat(t3.value);
+      state.g.weight = isFinite(wv) && wv > 0 ? Math.min(200, Math.round(wv * 2) / 2) : 0;
+      save(); render();
+      if(state.g.weight) flash("Вес записан. Если он заметно изменился, пройди тест максимума заново");
+      return;
+    }
     if(t3.getAttribute && t3.getAttribute("data-f")){ custEdit(t3); save(); render(); return; }
   });
 
@@ -4601,8 +4989,10 @@ create policy "friends drop" on public.friends
     r.readAsText(f);
   });
 
+  bindSwipe();
   sbCatchRecovery();
   render();
+  if(onbNeeded()) onbStart();
   syncNow(true);
 
   if(window.claude && typeof window.claude.use === "function"){
