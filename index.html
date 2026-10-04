@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Тренировки — силовые программы и растяжка</title>
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#2A52D6">
+<meta name="theme-color" content="#E3ECF5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#123A6B" media="(prefers-color-scheme: dark)">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Тренировки">
@@ -291,7 +292,6 @@ body.has-timer .wrap{padding-bottom:130px}
     --accent-ghost:rgba(127,156,255,.12);
   }
 }
-body{background-image:linear-gradient(180deg, var(--accent-soft) 0, transparent 420px);background-repeat:no-repeat}
 .wrap{padding-top:28px}
 h1{letter-spacing:-.02em;line-height:1.05}
 .lede{font-size:15px;line-height:1.55;max-width:56ch;margin-top:10px}
@@ -534,6 +534,18 @@ body.has-hold .wrap{padding-bottom:140px}
 .pf-head .hint{margin:4px 0 0}
 #panel-profile .panel{margin-top:var(--s3)}
 
+
+/* аватар с кольцом и отметкой */
+:root{--ring-ok:#0D9488}
+:root[data-theme="dark"]{--ring-ok:#2DD4BF}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ring-ok:#2DD4BF}}
+.ava-wrap{position:relative;display:inline-flex;flex:0 0 auto}
+.ava-wrap .ava{box-shadow:0 0 0 2px var(--surface), 0 0 0 4px var(--ring-ok)}
+.ava-badge{position:absolute;right:-3px;bottom:-3px;width:15px;height:15px;border-radius:var(--r-pill);background:var(--ring-ok);color:#fff;display:grid;place-items:center;border:2px solid var(--surface)}
+.ava-badge svg{width:9px;height:9px}
+.ava-wrap.big .ava-badge{right:-2px;bottom:-2px;width:22px;height:22px}
+.ava-wrap.big .ava-badge svg{width:13px;height:13px}
+.accbtn .ava-wrap .ava{box-shadow:0 0 0 2px var(--surface), 0 0 0 3.5px var(--ring-ok)}
 .ava.photo{background-size:cover;background-position:center}
 .pf-edit{margin:0 0 var(--s4)}
 .pf-edit .field{flex:1 1 200px}
@@ -583,6 +595,44 @@ body.modal-open{overflow:hidden}
 .finishbar .hint{flex:1 1 200px;margin:0}
 .lockbox{display:flex;flex-direction:column;align-items:flex-start;gap:var(--s3);padding:var(--s4);border:1px dashed var(--line-strong);border-radius:var(--r-md);background:var(--bg)}
 .lockbox .hint{margin:0}
+
+/* ======== фон «океан»: перенесено из рецепта градиента в чистый CSS ======== */
+body{
+  background-color:#E3ECF5;
+  background-image:
+    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.14'/></svg>"),
+    radial-gradient(150% 48.4% at 41.58% 4%, rgba(255,255,255,.96) 0%, rgba(255,255,255,0) 53%),
+    radial-gradient(150% 48.4% at 42.42% 31%, rgba(214,236,248,.9) 0%, rgba(214,236,248,0) 53%),
+    radial-gradient(150% 48.4% at 51.19% 64%, rgba(176,212,240,.85) 0%, rgba(176,212,240,0) 53%),
+    radial-gradient(150% 48.4% at 53.67% 92%, rgba(146,190,230,.8) 0%, rgba(146,190,230,0) 53%);
+  background-size:120px 120px, auto, auto, auto, auto;
+  background-blend-mode:overlay, normal, normal, normal, normal;
+  background-attachment:fixed, fixed, fixed, fixed, fixed;
+  background-repeat:repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+}
+:root[data-theme="dark"] body{
+  background-color:#123A6B;
+  background-image:
+    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.215'/></svg>"),
+    radial-gradient(150% 48.4% at 41.58% 6%, rgba(234,247,251,.5) 0%, rgba(234,247,251,0) 53%),
+    radial-gradient(150% 48.4% at 42.42% 33%, rgba(127,198,230,.55) 0%, rgba(127,198,230,0) 53%),
+    radial-gradient(150% 48.4% at 51.19% 67%, rgba(46,124,192,.7) 0%, rgba(46,124,192,0) 53%),
+    radial-gradient(150% 48.4% at 53.67% 94%, rgba(12,34,62,.9) 0%, rgba(12,34,62,0) 53%);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) body{
+    background-color:#123A6B;
+    background-image:
+      url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.215'/></svg>"),
+      radial-gradient(150% 48.4% at 41.58% 6%, rgba(234,247,251,.5) 0%, rgba(234,247,251,0) 53%),
+      radial-gradient(150% 48.4% at 42.42% 33%, rgba(127,198,230,.55) 0%, rgba(127,198,230,0) 53%),
+      radial-gradient(150% 48.4% at 51.19% 67%, rgba(46,124,192,.7) 0%, rgba(46,124,192,0) 53%),
+      radial-gradient(150% 48.4% at 53.67% 94%, rgba(12,34,62,.9) 0%, rgba(12,34,62,0) 53%);
+  }
+}
+/* карточки чуть приподняты над фоном */
+.panel,.day,.maxrow,.pstatus,.today-box,.tabs,.counter,.todaypanel{backdrop-filter:saturate(1.08)}
+.lede{color:var(--ink);opacity:.78}
 </style>
 </head>
 <body>
@@ -3968,10 +4018,16 @@ create policy "friends drop" on public.friends
     var n = profName() || (SB.mail || "").trim();
     return n ? n.charAt(0).toUpperCase() : "·";
   }
+  var CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
   function avatarHtml(cls){
-    var ph = loggedIn() ? profPhoto() : "";
-    if(ph) return '<span class="ava photo' + (cls ? " " + cls : "") + '" style="background-image:url(' + ph + ')"></span>';
-    return '<span class="ava' + (cls ? " " + cls : "") + '">' + esc(avatarLetter()) + '</span>';
+    var on = loggedIn(), ph = on ? profPhoto() : "";
+    var inner = ph
+      ? '<span class="ava photo' + (cls ? " " + cls : "") + '" style="background-image:url(' + ph + ')"></span>'
+      : '<span class="ava' + (cls ? " " + cls : "") + '">' + esc(avatarLetter()) + '</span>';
+    if(!on) return inner;
+    var synced = !!SB.last;
+    return '<span class="ava-wrap' + (cls ? " " + cls : "") + '" title="' + (synced ? "Вход выполнен, прогресс синхронизирован" : "Вход выполнен") + '">' +
+      inner + (synced ? '<span class="ava-badge" aria-hidden="true">' + CHECK_SVG + '</span>' : "") + '</span>';
   }
   function photoPick(file){
     if(!file) return;
