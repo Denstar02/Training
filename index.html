@@ -1433,7 +1433,7 @@ create policy "friends drop" on public.friends
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzd3FsYmpsa3Bncm55a2dnY3pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwNDIyNDUsImV4cCI6MjEwNjYxODI0NX0.KQMAqfGyNr1NeLMKu3iRuufLaZ5DEMRj2sc1ulkK5QY"
   ]};
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 1, APP_BUILD_N = 2;
+  var APP_MAJOR = 1, APP_BUILD_N = 4;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
   var theme = "light";
@@ -1920,7 +1920,7 @@ create policy "friends drop" on public.friends
     var left = (t.due - Date.now()) / 1000, due = left <= 0;
     bar.hidden = false; document.body.classList.add("has-timer");
     bar.classList.toggle("due", due);
-    bar.innerHTML = '<div class="tb-main"><button type="button" class="tb-text" data-act="timer-go"><strong>' + (due ? "Пора подтягиваться" : "Следующий подход через " + fmt(left)) + '</strong><span>' + esc(nextText(t)) + '</span></button>' +
+    bar.innerHTML = '<div class="tb-main"><button type="button" class="tb-text" data-act="timer-go"><strong>' + (due ? dueTitle(t.key) : "Следующий подход через " + fmt(left)) + '</strong><span>' + esc(nextText(t)) + '</span></button>' +
       '<div class="tb-actions">' +
       (due ? '' : '<span class="tb-adj"><button type="button" class="tb-icon" data-act="timer-minus" aria-label="Минус минута">−1</button>' +
         '<button type="button" class="tb-icon" data-act="timer-plus" aria-label="Плюс минута">+1</button></span>') +
@@ -1928,11 +1928,11 @@ create policy "friends drop" on public.friends
       '<button type="button" class="tb-icon" data-act="sound" aria-label="' + (soundOn ? "Выключить звук" : "Включить звук") + '">' + (soundOn ? "🔔" : "🔕") + '</button>' +
       '<button type="button" class="tb-icon" data-act="timer-close" aria-label="Скрыть таймер">✕</button></div></div>';
     if(due){
-      document.title = "⏰ Пора подтягиваться";
+      document.title = "⏰ " + dueTitle(t.key);
       if(alerted !== t.due){
         alerted = t.due;
         if(soundOn) playSig(tabOfKey(t.key), "due");
-        if(document.hidden) notifyFire("Пора на подход", nextText(t));
+        if(document.hidden) notifyFire(dueTitle(t.key), nextText(t));
         try { if(navigator.vibrate) navigator.vibrate([180, 90, 180]); } catch(e){}
       }
     } else {
@@ -1979,12 +1979,15 @@ create policy "friends drop" on public.friends
     stretch: {name: "Растяжка",    type: "sine",     gain: .26, tick: [{f: 523, d: .06}],  start: [{f: 523, d: .14}], done: [{f: 523, d: .16}, {f: 784, d: .30, at: .17}],  due: [{f: 784, d: .18}, {f: 523, d: .26, at: .22}],                            rep: [{f: 698, d: .10}]},
     custom:  {name: "Своя",        type: "triangle", gain: .28, tick: [{f: 587, d: .05}],  start: [{f: 587, d: .10}], done: [{f: 587, d: .10}, {f: 880, d: .20, at: .11}],  due: [{f: 880, d: .12}, {f: 587, d: .12, at: .16}, {f: 880, d: .18, at: .32}], rep: [{f: 740, d: .08}]}
   };
+  var DUE_TITLE = {pull: "Пора подтягиваться", push: "Пора отжиматься", squat: "Пора приседать", dumb: "Пора к гантелям", stretch: "Пора тянуться", custom: "Пора на подход"};
+  function dueTitle(key){ return DUE_TITLE[tabOfKey(key)] || "Пора на подход"; }
   function tabOfKey(key){
     if(!key) return "custom";
     if(/^u[dq]\d+$/.test(key)) return "pull";
     if(/^[pb][dq]\d+$/.test(key)) return "push";
     if(/^s[dq]\d+$/.test(key)) return "squat";
     if(/^t[dq]\d+$/.test(key)) return "stretch";
+    if(/^g[dq]\d+$/.test(key)) return "dumb";
     var m = /^m([a-z]+)_/.exec(key);
     if(m) return SOUND[m[1]] ? m[1] : "custom";
     return "custom";
@@ -2175,7 +2178,25 @@ create policy "friends drop" on public.friends
       return statsOf(w, C.key(i)).reps;
     };
     C.current = function(){ for(var i = 0; i < CCOUNT; i++) if(!C.done(i)) return i; return CCOUNT - 1; };
-    C.total = function(){ var t = +(st().legacy || 0); for(var i = 0; i < CCOUNT; i++) t += C.reps(i); return t; };
+    C.repsMode = function(i, m){
+      var w = C.build(i, m);
+      if(!w) return 0;
+      if(w.test) return 0;
+      return statsOf(w, C.key(i, m)).reps;
+    };
+    C.total = function(){
+      var t = +(st().legacy || 0), i;
+      for(i = 0; i < CCOUNT; i++){
+        if(C.isTest(i)){ t += st().tests[i] || 0; continue; }
+        t += C.repsMode(i, "day") + C.repsMode(i, "short");
+      }
+      return t;
+    };
+    C.totalOther = function(){
+      var other = C.mode() === "short" ? "day" : "short", t = 0, i;
+      for(i = 0; i < CCOUNT; i++) if(!C.isTest(i)) t += C.repsMode(i, other);
+      return t;
+    };
     C.lastTime = function(){ var t = 0; for(var i = 0; i < CCOUNT; i++){ var v = state.times[C.key(i)]; if(v > t) t = v; } return t; };
     C.v = function(){ if(C.view == null) C.view = C.current(); return Math.max(0, Math.min(CCOUNT - 1, C.view)); };
     C.fill = function(i){
@@ -2248,6 +2269,12 @@ create policy "friends drop" on public.friends
         '<text x="65" y="82" text-anchor="middle">из ' + goal + '</text></svg>' +
         '<p class="hint">Всего ' + cfg.unit[2] + ' за программу. До отметки ' + goal + ' осталось ' + Math.max(0, goal - total) + '.</p></div>';
       h += testChart(C);
+      var othr = C.totalOther();
+      if(othr) h += '<p class="hint">Сюда входят оба темпа: в режиме «' + (C.mode() === "short" ? MODES.day.label : MODES.short.label) + '» отмечено ' + othr + " " + plural(othr, cfg.unit) + '.</p>';
+      if(cfg.sibling && CHAINS[cfg.sibling]){
+        var sib = CHAINS[cfg.sibling], sibTotal = sib.total();
+        if(sibTotal) h += '<p class="hint">В варианте «' + cfg.siblingName + '» набрано ещё ' + sibTotal + " " + plural(sibTotal, cfg.unit) + ', в профиле они складываются.</p>';
+      }
       if(st().legacy) h += '<p class="hint">Включая ' + st().legacy + " " + plural(st().legacy, cfg.unit) + ' из прежней программы по расписанию.</p>';
       var tests = Object.keys(st().tests).sort(function(a, b){ return a - b; });
       if(tests.length) h += '<p class="hint">Тесты: ' + tests.map(function(k){ return "тренировка " + (+k + 1) + " — " + st().tests[k]; }).join(", ") + '. Стартовый максимум был ' + st().startMax + '.</p>';
@@ -2286,7 +2313,7 @@ create policy "friends drop" on public.friends
   }
 
   var PUSH = makeChain({
-    pre: "p", tab: "push",
+    pre: "p", tab: "push", sibling: "b", siblingName: "Доска",
     unit: ["отжимание","отжимания","отжиманий"],
     maxLabel: "Рабочий максимум отжиманий",
     pace: "Отжиматься можно каждый день или через день, как удобно.",
@@ -2368,7 +2395,7 @@ create policy "friends drop" on public.friends
     return {no: ctx.i + 1, title: ctx.name(t), groups: groups, next: next};
   }
   var BOARD = makeChain({
-    pre: "b", dom: "p", tab: "push",
+    pre: "b", dom: "p", tab: "push", sibling: "p", siblingName: "Классика",
     unit: ["отжимание","отжимания","отжиманий"],
     maxLabel: "Рабочий максимум отжиманий на доске",
     pace: "Отжиматься можно каждый день или через день, как удобно.",
@@ -3289,11 +3316,13 @@ create policy "friends drop" on public.friends
   function tFill(i){ var w = buildTDay(i); if(!w) return 0; var s2 = statsOf(w, keyT(i)); return s2.plan ? Math.round(100 * s2.done / s2.plan) : 0; }
   function tMinutes(){
     var total = 0;
-    for(var i = 0; i < TCOUNT; i++){
-      var w = buildTDay(i); if(!w) continue;
-      var lg = state.logs[keyT(i)] || [];
-      items(w).forEach(function(it){ if(it.kind === "sec" && lg[it.idx] != null) total += lg[it.idx]; });
-    }
+    ["day", "short"].forEach(function(m){
+      for(var i = 0; i < TCOUNT; i++){
+        var w = buildTDay(i, m); if(!w) continue;
+        var lg = state.logs[keyT(i, m)] || [];
+        items(w).forEach(function(it){ if(it.kind === "sec" && lg[it.idx] != null) total += lg[it.idx]; });
+      }
+    });
     return Math.round(total / 60);
   }
   function tLastTime(){ var t = 0; for(var i = 0; i < TCOUNT; i++){ var v = state.times[keyT(i)]; if(v > t) t = v; } return t; }
@@ -5139,7 +5168,10 @@ create policy "friends drop" on public.friends
     var v = document.getElementById("appVer");
     if(!v) return;
     v.textContent = "v. " + APP_VERSION;
-    v.title = "Версия приложения";
+    (function(){
+      var dl = new Date(document.lastModified);
+      v.title = "Версия " + APP_VERSION + (isNaN(dl) ? "" : ", файл от " + dl.toLocaleDateString("ru-RU", {day: "numeric", month: "long", year: "numeric"}));
+    })();
     if(!/^https?:$/.test(location.protocol)) return;
     fetch(location.href, {method: "HEAD", cache: "no-store"}).then(function(r){
       var lm = r.headers.get("last-modified");
