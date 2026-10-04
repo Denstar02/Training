@@ -558,6 +558,8 @@ body.has-hold .wrap{padding-bottom:140px}
 .tabs button{position:relative;z-index:1;background:transparent}
 .tabs button[aria-selected="true"]{background:transparent;box-shadow:none;color:var(--accent-ink)}
 @media (prefers-reduced-motion: reduce){.tabs .tabs-ind{transition:none}}
+.tp-num.ok{color:var(--done);font-weight:700}
+.tp-adjust{}
 .tb-adj{display:inline-flex;gap:4px;margin-right:4px}
 .tb-adj .tb-icon{font-size:14px;font-weight:700;min-width:44px}
 .ava-wrap{position:relative;display:inline-flex;flex:0 0 auto}
@@ -1433,7 +1435,7 @@ create policy "friends drop" on public.friends
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzd3FsYmpsa3Bncm55a2dnY3pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwNDIyNDUsImV4cCI6MjEwNjYxODI0NX0.KQMAqfGyNr1NeLMKu3iRuufLaZ5DEMRj2sc1ulkK5QY"
   ]};
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 1, APP_BUILD_N = 4;
+  var APP_MAJOR = 1, APP_BUILD_N = 5;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
   var theme = "light";
@@ -2796,13 +2798,22 @@ create policy "friends drop" on public.friends
     return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
   }
   function todayStamp(){ return dayStamp(Date.now()); }
+  function finishedToday(tab){
+    var today = todayStamp(), n = 0;
+    Object.keys(state.fin || {}).forEach(function(k){
+      if(tabOfKey(k) !== tab) return;
+      if(dayStamp(state.fin[k]) === today) n++;
+    });
+    return n;
+  }
   function todayRows(){
     var rows = [], today = todayStamp();
     function add(tab, title, i, w, key, total, unitWord){
       if(!w) return;
       var st = statsOf(w, key);
+      var fin = finishedToday(tab);
       rows.push({tab: tab, title: title, line: (unitWord || "Тренировка") + " " + (i + 1) + " из " + total + ", " + (w.title || "").toLowerCase(),
-        done: st.done, plan: st.plan, key: key, today: dayStamp(state.times[key]) === today});
+        done: st.done, plan: st.plan, key: key, today: dayStamp(state.times[key]) === today, fin: fin});
     }
     [["pull", PULL], ["push", pushChain()], ["squat", SQUAT], ["dumb", DUMB]].forEach(function(pair){
       var tab = pair[0], C = pair[1], mp = mountedProg(tab);
@@ -2842,9 +2853,13 @@ create policy "friends drop" on public.friends
     rows.forEach(function(r){ if(r.today) marked += r.done; });
     var h = '<div class="tb-strip">';
     rows.forEach(function(r){
-      var pct = r.plan ? Math.round(100 * r.done / r.plan) : 0;
-      h += '<button type="button" class="tpill' + (r.today ? " today" : "") + '" data-act="today-go" data-tab="' + r.tab + '" data-key="' + r.key + '" aria-label="' + esc(r.title) + ": " + esc(r.line) + ", отмечено " + r.done + " из " + r.plan + '">' +
-        '<span class="tp-row"><b>' + esc(shortTitle(r.title)) + '</b><span class="tp-num">' + r.done + "/" + r.plan + '</span></span>' +
+      var pct = r.fin ? 100 : (r.plan ? Math.round(100 * r.done / r.plan) : 0);
+      var num = r.fin ? "✓ готово" : r.done + "/" + r.plan;
+      var aria = r.fin
+        ? esc(r.title) + ": сегодня завершено " + r.fin + " " + plural(r.fin, ["тренировка","тренировки","тренировок"])
+        : esc(r.title) + ": " + esc(r.line) + ", отмечено " + r.done + " из " + r.plan;
+      h += '<button type="button" class="tpill' + (r.today || r.fin ? " today" : "") + '" data-act="today-go" data-tab="' + r.tab + '" data-key="' + r.key + '" aria-label="' + aria + '">' +
+        '<span class="tp-row"><b>' + esc(shortTitle(r.title)) + '</b><span class="tp-num' + (r.fin ? " ok" : "") + '">' + num + '</span></span>' +
         '<span class="tp-bar"><i data-wk="tp-' + r.tab + '" data-w="' + pct + '" style="width:' + pct + '%"></i></span></button>';
     });
     h += '<button type="button" class="tpill more" data-act="today-more" aria-expanded="' + todayOpen + '">' + (todayOpen ? "Свернуть" : "Подробнее") + '</button>';
@@ -2856,9 +2871,10 @@ create policy "friends drop" on public.friends
       h += '<div class="today-list">';
       rows.forEach(function(r){
         var pct2 = r.plan ? Math.round(100 * r.done / r.plan) : 0;
-        h += '<button type="button" class="today-row' + (r.done ? " started" : "") + '" data-act="today-go" data-tab="' + r.tab + '" data-key="' + r.key + '">' +
-          '<span class="tr-main"><strong>' + esc(r.title) + '</strong><span>' + esc(r.line) + '</span></span>' +
-          '<span class="tr-prog"><span class="tr-bar"><i style="width:' + pct2 + '%"></i></span><span class="tr-num">' + r.done + "/" + r.plan + '</span></span>' +
+        h += '<button type="button" class="today-row' + (r.done || r.fin ? " started" : "") + '" data-act="today-go" data-tab="' + r.tab + '" data-key="' + r.key + '">' +
+          '<span class="tr-main"><strong>' + esc(r.title) + '</strong><span>' +
+          (r.fin ? "сегодня завершено: " + r.fin + " " + plural(r.fin, ["тренировка","тренировки","тренировок"]) + ", дальше " + esc(r.line.toLowerCase()) : esc(r.line)) + '</span></span>' +
+          '<span class="tr-prog"><span class="tr-bar"><i style="width:' + (r.fin ? 100 : pct2) + '%"></i></span><span class="tr-num">' + (r.fin ? "✓" : r.done + "/" + r.plan) + '</span></span>' +
           '<span class="tr-go" aria-hidden="true">›</span></button>';
       });
       h += '</div></div>';
