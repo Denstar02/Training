@@ -539,6 +539,25 @@ body.has-hold .wrap{padding-bottom:140px}
 :root{--ring-ok:#0D9488}
 :root[data-theme="dark"]{--ring-ok:#2DD4BF}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ring-ok:#2DD4BF}}
+
+/* стекло поверх фона */
+@supports (backdrop-filter: blur(10px)) and (background: color-mix(in srgb, white 50%, transparent)){
+  .panel,.day,.maxrow,.pstatus,.todaypanel,.today-box,.tabs,.tpill,.frcard{
+    background:color-mix(in srgb, var(--surface) 76%, transparent);
+    backdrop-filter:blur(16px) saturate(1.3);
+    -webkit-backdrop-filter:blur(16px) saturate(1.3);
+  }
+  .tpill,.frcard,.today-row{background:color-mix(in srgb, var(--surface) 62%, transparent)}
+  .head-card{background:linear-gradient(180deg, color-mix(in srgb, var(--accent-soft) 70%, transparent), color-mix(in srgb, var(--surface) 72%, transparent))}
+  .timerbar,.holdbar{background:color-mix(in srgb, var(--surface) 86%, transparent);backdrop-filter:blur(18px) saturate(1.2);-webkit-backdrop-filter:blur(18px) saturate(1.2)}
+  .warm-card,.cam-view{background:color-mix(in srgb, var(--surface) 92%, transparent)}
+}
+/* плавающий указатель вкладок */
+.tabs{position:sticky;isolation:isolate}
+.tabs .tabs-ind{position:absolute;left:0;top:0;border-radius:11px;background:var(--accent);box-shadow:0 2px 10px rgba(42,82,214,.25);transition:transform var(--dur-2) var(--ease), width var(--dur-2) var(--ease), height var(--dur-2) var(--ease), opacity var(--dur-1);z-index:0;pointer-events:none;opacity:0}
+.tabs button{position:relative;z-index:1;background:transparent}
+.tabs button[aria-selected="true"]{background:transparent;box-shadow:none;color:var(--accent-ink)}
+@media (prefers-reduced-motion: reduce){.tabs .tabs-ind{transition:none}}
 .ava-wrap{position:relative;display:inline-flex;flex:0 0 auto}
 .ava-wrap .ava{box-shadow:0 0 0 2px var(--surface), 0 0 0 4px var(--ring-ok)}
 .ava-badge{position:absolute;right:-3px;bottom:-3px;width:15px;height:15px;border-radius:var(--r-pill);background:var(--ring-ok);color:#fff;display:grid;place-items:center;border:2px solid var(--surface)}
@@ -646,6 +665,7 @@ body{
   </header>
 
   <div class="tabs" role="tablist" aria-label="Программы">
+    <span class="tabs-ind" id="tabInd" aria-hidden="true"></span>
     <button type="button" role="tab" id="tab-pull" data-act="tab" data-tab="pull" aria-controls="panel-pull" aria-selected="true">Турник</button>
     <button type="button" role="tab" id="tab-push" data-act="tab" data-tab="push" aria-controls="panel-push" aria-selected="false">Отжимания</button>
     <button type="button" role="tab" id="tab-squat" data-act="tab" data-tab="squat" aria-controls="panel-squat" aria-selected="false">Приседания</button>
@@ -1410,8 +1430,9 @@ create policy "friends drop" on public.friends
     "sb_publishable_xiMxPtjCJx8o7oMtUEBuew_J51Gty0A",
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzd3FsYmpsa3Bncm55a2dnY3pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwNDIyNDUsImV4cCI6MjEwNjYxODI0NX0.KQMAqfGyNr1NeLMKu3iRuufLaZ5DEMRj2sc1ulkK5QY"
   ]};
-  // номер версии: меняй при каждой выкладке
-  var APP_VERSION = "1.0", APP_BUILD = "4 октября 2026";
+  // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
+  var APP_MAJOR = 1, APP_BUILD_N = 2;
+  var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
   var theme = "light";
   try { var th = localStorage.getItem(THKEY); if(th === "dark" || th === "light" || th === "auto") theme = th; } catch(e){}
@@ -2218,7 +2239,7 @@ create policy "friends drop" on public.friends
       var h = '<div class="ring"><svg viewBox="0 0 130 130" role="img" aria-label="Всего сделано ' + total + " " + plural(total, cfg.unit) + ", до отметки " + goal + " осталось " + Math.max(0, goal - total) + '">' +
         '<circle cx="65" cy="65" r="' + R + '" fill="none" stroke="var(--line)" stroke-width="12"/>' +
         '<circle cx="65" cy="65" r="' + R + '" fill="none" stroke="var(--done)" stroke-width="12" stroke-linecap="round" stroke-dasharray="' + (frac * Cc).toFixed(1) + ' ' + Cc.toFixed(1) + '" transform="rotate(-90 65 65)">' + ringAnim + '</circle>' +
-        '<text x="65" y="62" text-anchor="middle" class="big">' + total + '</text>' +
+        '<text x="65" y="62" text-anchor="middle" class="big" data-num="ring-' + cfg.pre + '">' + total + '</text>' +
         '<text x="65" y="82" text-anchor="middle">из ' + goal + '</text></svg>' +
         '<p class="hint">Всего ' + cfg.unit[2] + ' за программу. До отметки ' + goal + ' осталось ' + Math.max(0, goal - total) + '.</p></div>';
       h += testChart(C);
@@ -2247,7 +2268,7 @@ create policy "friends drop" on public.friends
         h += '</div>';
       } else {
         var s2 = statsOf(w, key);
-        h += '<div class="tally"><strong>' + s2.reps + '</strong> из ' + s2.planned + ' повт.</div></div>' + groupsHtml(w, key);
+        h += '<div class="tally"><strong data-num="t-' + key + '">' + s2.reps + '</strong> из ' + s2.planned + ' повт.</div></div>' + groupsHtml(w, key);
         h += '<p class="last">' + esc(w.next) + '</p>';
         h += noteHtml(key);
         if(!C.done(i) && allLogged(w, key)) h += finishHtml(key);
@@ -4072,7 +4093,7 @@ create policy "friends drop" on public.friends
     ];
     var h = '<div class="nums">';
     rows.forEach(function(r){
-      h += '<div><strong>' + r.v + '</strong><span>' + plural(r.v, r.u) + r.tail + '</span></div>';
+      h += '<div><strong data-num="pf-' + r.u[2] + '">' + r.v + '</strong><span>' + plural(r.v, r.u) + r.tail + '</span></div>';
     });
     return h + '</div>';
   }
@@ -4606,6 +4627,16 @@ create policy "friends drop" on public.friends
     box.innerHTML = h;
   }
 
+  function moveTabInd(){
+    var bar = document.querySelector(".tabs"), ind = document.getElementById("tabInd");
+    if(!bar || !ind) return;
+    var cur = bar.querySelector('[data-act="tab"][aria-selected="true"]');
+    if(!cur || !cur.offsetWidth){ ind.style.opacity = "0"; return; }
+    ind.style.opacity = "1";
+    ind.style.width = cur.offsetWidth + "px";
+    ind.style.height = cur.offsetHeight + "px";
+    ind.style.transform = "translate(" + cur.offsetLeft + "px," + cur.offsetTop + "px)";
+  }
   function renderTabs(){
     var els = document.querySelectorAll('[data-act="tab"]');
     for(var i = 0; i < els.length; i++){
@@ -4613,6 +4644,8 @@ create policy "friends drop" on public.friends
       els[i].setAttribute("aria-selected", on ? "true" : "false");
       els[i].tabIndex = on ? 0 : -1;
     }
+    moveTabInd();
+    setTimeout(moveTabInd, 40);
     document.getElementById("panel-pull").hidden = TAB !== "pull";
     document.getElementById("panel-push").hidden = TAB !== "push";
     document.getElementById("panel-squat").hidden = TAB !== "squat";
@@ -4630,6 +4663,28 @@ create policy "friends drop" on public.friends
     }
     var panel = document.getElementById("counterPanel"), slotEl = document.getElementById(TAB === "squat" ? "scounterSlot" : "pcounterSlot");
     if(panel && slotEl && panel.parentNode !== slotEl) slotEl.appendChild(panel);
+  }
+  var numPrev = {};
+  function tweenNum(el, from, to, ms){
+    var t0 = performance.now();
+    function step(now){
+      var k = Math.min(1, (now - t0) / ms), e = 1 - Math.pow(1 - k, 3);
+      el.textContent = String(Math.round(from + (to - from) * e));
+      if(k < 1) requestAnimationFrame(step);
+      else el.textContent = String(to);
+    }
+    requestAnimationFrame(step);
+  }
+  function animateNums(){
+    var els = document.querySelectorAll("[data-num]");
+    for(var i = 0; i < els.length; i++){
+      var el = els[i], k = el.getAttribute("data-num"), to = parseFloat(el.textContent);
+      if(!isFinite(to)) continue;
+      var from = numPrev[k];
+      numPrev[k] = to;
+      if(REDUCED || from == null || from === to) continue;
+      tweenNum(el, from, to, 520);
+    }
   }
   var fillPrev = {};
   function animateFills(){
@@ -4659,6 +4714,7 @@ create policy "friends drop" on public.friends
     renderToday();
     PULL.render(); pushChain().render(); SQUAT.render(); DUMB.render(); renderStretch(); renderCustom(); renderAllMounted(); renderCounter(); renderSync(); renderSound(); renderNotify(); renderAcc(); renderProfile();
     animateFills();
+    animateNums();
     renderHold();
     renderTimer();
   }
@@ -5065,9 +5121,20 @@ create policy "friends drop" on public.friends
 
   (function(){
     var v = document.getElementById("appVer");
-    if(v){ v.textContent = "v. " + APP_VERSION; v.title = "Сборка от " + APP_BUILD; }
+    if(!v) return;
+    v.textContent = "v. " + APP_VERSION;
+    v.title = "Версия приложения";
+    if(!/^https?:$/.test(location.protocol)) return;
+    fetch(location.href, {method: "HEAD", cache: "no-store"}).then(function(r){
+      var lm = r.headers.get("last-modified");
+      if(!lm) return;
+      var d = new Date(lm);
+      if(isNaN(d)) return;
+      v.title = "Версия " + APP_VERSION + ", файл от " + d.toLocaleDateString("ru-RU", {day: "numeric", month: "long", year: "numeric"});
+    }).catch(function(){});
   })();
   bindSwipe();
+  window.addEventListener("resize", function(){ moveTabInd(); });
   sbCatchRecovery();
   render();
   if(onbNeeded()) onbStart();
