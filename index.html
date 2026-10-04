@@ -537,6 +537,11 @@ body.has-hold .wrap{padding-bottom:140px}
 .ava.photo{background-size:cover;background-position:center}
 .pf-edit{margin:0 0 var(--s4)}
 .pf-edit .field{flex:1 1 200px}
+.feed{margin-top:var(--s4)}
+.feedlist{margin:8px 0 0;padding-left:18px}
+.feedlist li{margin:4px 0;font-size:var(--fs-sm);color:var(--muted)}
+.feedlist strong{color:var(--ink)}
+#notifyRow{margin-top:var(--s3)}
 .friends{margin-top:var(--s3)}
 .friends .code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.06em}
 .frcard{display:flex;align-items:flex-start;gap:var(--s3);padding:var(--s3);margin-top:var(--s2);border:1px solid var(--line);border-radius:var(--r-sm);background:var(--bg)}
@@ -1059,6 +1064,7 @@ create policy "friends drop" on public.friends
     <p class="hint" id="installText" aria-live="polite"></p>
       <p class="hint">Каждая программа подаёт свой сигнал, чтобы на слух было понятно, какой таймер сработал. Нажми, чтобы послушать:</p>
       <div class="picker" id="soundTest"></div>
+      <div id="notifyRow"></div>
 
     <p class="hint" id="status">Прогресс хранится в этом браузере</p>
     <span class="io">
@@ -1340,7 +1346,7 @@ create policy "friends drop" on public.friends
   try { var tb = localStorage.getItem(TKEY); if(tb === "push" || tb === "squat" || tb === "dumb" || tb === "stretch" || tb === "custom") TAB = tb; } catch(e){}
   var SETS = ["подход","подхода","подходов"];
   // тип дня: 0 — смазка канавки, 1 — удержания и подходы, 2 — лесенки/тест
-  function fresh(){ return {v:4, profile:{name:"", photo:""}, fin:{}, updatedAt:0, mode:{pull:"short", push:"short", squat:"short", stretch:"short"}, variant:{push:"classic"}, start:null, timer:null, p:{startMax:15, max:null, tests:{}}, s:{startMax:25, max:null, tests:{}}, b:{startMax:12, max:null, tests:{}}, g:{startMax:12, max:null, tests:{}}, t:{front:40, side:45, tests:{}}, u:{startMax:4, max:null, tests:{}, legacy:0}, custom:{progs:[], cur:null, mount:{pull:null, push:null, squat:null, stretch:null}}, startMax:4, test4:null, test8:null, logs:{}, times:{}, cycles:[]}; }
+  function fresh(){ return {v:4, profile:{name:"", photo:""}, fin:{}, lastEvent:null, updatedAt:0, mode:{pull:"short", push:"short", squat:"short", stretch:"short"}, variant:{push:"classic"}, start:null, timer:null, p:{startMax:15, max:null, tests:{}}, s:{startMax:25, max:null, tests:{}}, b:{startMax:12, max:null, tests:{}}, g:{startMax:12, max:null, tests:{}}, t:{front:40, side:45, tests:{}}, u:{startMax:4, max:null, tests:{}, legacy:0}, custom:{progs:[], cur:null, mount:{pull:null, push:null, squat:null, stretch:null}}, startMax:4, test4:null, test8:null, logs:{}, times:{}, cycles:[]}; }
   function normalize(s){
     var f = fresh();
     if(!s || typeof s !== "object") return f;
@@ -1349,6 +1355,7 @@ create policy "friends drop" on public.friends
     f.test8 = s.test8 == null ? null : clampInt(s.test8, 0, 60, null);
     f.logs = (s.logs && typeof s.logs === "object") ? s.logs : {};
     f.fin = (s.fin && typeof s.fin === "object" && !Array.isArray(s.fin)) ? s.fin : {};
+    f.lastEvent = (s.lastEvent && typeof s.lastEvent === "object" && typeof s.lastEvent.title === "string") ? s.lastEvent : null;
     f.times = (s.times && typeof s.times === "object") ? s.times : {};
     f.cycles = Array.isArray(s.cycles) ? s.cycles : [];
     // старые ключи без режима переводим в режим «на весь день»
@@ -1812,6 +1819,7 @@ create policy "friends drop" on public.friends
       if(alerted !== t.due){
         alerted = t.due;
         if(soundOn) playSig(tabOfKey(t.key), "due");
+        if(document.hidden) notifyFire("Пора на подход", nextText(t));
         try { if(navigator.vibrate) navigator.vibrate([180, 90, 180]); } catch(e){}
       }
     } else {
@@ -3935,7 +3943,7 @@ create policy "friends drop" on public.friends
   function myStats(){
     return {
       pull: PULL.total(), push: PUSH.total() + BOARD.total(), squat: SQUAT.total(),
-      dumb: DUMB.total(), stretch: tMinutes(), ts: Date.now()
+      dumb: DUMB.total(), stretch: tMinutes(), ts: Date.now(), last: state.lastEvent || null
     };
   }
   function sbPutProfile(){
@@ -4041,7 +4049,113 @@ create policy "friends drop" on public.friends
     if(FR.loading) h += '<p class="hint">Загружаю список…</p>';
     else if(!FR.list.length) h += '<p class="hint">Друзей пока нет. Обменяйтесь кодами — и увидите цифры друг друга: сколько подтягиваний, отжиманий, приседаний и минут растяжки набрано и когда была последняя отметка.</p>';
     else FR.list.forEach(function(p){ h += frCard(p); });
+    h += feedHtml();
     return h + '</section>';
+  }
+
+  // ---------- напоминания ----------
+  var NKEY = "pullups-notify", notifyOn = false;
+  try { notifyOn = localStorage.getItem(NKEY) === "1"; } catch(e){}
+  function notifyOk(){ return typeof Notification !== "undefined"; }
+  function notifyAsk(){
+    if(!notifyOk()){ flash("Этот браузер не умеет напоминания"); return; }
+    if(notifyOn){
+      notifyOn = false;
+      try { localStorage.setItem(NKEY, "0"); } catch(e){}
+      renderNotify(); flash("Напоминания выключены");
+      return;
+    }
+    Notification.requestPermission().then(function(p){
+      notifyOn = p === "granted";
+      try { localStorage.setItem(NKEY, notifyOn ? "1" : "0"); } catch(e){}
+      renderNotify();
+      flash(notifyOn ? "Напоминания включены" : "Браузер не разрешил уведомления");
+      if(notifyOn) notifyFire("Напоминания включены", "Так будет выглядеть сигнал о следующем подходе");
+    }).catch(function(){ flash("Браузер не разрешил уведомления"); });
+  }
+  function notifyFire(title, body){
+    if(!notifyOn || !notifyOk() || Notification.permission !== "granted") return;
+    var opts = {body: body, tag: "training-rest", icon: "icon-192.png", badge: "icon-192.png"};
+    try {
+      if(navigator.serviceWorker && navigator.serviceWorker.getRegistration){
+        navigator.serviceWorker.getRegistration().then(function(reg){
+          if(reg && reg.showNotification) reg.showNotification(title, opts);
+          else new Notification(title, opts);
+        }).catch(function(){ try { new Notification(title, opts); } catch(e){} });
+      } else new Notification(title, opts);
+    } catch(e){}
+  }
+  function renderNotify(){
+    var el = document.getElementById("notifyRow");
+    if(!el) return;
+    if(!notifyOk()){ el.innerHTML = '<p class="hint">Этот браузер не умеет показывать напоминания.</p>'; return; }
+    var denied = Notification.permission === "denied";
+    el.innerHTML = '<p class="hint">Напоминание о следующем подходе приходит, даже когда вкладка свёрнута. ' +
+      (denied ? "Сейчас уведомления запрещены в настройках сайта — разреши их в браузере." : notifyOn ? "Сейчас включены." : "Сейчас выключены.") + '</p>' +
+      '<div class="test"><button type="button" class="' + (notifyOn ? "linkbtn" : "primary") + '" data-act="notify"' + (denied ? " disabled" : "") + '>' +
+      (notifyOn ? "Выключить напоминания" : "Включить напоминания") + '</button></div>';
+  }
+
+  // ---------- лента активности друзей ----------
+  function feedLine(name, ev){
+    if(!ev || !ev.title) return "";
+    return '<li><strong>' + esc(name) + '</strong> — ' + esc(ev.title.toLowerCase()) +
+      (ev.no ? ", занятие " + ev.no : "") + ", " + frWhen(ev.ts) + '</li>';
+  }
+  function feedHtml(){
+    var items = [];
+    if(state.lastEvent && state.lastEvent.title) items.push({name: profName() || "Ты", ev: state.lastEvent});
+    FR.list.forEach(function(p){
+      var ev = p.stats && p.stats.last;
+      if(ev && ev.title) items.push({name: p.nick || "Друг", ev: ev});
+    });
+    if(!items.length) return "";
+    items.sort(function(a, b){ return (b.ev.ts || 0) - (a.ev.ts || 0); });
+    var h = '<div class="feed"><h3 class="camset-label">Лента</h3><ul class="feedlist">';
+    items.slice(0, 8).forEach(function(it){ h += feedLine(it.name, it.ev); });
+    return h + '</ul></div>';
+  }
+
+  // ---------- восстановление и смена пароля ----------
+  var pwMode = false;
+  function sbRecover(){
+    var el = document.getElementById("pfMail"), em = ((el && el.value) || "").trim();
+    if(!em){ syncStatus("Впиши почту в поле выше, на неё придёт письмо."); return; }
+    syncStatus("Отправляю письмо…");
+    sbReq("/auth/v1/recover", {method: "POST", body: JSON.stringify({email: em, redirect_to: location.origin + location.pathname})}, false)
+      .then(function(){ syncStatus("Письмо отправлено на " + em + ". Открой ссылку из письма на этом же устройстве и задай новый пароль."); })
+      .catch(function(e){ syncStatus("Не вышло: " + sbErr(e)); });
+  }
+  function sbSetPassword(){
+    var el = document.getElementById("pfNewPass"), pw = (el && el.value) || "";
+    if(pw.length < 6){ syncStatus("Пароль должен быть не короче шести символов."); return; }
+    syncStatus("Меняю пароль…");
+    sbReq("/auth/v1/user", {method: "PUT", body: JSON.stringify({password: pw})})
+      .then(function(){
+        pwMode = false;
+        if(el) el.value = "";
+        try { if(location.hash) history.replaceState(null, "", location.pathname + location.search); } catch(e){}
+        render();
+        syncStatus("Пароль изменён.");
+        flash("Пароль изменён");
+      })
+      .catch(function(e){ syncStatus("Не вышло: " + sbErr(e)); });
+  }
+  function sbCatchRecovery(){
+    var h = location.hash || "";
+    if(h.indexOf("access_token=") < 0) return;
+    var q = {};
+    h.replace(/^#/, "").split("&").forEach(function(p){
+      var kv = p.split("=");
+      q[decodeURIComponent(kv[0])] = decodeURIComponent(kv[1] || "");
+    });
+    if(!q.access_token) return;
+    sbSaveTok({access_token: q.access_token, refresh_token: q.refresh_token || ""});
+    pwMode = true;
+    try { localStorage.setItem("pullups-sync-mode", "sb"); } catch(e){}
+    TAB = "profile";
+    try { history.replaceState(null, "", location.pathname + location.search); } catch(e){}
+    setTimeout(function(){ render(); syncStatus("Задай новый пароль."); }, 0);
   }
 
   function renderProfile(){
@@ -4059,7 +4173,13 @@ create policy "friends drop" on public.friends
         '<input type="file" id="pfPhotoFile" accept="image/*" hidden></div>';
       h += profileStats();
       h += '<p class="hint">Прогресс хранится в твоём аккаунте: открой страницу на другом устройстве, войди теми же почтой и паролем, и отметки будут общими.</p>';
+      if(pwMode){
+        h += '<div class="test"><label class="field" for="pfNewPass">Новый пароль<input type="password" id="pfNewPass" placeholder="не короче 6 символов" autocomplete="new-password"></label>' +
+          '<button type="button" class="primary" data-act="pw-save">Сохранить пароль</button>' +
+          '<button type="button" class="linkbtn alt" data-act="pw-cancel">Отмена</button></div>';
+      }
       h += '<div class="test"><button type="button" class="primary" data-act="sb-sync">Синхронизировать сейчас</button>' +
+        (pwMode ? "" : '<button type="button" class="linkbtn" data-act="pw-mode">Сменить пароль</button>') +
         '<button type="button" class="linkbtn" data-act="sb-out">Выйти</button></div>';
       box.innerHTML = h;
       var fb = document.getElementById("friendsBox");
@@ -4074,7 +4194,8 @@ create policy "friends drop" on public.friends
         '<label class="field" for="pfMail">Почта<input type="email" id="pfMail" placeholder="you@mail.com" autocomplete="username"></label>' +
         '<label class="field" for="pfPass">Пароль<input type="password" id="pfPass" placeholder="не короче 6 символов" autocomplete="current-password"></label></div>';
       h += '<div class="test"><button type="button" class="primary" data-act="sb-up">Создать аккаунт</button>' +
-        '<button type="button" class="linkbtn" data-act="sb-in">Войти</button></div>';
+        '<button type="button" class="linkbtn" data-act="sb-in">Войти</button>' +
+        '<button type="button" class="linkbtn alt" data-act="pw-forgot">Забыл пароль</button></div>';
       h += '<p class="hint" id="pfNote" aria-live="polite"></p>';
       h += '<p class="hint">Уже отмеченные тренировки не пропадут: после входа они сложатся с тем, что лежит в аккаунте.</p>';
       var fb0 = document.getElementById("friendsBox");
@@ -4132,7 +4253,7 @@ create policy "friends drop" on public.friends
     var pv = document.getElementById("pvariant");
     if(pv) pv.innerHTML = variantToggle();
     renderToday();
-    PULL.render(); pushChain().render(); SQUAT.render(); DUMB.render(); renderStretch(); renderCustom(); renderAllMounted(); renderCounter(); renderSync(); renderSound(); renderAcc(); renderProfile();
+    PULL.render(); pushChain().render(); SQUAT.render(); DUMB.render(); renderStretch(); renderCustom(); renderAllMounted(); renderCounter(); renderSync(); renderSound(); renderNotify(); renderAcc(); renderProfile();
     animateFills();
     renderHold();
     renderTimer();
@@ -4238,10 +4359,17 @@ create policy "friends drop" on public.friends
       if(!state.fin) state.fin = {};
       state.fin[fk] = Date.now();
       state.times[fk] = Date.now();
+      var fday = dayOfKey(fk);
+      state.lastEvent = {title: (fday && fday.title) || "тренировка", no: (fday && fday.no) || null, ts: Date.now()};
       sel = null; save(); render();
       flash("Тренировка засчитана");
       return;
     }
+    if(act === "notify"){ notifyAsk(); return; }
+    if(act === "pw-forgot"){ sbRecover(); return; }
+    if(act === "pw-mode"){ pwMode = true; renderProfile(); return; }
+    if(act === "pw-cancel"){ pwMode = false; renderProfile(); return; }
+    if(act === "pw-save"){ sbSetPassword(); return; }
     if(act === "fr-add"){ frAdd(); return; }
     if(act === "fr-drop"){ frDrop(b.getAttribute("data-id")); return; }
     if(act === "fr-reload"){ FR.loaded = 0; sbFriends(); flash("Обновляю"); return; }
@@ -4473,6 +4601,7 @@ create policy "friends drop" on public.friends
     r.readAsText(f);
   });
 
+  sbCatchRecovery();
   render();
   syncNow(true);
 
