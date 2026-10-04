@@ -558,6 +558,8 @@ body.has-hold .wrap{padding-bottom:140px}
 .tabs button{position:relative;z-index:1;background:transparent}
 .tabs button[aria-selected="true"]{background:transparent;box-shadow:none;color:var(--accent-ink)}
 @media (prefers-reduced-motion: reduce){.tabs .tabs-ind{transition:none}}
+.tb-adj{display:inline-flex;gap:4px;margin-right:4px}
+.tb-adj .tb-icon{font-size:14px;font-weight:700;min-width:44px}
 .ava-wrap{position:relative;display:inline-flex;flex:0 0 auto}
 .ava-wrap .ava{box-shadow:0 0 0 2px var(--surface), 0 0 0 4px var(--ring-ok)}
 .ava-badge{position:absolute;right:-3px;bottom:-3px;width:15px;height:15px;border-radius:var(--r-pill);background:var(--ring-ok);color:#fff;display:grid;place-items:center;border:2px solid var(--surface)}
@@ -1919,7 +1921,10 @@ create policy "friends drop" on public.friends
     bar.hidden = false; document.body.classList.add("has-timer");
     bar.classList.toggle("due", due);
     bar.innerHTML = '<div class="tb-main"><button type="button" class="tb-text" data-act="timer-go"><strong>' + (due ? "Пора подтягиваться" : "Следующий подход через " + fmt(left)) + '</strong><span>' + esc(nextText(t)) + '</span></button>' +
-      '<div class="tb-actions">' + (due ? '<button type="button" class="tb-do" data-act="timer-log">Сделал</button>' : '') +
+      '<div class="tb-actions">' +
+      (due ? '' : '<span class="tb-adj"><button type="button" class="tb-icon" data-act="timer-minus" aria-label="Минус минута">−1</button>' +
+        '<button type="button" class="tb-icon" data-act="timer-plus" aria-label="Плюс минута">+1</button></span>') +
+      (due ? '<button type="button" class="tb-do" data-act="timer-log">Сделал</button>' : '') +
       '<button type="button" class="tb-icon" data-act="sound" aria-label="' + (soundOn ? "Выключить звук" : "Включить звук") + '">' + (soundOn ? "🔔" : "🔕") + '</button>' +
       '<button type="button" class="tb-icon" data-act="timer-close" aria-label="Скрыть таймер">✕</button></div></div>';
     if(due){
@@ -4983,6 +4988,17 @@ create policy "friends drop" on public.friends
     if(act === "cam-file"){ var fi = document.getElementById("camFile"); fi.value = ""; fi.click(); return; }
     if(act === "cam-finish"){ camFinish(true); return; }
     if(act === "cam-cancel"){ camFinish(false); return; }
+    if(act === "timer-minus" || act === "timer-plus"){
+      var tt = state.timer;
+      if(!tt) return;
+      var delta = (act === "timer-plus" ? 60 : -60) * 1000;
+      var min = Date.now() + 10000, max = Date.now() + 6 * 3600 * 1000;
+      tt.due = Math.max(min, Math.min(max, tt.due + delta));
+      if(tt.due > Date.now()) alerted = null;
+      save(); renderTimer();
+      flash(act === "timer-plus" ? "Отдых длиннее на минуту" : "Отдых короче на минуту");
+      return;
+    }
     if(act === "timer-close"){ state.timer = null; save(); renderTimer(); return; }
     if(act === "timer-go"){ var tk = state.timer && state.timer.key; if(tk) goToCard(tk); return; }
     if(act === "sound"){ soundOn = !soundOn; try { localStorage.setItem(SKEY, soundOn ? "1" : "0"); } catch(e){} if(soundOn) beep(1); renderTimer(); return; }
