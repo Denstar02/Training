@@ -539,6 +539,7 @@ body.has-hold .wrap{padding-bottom:140px}
 .pf-edit .field{flex:1 1 200px}
 
 /* всплывающее окно */
+.ver{margin:var(--s6) 0 var(--s3);text-align:center;font-size:var(--fs-xs);color:var(--muted);opacity:.75;font-variant-numeric:tabular-nums}
 .warm{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;background:rgba(10,14,20,.55);padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px));backdrop-filter:blur(2px)}
 .warm[hidden]{display:none}
 .warm-card{width:100%;max-width:460px;max-height:100%;overflow:auto;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px 18px 18px;box-shadow:var(--shadow-2)}
@@ -1098,6 +1099,8 @@ create policy "friends drop" on public.friends
       <button type="button" class="danger" id="reset" data-act="reset">Сбросить весь прогресс</button>
     </span>
   </details>
+
+  <p class="ver" id="appVer"></p>
 </div>
 
 <div id="onb" class="warm" role="dialog" aria-modal="true" hidden></div>
@@ -1357,6 +1360,8 @@ create policy "friends drop" on public.friends
     "sb_publishable_xiMxPtjCJx8o7oMtUEBuew_J51Gty0A",
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzd3FsYmpsa3Bncm55a2dnY3pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwNDIyNDUsImV4cCI6MjEwNjYxODI0NX0.KQMAqfGyNr1NeLMKu3iRuufLaZ5DEMRj2sc1ulkK5QY"
   ]};
+  // номер версии: меняй при каждой выкладке
+  var APP_VERSION = "1.0", APP_BUILD = "4 октября 2026";
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
   var theme = "light";
   try { var th = localStorage.getItem(THKEY); if(th === "dark" || th === "light" || th === "auto") theme = th; } catch(e){}
@@ -5002,6 +5007,10 @@ create policy "friends drop" on public.friends
     r.readAsText(f);
   });
 
+  (function(){
+    var v = document.getElementById("appVer");
+    if(v){ v.textContent = "v. " + APP_VERSION; v.title = "Сборка от " + APP_BUILD; }
+  })();
   bindSwipe();
   sbCatchRecovery();
   render();
