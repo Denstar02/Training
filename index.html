@@ -537,6 +537,16 @@ body.has-hold .wrap{padding-bottom:140px}
 .ava.photo{background-size:cover;background-position:center}
 .pf-edit{margin:0 0 var(--s4)}
 .pf-edit .field{flex:1 1 200px}
+
+/* всплывающее окно */
+.warm{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;background:rgba(10,14,20,.55);padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px));backdrop-filter:blur(2px)}
+.warm[hidden]{display:none}
+.warm-card{width:100%;max-width:460px;max-height:100%;overflow:auto;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px 18px 18px;box-shadow:var(--shadow-2)}
+.warm-top{display:flex;justify-content:space-between;align-items:center;gap:var(--s3);color:var(--muted);font-size:var(--fs-xs)}
+.warm-actions{display:flex;justify-content:flex-end;align-items:center;gap:var(--s2);margin-top:var(--s5);flex-wrap:wrap}
+.warm-actions .primary,.warm-actions .linkbtn{margin-top:0;min-width:130px}
+body.modal-open{overflow:hidden}
+@media (max-width:520px){.warm{align-items:flex-end;padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))}.warm-actions .primary,.warm-actions .linkbtn{flex:1 1 140px;min-width:0}}
 .onb-card{max-width:460px;text-align:left}
 .onb-card h2{font-size:var(--fs-lg);margin-top:var(--s2)}
 .onb-list{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s3)}
@@ -4265,6 +4275,7 @@ create policy "friends drop" on public.friends
     }
     ONB = null;
     document.getElementById("onb").hidden = true;
+    document.body.classList.remove("modal-open");
     save(); render();
   }
   function onbSet(k, v){
@@ -4284,9 +4295,10 @@ create policy "friends drop" on public.friends
   function renderOnb(){
     var box = document.getElementById("onb");
     if(!box) return;
-    if(!ONB){ box.hidden = true; box.innerHTML = ""; return; }
+    if(!ONB){ box.hidden = true; box.innerHTML = ""; document.body.classList.remove("modal-open"); return; }
     box.hidden = false;
-    var h = '<div class="warm-card onb-card"><div class="warm-top"><span>Настройка, шаг ' + (ONB.step + 1) + ' из 3</span>' +
+    document.body.classList.add("modal-open");
+    var h = '<div class="warm-card onb-card" role="document"><div class="warm-top"><span>Настройка, шаг ' + (ONB.step + 1) + ' из 3</span>' +
       '<button type="button" class="tb-icon" data-act="onb-skip" aria-label="Пропустить">✕</button></div>';
     if(ONB.step === 0){
       h += '<h2>Что есть дома?</h2><p class="hint">Можно выбрать несколько. От этого зависит, с какого раздела начнём.</p><div class="onb-list">';
@@ -4904,6 +4916,7 @@ create policy "friends drop" on public.friends
   });
 
   document.addEventListener("keydown", function(ev){
+    if(ev.key === "Escape" && ONB){ onbClose(true); return; }
     if(ev.key === " " || ev.code === "Space"){
       var t4 = ev.target;
       if(t4 && t4.closest && t4.closest("input, textarea, select, button, [contenteditable]")) return;
