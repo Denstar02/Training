@@ -606,6 +606,22 @@ body.modal-open{overflow:hidden}
 .frtop{display:flex;align-items:center;gap:var(--s2);flex-wrap:wrap}
 .frcard .hint{margin:4px 0 0}
 .badge.quiet{background:var(--line);color:var(--muted)}
+
+/* компактный интерфейс */
+.tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x proximity}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:0 0 auto;white-space:nowrap;padding:0 18px;scroll-snap-align:center}
+.progset{padding:0 16px}
+.progset > summary{padding:14px 0;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:var(--fs-md)}
+.progset .setsum{font-size:var(--fs-xs);color:var(--muted);font-weight:500;text-align:right}
+.progset .maxrow{border:0;box-shadow:none;padding:0 0 14px;background:transparent;backdrop-filter:none}
+.progset .legend{padding:0 0 16px;margin:0}
+.counter > summary{padding:16px 0;font-size:var(--fs-md)}
+.counter[open] > summary{margin-bottom:var(--s2)}
+.subdet{margin-top:var(--s3)}
+.subdet > summary{padding:10px 0;font-size:var(--fs-sm);color:var(--muted)}
+.lede[hidden]{display:none}
+@media (max-width:520px){.tabs button{padding:0 14px;font-size:14px}}
 .jumprow{display:flex;justify-content:center;margin:0 0 var(--s2)}
 .jumprow .linkbtn{margin-top:0}
 /* шапка по центру */
@@ -771,15 +787,26 @@ create policy "friends drop" on public.friends
       <div class="rig-cap"><span id="ucapRange"></span><span id="ucapLeft"></span></div>
     </nav>
 
-    <div class="maxrow">
-      <p id="umaxText"></p>
-      <div class="stepper" role="group" aria-label="Стартовый максимум подтягиваний">
-        <button type="button" data-act="cmax-" data-c="u" aria-label="Уменьшить">−</button>
-        <output id="umaxOut">4</output>
-        <button type="button" data-act="cmax+" data-c="u" aria-label="Увеличить">+</button>
+    <details class="panel progset">
+      <summary><span>Нагрузка и темп</span><span class="setsum" id="usetSum"></span></summary>
+      <div class="maxrow">
+        <p id="umaxText"></p>
+        <div class="stepper" role="group" aria-label="Стартовый максимум подтягиваний">
+          <button type="button" data-act="cmax-" data-c="u" aria-label="Уменьшить">−</button>
+          <output id="umaxOut">4</output>
+          <button type="button" data-act="cmax+" data-c="u" aria-label="Увеличить">+</button>
+        </div>
+        <div class="modebox" id="umode"></div>
       </div>
-      <div class="modebox" id="umode"></div>
-    </div>
+
+      <div class="legend" aria-hidden="true">
+        <span><i></i>Запланировано, нажми после подхода</span>
+        <span><i class="d"></i>Выполнено</span>
+        <span>Пробел на компьютере — отметить следующий подход</span>
+        <span><i class="p"></i>Меньше плана</span>
+        <span><i class="h"></i>Секунды: удержание и вис</span>
+      </div>
+    </details>
 
     <p class="pstatus" id="ustatus"></p>
 
@@ -791,17 +818,8 @@ create policy "friends drop" on public.friends
 
     <main><div id="uwork"></div></main>
 
-    <div class="legend" aria-hidden="true">
-      <span><i></i>Запланировано, нажми после подхода</span>
-      <span><i class="d"></i>Выполнено</span>
-      <span>Пробел на компьютере — отметить следующий подход</span>
-      <span><i class="p"></i>Меньше плана</span>
-      <span><i class="h"></i>Секунды: удержание и вис</span>
-    </div>
-
     <section class="panel">
       <h2>Прогресс</h2>
-      <p class="hint">Тридцать тренировок подряд, без привязки к дням недели: объёмная, удержания, лесенки, лёгкая, и так по кругу. Каждая двенадцатая — тест максимума. Переключаться между тренировками можно по шкале наверху.</p>
       <div id="uring"></div>
     </section>
 
@@ -826,16 +844,26 @@ create policy "friends drop" on public.friends
       <div class="rig-cap"><span id="pcapRange"></span><span id="pcapLeft"></span></div>
     </nav>
 
-    <div class="maxrow">
-      <p id="pmaxText"></p>
-      <div class="stepper" role="group" aria-label="Стартовый максимум отжиманий">
-        <button type="button" data-act="cmax-" data-c="p" aria-label="Уменьшить">−</button>
-        <output id="pmaxOut">15</output>
-        <button type="button" data-act="cmax+" data-c="p" aria-label="Увеличить">+</button>
+    <details class="panel progset">
+      <summary><span>Нагрузка и темп</span><span class="setsum" id="psetSum"></span></summary>
+      <div class="maxrow">
+        <p id="pmaxText"></p>
+        <div class="stepper" role="group" aria-label="Стартовый максимум отжиманий">
+          <button type="button" data-act="cmax-" data-c="p" aria-label="Уменьшить">−</button>
+          <output id="pmaxOut">15</output>
+          <button type="button" data-act="cmax+" data-c="p" aria-label="Увеличить">+</button>
+        </div>
+        <div class="modebox" id="pvariant"></div>
+        <div class="modebox" id="pmode"></div>
       </div>
-      <div class="modebox" id="pvariant"></div>
-      <div class="modebox" id="pmode"></div>
-    </div>
+
+      <div class="legend" aria-hidden="true">
+        <span><i></i>Запланировано, нажми после подхода</span>
+        <span><i class="d"></i>Выполнено</span>
+        <span><i class="p"></i>Меньше плана</span>
+        <span><i class="h"></i>Секунды: планка</span>
+      </div>
+    </details>
 
     <p class="pstatus" id="pstatus"></p>
 
@@ -847,15 +875,8 @@ create policy "friends drop" on public.friends
 
     <main><div id="pwork"></div></main>
 
-    <div class="legend" aria-hidden="true">
-      <span><i></i>Запланировано, нажми после подхода</span>
-      <span><i class="d"></i>Выполнено</span>
-      <span><i class="p"></i>Меньше плана</span>
-      <span><i class="h"></i>Секунды: планка</span>
-    </div>
-
-    <div id="pcounterSlot"><section class="panel counter" id="counterPanel">
-      <h2 id="cntTitle">Счётчик отжиманий по камере</h2>
+    <div id="pcounterSlot"><details class="panel counter" id="counterPanel">
+      <summary id="cntTitle">Счётчик отжиманий по камере</summary>
       <p class="hint" id="cntIntro">Положи телефон экраном вверх прямо под лицо.</p>
       <p class="hint" id="camNote" hidden></p>
 
@@ -916,11 +937,10 @@ create policy "friends drop" on public.friends
       </div>
 
       <p class="hint">Распознавание лица: BlazeFace (Google, лицензия Apache 2.0) на TensorFlow.js. Движок взят из твоего проекта <a href="https://denstar02.github.io/Pushups/" target="_blank">denstar02.github.io/Pushups</a>. Для приседаний логика своя: считается не размер лица, а то, насколько оно уходит вниз.</p>
-    </section></div>
+    </details></div>
 
     <section class="panel">
       <h2>Прогресс</h2>
-      <p class="hint">Тридцать тренировок подряд, без привязки к дням недели: объёмная, медленные, лесенки, лёгкая, и так по кругу. Каждая двенадцатая — тест максимума. Делай их каждый день или через день, как получится. Переключаться между тренировками можно по дорожке наверху.</p>
       <div id="pring"></div>
     </section>
 
@@ -945,15 +965,25 @@ create policy "friends drop" on public.friends
       <div class="rig-cap"><span id="scapRange"></span><span id="scapLeft"></span></div>
     </nav>
 
-    <div class="maxrow">
-      <p id="smaxText"></p>
-      <div class="stepper" role="group" aria-label="Стартовый максимум приседаний">
-        <button type="button" data-act="cmax-" data-c="s" aria-label="Уменьшить">−</button>
-        <output id="smaxOut">25</output>
-        <button type="button" data-act="cmax+" data-c="s" aria-label="Увеличить">+</button>
+    <details class="panel progset">
+      <summary><span>Нагрузка и темп</span><span class="setsum" id="ssetSum"></span></summary>
+      <div class="maxrow">
+        <p id="smaxText"></p>
+        <div class="stepper" role="group" aria-label="Стартовый максимум приседаний">
+          <button type="button" data-act="cmax-" data-c="s" aria-label="Уменьшить">−</button>
+          <output id="smaxOut">25</output>
+          <button type="button" data-act="cmax+" data-c="s" aria-label="Увеличить">+</button>
+        </div>
+        <div class="modebox" id="smode"></div>
       </div>
-      <div class="modebox" id="smode"></div>
-    </div>
+
+      <div class="legend" aria-hidden="true">
+        <span><i></i>Запланировано, нажми после подхода</span>
+        <span><i class="d"></i>Выполнено</span>
+        <span><i class="p"></i>Меньше плана</span>
+        <span><i class="h"></i>Секунды: стульчик у стены</span>
+      </div>
+    </details>
 
     <p class="pstatus" id="sstatus"></p>
 
@@ -965,18 +995,10 @@ create policy "friends drop" on public.friends
 
     <main><div id="swork"></div></main>
 
-    <div class="legend" aria-hidden="true">
-      <span><i></i>Запланировано, нажми после подхода</span>
-      <span><i class="d"></i>Выполнено</span>
-      <span><i class="p"></i>Меньше плана</span>
-      <span><i class="h"></i>Секунды: стульчик у стены</span>
-    </div>
-
     <div id="scounterSlot"></div>
 
     <section class="panel">
       <h2>Прогресс</h2>
-      <p class="hint">Тридцать тренировок подряд, без привязки к дням недели: объёмная, медленные, лесенки, лёгкая, и так по кругу. Каждая двенадцатая — тест максимума. Делай их каждый день или через день, как получится. Переключаться между тренировками можно по шкале наверху.</p>
       <div id="sring"></div>
     </section>
 
@@ -1001,16 +1023,26 @@ create policy "friends drop" on public.friends
       <div class="rig-cap"><span id="gcapRange"></span><span id="gcapLeft"></span></div>
     </nav>
 
-    <div class="maxrow">
-      <p id="gmaxText"></p>
-      <div class="stepper" role="group" aria-label="Рабочий максимум повторений с гантелями">
-        <button type="button" data-act="cmax-" data-c="g" aria-label="Уменьшить">−</button>
-        <output id="gmaxOut">12</output>
-        <button type="button" data-act="cmax+" data-c="g" aria-label="Увеличить">+</button>
+    <details class="panel progset">
+      <summary><span>Нагрузка и темп</span><span class="setsum" id="gsetSum"></span></summary>
+      <div class="maxrow">
+        <p id="gmaxText"></p>
+        <div class="stepper" role="group" aria-label="Рабочий максимум повторений с гантелями">
+          <button type="button" data-act="cmax-" data-c="g" aria-label="Уменьшить">−</button>
+          <output id="gmaxOut">12</output>
+          <button type="button" data-act="cmax+" data-c="g" aria-label="Увеличить">+</button>
+        </div>
+        <label class="field" for="gweight" style="flex:0 0 auto">Вес гантели, кг<input type="number" id="gweight" min="0" max="200" step="0.5" placeholder="например 12"></label>
+        <div class="modebox" id="gmode"></div>
       </div>
-      <label class="field" for="gweight" style="flex:0 0 auto">Вес гантели, кг<input type="number" id="gweight" min="0" max="200" step="0.5" placeholder="например 12"></label>
-      <div class="modebox" id="gmode"></div>
-    </div>
+
+      <div class="legend" aria-hidden="true">
+        <span><i></i>Запланировано, нажми после подхода</span>
+        <span><i class="d"></i>Выполнено</span>
+        <span><i class="p"></i>Меньше плана</span>
+        <span><i class="h"></i>Секунды: планка</span>
+      </div>
+    </details>
 
     <p class="pstatus" id="gstatus"></p>
 
@@ -1022,16 +1054,8 @@ create policy "friends drop" on public.friends
 
     <main><div id="gwork"></div></main>
 
-    <div class="legend" aria-hidden="true">
-      <span><i></i>Запланировано, нажми после подхода</span>
-      <span><i class="d"></i>Выполнено</span>
-      <span><i class="p"></i>Меньше плана</span>
-      <span><i class="h"></i>Секунды: планка</span>
-    </div>
-
     <section class="panel">
       <h2>Прогресс</h2>
-      <p class="hint">Тридцать тренировок подряд: верх тела, ноги, круг, лёгкая, и так по кругу. Каждая двенадцатая — тест максимума. Переключаться между тренировками можно по шкале наверху.</p>
       <div id="gring"></div>
     </section>
 
@@ -1055,26 +1079,36 @@ create policy "friends drop" on public.friends
       <div class="rig-cap"><span id="tcapRange"></span><span id="tcapLeft"></span></div>
     </nav>
 
-    <div class="maxrow">
-      <p id="tmaxText"></p>
-      <div class="modebox" id="tmode"></div>
-      <div class="measures">
-        <label>Продольный, см
-          <span class="stepper" role="group" aria-label="Стартовый замер продольного шпагата">
-            <button type="button" data-act="tstart-" data-k="front" aria-label="Уменьшить">−</button>
-            <output id="tfrontOut">40</output>
-            <button type="button" data-act="tstart+" data-k="front" aria-label="Увеличить">+</button>
-          </span>
-        </label>
-        <label>Поперечный, см
-          <span class="stepper" role="group" aria-label="Стартовый замер поперечного шпагата">
-            <button type="button" data-act="tstart-" data-k="side" aria-label="Уменьшить">−</button>
-            <output id="tsideOut">45</output>
-            <button type="button" data-act="tstart+" data-k="side" aria-label="Увеличить">+</button>
-          </span>
-        </label>
+    <details class="panel progset">
+      <summary><span>Замеры и темп</span><span class="setsum" id="tsetSum"></span></summary>
+      <div class="maxrow">
+        <p id="tmaxText"></p>
+        <div class="modebox" id="tmode"></div>
+        <div class="measures">
+          <label>Продольный, см
+            <span class="stepper" role="group" aria-label="Стартовый замер продольного шпагата">
+              <button type="button" data-act="tstart-" data-k="front" aria-label="Уменьшить">−</button>
+              <output id="tfrontOut">40</output>
+              <button type="button" data-act="tstart+" data-k="front" aria-label="Увеличить">+</button>
+            </span>
+          </label>
+          <label>Поперечный, см
+            <span class="stepper" role="group" aria-label="Стартовый замер поперечного шпагата">
+              <button type="button" data-act="tstart-" data-k="side" aria-label="Уменьшить">−</button>
+              <output id="tsideOut">45</output>
+              <button type="button" data-act="tstart+" data-k="side" aria-label="Увеличить">+</button>
+            </span>
+          </label>
+        </div>
       </div>
-    </div>
+
+      <div class="legend" aria-hidden="true">
+        <span><i></i>Запланировано, нажми после подхода</span>
+        <span><i class="d"></i>Выполнено</span>
+        <span><i class="p"></i>Меньше плана</span>
+        <span><i class="h"></i>Секунды удержания</span>
+      </div>
+    </details>
 
     <p class="pstatus" id="tstatus"></p>
 
@@ -1086,16 +1120,8 @@ create policy "friends drop" on public.friends
 
     <main><div id="twork"></div></main>
 
-    <div class="legend" aria-hidden="true">
-      <span><i></i>Запланировано, нажми после подхода</span>
-      <span><i class="d"></i>Выполнено</span>
-      <span><i class="p"></i>Меньше плана</span>
-      <span><i class="h"></i>Секунды удержания</span>
-    </div>
-
     <section class="panel">
       <h2>Прогресс</h2>
-      <p class="hint">Тридцать занятий подряд: продольный шпагат, поперечный, день подвижности, и так по кругу. Каждое десятое — замер. Занимайся почти каждый день, по 15–20 минут.</p>
       <div id="tring"></div>
     </section>
 
@@ -1435,7 +1461,7 @@ create policy "friends drop" on public.friends
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzd3FsYmpsa3Bncm55a2dnY3pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwNDIyNDUsImV4cCI6MjEwNjYxODI0NX0.KQMAqfGyNr1NeLMKu3iRuufLaZ5DEMRj2sc1ulkK5QY"
   ]};
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 1, APP_BUILD_N = 5;
+  var APP_MAJOR = 1, APP_BUILD_N = 6;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
   var theme = "light";
@@ -2224,6 +2250,14 @@ create policy "friends drop" on public.friends
       el("maxText").innerHTML = t;
       var mel = el("mode");
       if(mel) mel.innerHTML = modeToggle(cfg.tab);
+      var sum = el("setSum");
+      if(sum){
+        var parts = ["максимум " + C.max()];
+        if(cfg.tab === "push") parts.push(state.variant && state.variant.push === "board" ? "доска" : "классика");
+        if(cfg.pre === "g" && state.g.weight) parts.push(state.g.weight + " кг");
+        parts.push(MODES[C.mode()].label.toLowerCase());
+        sum.textContent = parts.join(" · ");
+      }
     }
     function renderStatus(){
       var cur = C.current(), last = C.lastTime(), h = "", done = 0, i;
@@ -2270,7 +2304,8 @@ create policy "friends drop" on public.friends
         '<text x="65" y="62" text-anchor="middle" class="big" data-num="ring-' + cfg.pre + '">' + total + '</text>' +
         '<text x="65" y="82" text-anchor="middle">из ' + goal + '</text></svg>' +
         '<p class="hint">Всего ' + cfg.unit[2] + ' за программу. До отметки ' + goal + ' осталось ' + Math.max(0, goal - total) + '.</p></div>';
-      h += testChart(C);
+      var chart = testChart(C);
+      if(chart) h += '<details class="subdet"><summary>Рост максимума</summary>' + chart + '</details>';
       var othr = C.totalOther();
       if(othr) h += '<p class="hint">Сюда входят оба темпа: в режиме «' + (C.mode() === "short" ? MODES.day.label : MODES.short.label) + '» отмечено ' + othr + " " + plural(othr, cfg.unit) + '.</p>';
       if(cfg.sibling && CHAINS[cfg.sibling]){
@@ -3353,6 +3388,10 @@ create policy "friends drop" on public.friends
     var el = document.getElementById("tmode");
     if(el) el.innerHTML = modeToggle("stretch");
   }
+  function renderTSum(){
+    var sum = document.getElementById("tsetSum");
+    if(sum) sum.textContent = tMeasure("front") + "/" + tMeasure("side") + " см · " + MODES[tabMode("stretch")].label.toLowerCase();
+  }
   function renderTMax(){
     document.getElementById("tfrontOut").textContent = state.t.front;
     document.getElementById("tsideOut").textContent = state.t.side;
@@ -3441,7 +3480,7 @@ create policy "friends drop" on public.friends
     else if(tDone(i) && i < TCOUNT - 1) h += '<div class="test"><button type="button" class="primary" data-act="tgo" data-i="' + (i + 1) + '">Дальше: занятие ' + (i + 2) + '</button></div>';
     document.getElementById("twork").innerHTML = h;
   }
-  function renderStretch(){ renderTMode(); renderTMax(); renderTStatus(); renderTTrack(); renderTRing(); renderTWork(); }
+  function renderStretch(){ renderTSum(); renderTMode(); renderTMax(); renderTStatus(); renderTTrack(); renderTRing(); renderTWork(); }
 
   // ---------- счётчик отжиманий по камере (движок FaceCore + BlazeFace) ----------
   var SOURCE_URL = "https://denstar02.github.io/Pushups/", cntVal = null, MIN_SCORE = 0.6;
@@ -4686,6 +4725,10 @@ create policy "friends drop" on public.friends
     ind.style.width = cur.offsetWidth + "px";
     ind.style.height = cur.offsetHeight + "px";
     ind.style.transform = "translate(" + cur.offsetLeft + "px," + cur.offsetTop + "px)";
+    if(bar.scrollWidth > bar.clientWidth + 4){
+      var want = cur.offsetLeft - (bar.clientWidth - cur.offsetWidth) / 2;
+      bar.scrollTo({left: Math.max(0, want), behavior: REDUCED ? "auto" : "smooth"});
+    }
   }
   function renderTabs(){
     var els = document.querySelectorAll('[data-act="tab"]');
@@ -4755,12 +4798,19 @@ create policy "friends drop" on public.friends
       try { b2.animate([{width: from2 + "%"}, {width: to2 + "%"}], {duration: 450, easing: "cubic-bezier(.4,0,.2,1)"}); } catch(e){}
     }
   }
+  function ledeToggle(){
+    var l = document.querySelector(".lede");
+    if(!l) return;
+    var any = Object.keys(state.logs || {}).length > 0;
+    l.hidden = any;
+  }
   function render(){
     renderTabs();
     var pv = document.getElementById("pvariant");
     if(pv) pv.innerHTML = variantToggle();
     var gw = document.getElementById("gweight");
     if(gw && document.activeElement !== gw) gw.value = (state.g && state.g.weight) ? String(state.g.weight) : "";
+    ledeToggle();
     renderToday();
     PULL.render(); pushChain().render(); SQUAT.render(); DUMB.render(); renderStretch(); renderCustom(); renderAllMounted(); renderCounter(); renderSync(); renderSound(); renderNotify(); renderAcc(); renderProfile();
     animateFills();
