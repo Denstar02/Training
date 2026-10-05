@@ -622,6 +622,34 @@ body.modal-open{overflow:hidden}
 .subdet > summary{padding:10px 0;font-size:var(--fs-sm);color:var(--muted)}
 .lede[hidden]{display:none}
 @media (max-width:520px){.tabs button{padding:0 14px;font-size:14px}}
+
+/* режим тренировки */
+.focus{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;background:var(--bg);padding:calc(14px + env(safe-area-inset-top,0px)) 16px calc(14px + env(safe-area-inset-bottom,0px))}
+.focus[hidden]{display:none}
+.fc-top{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:var(--fs-md);font-weight:600}
+.fc-mid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--s3);text-align:center}
+.fc-ex{margin:0;font-family:"Unbounded","Onest",system-ui,sans-serif;font-size:20px;letter-spacing:-.02em;max-width:18ch}
+.fc-sub{margin:0;color:var(--muted);font-size:var(--fs-sm)}
+.fc-val{display:flex;align-items:center;gap:var(--s3);margin-top:var(--s2)}
+.fc-big{min-width:200px;min-height:200px;border:0;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;box-shadow:0 10px 30px rgba(42,82,214,.35);transition:transform var(--dur-1) var(--ease)}
+.fc-big:active{transform:scale(.96)}
+.fc-big b{font-family:"Unbounded","Onest",system-ui,sans-serif;font-size:56px;line-height:1}
+.fc-big span{font-size:13px;opacity:.9;max-width:12ch}
+.fc-big.ok{background:var(--done);min-height:88px;min-width:260px;border-radius:var(--r-lg)}
+.fc-big.ok b{font-size:20px}
+.fc-step{width:56px;height:56px;border-radius:50%;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);font-size:24px;font-weight:700}
+.fc-bar{width:min(320px,80%);height:8px;border-radius:4px;background:var(--line);overflow:hidden;margin-top:var(--s4)}
+.fc-bar i{display:block;height:100%;background:var(--done);border-radius:4px;transition:width var(--dur-3) var(--ease)}
+.fc-bot{display:flex;align-items:center;justify-content:center;gap:var(--s3);min-height:64px}
+.fc-rest{display:flex;align-items:baseline;gap:8px}
+.fc-rest strong{font-family:"Unbounded","Onest",system-ui,sans-serif;font-size:28px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.fc-rest span{color:var(--muted);font-size:var(--fs-sm)}
+.fc-restbtns{display:flex;gap:6px}
+.fc-bot .hint{margin:0;text-align:center}
+.focusrow{margin-top:var(--s4)}
+.focusrow .linkbtn{flex:1 1 200px;justify-content:center}
+/* быстрая отметка в ленте */
+.tpadd{flex:0 0 auto;width:44px;min-height:52px;border:1px dashed var(--line-strong);border-radius:var(--r-sm);background:transparent;color:var(--accent);font-size:22px;font-weight:700;margin-left:-4px}
 .jumprow{display:flex;justify-content:center;margin:0 0 var(--s2)}
 .jumprow .linkbtn{margin-top:0}
 /* шапка по центру */
@@ -1204,6 +1232,7 @@ create policy "friends drop" on public.friends
 </div>
 
 <div id="onb" class="warm" role="dialog" aria-modal="true" hidden></div>
+<div id="focus" class="focus" role="dialog" aria-modal="true" aria-label="Режим тренировки" hidden></div>
 <div id="holdbar" class="holdbar" hidden></div>
 <div id="timerbar" class="timerbar" hidden></div>
 <div id="toast" class="toast" role="status" hidden></div>
@@ -1461,7 +1490,7 @@ create policy "friends drop" on public.friends
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzd3FsYmpsa3Bncm55a2dnY3pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwNDIyNDUsImV4cCI6MjEwNjYxODI0NX0.KQMAqfGyNr1NeLMKu3iRuufLaZ5DEMRj2sc1ulkK5QY"
   ]};
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 1, APP_BUILD_N = 6;
+  var APP_MAJOR = 1, APP_BUILD_N = 7;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
   var theme = "light";
@@ -1942,6 +1971,7 @@ create policy "friends drop" on public.friends
     return dname + ", подход " + n + " из " + all.length + ": " + what;
   }
   function renderTimer(){
+    if(focusKey) renderFocus();
     var bar = document.getElementById("timerbar"), t = state.timer;
     if(t && (!itemOf(t.key, t.next) || (state.logs[t.key] || [])[t.next] != null)){ state.timer = t = null; }
     if(!t){ bar.hidden = true; document.body.classList.remove("has-timer"); document.title = baseTitle; return; }
@@ -2339,7 +2369,7 @@ create policy "friends drop" on public.friends
         var s2 = statsOf(w, key);
         h += '<div class="tally"><strong data-num="t-' + key + '">' + s2.reps + '</strong> из ' + s2.planned + ' повт.</div></div>' + groupsHtml(w, key);
         h += '<p class="last">' + esc(w.next) + '</p>';
-        h += noteHtml(key);
+        h += focusBtn(key) + noteHtml(key);
         if(!C.done(i) && allLogged(w, key)) h += finishHtml(key);
         else if(C.done(i) && i < CCOUNT - 1) h += '<div class="test"><button type="button" class="primary" data-act="cgo" data-c="' + cfg.pre + '" data-i="' + (i + 1) + '">Дальше: тренировка ' + (i + 2) + '</button></div>';
       }
@@ -2895,7 +2925,8 @@ create policy "friends drop" on public.friends
         : esc(r.title) + ": " + esc(r.line) + ", отмечено " + r.done + " из " + r.plan;
       h += '<button type="button" class="tpill' + (r.today || r.fin ? " today" : "") + '" data-act="today-go" data-tab="' + r.tab + '" data-key="' + r.key + '" aria-label="' + aria + '">' +
         '<span class="tp-row"><b>' + esc(shortTitle(r.title)) + '</b><span class="tp-num' + (r.fin ? " ok" : "") + '">' + num + '</span></span>' +
-        '<span class="tp-bar"><i data-wk="tp-' + r.tab + '" data-w="' + pct + '" style="width:' + pct + '%"></i></span></button>';
+        '<span class="tp-bar"><i data-wk="tp-' + r.tab + '" data-w="' + pct + '" style="width:' + pct + '%"></i></span></button>' +
+        '<button type="button" class="tpadd" data-act="today-mark" data-tab="' + r.tab + '" aria-label="Отметить подход: ' + esc(r.title) + '">+</button>';
     });
     h += '<button type="button" class="tpill more" data-act="today-more" aria-expanded="' + todayOpen + '">' + (todayOpen ? "Свернуть" : "Подробнее") + '</button>';
     h += '</div>';
@@ -3475,7 +3506,7 @@ create policy "friends drop" on public.friends
         '<output>' + (m.side != null ? m.side : "—") + '</output>' +
         '<button type="button" data-act="tmeas+" data-i="' + i + '" data-k="side" data-base="' + tMeasure("side") + '" aria-label="Увеличить">+</button></div></div></div></article>';
     }
-    h += noteHtml(key) + '<p class="last plan-note">' + esc(w.next) + '</p>';
+    h += focusBtn(key) + noteHtml(key) + '<p class="last plan-note">' + esc(w.next) + '</p>';
     if(!tDone(i) && allLogged(w, key)) h += finishHtml(key);
     else if(tDone(i) && i < TCOUNT - 1) h += '<div class="test"><button type="button" class="primary" data-act="tgo" data-i="' + (i + 1) + '">Дальше: занятие ' + (i + 2) + '</button></div>';
     document.getElementById("twork").innerHTML = h;
@@ -4669,6 +4700,109 @@ create policy "friends drop" on public.friends
     return true;
   }
 
+  // ---------- режим тренировки на весь экран ----------
+  var focusKey = null, focusVal = null;
+  function itemInfo(key){
+    var w = dayOfKey(key);
+    if(!w || w.test) return null;
+    var log = state.logs[key] || [], total = 0, found = null;
+    w.groups.forEach(function(g){
+      g.rows.forEach(function(r){
+        r.forEach(function(it){
+          total++;
+          if(log[it.idx] == null && !found) found = {it: it, group: g, n: total};
+        });
+      });
+    });
+    return found
+      ? {done: false, it: found.it, group: found.group, n: found.n, total: total, day: w}
+      : {done: true, total: total, n: total, day: w};
+  }
+  function focusOpen(key){
+    focusKey = key;
+    focusVal = null;
+    document.body.classList.add("modal-open");
+    renderFocus();
+  }
+  function focusClose(){
+    focusKey = null; focusVal = null;
+    document.body.classList.remove("modal-open");
+    var box = document.getElementById("focus");
+    if(box){ box.hidden = true; box.innerHTML = ""; }
+    render();
+  }
+  function focusMark(){
+    if(!focusKey) return;
+    var info = itemInfo(focusKey);
+    if(!info || info.done) return;
+    var it = info.it, log = logFor(focusKey, it.idx);
+    log[it.idx] = focusVal == null ? it.target : focusVal;
+    state.times[focusKey] = Date.now();
+    lastLogged = {key: focusKey, idx: it.idx};
+    focusVal = null;
+    startTimer(focusKey, it.idx);
+    save();
+    renderFocus();
+    if(soundOn) playSig(tabOfKey(focusKey), "rep");
+    try { if(navigator.vibrate) navigator.vibrate(30); } catch(e){}
+  }
+  function renderFocus(){
+    var box = document.getElementById("focus");
+    if(!box) return;
+    if(!focusKey){ box.hidden = true; box.innerHTML = ""; return; }
+    var info = itemInfo(focusKey);
+    if(!info){ focusClose(); return; }
+    box.hidden = false;
+    var w = info.day, t = state.timer && state.timer.key === focusKey ? state.timer : null;
+    var left = t ? Math.max(0, Math.round((t.due - Date.now()) / 1000)) : 0;
+    var h = '<div class="fc-top"><span>' + esc(w.title || "Тренировка") + '</span>' +
+      '<button type="button" class="tb-icon" data-act="focus-close" aria-label="Выйти из режима тренировки">✕</button></div>';
+    if(info.done){
+      h += '<div class="fc-mid"><p class="fc-ex">Все подходы отмечены</p>' +
+        '<p class="fc-sub">' + info.total + " " + plural(info.total, SETS) + ' закрыто. Можно завершать.</p>' +
+        '<button type="button" class="fc-big ok" data-act="focus-finish">Завершить тренировку</button></div>';
+    } else {
+      var it = info.it, val = focusVal == null ? it.target : focusVal, sec = isSec(it.kind);
+      h += '<div class="fc-mid"><p class="fc-ex">' + esc(info.group.title) + '</p>' +
+        '<p class="fc-sub">Подход ' + info.n + ' из ' + info.total + (sec ? ", держать " + it.target + " с" : "") + '</p>' +
+        '<div class="fc-val"><button type="button" class="fc-step" data-act="focus-less" aria-label="Меньше">−</button>' +
+        '<button type="button" class="fc-big" data-act="focus-mark"><b>' + val + '</b><span>' + (sec ? "секунд — отметить" : "повторений — отметить") + '</span></button>' +
+        '<button type="button" class="fc-step" data-act="focus-more" aria-label="Больше">+</button></div>';
+      var pct = info.total ? Math.round(100 * (info.n - 1) / info.total) : 0;
+      h += '<div class="fc-bar"><i style="width:' + pct + '%"></i></div></div>';
+    }
+    h += '<div class="fc-bot">';
+    if(t && left > 0){
+      h += '<div class="fc-rest"><strong>' + fmt(left) + '</strong><span>отдых</span></div>' +
+        '<div class="fc-restbtns"><button type="button" class="tb-icon" data-act="timer-minus">−1</button>' +
+        '<button type="button" class="tb-icon" data-act="timer-plus">+1</button></div>';
+    } else {
+      h += '<p class="hint">Пробел на компьютере тоже отмечает подход. Esc — выйти.</p>';
+    }
+    h += '</div>';
+    box.innerHTML = h;
+  }
+  function focusBtn(key){
+    return '<div class="test focusrow"><button type="button" class="linkbtn" data-act="focus-open" data-key="' + key + '">Режим тренировки</button></div>';
+  }
+  // ---------- быстрая отметка из ленты ----------
+  function quickMark(tab){
+    var row = null;
+    todayRows().forEach(function(r){ if(r.tab === tab && !row) row = r; });
+    if(!row) return;
+    var info = itemInfo(row.key);
+    if(!info){ flash("Здесь нечего отмечать"); return; }
+    if(info.done){ flash("Все подходы уже отмечены"); return; }
+    var it = info.it, log = logFor(row.key, it.idx);
+    log[it.idx] = it.target;
+    state.times[row.key] = Date.now();
+    lastLogged = {key: row.key, idx: it.idx};
+    startTimer(row.key, it.idx);
+    save(); render();
+    if(soundOn) playSig(tabOfKey(row.key), "rep");
+    flash("Отмечено: " + it.target + (isSec(it.kind) ? " с" : "") + ", подход " + info.n + " из " + info.total);
+  }
+
   function renderProfile(){
     var box = document.getElementById("profileBox");
     if(!box) return;
@@ -4983,6 +5117,32 @@ create policy "friends drop" on public.friends
       if(TAB === "profile") window.scrollTo({top: 0, behavior: REDUCED ? "auto" : "smooth"});
       return;
     }
+    if(act === "focus-open"){ focusOpen(b.getAttribute("data-key")); return; }
+    if(act === "focus-close"){ focusClose(); return; }
+    if(act === "focus-mark"){ focusMark(); return; }
+    if(act === "focus-finish"){
+      var fkey = focusKey;
+      focusClose();
+      if(fkey){
+        if(!state.fin) state.fin = {};
+        state.fin[fkey] = Date.now();
+        state.times[fkey] = Date.now();
+        var fd = dayOfKey(fkey);
+        state.lastEvent = {title: (fd && fd.title) || "тренировка", no: (fd && fd.no) || null, ts: Date.now()};
+        save(); render();
+        flash("Тренировка засчитана");
+      }
+      return;
+    }
+    if(act === "focus-less" || act === "focus-more"){
+      var fi = itemInfo(focusKey);
+      if(!fi || fi.done) return;
+      var base = focusVal == null ? fi.it.target : focusVal;
+      focusVal = Math.max(0, Math.min(600, base + (act === "focus-more" ? 1 : -1)));
+      renderFocus();
+      return;
+    }
+    if(act === "today-mark"){ quickMark(b.getAttribute("data-tab")); return; }
     if(act === "today-more"){
       todayOpen = !todayOpen;
       try { localStorage.setItem(TODAY_OPEN, todayOpen ? "1" : "0"); } catch(e){}
@@ -5144,7 +5304,13 @@ create policy "friends drop" on public.friends
   });
 
   document.addEventListener("keydown", function(ev){
+    if(ev.key === "Escape" && focusKey){ focusClose(); return; }
     if(ev.key === "Escape" && ONB){ onbClose(true); return; }
+    if((ev.key === " " || ev.code === "Space") && focusKey){
+      ev.preventDefault();
+      focusMark();
+      return;
+    }
     if(ev.key === " " || ev.code === "Space"){
       var t4 = ev.target;
       if(t4 && t4.closest && t4.closest("input, textarea, select, button, [contenteditable]")) return;
