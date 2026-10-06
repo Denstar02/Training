@@ -624,6 +624,32 @@ body.modal-open{overflow:hidden}
 @media (max-width:520px){.tabs button{padding:0 14px;font-size:14px}}
 
 /* режим тренировки */
+
+/* дорожка тренировок вместо лямок */
+.rig{margin:var(--s4) 0 var(--s2)}
+.rig .bar{display:none}
+.rig .weeks{display:block;height:auto;gap:0}
+.track{display:flex;gap:3px;align-items:flex-end;height:34px;padding:6px 8px;border-radius:var(--r-sm);background:var(--bg);border:1px solid var(--line);cursor:pointer}
+.tseg{flex:1 1 0;min-width:0;height:100%;border-radius:4px;background:var(--line);position:relative;overflow:hidden}
+.tseg::after{content:"";position:absolute;left:0;right:0;bottom:0;height:var(--f,0%);background:var(--part);transition:height var(--dur-3) var(--ease)}
+.tseg.d::after{height:100%;background:var(--done)}
+.tseg.c{box-shadow:0 0 0 2px var(--accent)}
+.tseg.v{background:var(--accent-soft)}
+.tseg.test{background:color-mix(in srgb, var(--accent) 22%, var(--line))}
+.rig-cap{margin-top:8px;display:flex;justify-content:space-between;gap:12px;font-size:var(--fs-xs);color:var(--muted)}
+.rig-cap strong{color:var(--ink)}
+@media (max-width:520px){.track{height:30px;gap:2px}}
+.heat{display:flex;gap:6px;margin-top:var(--s3);overflow-x:auto;padding-bottom:4px}
+.heat-wd{display:flex;flex-direction:column;gap:3px;font-size:10px;color:var(--muted);flex:0 0 auto}
+.heat-wd span{height:13px;line-height:13px}
+.heat-grid{display:flex;gap:3px}
+.heat-col{display:flex;flex-direction:column;gap:3px}
+.hc{width:13px;height:13px;border-radius:3px;background:var(--line);display:block}
+.hc.l1{background:color-mix(in srgb, var(--done) 40%, var(--line))}
+.hc.l2{background:color-mix(in srgb, var(--done) 70%, var(--line))}
+.hc.l3{background:var(--done)}
+.hc.lf{background:transparent;border:1px dashed var(--line)}
+.journal{margin-top:var(--s4)}
 .focus{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;background:var(--bg);padding:calc(14px + env(safe-area-inset-top,0px)) 16px calc(14px + env(safe-area-inset-bottom,0px))}
 .focus[hidden]{display:none}
 .fc-top{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:var(--fs-md);font-weight:600}
@@ -1490,7 +1516,7 @@ create policy "friends drop" on public.friends
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzd3FsYmpsa3Bncm55a2dnY3pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwNDIyNDUsImV4cCI6MjEwNjYxODI0NX0.KQMAqfGyNr1NeLMKu3iRuufLaZ5DEMRj2sc1ulkK5QY"
   ]};
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 1, APP_BUILD_N = 7;
+  var APP_MAJOR = 1, APP_BUILD_N = 9;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
   var theme = "light";
@@ -2307,17 +2333,16 @@ create policy "friends drop" on public.friends
     function renderTrack(){
       var cur = C.current(), view = C.v(), done = 0, i, h = "";
       for(i = 0; i < CCOUNT; i++) if(C.done(i)) done++;
-      var block = Math.floor(view / 10);
-      for(i = block * 10; i < block * 10 + 10 && i < CCOUNT; i++){
+      h += '<div class="track" data-act="track" data-c="' + cfg.pre + '" data-n="' + CCOUNT + '" role="group" aria-label="Дорожка тренировок, нажми, чтобы перейти">';
+      for(i = 0; i < CCOUNT; i++){
         var t = C.type(i), pct = C.fill(i);
-        var label = "Тренировка " + (i + 1) + ", " + C.name(t).toLowerCase() + (C.done(i) ? ", выполнена" : pct ? ", начата" : "");
-        h += '<button type="button" class="wk ' + t + '" data-act="cgo" data-c="' + cfg.pre + '" data-i="' + i + '" data-fill="' + pct + '" data-fk="' + cfg.pre + i + '" aria-pressed="' + (i === view) + '" aria-label="' + label + '">' +
-          '<span class="strap"><i style="height:' + pct + '%"></i></span>' +
-          '<b class="' + (i === cur ? "cur " : "") + t + '">' + (i + 1) + '</b>' + icon(t) + '</button>';
+        h += '<i class="tseg ' + t + (C.done(i) ? " d" : "") + (i === view ? " v" : "") + (i === cur ? " c" : "") +
+          '" style="--f:' + pct + '%" title="Тренировка ' + (i + 1) + ", " + C.name(t).toLowerCase() + '"></i>';
       }
+      h += '</div>';
       el("weeks").innerHTML = h;
-      el("capRange").textContent = "Тренировки " + (block * 10 + 1) + "–" + Math.min(CCOUNT, block * 10 + 10);
-      el("capLeft").textContent = "Пройдено " + done + " из " + CCOUNT;
+      el("capRange").innerHTML = "Тренировка <strong>" + (view + 1) + "</strong> из " + CCOUNT + ", " + C.name(C.type(view)).toLowerCase();
+      el("capLeft").textContent = "Пройдено " + done;
     }
     function renderRing(){
       if(!loggedIn()){ el("ring").innerHTML = lockHtml(); return; }
@@ -2925,8 +2950,7 @@ create policy "friends drop" on public.friends
         : esc(r.title) + ": " + esc(r.line) + ", отмечено " + r.done + " из " + r.plan;
       h += '<button type="button" class="tpill' + (r.today || r.fin ? " today" : "") + '" data-act="today-go" data-tab="' + r.tab + '" data-key="' + r.key + '" aria-label="' + aria + '">' +
         '<span class="tp-row"><b>' + esc(shortTitle(r.title)) + '</b><span class="tp-num' + (r.fin ? " ok" : "") + '">' + num + '</span></span>' +
-        '<span class="tp-bar"><i data-wk="tp-' + r.tab + '" data-w="' + pct + '" style="width:' + pct + '%"></i></span></button>' +
-        '<button type="button" class="tpadd" data-act="today-mark" data-tab="' + r.tab + '" aria-label="Отметить подход: ' + esc(r.title) + '">+</button>';
+        '<span class="tp-bar"><i data-wk="tp-' + r.tab + '" data-w="' + pct + '" style="width:' + pct + '%"></i></span></button>';
     });
     h += '<button type="button" class="tpill more" data-act="today-more" aria-expanded="' + todayOpen + '">' + (todayOpen ? "Свернуть" : "Подробнее") + '</button>';
     h += '</div>';
@@ -3451,17 +3475,16 @@ create policy "friends drop" on public.friends
   function renderTTrack(){
     var cur = tCurrent(), view = tV(), done = 0, i, h = "";
     for(i = 0; i < TCOUNT; i++) if(tDone(i)) done++;
-    var block = Math.floor(view / 10);
-    for(i = block * 10; i < block * 10 + 10 && i < TCOUNT; i++){
+    h += '<div class="track" data-act="track" data-t="1" data-n="' + TCOUNT + '" role="group" aria-label="Дорожка занятий, нажми, чтобы перейти">';
+    for(i = 0; i < TCOUNT; i++){
       var ty = tType(i), pct = tFill(i);
-      var label = "Занятие " + (i + 1) + ", " + TNAME[ty].toLowerCase() + (tDone(i) ? ", выполнено" : pct ? ", начато" : "");
-      h += '<button type="button" class="wk ' + (ty === "M" ? "test" : ty === "C" ? "easy" : "vol") + '" data-act="tgo" data-i="' + i + '" data-fill="' + pct + '" data-fk="t' + i + '" aria-pressed="' + (i === view) + '" aria-label="' + label + '">' +
-        '<span class="strap"><i style="height:' + pct + '%"></i></span>' +
-        '<b class="' + (i === cur ? "cur " : "") + (ty === "M" ? "test" : "") + '">' + (i + 1) + '</b>' + icon(TICON[ty]) + '</button>';
+      h += '<i class="tseg ' + (ty === "M" ? "test" : ty === "C" ? "easy" : "vol") + (tDone(i) ? " d" : "") + (i === view ? " v" : "") + (i === cur ? " c" : "") +
+        '" style="--f:' + pct + '%" title="Занятие ' + (i + 1) + ", " + TNAME[ty].toLowerCase() + '"></i>';
     }
+    h += '</div>';
     document.getElementById("tweeks").innerHTML = h;
-    document.getElementById("tcapRange").textContent = "Занятия " + (block * 10 + 1) + "–" + Math.min(TCOUNT, block * 10 + 10);
-    document.getElementById("tcapLeft").textContent = "Пройдено " + done + " из " + TCOUNT;
+    document.getElementById("tcapRange").innerHTML = "Занятие <strong>" + (view + 1) + "</strong> из " + TCOUNT + ", " + TNAME[tType(view)].toLowerCase();
+    document.getElementById("tcapLeft").textContent = "Пройдено " + done;
   }
   function renderTRing(){
     if(!loggedIn()){ document.getElementById("tring").innerHTML = lockHtml(); return; }
@@ -4803,6 +4826,49 @@ create policy "friends drop" on public.friends
     flash("Отмечено: " + it.target + (isSec(it.kind) ? " с" : "") + ", подход " + info.n + " из " + info.total);
   }
 
+  // ---------- журнал активности ----------
+  function activityMap(){
+    var m = {};
+    function add(ts){
+      var d = dayStamp(ts);
+      if(d) m[d] = (m[d] || 0) + 1;
+    }
+    Object.keys(state.times || {}).forEach(function(k){ add(state.times[k]); });
+    Object.keys(state.fin || {}).forEach(function(k){ add(state.fin[k]); });
+    return m;
+  }
+  function dayKeyOf(d){ return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); }
+  function streakDays(map){
+    var d = new Date(), n = 0;
+    if(!map[dayKeyOf(d)]) d.setDate(d.getDate() - 1);
+    while(map[dayKeyOf(d)]){ n++; d.setDate(d.getDate() - 1); }
+    return n;
+  }
+  var WD = ["пн","вт","ср","чт","пт","сб","вс"];
+  function journalHtml(){
+    var map = activityMap(), weeks = 12;
+    var today = new Date(), start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    var shift = (start.getDay() + 6) % 7;
+    start.setDate(start.getDate() - shift - (weeks - 1) * 7);
+    var days = Object.keys(map).length, streak = streakDays(map);
+    var h = '<p class="hint">Активных дней: <strong>' + days + '</strong>' +
+      (streak ? ', серия подряд: <strong>' + streak + " " + plural(streak, ["день","дня","дней"]) + '</strong>' : '') + '.</p>';
+    h += '<div class="heat"><div class="heat-wd">' + WD.map(function(w){ return "<span>" + w + "</span>"; }).join("") + '</div><div class="heat-grid">';
+    for(var w2 = 0; w2 < weeks; w2++){
+      h += '<div class="heat-col">';
+      for(var d2 = 0; d2 < 7; d2++){
+        var cur = new Date(start);
+        cur.setDate(start.getDate() + w2 * 7 + d2);
+        var k = dayKeyOf(cur), n = map[k] || 0, future = cur > today;
+        var lvl = future ? "f" : n >= 3 ? "3" : n === 2 ? "2" : n === 1 ? "1" : "0";
+        h += '<i class="hc l' + lvl + '" title="' + cur.toLocaleDateString("ru-RU", {day: "numeric", month: "long"}) +
+          (n ? ": отметок " + n : ": пусто") + '"></i>';
+      }
+      h += '</div>';
+    }
+    return h + '</div></div><p class="hint">Квадрат — день, столбец — неделя. Чем темнее, тем больше отметок. Наведи, чтобы увидеть дату.</p>';
+  }
+
   function renderProfile(){
     var box = document.getElementById("profileBox");
     if(!box) return;
@@ -4827,6 +4893,7 @@ create policy "friends drop" on public.friends
       h += '<div class="test"><button type="button" class="primary" data-act="sb-sync">Синхронизировать сейчас</button>' +
         (pwMode ? "" : '<button type="button" class="linkbtn" data-act="pw-mode">Сменить пароль</button>') +
         '<button type="button" class="linkbtn" data-act="sb-out">Выйти</button></div>';
+      h += '<details class="subdet journal"><summary>Журнал и серия</summary>' + journalHtml() + '</details>';
       box.innerHTML = h;
       var fb = document.getElementById("friendsBox");
       if(fb) fb.innerHTML = friendsHtml();
@@ -5115,6 +5182,17 @@ create policy "friends drop" on public.friends
       try { localStorage.setItem(TKEY, TAB === "profile" ? prevTab : TAB); } catch(e){}
       sel = null; render();
       if(TAB === "profile") window.scrollTo({top: 0, behavior: REDUCED ? "auto" : "smooth"});
+      return;
+    }
+    if(act === "track"){
+      var n = +b.getAttribute("data-n") || 1, rect = b.getBoundingClientRect();
+      var x = (ev.clientX != null ? ev.clientX : rect.left) - rect.left;
+      var idx = Math.max(0, Math.min(n - 1, Math.floor(x / Math.max(1, rect.width) * n)));
+      if(b.getAttribute("data-t")){ tView = idx; sel = null; render(); scrollTo(document.getElementById("twork")); }
+      else {
+        var tc = CHAINS[b.getAttribute("data-c")];
+        if(tc){ tc.view = idx; sel = null; cntVal = null; render(); scrollTo(document.getElementById(tc.cfg.dom || tc.cfg.pre) || document.getElementById((tc.cfg.dom || tc.cfg.pre) + "work")); }
+      }
       return;
     }
     if(act === "focus-open"){ focusOpen(b.getAttribute("data-key")); return; }
