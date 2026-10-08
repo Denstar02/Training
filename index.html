@@ -362,6 +362,13 @@ h1{letter-spacing:-.02em;line-height:1.05}
 .tst-act:active{transform:translateY(1px)}
 .tst-act:focus-visible{outline:2px solid currentColor;outline-offset:2px;border-radius:6px}
 .tabs.solo{display:none}
+.bmap{grid-column:1 / -1;margin-top:var(--s2)}
+.bmap svg{display:block;width:100%;max-width:440px;height:auto;border-radius:var(--r-sm);background:var(--bg);padding:6px;box-sizing:border-box}
+.day.extra .bmap svg{background:var(--surface)}
+.bkey{display:flex;flex-wrap:wrap;gap:var(--s2) var(--s4);margin:var(--s3) 0 var(--s3);padding:0;list-style:none}
+.bkey li{display:flex;align-items:center;gap:7px;font-size:var(--fs-sm);color:var(--ink);font-weight:600}
+.bkey i{width:16px;height:16px;border-radius:50%;border:4px solid currentColor;flex:none}
+.boardkey[hidden]{display:none}
 .tabs button[data-st="part"]::after,.tabs button[data-st="done"]::after{content:"";position:absolute;top:6px;right:7px;width:6px;height:6px;border-radius:50%;background:var(--part)}
 .tabs button[data-st="done"]::after{background:var(--done)}
 .tabs button[aria-selected="true"][data-st="part"]::after,.tabs button[aria-selected="true"][data-st="done"]::after{background:var(--accent-ink);opacity:.9}
@@ -945,6 +952,11 @@ create policy "friends drop" on public.friends
     </details>
 
     <p class="pstatus" id="pstatus"></p>
+
+    <details class="panel subdet boardkey" id="boardKey" hidden>
+      <summary>Разметка доски</summary>
+      <div id="boardKeyBody"></div>
+    </details>
 
     <div class="pnav">
       <button type="button" id="pprev" data-act="cprev" data-c="p" aria-label="Предыдущая тренировка">‹</button>
@@ -1545,7 +1557,7 @@ create policy "friends drop" on public.friends
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzd3FsYmpsa3Bncm55a2dnY3pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwNDIyNDUsImV4cCI6MjEwNjYxODI0NX0.KQMAqfGyNr1NeLMKu3iRuufLaZ5DEMRj2sc1ulkK5QY"
   ]};
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 1, APP_BUILD_N = 12;
+  var APP_MAJOR = 1, APP_BUILD_N = 15;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
   var theme = "light";
@@ -1948,7 +1960,8 @@ create policy "friends drop" on public.friends
       var gIdx = (gi0 || 0) + gN;
       var selItem = null;
       h += '<div class="group' + (g.anim ? ' has-anim' : '') + '">' + (g.anim ? figure(g.anim) : '') +
-        '<div class="gtext"><h3>' + esc(g.title) + '</h3><p class="hint">' + esc(g.hint) + '</p></div>';
+        '<div class="gtext"><h3>' + esc(g.title) + '</h3><p class="hint">' + esc(g.hint) + '</p></div>' +
+        (g.board ? boardMapHtml(g.board, "Схема доски: " + g.title) : '');
       g.rows.forEach(function(r){
         h += '<div class="row' + (g.ladder ? " ladder" : "") + '">';
         r.forEach(function(it){ h += chipHtml(key, it, log); if(isSel(key, it.idx)) selItem = it; });
@@ -2594,45 +2607,177 @@ create policy "friends drop" on public.friends
     anim: {rep: "pull", slow: "hold", hold: "hang"},
     testHint: "Разомнись: два лёгких подхода по одному повторению с отдыхом 2 минуты. Через 5 минут — один подход на максимум, только чистые повторения. Больше в этот день не подтягивайся."
   });
-  var BOARD_POS = {
-    chest: {n: "Грудь: ручки шире плеч", h: "Ручки в отверстия, помеченные на доске как грудь. Ладони чуть шире плеч, локти уходят в стороны и назад примерно под 45 градусов."},
-    tri: {n: "Трицепс: узкая постановка", h: "Ручки в отверстия трицепса, ладони под грудью близко друг к другу, локти скользят вдоль корпуса назад."},
-    shoulder: {n: "Плечи: ручки впереди", h: "Ручки в отверстия плеч, перед головой. Таз выше, корпус наклонён вперёд, опускайся макушкой к полу между руками."},
-    back: {n: "Спина: ручки развёрнуты наружу", h: "Ручки в отверстия спины, хват развёрнут наружу. Локти идут назад вдоль корпуса, в нижней точке сводятся лопатки."}
+  // ---------- доска Push Up Stand: карта отверстий ----------
+  // Доска 75 см из двух зеркальных половин, два съёмных упора; упор садится
+  // сразу в два отверстия, поэтому положение — это линия между ними.
+  // Разметка: красный — плечи, синий — грудь, зелёный — трицепс, жёлтый — спина.
+  // Координаты левой половины в системе 760x180, правая — зеркало.
+  var BCOL = {red: "#E0483C", blue: "#3B6FE0", green: "#19A35F", yellow: "#E0A81C"};
+  var BMUS = {red: "плечи", blue: "грудь", green: "трицепс", yellow: "спина"};
+  var BHOLE = {
+    o1:   {c: "blue",  x: 26,  y: 37,  r: 13},
+    o2:   {c: "blue",  x: 26,  y: 146, r: 13},
+    b2:   {c: "blue",  x: 82,  y: 48,  r: 13},
+    hub:  {c: "blue",  x: 127, y: 88,  r: 13},
+    gbot: {c: "green", x: 142, y: 144, r: 13},
+    rtop: {c: "red",   x: 226, y: 37,  r: 13},
+    gmid: {c: "green", x: 243, y: 88,  r: 13},
+    bbot: {c: "blue",  x: 228, y: 144, r: 13},
+    rin1: {c: "red",   x: 332, y: 37,  r: 13},
+    rin2: {c: "red",   x: 310, y: 146, r: 13}
   };
+  var BLINE = [
+    ["blue", "o1", "o2"], ["blue", "b2", "o2"], ["blue", "hub", "bbot"],
+    ["green", "o2", "hub"], ["green", "hub", "gmid"], ["green", "gmid", "gbot"],
+    ["yellow", "b2", "hub"], ["yellow", "hub", "gbot"], ["yellow", "gbot", "o2"],
+    ["red", "rin1", "rin2"], ["red", "rtop", "gmid"], ["red", "gmid", "bbot"], ["red", "rtop", "hub"]
+  ];
+  function pairCol(pr){
+    for(var i = 0; i < BLINE.length; i++){
+      if((BLINE[i][1] === pr[0] && BLINE[i][2] === pr[1]) || (BLINE[i][1] === pr[1] && BLINE[i][2] === pr[0])) return BLINE[i][0];
+    }
+    return "blue";
+  }
+  function boardMapHtml(spec, label){
+    var all = spec === "all", pairs = (spec && spec.pairs) || [], num = !!(spec && spec.num);
+    var sel = {}, lit = {}, s, k;
+    pairs.forEach(function(pr){
+      sel[pr[0]] = 1; sel[pr[1]] = 1;
+      lit[pr[0] + "|" + pr[1]] = 1; lit[pr[1] + "|" + pr[0]] = 1;
+    });
+    function mir(x){ return 760 - x; }
+    function grip(ax, ay, bx, by, col){
+      var mx = (ax + bx) / 2, my = (ay + by) / 2;
+      var len = Math.sqrt((bx - ax) * (bx - ax) + (by - ay) * (by - ay));
+      var ang = Math.atan2(by - ay, bx - ax) * 180 / Math.PI;
+      var w = len + 38, hh = 30;
+      return '<g transform="translate(' + mx.toFixed(1) + ',' + my.toFixed(1) + ') rotate(' + ang.toFixed(1) + ')">' +
+        '<rect x="' + (-w / 2).toFixed(1) + '" y="' + (-hh / 2) + '" width="' + w.toFixed(1) + '" height="' + hh + '" rx="15" fill="' + col + '" opacity=".15"/>' +
+        '<rect x="' + (-w / 2).toFixed(1) + '" y="' + (-hh / 2) + '" width="' + w.toFixed(1) + '" height="' + hh + '" rx="15" fill="none" stroke="' + col + '" stroke-width="3" opacity=".7"/></g>';
+    }
+    s = '<svg viewBox="0 0 760 180" role="img" aria-label="' + esc(label || "Схема доски для отжиманий") + '">';
+    s += '<rect x="3" y="4" width="374" height="172" rx="18" fill="var(--surface)" stroke="var(--line)" stroke-width="3"/>';
+    s += '<rect x="383" y="4" width="374" height="172" rx="18" fill="var(--surface)" stroke="var(--line)" stroke-width="3"/>';
+    BLINE.forEach(function(L){
+      var a = BHOLE[L[1]], b = BHOLE[L[2]], col = BCOL[L[0]], hot = all || !!lit[L[1] + "|" + L[2]];
+      s += '<line x1="' + a.x + '" y1="' + a.y + '" x2="' + b.x + '" y2="' + b.y + '" stroke="' + col + '" stroke-width="7" stroke-linecap="round" opacity="' + (hot ? ".8" : ".2") + '"/>';
+      s += '<line x1="' + mir(a.x) + '" y1="' + a.y + '" x2="' + mir(b.x) + '" y2="' + b.y + '" stroke="' + col + '" stroke-width="7" stroke-linecap="round" opacity="' + (hot ? ".8" : ".2") + '"/>';
+    });
+    pairs.forEach(function(pr){
+      var a = BHOLE[pr[0]], b = BHOLE[pr[1]];
+      if(!a || !b) return;
+      var col = BCOL[pairCol(pr)];
+      s += grip(a.x, a.y, b.x, b.y, col) + grip(mir(a.x), a.y, mir(b.x), b.y, col);
+    });
+    for(k in BHOLE){
+      if(!BHOLE.hasOwnProperty(k)) continue;
+      var pz = BHOLE[k], col2 = BCOL[pz.c], hot2 = all || !!sel[k];
+      [pz.x, mir(pz.x)].forEach(function(cx){
+        s += '<circle cx="' + cx + '" cy="' + pz.y + '" r="' + pz.r + '" fill="var(--steel)" opacity="' + (hot2 ? ".95" : ".3") + '"/>';
+        s += '<circle cx="' + cx + '" cy="' + pz.y + '" r="' + (pz.r + 5) + '" fill="none" stroke="' + col2 + '" stroke-width="' + (hot2 && !all ? 7 : 5) + '" opacity="' + (hot2 ? "1" : ".3") + '"/>';
+      });
+    }
+    if(num) pairs.forEach(function(pr, i){
+      var a = BHOLE[pr[0]], b = BHOLE[pr[1]];
+      if(!a || !b) return;
+      var col = BCOL[pairCol(pr)], mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+      [mx, mir(mx)].forEach(function(cx){
+        s += '<circle cx="' + cx.toFixed(1) + '" cy="' + my + '" r="16" fill="' + col + '"/>' +
+          '<text x="' + cx.toFixed(1) + '" y="' + (my + 7) + '" text-anchor="middle" font-size="21" font-weight="700" fill="#fff">' + (i + 1) + '</text>';
+      });
+    });
+    s += '</svg>';
+    return '<div class="bmap">' + s + '</div>';
+  }
+  function boardKeyHtml(){
+    var h2 = '<p class="hint">Доска Push Up Stand: две зеркальные половины по 37 см и два съёмных упора. Клади её так, чтобы надписи <b>ПЛЕЧИ</b> и <b>ТРИЦЕПС</b> читались — тогда верхний ряд отверстий дальний от тебя.</p>';
+    h2 += '<p class="hint">Упор садится сразу в <b>два отверстия</b>, и каждая цветная линия — это одно положение упора. Поэтому на схеме всегда горят четыре точки: пара слева и такая же справа.</p>';
+    h2 += boardMapHtml("all", "Все отверстия и линии доски");
+    h2 += '<ul class="bkey">';
+    ["red", "blue", "green", "yellow"].forEach(function(c){
+      h2 += '<li><i style="color:' + BCOL[c] + '"></i>' + BMUS[c] + '</li>';
+    });
+    h2 += '</ul>';
+    h2 += '<p class="hint">На половине десять отверстий и тринадцать линий: три синих, три зелёных, три жёлтых и четыре красных. Чем ближе линия к стыку половин, тем уже встают руки: красная пара у стыка даёт 10–15 см, крайняя синяя у ручки — около 70 см.</p>';
+    return h2;
+  }
+
+  var BOARD_POS = {
+    chest: {n: "Грудь: от центрального к нижнему синему", pair: ["hub", "bbot"],
+      h: "Синяя линия в середине половины: центральное синее отверстие и синее в нижнем ряду. Упор ложится пологой диагональю, между ручками около 40 см — чуть шире плеч. Локти назад под 45°, грудь опускается до уровня ручек."},
+    chestDiag: {n: "Грудь: диагональ к краю", pair: ["b2", "o2"],
+      h: "Синяя линия от второго верхнего отверстия вниз-наружу к крайнему нижнему. Руки расходятся примерно на 65 см и уходят вперёд — грудь растягивается сильнее, опускайся чуть мягче."},
+    chestWide: {n: "Грудь: крайняя пара у ручки", pair: ["o1", "o2"],
+      h: "Самая крайняя синяя линия: два отверстия у самого торца, упор стоит поперёк доски. Это предельная ширина, около 70 см. Локти разводятся в стороны, опускайся только до прямого угла в локте."},
+    tri: {n: "Трицепс: зелёная линия вдоль доски", pair: ["hub", "gmid"],
+      h: "Зелёная горизонталь среднего ряда: центральное синее и зелёное отверстие. Упор лежит вдоль доски, между ручками около 40 см. Кисти под грудью, локти скользят вдоль рёбер строго назад — не разводи их."},
+    triDiag: {n: "Трицепс: зелёная диагональ к себе", pair: ["gmid", "gbot"],
+      h: "Зелёная линия от среднего зелёного отверстия вниз-наружу к нижнему зелёному. Ручки разворачиваются к тебе, ширина самая узкая из зелёных — около 37 см. Локти прижаты, работает длинная головка трицепса."},
+    triLong: {n: "Трицепс: длинная зелёная диагональ", pair: ["o2", "hub"],
+      h: "Длинная зелёная линия от крайнего нижнего отверстия к центральному синему. Руки широко, около 60 см, но развёрнуты по диагонали — локти всё равно идут назад вдоль корпуса, а не в стороны."},
+    back: {n: "Спина: жёлтая линия к центру", pair: ["b2", "hub"],
+      h: "Жёлтая линия от второго верхнего отверстия к центральному синему, упор под 45°. Ширина около 55 см, кисти развёрнуты наружу. Тяни себя локтями назад, в нижней точке своди лопатки и держи секунду."},
+    backMid: {n: "Спина: жёлтая линия поперёк", pair: ["hub", "gbot"],
+      h: "Жёлтая линия от центрального синего вниз к зелёному нижнему, упор почти поперёк доски. Около 50 см, ручки смотрят на тебя. Опускайся, уводя локти назад вдоль корпуса, грудь держи раскрытой."},
+    backWide: {n: "Спина: жёлтая линия по нижнему ряду", pair: ["gbot", "o2"],
+      h: "Жёлтая горизонталь нижнего ряда: от зелёного нижнего до крайнего нижнего отверстия. Упоры лежат вдоль доски почти на всю ширину, около 60 см. Самое сильное сведение лопаток — делай медленно."},
+    shoulder: {n: "Плечи: красная пара у стыка", pair: ["rin1", "rin2"],
+      h: "Красная линия у самого стыка половин, поперёк доски. Упоры встают всего в 10–15 см друг от друга и впереди головы. Подними таз выше плеч, тело складывается домиком, опускайся макушкой к полу между ручками."},
+    shoulderMid: {n: "Плечи: красная линия верхнего ряда", pair: ["rtop", "gmid"],
+      h: "Короткая красная линия поперёк доски: красное отверстие верхнего ряда и зелёное среднее. Между ручками около 30 см, ручки смотрят на тебя. Таз выше плеч, вес на передние дельты."},
+    shoulderLow: {n: "Плечи: красная линия нижнего ряда", pair: ["gmid", "bbot"],
+      h: "Вторая короткая красная линия, ниже предыдущей: зелёное среднее и синее нижнее отверстие. Та же ширина, около 30 см, но руки ближе к корпусу — плечи работают в более закрытом углу."},
+    shoulderDiag: {n: "Плечи: длинная красная диагональ", pair: ["rtop", "hub"],
+      h: "Длинная красная линия от красного отверстия верхнего ряда к центральному синему. Руки шире, около 40 см, и развёрнуты по диагонали. Таз чуть выше плеч, локти уходят назад-в стороны."},
+    plank: {n: "Планка на упорах", pair: ["hub", "bbot"],
+      h: "Упоры в синюю линию в середине половины, стойка на прямых руках. Таз, спина и затылок одной линией, живот подтянут, лопатки не проваливаются между рук."}
+  };
+  var BCYCLE = {
+    chest: ["chest", "chestDiag", "chestWide"],
+    tri: ["tri", "triDiag", "triLong"],
+    shoulder: ["shoulder", "shoulderMid", "shoulderLow", "shoulderDiag"],
+    back: ["back", "backMid", "backWide"]
+  };
+  function bPick(kind, block){ var a = BCYCLE[kind]; return a[block % a.length]; }
   function boardDay(ctx){
     var t = ctx.type, MP = ctx.MP, list = ctx.list, re = ctx.re, b = ctx.block, base = ctx.base, groups = [], next = "";
     function g(pos, sets, reps, rest, slow){
-      groups.push({title: BOARD_POS[pos].n + ": " + sets + " " + plural(sets, SETS) + " по " + reps,
-        hint: BOARD_POS[pos].h + (slow ? " Опускайся 3 секунды, поднимайся за 1." : "") + " " + MP.setHint,
-        rows: [list(sets, reps, slow ? "slow" : "rep", rest)], anim: slow ? "pushslow" : "push"});
+      var P = BOARD_POS[pos];
+      groups.push({title: P.n + ": " + sets + " " + plural(sets, SETS) + " по " + reps,
+        hint: P.h + (slow ? " Опускайся 3 секунды, поднимайся за 1." : "") + " " + MP.setHint,
+        rows: [list(sets, reps, slow ? "slow" : "rep", rest)], anim: slow ? "pushslow" : "push",
+        board: {pairs: [P.pair]}});
     }
     if(t === "vol"){
-      g("chest", MP.volSets(b), re(base), MP.restSet);
-      g("tri", Math.max(2, MP.volSets(b) - 2), re(base - 0.15), MP.restSet);
+      g(bPick("chest", b), MP.volSets(b), re(base), MP.restSet);
+      g(bPick("tri", b), Math.max(2, MP.volSets(b) - 2), re(base - 0.15), MP.restSet);
       next = "Следующую тренировку делай завтра или через день.";
     } else if(t === "slow"){
-      g("shoulder", MP.slowSets(b), re(base - 0.15), MP.restSet, true);
-      g("back", Math.max(2, MP.slowSets(b) - 1), re(base - 0.1), MP.restSet);
+      g(bPick("shoulder", b), MP.slowSets(b), re(base - 0.15), MP.restSet, true);
+      g(bPick("back", b), Math.max(2, MP.slowSets(b) - 1), re(base - 0.1), MP.restSet);
       next = "После медленных плеч мышцы могут побаливать: следующую тренировку лучше через день.";
     } else if(t === "lad"){
-      var rounds = MP.ladRounds(b), r = re(base - 0.15), order = ["chest", "shoulder", "back", "tri"], rows = [];
+      var rounds = MP.ladRounds(b), r = re(base - 0.15),
+          order = ["chest", "shoulder", bPick("back", b), bPick("tri", b)], rows = [];
       for(var q = 0; q < rounds; q++) rows.push(order.map(function(pos, j){
         var last = j === order.length - 1, lastRound = q === rounds - 1;
         return list(1, r, "rep", null, last ? (lastRound ? null : MP.ladOut) : MP.ladIn)[0];
       }));
       groups.push({title: rounds + " " + plural(rounds, ["круг","круга","кругов"]) + " по доске, по " + r + " в каждой позиции",
-        hint: "Круг — четыре подхода подряд: грудь, плечи, спина, трицепс. Между позициями переставляй ручки и отдыхай 45–60 секунд. " + MP.ladHint,
-        rows: rows, ladder: true, anim: "push"});
+        hint: "Круг — четыре подхода подряд с перестановкой упоров по номерам на схеме: " +
+          order.map(function(pos, j){ return (j + 1) + " " + BOARD_POS[pos].n.toLowerCase(); }).join(" → ") +
+          ". Отдых 45–60 секунд как раз уходит на перестановку. " + MP.ladHint,
+        rows: rows, ladder: true, anim: "push",
+        board: {num: true, pairs: order.map(function(pos){ return BOARD_POS[pos].pair; })}});
       next = "Следующую тренировку делай завтра или через день.";
     } else {
       var sec = Math.min(45, 25 + 5 * b), rl = Math.max(1, Math.floor(0.25 * ctx.max)), ls = MP.lightSets;
-      groups.push({title: "Планка на ручках: 3 " + plural(3, SETS) + " по " + sec + " " + plural(sec, ["секунде","секунды","секунд"]),
-        hint: "Ручки в отверстия груди, упор на прямых руках, тело прямое, живот подтянут. " + MP.holdHint,
-        rows: [list(3, sec, "plank", MP.holdRest, MP.holdOut)], anim: "plank"});
-      groups.push({title: BOARD_POS.chest.n + ": " + ls + " " + plural(ls, SETS) + " по " + rl,
-        hint: "Совсем легко, только техника. " + MP.lightHint,
-        rows: [list(ls, rl, "rep", MP.lightRest)], anim: "push"});
+      groups.push({title: BOARD_POS.plank.n + ": 3 " + plural(3, SETS) + " по " + sec + " " + plural(sec, ["секунде","секунды","секунд"]),
+        hint: BOARD_POS.plank.h + " " + MP.holdHint,
+        rows: [list(3, sec, "plank", MP.holdRest, MP.holdOut)], anim: "plank", board: {pairs: [BOARD_POS.plank.pair]}});
+      groups.push({title: "Лёгкие отжимания: " + ls + " " + plural(ls, SETS) + " по " + rl,
+        hint: "Совсем легко, только техника. Упоры там же, в синей линии середины половины. " + MP.lightHint,
+        rows: [list(ls, rl, "rep", MP.lightRest)], anim: "push", board: {pairs: [BOARD_POS.chest.pair]}});
       next = "Лёгкая тренировка восстанавливает: следующую можно уже завтра.";
     }
     return {no: ctx.i + 1, title: ctx.name(t), groups: groups, next: next};
@@ -2648,7 +2793,7 @@ create policy "friends drop" on public.friends
     hold: {title: "Планка на ручках", hint: "", kind: "plank"},
     anim: {rep: "push", slow: "pushslow", hold: "plank"},
     buildDay: boardDay,
-    testHint: "Разомнись: два лёгких подхода по 5 отжиманий. Через 5 минут — один подход в позиции груди до момента, когда техника начнёт ломаться. Больше в этот день не отжимайся."
+    testHint: "Поставь упоры в синюю линию середины половины: центральное синее отверстие и синее в нижнем ряду. Разомнись двумя лёгкими подходами по 5 отжиманий. Через 5 минут — один подход в этой же позиции до момента, когда техника начнёт ломаться. Больше в этот день не отжимайся."
   });
   function pushChain(){ return state.variant && state.variant.push === "board" ? BOARD : PUSH; }
   function variantToggle(){
@@ -5200,6 +5345,18 @@ create policy "friends drop" on public.friends
     box.innerHTML = h;
   }
 
+  function renderBoardKey(){
+    var box = document.getElementById("boardKey");
+    if(!box) return;
+    var on = TAB === "push" && state.variant && state.variant.push === "board" && !mountedProg("push");
+    box.hidden = !on;
+    if(!on) return;
+    var body = document.getElementById("boardKeyBody");
+    if(body && body.getAttribute("data-filled") !== "1"){
+      body.innerHTML = boardKeyHtml();
+      body.setAttribute("data-filled", "1");
+    }
+  }
   function renderTabPick(){
     var box = document.getElementById("tabPick");
     if(!box) return;
@@ -5378,7 +5535,7 @@ create policy "friends drop" on public.friends
     if(MTABS[TAB]) renderMounted(TAB);
     if(TAB === "push" || TAB === "squat") renderCounter();
     if(TAB === "profile"){ renderSync(); renderProfile(); }
-    renderSound(); renderNotify(); renderAcc(); renderTabPick();
+    renderSound(); renderNotify(); renderAcc(); renderTabPick(); renderBoardKey();
     animateFills();
     animateNums();
     renderHold();
@@ -5479,7 +5636,7 @@ create policy "friends drop" on public.friends
       state.variant.push = vv;
       PUSH.view = null; BOARD.view = null; sel = null; cntVal = null;
       save(); render();
-      flash(vv === "board" ? "Программа для доски: позиции по мышцам" : "Классические отжимания");
+      flash(vv === "board" ? "Программа для доски: упоры по цветам разметки" : "Классические отжимания");
       return;
     }
     if(act === "sound-test"){ unlockAudio(); playSig(b.getAttribute("data-s"), "done"); return; }
