@@ -356,6 +356,16 @@ h1{letter-spacing:-.02em;line-height:1.05}
 .timerbar{border-top:1px solid var(--line);box-shadow:0 -8px 28px rgba(16,24,32,.12)}
 .tb-text strong{font-family:"Unbounded","Onest",system-ui,sans-serif;letter-spacing:-.02em}
 .toast{box-shadow:var(--shadow-2);border-radius:var(--r-sm)}
+.toast{display:flex;align-items:center;justify-content:center;gap:var(--s3);padding:10px 14px;text-align:left}
+.tst-txt{min-width:0}
+.tst-act{appearance:none;-webkit-appearance:none;border:0;background:transparent;color:inherit;font:inherit;font-weight:700;text-decoration:underline;text-underline-offset:3px;padding:6px 2px;min-height:32px;flex:0 0 auto;cursor:pointer;white-space:nowrap}
+.tst-act:active{transform:translateY(1px)}
+.tst-act:focus-visible{outline:2px solid currentColor;outline-offset:2px;border-radius:6px}
+.tabs.solo{display:none}
+.tabs button[data-st="part"]::after,.tabs button[data-st="done"]::after{content:"";position:absolute;top:6px;right:7px;width:6px;height:6px;border-radius:50%;background:var(--part)}
+.tabs button[data-st="done"]::after{background:var(--done)}
+.tabs button[aria-selected="true"][data-st="part"]::after,.tabs button[aria-selected="true"][data-st="done"]::after{background:var(--accent-ink);opacity:.9}
+#tabPick{margin-top:var(--s2)}
 
 /* мелочи */
 details.panel summary,details summary{letter-spacing:-.01em}
@@ -1259,6 +1269,10 @@ create policy "friends drop" on public.friends
       <div class="picker" id="soundTest"></div>
       <div id="notifyRow"></div>
 
+    <p class="hint"><strong>Разделы на панели.</strong> Нажми, чтобы убрать ненужные: они пропадут с панели вкладок и из строки «Сегодня», а отметки и прогресс останутся.</p>
+    <div class="picker" id="tabPick" role="group" aria-label="Какие разделы показывать"></div>
+    <p class="hint"><strong>Если отметил лишнее.</strong> Сразу после отметки в подсказке внизу появляется «Отменить», на компьютере работает Ctrl+Z. Кнопка «Назад» на телефоне закрывает режим тренировки и возвращает на прошлый раздел, а не выходит из приложения.</p>
+
     <p class="hint" id="status">Прогресс хранится в этом браузере</p>
     <span class="io">
       <button type="button" class="danger" data-act="export">Сохранить копию прогресса</button>
@@ -1531,7 +1545,7 @@ create policy "friends drop" on public.friends
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzd3FsYmpsa3Bncm55a2dnY3pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwNDIyNDUsImV4cCI6MjEwNjYxODI0NX0.KQMAqfGyNr1NeLMKu3iRuufLaZ5DEMRj2sc1ulkK5QY"
   ]};
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 1, APP_BUILD_N = 11;
+  var APP_MAJOR = 1, APP_BUILD_N = 12;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
   var theme = "light";
@@ -1545,6 +1559,22 @@ create policy "friends drop" on public.friends
   applyTheme();
   var TAB = "pull";
   try { var tb = localStorage.getItem(TKEY); if(tb === "push" || tb === "squat" || tb === "dumb" || tb === "stretch" || tb === "custom") TAB = tb; } catch(e){}
+  // ---------- какие разделы показывать ----------
+  var TABDEF = [{t: "pull", n: "Турник"}, {t: "push", n: "Отжимания"}, {t: "squat", n: "Приседания"},
+                {t: "dumb", n: "Гантели"}, {t: "stretch", n: "Растяжка"}, {t: "custom", n: "Создать"}];
+  var HIDEKEY = "pullups-tabs-off", tabsOff = {};
+  try { var ho = JSON.parse(localStorage.getItem(HIDEKEY) || "{}"); if(ho && typeof ho === "object" && !Array.isArray(ho)) tabsOff = ho; } catch(e){}
+  function tabOn(t){ return !tabsOff[t]; }
+  function visTabs(){ var a = [], i; for(i = 0; i < TABDEF.length; i++) if(tabOn(TABDEF[i].t)) a.push(TABDEF[i]); return a; }
+  function tabsOffSave(){ try { localStorage.setItem(HIDEKEY, JSON.stringify(tabsOff)); } catch(e){} }
+  function normalizeTab(){
+    if(!visTabs().length){ tabsOff = {}; tabsOffSave(); }
+    if(TAB === "profile" || tabOn(TAB)) return;
+    var v = visTabs()[0];
+    TAB = v ? v.t : "pull";
+    try { localStorage.setItem(TKEY, TAB); } catch(e){}
+  }
+  normalizeTab();
   var SETS = ["подход","подхода","подходов"];
   // тип дня: 0 — смазка канавки, 1 — удержания и подходы, 2 — лесенки/тест
   function fresh(){ return {v:4, profile:{name:"", photo:""}, fin:{}, lastEvent:null, notes:{}, reacts:{}, onb:{done:false}, updatedAt:0, mode:{pull:"short", push:"short", squat:"short", stretch:"short"}, variant:{push:"classic"}, start:null, timer:null, p:{startMax:15, max:null, tests:{}}, s:{startMax:25, max:null, tests:{}}, b:{startMax:12, max:null, tests:{}}, g:{startMax:12, max:null, tests:{}, weight:0, autoAt:0}, t:{front:40, side:45, tests:{}}, u:{startMax:4, max:null, tests:{}, legacy:0}, custom:{progs:[], cur:null, mount:{pull:null, push:null, squat:null, stretch:null}}, startMax:4, test4:null, test8:null, logs:{}, times:{}, cycles:[]}; }
@@ -2138,10 +2168,88 @@ create policy "friends drop" on public.friends
       })(p, ang, dist);
     }
   }
-  function flash(t){
+  function flash(t, undoable){
     var el = document.getElementById("toast"); if(!el) return;
-    el.textContent = t; el.hidden = false;
-    clearTimeout(flashTimer); flashTimer = setTimeout(function(){ el.hidden = true; }, 2600);
+    var can = undoable && UNDO.length > 0;
+    el.innerHTML = '<span class="tst-txt"></span>' + (can ? '<button type="button" class="tst-act" data-act="undo">Отменить</button>' : "");
+    var tx = el.querySelector(".tst-txt");
+    if(tx) tx.textContent = t; else el.textContent = t;
+    el.hidden = false;
+    clearTimeout(flashTimer); flashTimer = setTimeout(function(){ el.hidden = true; }, can ? 5500 : 2600);
+  }
+  function buzz(ms){ try { if(navigator.vibrate) navigator.vibrate(ms); } catch(e){} }
+
+  // ---------- сохранение файла: обычный браузер и предпросмотр ----------
+  var DLP = null;
+  function hostApi(){ return !!(window.claude && typeof window.claude.use === "function"); }
+  function dlGet(){
+    if(!DLP) DLP = hostApi() ? window.claude.use("downloads").catch(function(){ return null; }) : Promise.resolve(null);
+    return DLP;
+  }
+  function saveDirect(name, blob, okMsg){
+    try {
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+      if(okMsg) flash(okMsg);
+    } catch(e){ flash("Файл сохранить не удалось"); }
+  }
+  function saveFile(name, blob, okMsg){
+    if(!hostApi()){ saveDirect(name, blob, okMsg); return; }
+    dlGet().then(function(d){
+      if(!d){ saveDirect(name, blob, okMsg); return; }
+      d.save({filename: name, data: blob}).then(function(){
+        if(okMsg) flash(okMsg);
+      }, function(e){
+        var c = e && e.code;
+        flash(c === "declined" ? "Сохранение отменено"
+          : c === "rate_limited" ? "Окно сохранения уже открыто"
+          : "Файл сохранить не удалось");
+      });
+    });
+  }
+
+  // ---------- отмена последнего действия ----------
+  var UNDO = [];
+  var UNDO_KEYS = ["logs", "times", "fin", "notes", "cycles", "lastEvent", "p", "s", "b", "g", "t", "u", "test4", "test8", "startMax"];
+  function undoSnap(){
+    var o = {}, i;
+    for(i = 0; i < UNDO_KEYS.length; i++){ var k = UNDO_KEYS[i]; if(state[k] !== undefined) o[k] = state[k]; }
+    try { return JSON.stringify(o); } catch(e){ return null; }
+  }
+  function undoPush(label){
+    var s0 = undoSnap(); if(!s0) return;
+    UNDO.push({label: label || "", snap: s0, tab: TAB});
+    if(UNDO.length > 30) UNDO.shift();
+  }
+  function undoDo(){
+    var u = UNDO.pop();
+    if(!u){ flash("Отменять нечего"); return; }
+    var o; try { o = JSON.parse(u.snap); } catch(e){ return; }
+    for(var i = 0; i < UNDO_KEYS.length; i++){ var k = UNDO_KEYS[i]; if(o[k] !== undefined) state[k] = o[k]; }
+    state.timer = null;
+    sel = null; cntVal = null; lastLogged = null;
+    if(focusKey){
+      var fi0 = itemInfo(focusKey);
+      if(!fi0){ focusKey = null; focusVal = null; document.body.classList.remove("modal-open"); var fb0 = document.getElementById("focus"); if(fb0){ fb0.hidden = true; fb0.innerHTML = ""; } }
+      else focusVal = null;
+    }
+    if(u.tab && u.tab !== TAB && (u.tab === "profile" || tabOn(u.tab))){
+      TAB = u.tab;
+      try { localStorage.setItem(TKEY, TAB === "profile" ? prevTab : TAB); } catch(e){}
+    }
+    save(); render();
+    flash(u.label || "Отменено");
+    buzz(20);
+  }
+  function markToast(key, idx){
+    var it = itemOf(key, idx), v = (state.logs[key] || [])[idx], info = itemInfo(key);
+    var txt = v != null ? "Отмечено: " + v + (it && isSec(it.kind) ? " с" : "") : "Отмечено";
+    if(info && !info.done && info.total) txt += " · осталось " + (info.total - info.n + 1) + " из " + info.total;
+    else if(info && info.done) txt += " · все подходы закрыты";
+    flash(txt, true);
   }
 
   // ---------- программы-цепочки: отжимания и приседания ----------
@@ -3102,7 +3210,7 @@ create policy "friends drop" on public.friends
         add("custom", cp.name || "Своя программа", ci, custBuild(cp, ci), custKey(cp, ci), custCount(cp), "Занятие");
       }
     }
-    return rows;
+    return rows.filter(function(r){ return tabOn(r.tab); });
   }
   var TODAY_OPEN = "pullups-today-open", todayOpen = false;
   try { todayOpen = localStorage.getItem(TODAY_OPEN) === "1"; } catch(e){}
@@ -3823,12 +3931,13 @@ create policy "friends drop" on public.friends
   function logCounter(n){
     var slot = nextPushSlot();
     if(!slot){ flash("Все подходы уже отмечены"); return; }
+    undoPush("Запись со счётчика убрана");
     logFor(slot.key, slot.idx)[slot.idx] = n;
     state.times[slot.key] = Date.now();
     startTimer(slot.key, slot.idx);
     cntVal = null;
     save(); render();
-    flash("Записано: " + n + " " + plural(n, camChain().cfg.unit));
+    flash("Записано: " + n + " " + plural(n, camChain().cfg.unit), true);
   }
 
   // --- счётчик приседаний: лицо уходит вниз и возвращается ---
@@ -4828,13 +4937,8 @@ create policy "friends drop" on public.friends
       return r.map(function(c){ var t = String(c); return /[;"\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t; }).join(";");
     }).join("\n");
     try {
-      var blob = new Blob(["\ufeff" + csv], {type: "text/csv;charset=utf-8"});
-      var a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "trenirovki-" + new Date().toISOString().slice(0, 10) + ".csv";
-      document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
-      flash("Файл выгружен");
+      saveFile("trenirovki-" + new Date().toISOString().slice(0, 10) + ".csv",
+        new Blob(["\ufeff" + csv], {type: "text/csv;charset=utf-8"}), "Файл выгружен");
     } catch(e){ flash("Не получилось выгрузить"); }
   }
   // ---------- реакции в ленте ----------
@@ -4920,11 +5024,13 @@ create policy "friends drop" on public.friends
     focusKey = key;
     focusVal = null;
     document.body.classList.add("modal-open");
+    navPush();
     renderFocus();
   }
   function focusClose(){
     focusKey = null; focusVal = null;
     document.body.classList.remove("modal-open");
+    navSync();
     var box = document.getElementById("focus");
     if(box){ box.hidden = true; box.innerHTML = ""; }
     render();
@@ -4934,6 +5040,7 @@ create policy "friends drop" on public.friends
     var info = itemInfo(focusKey);
     if(!info || info.done) return;
     var it = info.it, log = logFor(focusKey, it.idx);
+    undoPush("Отметка снята");
     log[it.idx] = focusVal == null ? it.target : focusVal;
     state.times[focusKey] = Date.now();
     lastLogged = {key: focusKey, idx: it.idx};
@@ -4992,13 +5099,14 @@ create policy "friends drop" on public.friends
     if(!info){ flash("Здесь нечего отмечать"); return; }
     if(info.done){ flash("Все подходы уже отмечены"); return; }
     var it = info.it, log = logFor(row.key, it.idx);
+    undoPush("Отметка снята");
     log[it.idx] = it.target;
     state.times[row.key] = Date.now();
     lastLogged = {key: row.key, idx: it.idx};
     startTimer(row.key, it.idx);
     save(); render();
     if(soundOn) playSig(tabOfKey(row.key), "rep");
-    flash("Отмечено: " + it.target + (isSec(it.kind) ? " с" : "") + ", подход " + info.n + " из " + info.total);
+    flash("Отмечено: " + it.target + (isSec(it.kind) ? " с" : "") + ", подход " + info.n + " из " + info.total, true);
   }
 
   // ---------- журнал активности ----------
@@ -5092,6 +5200,59 @@ create policy "friends drop" on public.friends
     box.innerHTML = h;
   }
 
+  function renderTabPick(){
+    var box = document.getElementById("tabPick");
+    if(!box) return;
+    var h = "";
+    TABDEF.forEach(function(d){
+      var on = tabOn(d.t);
+      h += '<button type="button" class="blockbtn" data-act="tab-vis" data-t="' + d.t + '" aria-pressed="' + on + '">' + d.n + '</button>';
+    });
+    box.innerHTML = h;
+  }
+  function tabVisToggle(t){
+    var known = false;
+    TABDEF.forEach(function(d){ if(d.t === t) known = true; });
+    if(!known) return;
+    if(tabsOff[t]) delete tabsOff[t];
+    else {
+      if(visTabs().length <= 1){ flash("Хотя бы один раздел нужно оставить"); return; }
+      tabsOff[t] = 1;
+    }
+    tabsOffSave();
+    normalizeTab();
+    render();
+    flash(tabOn(t) ? "Раздел снова на панели" : "Раздел убран с панели");
+  }
+
+  // ---------- кнопка «Назад» телефона и браузера ----------
+  function navView(){ return {app: 1, tab: TAB, focus: focusKey || null}; }
+  function navPush(){ try { history.pushState(navView(), ""); } catch(e){} }
+  function navSync(){ try { history.replaceState(navView(), ""); } catch(e){} }
+  window.addEventListener("popstate", function(ev){
+    var st = ev.state;
+    if(!st || !st.app){ navSync(); return; }
+    if(ONB){ onbClose(true); navPush(); return; }
+    var want = st.focus && itemInfo(st.focus) ? st.focus : null;
+    if(focusKey && focusKey !== want){
+      focusKey = null; focusVal = null;
+      document.body.classList.remove("modal-open");
+      var fb = document.getElementById("focus");
+      if(fb){ fb.hidden = true; fb.innerHTML = ""; }
+    }
+    if(want && want !== focusKey){
+      focusKey = want; focusVal = null;
+      document.body.classList.add("modal-open");
+    }
+    if(st.tab && st.tab !== TAB && (st.tab === "profile" || tabOn(st.tab))){
+      if(cam) camFinish(false);
+      if(st.tab !== "profile") prevTab = st.tab;
+      TAB = st.tab; sel = null; cntVal = null;
+      try { localStorage.setItem(TKEY, TAB === "profile" ? prevTab : TAB); } catch(e){}
+    }
+    render();
+  });
+
   function moveTabInd(){
     var bar = document.querySelector(".tabs"), ind = document.getElementById("tabInd");
     if(!bar || !ind) return;
@@ -5106,13 +5267,31 @@ create policy "friends drop" on public.friends
       bar.scrollTo({left: Math.max(0, want), behavior: REDUCED ? "auto" : "smooth"});
     }
   }
+  function tabMarks(){
+    var m = {};
+    todayRows().forEach(function(r){
+      if(m[r.tab] === "done") return;
+      m[r.tab] = r.fin ? "done" : (r.done > 0 ? "part" : "");
+    });
+    return m;
+  }
+  function tabName(t){
+    var nm = t;
+    TABDEF.forEach(function(d){ if(d.t === t) nm = d.n; });
+    return nm;
+  }
   function renderTabs(){
-    var els = document.querySelectorAll('[data-act="tab"]');
+    var els = document.querySelectorAll('[data-act="tab"]'), marks = tabMarks();
     for(var i = 0; i < els.length; i++){
-      var on = els[i].getAttribute("data-tab") === TAB;
+      var tv0 = els[i].getAttribute("data-tab"), on = tv0 === TAB, mk = marks[tv0] || "";
+      els[i].hidden = !tabOn(tv0);
       els[i].setAttribute("aria-selected", on ? "true" : "false");
       els[i].tabIndex = on ? 0 : -1;
+      els[i].setAttribute("data-st", mk);
+      els[i].setAttribute("aria-label", tabName(tv0) + (mk === "done" ? ", сегодня завершено" : mk === "part" ? ", есть отметки за сегодня" : ""));
     }
+    var bar0 = document.querySelector(".tabs");
+    if(bar0) bar0.classList.toggle("solo", visTabs().length < 2);
     moveTabInd();
     setTimeout(moveTabInd, 40);
     document.getElementById("panel-pull").hidden = TAB !== "pull";
@@ -5179,6 +5358,8 @@ create policy "friends drop" on public.friends
     if(!l) return;
     var any = Object.keys(state.logs || {}).length > 0;
     l.hidden = any;
+    if(!any && visTabs().length !== TABDEF.length)
+      l.textContent = "Короткие подходы вместо одной тяжёлой тренировки — в своём темпе и с запасом сил.";
   }
   function render(){
     renderTabs();
@@ -5197,7 +5378,7 @@ create policy "friends drop" on public.friends
     if(MTABS[TAB]) renderMounted(TAB);
     if(TAB === "push" || TAB === "squat") renderCounter();
     if(TAB === "profile"){ renderSync(); renderProfile(); }
-    renderSound(); renderNotify(); renderAcc();
+    renderSound(); renderNotify(); renderAcc(); renderTabPick();
     animateFills();
     animateNums();
     renderHold();
@@ -5243,7 +5424,9 @@ create policy "friends drop" on public.friends
     if(act === "chip"){
       var log = logFor(key, idx);
       if(log[idx] == null){
+        undoPush("Отметка снята");
         log[idx] = +b.getAttribute("data-t"); state.times[key] = Date.now(); sel = {key: key, idx: idx}; lastLogged = {key: key, idx: idx}; startTimer(key, idx); save();
+        render(); markToast(key, idx); buzz(30); return;
       } else {
         sel = isSel(key, idx) ? null : {key: key, idx: idx};
       }
@@ -5251,21 +5434,31 @@ create policy "friends drop" on public.friends
     }
     if(act === "set"){
       var lg = logFor(key, idx), wasEmpty = lg[idx] == null;
+      undoPush(wasEmpty ? "Отметка снята" : "Отметка вернулась к прежней");
       lg[idx] = +b.getAttribute("data-v"); state.times[key] = Date.now(); sel = null;
       if(wasEmpty) startTimer(key, idx);
-      save(); render(); return;
+      save(); render(); markToast(key, idx); if(wasEmpty) buzz(30);
+      return;
     }
     if(act === "clear"){
-      if(state.logs[key]) state.logs[key][idx] = null; sel = null; save(); render(); return;
+      undoPush("Отметка вернулась");
+      if(state.logs[key]) state.logs[key][idx] = null; sel = null; save(); render(); flash("Отметка убрана", true); return;
     }
     if(act === "timer-log"){
       var t = state.timer; if(!t || t.next == null) return;
       var nl = logFor(t.key, t.next), it = itemOf(t.key, t.next);
-      if(it && nl[t.next] == null){ nl[t.next] = it.target; state.times[t.key] = Date.now(); startTimer(t.key, t.next); save(); render(); if(state.timer) flash("Отмечено: " + it.target + (it.kind === "hold" || it.kind === "hang" ? " с" : " повт.")); }
+      if(it && nl[t.next] == null){
+        undoPush("Отметка снята");
+        var tnx = t.next;
+        nl[tnx] = it.target; state.times[t.key] = Date.now(); startTimer(t.key, tnx); save(); render();
+        markToast(t.key, tnx); buzz(30);
+      }
       return;
     }
+    if(act === "undo"){ undoDo(); return; }
+    if(act === "tab-vis"){ tabVisToggle(b.getAttribute("data-t")); return; }
     if(act === "theme"){ theme = theme === "light" ? "dark" : theme === "dark" ? "auto" : "light"; try { localStorage.setItem(THKEY, theme); } catch(e){} applyTheme(); return; }
-    if(act === "tab"){ var tv2 = b.getAttribute("data-tab"); prevTab = tv2; if(cam) camFinish(false); TAB = (tv2 === "push" || tv2 === "squat" || tv2 === "dumb" || tv2 === "stretch" || tv2 === "custom") ? tv2 : "pull"; sel = null; cntVal = null; try { localStorage.setItem(TKEY, TAB); } catch(e){} render(); return; }
+    if(act === "tab"){ var tv2 = b.getAttribute("data-tab"); if(!tabOn(tv2)) return; prevTab = tv2; if(cam) camFinish(false); var tbf = TAB; TAB = (tv2 === "push" || tv2 === "squat" || tv2 === "dumb" || tv2 === "stretch" || tv2 === "custom") ? tv2 : "pull"; sel = null; cntVal = null; try { localStorage.setItem(TKEY, TAB); } catch(e){} if(TAB !== tbf) navPush(); render(); return; }
     if(act === "cmax-" || act === "cmax+"){
       var cpre = b.getAttribute("data-c");
       if(cpre === "p") cpre = pushChain().cfg.pre;
@@ -5302,25 +5495,27 @@ create policy "friends drop" on public.friends
     if(act === "finish"){
       var fk = b.getAttribute("data-key");
       if(!state.fin) state.fin = {};
+      undoPush("Завершение отменено");
       confetti(b);
       state.fin[fk] = Date.now();
       state.times[fk] = Date.now();
       var fday = dayOfKey(fk);
       state.lastEvent = {title: (fday && fday.title) || "тренировка", no: (fday && fday.no) || null, ts: Date.now()};
       sel = null; save(); render();
-      flash("Тренировка засчитана");
+      flash("Тренировка засчитана", true);
       return;
     }
     if(act === "auto-yes" || act === "auto-no"){
       var ac = CHAINS[b.getAttribute("data-c")];
       if(!ac) return;
+      undoPush("Нагрузка вернулась");
       var sa = state[ac.cfg.pre];
       sa.autoAt = +b.getAttribute("data-n") || 0;
       if(act === "auto-yes"){
         var dir = +b.getAttribute("data-d") || 1;
         if(sa.max != null) sa.max = Math.max(1, sa.max + dir);
         else sa.startMax = Math.max(1, sa.startMax + dir);
-        flash(dir > 0 ? "Нагрузка поднята" : "Нагрузка снижена");
+        flash(dir > 0 ? "Нагрузка поднята" : "Нагрузка снижена", true);
       }
       save(); render();
       return;
@@ -5365,7 +5560,7 @@ create policy "friends drop" on public.friends
       if(TAB === "profile"){ TAB = prevTab || "pull"; }
       else { prevTab = TAB; TAB = "profile"; }
       try { localStorage.setItem(TKEY, TAB === "profile" ? prevTab : TAB); } catch(e){}
-      sel = null; render();
+      sel = null; navPush(); render();
       if(TAB === "profile") window.scrollTo({top: 0, behavior: REDUCED ? "auto" : "smooth"});
       return;
     }
@@ -5386,6 +5581,7 @@ create policy "friends drop" on public.friends
     if(act === "focus-finish"){
       confetti(b);
       var fkey = focusKey;
+      if(fkey) undoPush("Завершение отменено");
       focusClose();
       if(fkey){
         if(!state.fin) state.fin = {};
@@ -5394,7 +5590,7 @@ create policy "friends drop" on public.friends
         var fd = dayOfKey(fkey);
         state.lastEvent = {title: (fd && fd.title) || "тренировка", no: (fd && fd.no) || null, ts: Date.now()};
         save(); render();
-        flash("Тренировка засчитана");
+        flash("Тренировка засчитана", true);
       }
       return;
     }
@@ -5415,7 +5611,7 @@ create policy "friends drop" on public.friends
     }
     if(act === "today-go"){
       var ttab = b.getAttribute("data-tab"), tkey = b.getAttribute("data-key");
-      if(TAB !== ttab){ TAB = ttab; try { localStorage.setItem(TKEY, TAB); } catch(e){} }
+      if(TAB !== ttab){ TAB = ttab; prevTab = ttab; try { localStorage.setItem(TKEY, TAB); } catch(e){} navPush(); }
       sel = null; render();
       var card = document.getElementById("card-" + tkey);
       scrollTo(card || document.getElementById("panel-" + ttab));
@@ -5578,12 +5774,8 @@ create policy "friends drop" on public.friends
     if(act === "gh-sync"){ ghSync(); return; }
     if(act === "gh-off"){ ghOff(); return; }
     if(act === "export"){
-      var blob = new Blob([JSON.stringify(state, null, 2)], {type: "application/json"});
-      var a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "podtyagivaniya-" + new Date().toISOString().slice(0, 10) + ".json";
-      document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+      saveFile("trenirovki-kopiya-" + new Date().toISOString().slice(0, 10) + ".json",
+        new Blob([JSON.stringify(state, null, 2)], {type: "application/json"}), "Копия сохранена");
       return;
     }
     if(act === "reset"){
@@ -5600,6 +5792,11 @@ create policy "friends drop" on public.friends
   document.addEventListener("keydown", function(ev){
     if(ev.key === "Escape" && focusKey){ focusClose(); return; }
     if(ev.key === "Escape" && ONB){ onbClose(true); return; }
+    if((ev.ctrlKey || ev.metaKey) && !ev.shiftKey && !ev.altKey && String(ev.key).toLowerCase() === "z"){
+      var t6 = ev.target;
+      if(t6 && t6.closest && t6.closest("input, textarea, [contenteditable]")) return;
+      ev.preventDefault(); undoDo(); return;
+    }
     if((ev.key === " " || ev.code === "Space") && focusKey){
       ev.preventDefault();
       focusMark();
@@ -5609,6 +5806,21 @@ create policy "friends drop" on public.friends
       var t4 = ev.target;
       if(t4 && t4.closest && t4.closest("input, textarea, select, button, [contenteditable]")) return;
       if(spaceMark()){ ev.preventDefault(); return; }
+    }
+    var tl = ev.target && ev.target.closest && ev.target.closest('[role="tablist"]');
+    if(tl){
+      var tdir = {ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1}[ev.key];
+      if(!tdir) return;
+      var tbs = [].slice.call(tl.querySelectorAll('[data-act="tab"]')).filter(function(x){ return !x.hidden; });
+      if(!tbs.length) return;
+      ev.preventDefault();
+      var ti0 = 0;
+      tbs.forEach(function(x, i){ if(x.getAttribute("aria-selected") === "true") ti0 = i; });
+      var nb = tbs[(ti0 + tdir + tbs.length) % tbs.length], nid = nb.id;
+      nb.click();
+      var nb2 = nid ? document.getElementById(nid) : null;
+      if(nb2 && nb2.focus) nb2.focus();
+      return;
     }
     var seg = ev.target && ev.target.closest && ev.target.closest(".seg");
     if(!seg) return;
@@ -5710,6 +5922,7 @@ create policy "friends drop" on public.friends
   bindSwipe();
   window.addEventListener("resize", function(){ moveTabInd(); });
   sbCatchRecovery();
+  navSync();
   render();
   if(onbNeeded()) onbStart();
   syncNow(true);
