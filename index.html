@@ -362,6 +362,37 @@ h1{letter-spacing:-.02em;line-height:1.05}
 .tst-act:active{transform:translateY(1px)}
 .tst-act:focus-visible{outline:2px solid currentColor;outline-offset:2px;border-radius:6px}
 .tabs.solo{display:none}
+/* редактор своей программы */
+.tplgrid{display:grid;gap:var(--s2);margin-top:var(--s2)}
+.tplcard{display:block;width:100%;text-align:left;padding:14px;border-radius:var(--r-sm);border:1px solid var(--line-strong);background:transparent;color:var(--ink);cursor:pointer;transition:border-color .15s, background .15s}
+.tplcard:hover{border-color:var(--accent);background:var(--accent-ghost)}
+.tplcard strong{display:block;font-size:var(--fs-md);margin-bottom:4px}
+.tplcard span{display:block;font-size:var(--fs-sm);color:var(--muted);line-height:1.45}
+.exlist{list-style:none;margin:var(--s3) 0 0;padding:0;display:flex;flex-direction:column;gap:var(--s2)}
+.exrow{border:1px solid var(--line-strong);border-radius:var(--r-sm);background:var(--surface);overflow:hidden}
+.exrow.open{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-ghost)}
+.exhead{display:flex;align-items:stretch}
+.exopen{flex:1 1 auto;min-width:0;text-align:left;padding:9px 12px;border:0;background:transparent;color:var(--ink);cursor:pointer;min-height:48px}
+.exopen b{display:block;font-size:var(--fs-sm);font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.exopen span{display:block;font-size:var(--fs-xs);color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.exbtns{display:flex;align-items:center;gap:2px;padding-right:6px;flex:none}
+.exbtn{width:34px;min-height:40px;border:0;background:transparent;color:var(--muted);font-size:15px;border-radius:var(--r-xs);cursor:pointer}
+.exbtn:hover:not(:disabled){background:var(--quiet);color:var(--ink)}
+.exbtn:disabled{opacity:.3}
+.exbtn.del:hover{color:var(--danger)}
+.exform{padding:12px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
+.exform label{display:flex;flex-direction:column;gap:4px;font-size:var(--fs-xs);color:var(--muted)}
+.exform > label,.exform .edwide,.exform .edfields label{flex:0 0 auto}
+.exform .edfields{align-items:flex-end}
+.exform .edfields select{min-width:132px}
+.exform .edfields input{width:96px}
+.exform .edfields{margin-top:0}
+.exform .edwide input{width:100%}
+p.plan{border-left:3px solid var(--accent);padding-left:10px;margin-top:var(--s3)}
+.chipl{display:flex;flex-direction:column;align-items:center;gap:4px}
+.chipl i{font-style:normal;font-size:11px;line-height:1.15;color:var(--muted);max-width:68px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ladder .chipl + .chipl{margin-left:18px}
+.rnum{flex:none;width:20px;align-self:center;font-size:12px;font-weight:700;color:var(--muted);text-align:right}
 .bmap{grid-column:1 / -1;margin-top:var(--s2)}
 .bmap svg{display:block;width:100%;max-width:440px;height:auto;border-radius:var(--r-sm);background:var(--bg);padding:6px;box-sizing:border-box}
 .day.extra .bmap svg{background:var(--surface)}
@@ -1557,7 +1588,7 @@ create policy "friends drop" on public.friends
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzd3FsYmpsa3Bncm55a2dnY3pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwNDIyNDUsImV4cCI6MjEwNjYxODI0NX0.KQMAqfGyNr1NeLMKu3iRuufLaZ5DEMRj2sc1ulkK5QY"
   ]};
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 1, APP_BUILD_N = 15;
+  var APP_MAJOR = 1, APP_BUILD_N = 16;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
   var theme = "light";
@@ -1962,9 +1993,14 @@ create policy "friends drop" on public.friends
       h += '<div class="group' + (g.anim ? ' has-anim' : '') + '">' + (g.anim ? figure(g.anim) : '') +
         '<div class="gtext"><h3>' + esc(g.title) + '</h3><p class="hint">' + esc(g.hint) + '</p></div>' +
         (g.board ? boardMapHtml(g.board, "Схема доски: " + g.title) : '');
-      g.rows.forEach(function(r){
+      g.rows.forEach(function(r, ri){
         h += '<div class="row' + (g.ladder ? " ladder" : "") + '">';
-        r.forEach(function(it){ h += chipHtml(key, it, log); if(isSel(key, it.idx)) selItem = it; });
+        if(g.rnum) h += '<span class="rnum" aria-hidden="true">' + (ri + 1) + '</span>';
+        r.forEach(function(it){
+          var ch = chipHtml(key, it, log);
+          h += it.lab ? '<span class="chipl">' + ch + '<i title="' + esc(it.lab) + '">' + esc(it.lab) + '</i></span>' : ch;
+          if(isSel(key, it.idx)) selItem = it;
+        });
         h += '</div>';
       });
       var secLeft = 0, secTarget = 0;
@@ -2941,15 +2977,73 @@ create policy "friends drop" on public.friends
     return out;
   }
   function custDateKey(prog, t){ return "x" + prog.id + "-" + t; }
+  function exVal(ex){ return Math.max(0, Math.min(600, +ex.val || 0)); }
+  function exKind(ex){ return ex.kind === "sec" ? "sec" : "rep"; }
+  function exSets(ex){ return Math.max(1, Math.min(30, +ex.sets || 1)); }
+  function exName(ex){ return (ex.n || "").trim() || "Упражнение"; }
+  function exAmount(ex){
+    var v = exVal(ex);
+    return exKind(ex) === "sec"
+      ? v + " " + plural(v, ["секунда","секунды","секунд"])
+      : v + " " + plural(v, ["повторение","повторения","повторений"]);
+  }
+  function exWorkSec(ex){ var v = exVal(ex); return exKind(ex) === "sec" ? v : Math.max(4, v * 3); }
+  function restWord(sec){
+    sec = Math.max(0, Math.round(+sec || 0));
+    if(!sec) return "без паузы";
+    if(sec < 60) return sec + " " + plural(sec, ["секунда","секунды","секунд"]);
+    var m = Math.round(sec / 6) / 10;
+    return (m === Math.round(m) ? m : m.toFixed(1).replace(".", ",")) + " " + plural(Math.round(m), ["минута","минуты","минут"]);
+  }
+  function dayCircuit(day){ return !!day && day.mode === "circuit"; }
+  function dayRounds(day){ return Math.max(1, Math.min(60, +day.rounds || 1)); }
+  function dayRest(day){ return Math.max(0, Math.min(3600, day.rest == null ? 60 : +day.rest)); }
+  function dayEx(day){ return (day && day.ex) ? day.ex : []; }
+  function shortLab(s){ return exName({n: s}); }
+  function custPlan(day){
+    var ex = dayEx(day), sets = 0, sec = 0, i, j;
+    if(!ex.length) return {sets: 0, mins: 0};
+    if(dayCircuit(day)){
+      var r = dayRounds(day), pause = dayRest(day), per = 0;
+      for(i = 0; i < ex.length; i++) per += exWorkSec(ex[i]);
+      sets = r * ex.length;
+      sec = r * per + Math.max(0, sets - 1) * pause;
+    } else {
+      for(i = 0; i < ex.length; i++){
+        var n = exSets(ex[i]), rest = Math.max(0, +ex[i].rest || 0);
+        sets += n;
+        sec += n * exWorkSec(ex[i]) + n * rest;
+      }
+      sec = Math.max(0, sec - Math.max(0, +(ex[ex.length - 1].rest) || 0));
+    }
+    return {sets: sets, mins: Math.max(1, Math.round(sec / 60))};
+  }
   function custGroupsOf(day){
-    var list = maker(), groups = [];
-    (day.ex || []).forEach(function(ex){
-      var n = Math.max(1, Math.min(30, +ex.sets || 1)), val = Math.max(0, Math.min(600, +ex.val || 0));
-      var amount = ex.kind === "sec"
-        ? n + " " + plural(n, SETS) + " по " + val + " " + plural(val, ["секунде","секунды","секунд"])
-        : n + " " + plural(n, SETS) + " по " + val + " " + plural(val, ["повторению","повторения","повторений"]);
-      groups.push({title: ex.n || "Упражнение", hint: amount + (ex.hint ? ". " + ex.hint : ""),
-        rows: [list(n, val, ex.kind === "sec" ? "sec" : "rep", +ex.rest || 0, +ex.rest || 0)]});
+    var list = maker(), groups = [], ex = dayEx(day);
+    if(!ex.length) return groups;
+    if(dayCircuit(day)){
+      var rounds = dayRounds(day), pause = dayRest(day), rows = [], r, j;
+      for(r = 0; r < rounds; r++){
+        rows.push(ex.map(function(e, j2){
+          var lastEx = j2 === ex.length - 1, lastRound = r === rounds - 1;
+          var it = list(1, exVal(e), exKind(e), null, lastEx && lastRound ? null : pause)[0];
+          it.lab = shortLab(e.n);
+          return it;
+        }));
+      }
+      var names = ex.map(function(e){ return exName(e); });
+      var detail = ex.map(function(e){ return exName(e) + " — " + exAmount(e); }).join(", ");
+      groups.push({
+        title: rounds + " " + plural(rounds, ["круг","круга","кругов"]) + ": " + names.join(" → "),
+        hint: "В каждом круге по одному подходу на упражнение: " + detail + ". Пауза " + restWord(pause) + " после каждого подхода. Кружки в строке идут в том же порядке, что и упражнения.",
+        rows: rows, ladder: true, rnum: true});
+      return groups;
+    }
+    ex.forEach(function(e){
+      var n = exSets(e), v = exVal(e), rest = Math.max(0, Math.min(10800, +e.rest || 0));
+      groups.push({title: exName(e),
+        hint: n + " " + plural(n, SETS) + " по " + exAmount(e) + ", пауза " + restWord(rest) + (e.hint ? ". " + e.hint : ""),
+        rows: [list(n, v, exKind(e), rest, rest)]});
     });
     return groups;
   }
@@ -2993,16 +3087,8 @@ create policy "friends drop" on public.friends
 
   function custBuild(prog, i){
     if(!prog || !prog.days.length || i < 0 || i >= custCount(prog)) return null;
-    var day = prog.days[i % prog.days.length], list = maker(), groups = [];
-    (day.ex || []).forEach(function(ex){
-      var n = Math.max(1, Math.min(30, +ex.sets || 1)), val = Math.max(0, Math.min(600, +ex.val || 0));
-      var amount = ex.kind === "sec"
-        ? n + " " + plural(n, SETS) + " по " + val + " " + plural(val, ["секунде","секунды","секунд"])
-        : n + " " + plural(n, SETS) + " по " + val + " " + plural(val, ["повторению","повторения","повторений"]);
-      groups.push({title: ex.n || "Упражнение", hint: amount + (ex.hint ? ". " + ex.hint : ""),
-        rows: [list(n, val, ex.kind === "sec" ? "sec" : "rep", +ex.rest || 0, +ex.rest || 0)]});
-    });
-    return {no: i + 1, title: day.name || ("День " + ((i % prog.days.length) + 1)), groups: groups};
+    var day = prog.days[i % prog.days.length];
+    return {no: i + 1, title: day.name || ("День " + ((i % prog.days.length) + 1)), groups: custGroupsOf(day)};
   }
   function custDone(prog, i){
     var w = custBuild(prog, i); if(!w) return false;
@@ -3015,13 +3101,41 @@ create policy "friends drop" on public.friends
     if(custView[prog.id] == null) custView[prog.id] = custCurrent(prog);
     return Math.max(0, Math.min(custCount(prog) - 1, custView[prog.id]));
   }
-  function custNew(){
-    var id = "p" + Date.now().toString(36);
-    state.custom.progs.push({id: id, name: "Моя программа " + (state.custom.progs.length + 1), count: 12,
-      days: [{name: "День A", ex: [{n: "Упражнение", sets: 3, kind: "rep", val: 10, rest: 120, hint: ""}]}]});
+  var custTplOpen = false, custExOpen = null;
+  var CUST_TPL = [
+    {k: "circuit", n: "Чередование упражнений",
+     d: "Два упражнения идут по кругу с общей паузой: подход первого, пауза, подход второго, пауза — и снова по кругу."},
+    {k: "chain", n: "Простая программа",
+     d: "Несколько упражнений подряд: сначала все подходы одного, потом следующее. Занятия идут цепочкой."},
+    {k: "week", n: "Три дня в неделю",
+     d: "Понедельник, среда, пятница. Занятие появляется в свой день недели, отметки хранятся по датам."}
+  ];
+  function custNew(kind){
+    var id = "p" + Date.now().toString(36), prog;
+    if(kind === "circuit"){
+      prog = {id: id, name: "Круговая", count: 12, sched: "chain",
+        days: [{name: "Круг", mode: "circuit", rounds: 11, rest: 60, ex: [
+          {n: "Отжимания на доске", sets: 1, kind: "rep", val: 35, rest: 60, hint: "", cat: ""},
+          {n: "Гантели", sets: 1, kind: "rep", val: 6, rest: 60, hint: "", cat: ""}
+        ]}]};
+    } else if(kind === "week"){
+      prog = {id: id, name: "Неделя", count: 12, sched: "week",
+        days: [
+          {name: "Понедельник", wd: [0], mode: "seq", rounds: 1, rest: 60, ex: [{n: "Упражнение", sets: 3, kind: "rep", val: 10, rest: 120, hint: "", cat: ""}]},
+          {name: "Среда", wd: [2], mode: "seq", rounds: 1, rest: 60, ex: [{n: "Упражнение", sets: 3, kind: "rep", val: 10, rest: 120, hint: "", cat: ""}]},
+          {name: "Пятница", wd: [4], mode: "seq", rounds: 1, rest: 60, ex: [{n: "Упражнение", sets: 3, kind: "rep", val: 10, rest: 120, hint: "", cat: ""}]}
+        ]};
+    } else {
+      prog = {id: id, name: "Моя программа " + (state.custom.progs.length + 1), count: 12, sched: "chain",
+        days: [{name: "День A", mode: "seq", rounds: 1, rest: 60, ex: [{n: "Упражнение", sets: 3, kind: "rep", val: 10, rest: 120, hint: "", cat: ""}]}]};
+    }
+    state.custom.progs.push(prog);
     state.custom.cur = id;
     custView[id] = 0;
+    custTplOpen = false;
+    custExOpen = null;
     save(); render();
+    flash("Программа создана — поправь названия и числа под себя");
   }
 
   function renderCustPick(){
@@ -3035,7 +3149,7 @@ create policy "friends drop" on public.friends
   }
   function renderCustStatus(){
     var prog = custCur(), el = document.getElementById("custStatus");
-    if(!prog){ el.innerHTML = "<strong>Здесь живут твои собственные программы.</strong> Опиши занятия ниже в редакторе, и они появятся в виде карточек с отметками."; return; }
+    if(!prog){ el.innerHTML = "<strong>Здесь живут твои собственные программы.</strong> Выбери заготовку ниже — названия и числа потом поправишь под себя."; return; }
     if(custWeek(prog)){
       var td = custDayFor(prog, new Date()), nd = custScanDate(prog, ymdOf(new Date()), 1);
       var h2 = "<strong>" + esc(prog.name || "Программа") + ".</strong> ";
@@ -3063,7 +3177,7 @@ create policy "friends drop" on public.friends
   }
   function renderCustWork(){
     var prog = custCur(), nav = document.getElementById("custNav"), work = document.getElementById("custWork");
-    if(!prog){ nav.textContent = "Программа не выбрана"; work.innerHTML = ""; document.getElementById("custPrev").disabled = true; document.getElementById("custNext").disabled = true; return; }
+    if(!prog){ nav.textContent = "Программы пока нет"; work.innerHTML = ""; document.getElementById("custPrev").disabled = true; document.getElementById("custNext").disabled = true; return; }
     var week = custWeek(prog), i, total, cur, w, key, dateT = "";
     if(week){
       dateT = custVDate(prog);
@@ -3111,53 +3225,115 @@ create policy "friends drop" on public.friends
     else if(isDone && !week && i < total - 1) h += '<div class="test"><button type="button" class="primary" data-act="cust-go" data-i="' + (i + 1) + '">Дальше: занятие ' + (i + 2) + '</button></div>';
     work.innerHTML = h;
   }
+  function tplGridHtml(cancel){
+    var h = '<p class="hint">С чего начать:</p><div class="tplgrid">';
+    CUST_TPL.forEach(function(t){
+      h += '<button type="button" class="tplcard" data-act="cust-tpl" data-k="' + t.k + '"><strong>' + esc(t.n) + '</strong><span>' + esc(t.d) + '</span></button>';
+    });
+    h += '</div>';
+    if(cancel) h += '<button type="button" class="linkbtn alt" data-act="cust-tpl-cancel">Не создавать</button>';
+    return h;
+  }
+  function exFormHtml(prog, day, di, xi){
+    var ex = day.ex[xi], circ = dayCircuit(day);
+    function at(k){ return ' data-f="ex" data-di="' + di + '" data-xi="' + xi + '" data-k="' + k + '"'; }
+    var h = '<div class="exform">';
+    h += '<label class="edwide">Название<input type="text"' + at("n") + ' value="' + esc(ex.n || "") + '" placeholder="Например, отжимания на доске"></label>';
+    h += '<div class="edfields">';
+    h += '<label>Считать<select' + at("kind") + '><option value="rep"' + (exKind(ex) !== "sec" ? " selected" : "") + '>повторы</option><option value="sec"' + (exKind(ex) === "sec" ? " selected" : "") + '>секунды</option></select></label>';
+    h += '<label>Сколько<input type="number" min="0" max="600"' + at("val") + ' value="' + exVal(ex) + '"></label>';
+    if(!circ){
+      h += '<label>Подходов<input type="number" min="1" max="30"' + at("sets") + ' value="' + exSets(ex) + '"></label>';
+      h += '<label>Пауза, мин<input type="number" min="0" max="180" step="0.5"' + at("restmin") + ' value="' + (Math.round((+ex.rest || 0) / 6) / 10) + '"></label>';
+    }
+    h += '<label>Показывать в разделе<select' + at("cat") + '>' +
+      '<option value=""' + (!ex.cat ? " selected" : "") + '>только здесь</option>' +
+      Object.keys(MTABS).map(function(tb){ return '<option value="' + tb + '"' + (ex.cat === tb ? " selected" : "") + '>' + MTABS[tb] + '</option>'; }).join("") +
+      '</select></label>';
+    h += '</div>';
+    h += '<label class="edwide">Подсказка по технике<input type="text"' + at("hint") + ' value="' + esc(ex.hint || "") + '" placeholder="Необязательно"></label>';
+    h += '</div>';
+    return h;
+  }
+  function exSummary(day, ex){
+    var circ = dayCircuit(day), v = exVal(ex);
+    var unit = exKind(ex) === "sec" ? (v >= 90 ? Math.round(v / 60) + " мин" : v + " с") : v + " повт.";
+    if(circ) return unit + " в каждом круге";
+    return exSets(ex) + " × " + unit + " · пауза " + restWord(+ex.rest || 0);
+  }
+  function dayPlanHtml(day){
+    var ex = dayEx(day);
+    if(!ex.length) return '<p class="hint plan">Добавь хотя бы одно упражнение.</p>';
+    var pl = custPlan(day), h = '<p class="hint plan"><strong>Как пойдёт занятие.</strong> ';
+    if(dayCircuit(day)){
+      var seq = ex.map(function(e){ return exName(e) + " " + exVal(e); });
+      h += seq.join(" → пауза → ") + " → пауза → " + seq[0] + " … и так " + dayRounds(day) + " " + plural(dayRounds(day), ["круг","круга","кругов"]) + ".";
+    } else {
+      h += ex.map(function(e){ return exName(e) + " " + exSets(e) + "×" + exVal(e); }).join(", затем ") + ".";
+    }
+    h += ' Всего ' + pl.sets + " " + plural(pl.sets, SETS) + ", примерно " + pl.mins + " " + plural(pl.mins, ["минута","минуты","минут"]) + ".</p>";
+    return h;
+  }
   function renderCustEditor(){
     var prog = custCur(), box = document.getElementById("custEditor");
-    if(!prog){ box.innerHTML = '<p class="hint">Нажми «Новая программа», чтобы начать.</p>'; return; }
+    if(!box) return;
+    if(!prog || custTplOpen){ box.innerHTML = tplGridHtml(!!prog); return; }
     var week = custWeek(prog);
     var h = '<div class="edrow"><label class="edwide">Название программы<input type="text" data-f="prog" data-k="name" value="' + esc(prog.name || "") + '" placeholder="Например, силовая на неделю"></label>' +
       (week ? "" : '<label>Занятий в цикле<input type="number" min="1" max="120" step="1" data-f="prog" data-k="count" value="' + custCount(prog) + '"></label>') + '</div>';
-    h += '<div class="edrow"><span class="seg-label">Как идут занятия</span></div>' +
-      '<div class="seg" role="radiogroup" aria-label="Расписание программы">' +
+    h += '<div class="modebox"><span class="seg-label">Расписание</span><div class="seg" role="radiogroup" aria-label="Расписание программы">' +
       '<button type="button" role="radio" data-act="cust-sched" data-v="chain" aria-checked="' + (!week) + '">Цепочкой</button>' +
-      '<button type="button" role="radio" data-act="cust-sched" data-v="week" aria-checked="' + week + '">По дням недели</button></div>';
+      '<button type="button" role="radio" data-act="cust-sched" data-v="week" aria-checked="' + week + '">По дням недели</button></div></div>';
     h += '<p class="hint">' + (week
-      ? "Отметь дни недели для каждого дня программы. Занятия будут появляться по расписанию, а отметки храниться по датам."
-      : "Дни идут по кругу: если описать два дня и поставить 12 занятий, они будут чередоваться шесть раз.") + '</p>';
+      ? "Занятие появляется в отмеченные дни недели, отметки хранятся по датам."
+      : "Дни идут по кругу: опишешь два дня и поставишь 12 занятий — они будут чередоваться шесть раз.") + '</p>';
+
     prog.days.forEach(function(day, di){
-      h += '<div class="edday"><div class="edrow"><label class="edwide">День ' + (di + 1) + '<input type="text" data-f="day" data-di="' + di + '" data-k="name" value="' + esc(day.name || "") + '" placeholder="Название дня"></label>' +
-        '<button type="button" class="danger" data-act="cust-delday" data-di="' + di + '">Удалить день</button></div>';
+      var circ = dayCircuit(day), ex = dayEx(day), pl = custPlan(day);
+      h += '<div class="edday"><div class="edrow"><label class="edwide">Название дня<input type="text" data-f="day" data-di="' + di + '" data-k="name" value="' + esc(day.name || "") + '" placeholder="День ' + (di + 1) + '"></label>' +
+        (prog.days.length > 1 ? '<button type="button" class="danger" data-act="cust-delday" data-di="' + di + '">Удалить день</button>' : "") + '</div>';
       if(week){
-        h += '<div class="wdrow">';
+        h += '<div class="wdrow" role="group" aria-label="Дни недели">';
         WDN.forEach(function(w2, wi){
           var on = (day.wd || []).indexOf(wi) >= 0;
           h += '<button type="button" class="wdbtn" data-act="cust-wd" data-di="' + di + '" data-w="' + wi + '" aria-pressed="' + on + '">' + w2 + '</button>';
         });
         h += '</div>';
       }
-      (day.ex || []).forEach(function(ex, xi){
-        h += '<div class="edex"><input type="text" class="edname" data-f="ex" data-di="' + di + '" data-xi="' + xi + '" data-k="n" value="' + esc(ex.n || "") + '" placeholder="Название упражнения">' +
-          '<div class="edfields">' +
-          '<label>Подходы<input type="number" min="1" max="30" data-f="ex" data-di="' + di + '" data-xi="' + xi + '" data-k="sets" value="' + (ex.sets || 1) + '"></label>' +
-          '<label>Считать<select data-f="ex" data-di="' + di + '" data-xi="' + xi + '" data-k="kind"><option value="rep"' + (ex.kind !== "sec" ? " selected" : "") + '>повторы</option><option value="sec"' + (ex.kind === "sec" ? " selected" : "") + '>секунды</option></select></label>' +
-          '<label>Сколько<input type="number" min="0" max="600" data-f="ex" data-di="' + di + '" data-xi="' + xi + '" data-k="val" value="' + (ex.val || 0) + '"></label>' +
-          '<label>Отдых, мин<input type="number" min="0" max="180" step="0.5" data-f="ex" data-di="' + di + '" data-xi="' + xi + '" data-k="restmin" value="' + (Math.round((+ex.rest || 0) / 6) / 10) + '"></label>' +
-          '<label>Раздел<select data-f="ex" data-di="' + di + '" data-xi="' + xi + '" data-k="cat">' +
-            '<option value=""' + (!ex.cat ? " selected" : "") + '>только здесь</option>' +
-            Object.keys(MTABS).map(function(tb3){ return '<option value="' + tb3 + '"' + (ex.cat === tb3 ? " selected" : "") + '>' + MTABS[tb3] + '</option>'; }).join("") +
-          '</select></label>' +
-          '</div>' +
-          '<input type="text" data-f="ex" data-di="' + di + '" data-xi="' + xi + '" data-k="hint" value="' + esc(ex.hint || "") + '" placeholder="Подсказка по технике, если нужна">' +
-          '<button type="button" class="linkbtn alt" style="margin-top:8px" data-act="cust-delex" data-di="' + di + '" data-xi="' + xi + '">Убрать упражнение</button></div>';
+      h += '<div class="modebox"><span class="seg-label">Упражнения</span><div class="seg" role="radiogroup" aria-label="Как идут упражнения">' +
+        '<button type="button" role="radio" data-act="cust-mode" data-di="' + di + '" data-v="seq" aria-checked="' + (!circ) + '">По очереди</button>' +
+        '<button type="button" role="radio" data-act="cust-mode" data-di="' + di + '" data-v="circuit" aria-checked="' + circ + '">Чередовать</button></div></div>';
+      h += '<p class="hint">' + (circ
+        ? "В круге по одному подходу на каждое упражнение, между подходами общая пауза. Круг повторяется нужное число раз."
+        : "Сначала все подходы первого упражнения, потом второго и так далее. Пауза задаётся у каждого упражнения своя.") + '</p>';
+      if(circ){
+        h += '<div class="edfields"><label>Кругов<input type="number" min="1" max="60" data-f="day" data-di="' + di + '" data-k="rounds" value="' + dayRounds(day) + '"></label>' +
+          '<label>Пауза между подходами, мин<input type="number" min="0" max="60" step="0.5" data-f="day" data-di="' + di + '" data-k="restmin" value="' + (Math.round(dayRest(day) / 6) / 10) + '"></label></div>';
+      }
+      h += '<ul class="exlist">';
+      ex.forEach(function(e, xi){
+        var open = custExOpen === di + "-" + xi;
+        h += '<li class="exrow' + (open ? " open" : "") + '">' +
+          '<div class="exhead"><button type="button" class="exopen" data-act="cust-exopen" data-di="' + di + '" data-xi="' + xi + '" aria-expanded="' + open + '">' +
+          '<b>' + esc(exName(e)) + '</b><span>' + esc(exSummary(day, e)) + (e.cat ? " · в разделе " + MTABS[e.cat] : "") + '</span></button>' +
+          '<span class="exbtns">' +
+          '<button type="button" class="exbtn" data-act="cust-exup" data-di="' + di + '" data-xi="' + xi + '" aria-label="Выше"' + (xi === 0 ? " disabled" : "") + '>↑</button>' +
+          '<button type="button" class="exbtn" data-act="cust-exdown" data-di="' + di + '" data-xi="' + xi + '" aria-label="Ниже"' + (xi === ex.length - 1 ? " disabled" : "") + '>↓</button>' +
+          '<button type="button" class="exbtn del" data-act="cust-delex" data-di="' + di + '" data-xi="' + xi + '" aria-label="Убрать упражнение">✕</button></span></div>' +
+          (open ? exFormHtml(prog, day, di, xi) : "") + '</li>';
       });
-      h += '<button type="button" class="linkbtn" data-act="cust-addex" data-di="' + di + '">Добавить упражнение</button></div>';
+      h += '</ul>';
+      h += '<button type="button" class="linkbtn" data-act="cust-addex" data-di="' + di + '">Добавить упражнение</button>';
+      h += dayPlanHtml(day);
+      h += '</div>';
     });
+
     h += '<div class="test"><button type="button" class="linkbtn" style="margin-top:0" data-act="cust-addday">Добавить день</button>' +
       '<button type="button" class="danger" data-act="cust-delprog">Удалить программу</button></div>';
     var mounted = Object.keys(MTABS).filter(function(tb4){ return state.custom.mount && state.custom.mount[tb4] === prog.id; });
-    h += '<div class="test savebar"><button type="button" class="primary" data-act="cust-save">Сохранить и разложить по разделам</button></div>';
-    h += '<p class="hint">Упражнения с выбранным разделом заменят там стандартную программу: в разделе останется только то, что ты добавил. Отметки стандартной программы сохранятся и вернутся, если нажать «Вернуть стандартную программу».' +
-      (mounted.length ? ' Сейчас эта программа стоит в разделах: ' + mounted.map(function(tb5){ return MTABS[tb5]; }).join(", ") + '.' : '') + '</p>';
+    h += '<div class="test savebar"><button type="button" class="primary" data-act="cust-save">Разложить по разделам</button></div>';
+    h += '<p class="hint">Отметки сохраняются сразу, кнопка нужна только для раздачи упражнений по разделам: те, у которых выбран раздел, заменят там стандартную программу. Стандартные отметки сохранятся и вернутся по кнопке «Вернуть стандартную программу».' +
+      (mounted.length ? ' Сейчас программа стоит в разделах: ' + mounted.map(function(tb5){ return MTABS[tb5]; }).join(", ") + '.' : '') + '</p>';
     box.innerHTML = h;
   }
   function renderCustom(){ renderCustPick(); renderCustStatus(); renderCustWork(); renderCustEditor(); }
@@ -3169,7 +3345,9 @@ create policy "friends drop" on public.friends
       else if(k === "count") prog.count = Math.max(1, Math.min(120, parseInt(v, 10) || 1));
     } else if(f === "day"){
       var day = prog.days[+el.getAttribute("data-di")]; if(!day) return;
-      day.name = v.slice(0, 40);
+      if(k === "rounds") day.rounds = Math.max(1, Math.min(60, parseInt(v, 10) || 1));
+      else if(k === "restmin") day.rest = Math.max(0, Math.min(3600, Math.round((parseFloat(v) || 0) * 60)));
+      else day.name = v.slice(0, 40);
     } else if(f === "ex"){
       var d2 = prog.days[+el.getAttribute("data-di")]; if(!d2) return;
       var ex = d2.ex[+el.getAttribute("data-xi")]; if(!ex) return;
@@ -3191,7 +3369,7 @@ create policy "friends drop" on public.friends
     var out = [];
     (prog.days || []).forEach(function(d){
       var ex = (d.ex || []).filter(function(e){ return e.cat === tab; });
-      if(ex.length) out.push({name: d.name, ex: ex});
+      if(ex.length) out.push({name: d.name, ex: ex, mode: d.mode, rounds: d.rounds, rest: d.rest});
     });
     return out;
   }
@@ -3199,16 +3377,8 @@ create policy "friends drop" on public.friends
   function mountedBuild(tab, prog, i){
     var days = mountedDays(prog, tab);
     if(!days.length || i < 0 || i >= custCount(prog)) return null;
-    var day = days[i % days.length], list = maker(), groups = [];
-    day.ex.forEach(function(ex){
-      var n = Math.max(1, Math.min(30, +ex.sets || 1)), val = Math.max(0, Math.min(600, +ex.val || 0));
-      var amount = ex.kind === "sec"
-        ? n + " " + plural(n, SETS) + " по " + val + " " + plural(val, ["секунде","секунды","секунд"])
-        : n + " " + plural(n, SETS) + " по " + val + " " + plural(val, ["повторению","повторения","повторений"]);
-      groups.push({title: ex.n || "Упражнение", hint: amount + (ex.hint ? ". " + ex.hint : ""),
-        rows: [list(n, val, ex.kind === "sec" ? "sec" : "rep", +ex.rest || 0, +ex.rest || 0)]});
-    });
-    return {no: i + 1, title: day.name || ("День " + ((i % days.length) + 1)), groups: groups};
+    var day = days[i % days.length];
+    return {no: i + 1, title: day.name || ("День " + ((i % days.length) + 1)), groups: custGroupsOf(day)};
   }
   function mountedDone(tab, prog, i){
     var w = mountedBuild(tab, prog, i); if(!w) return false;
@@ -3250,8 +3420,7 @@ create policy "friends drop" on public.friends
       'Стандартная программа раздела никуда не делась: отметки в ней сохранены и вернутся вместе с ней. <span class="muted">Пройдено ' + done + ' из ' + total + '.</span></p>' +
       '<button type="button" class="linkbtn alt" data-act="m-unmount" data-tab="' + tab + '">Вернуть стандартную программу</button></div>';
     h += '<div class="pnav"><button type="button" data-act="m-prev" data-tab="' + tab + '" aria-label="Предыдущее занятие"' + (idx === 0 ? " disabled" : "") + '>‹</button>' +
-      '<p>Занятие <strong>' + (idx + 1) + '</strong> из ' + total + ', ' + esc(w ? w.title : "") +
- + '</p>' +
+      '<p>Занятие <strong>' + (idx + 1) + '</strong> из ' + total + ', ' + esc(w ? w.title : "") + '</p>' +
       '<button type="button" data-act="m-next" data-tab="' + tab + '" aria-label="Следующее занятие"' + (idx === total - 1 ? " disabled" : "") + '>›</button></div>';
     if(w){
       var st2 = statsOf(w, key);
@@ -5788,7 +5957,47 @@ create policy "friends drop" on public.friends
       flash(mval === "short" ? "Режим «Подряд»: подходы с коротким отдыхом" : "Режим «На весь день»: подходы с длинным отдыхом");
       return;
     }
-    if(act === "cust-new"){ custNew(); return; }
+    if(act === "cust-new"){ custTplOpen = true; custExOpen = null; render(); scrollTo(document.getElementById("custEditor")); return; }
+    if(act === "cust-tpl"){ custNew(b.getAttribute("data-k")); scrollTo(document.getElementById("custEditor")); return; }
+    if(act === "cust-tpl-cancel"){ custTplOpen = false; render(); return; }
+    if(act === "cust-exopen"){
+      var ok = b.getAttribute("data-di") + "-" + b.getAttribute("data-xi");
+      custExOpen = custExOpen === ok ? null : ok;
+      renderCustEditor();
+      return;
+    }
+    if(act === "cust-mode"){
+      var cmp = custCur(); if(!cmp) return;
+      var cmd = cmp.days[+b.getAttribute("data-di")]; if(!cmd) return;
+      var want = b.getAttribute("data-v") === "circuit" ? "circuit" : "seq";
+      if(cmd.mode === want) return;
+      cmd.mode = want;
+      if(want === "circuit"){
+        var mx = 1;
+        (cmd.ex || []).forEach(function(e){ mx = Math.max(mx, exSets(e)); });
+        if(!cmd.rounds || cmd.rounds === 1) cmd.rounds = Math.max(1, Math.min(60, mx));
+        if(cmd.rest == null) cmd.rest = Math.max(0, +(cmd.ex && cmd.ex[0] && cmd.ex[0].rest) || 60);
+      } else {
+        var rr = dayRounds(cmd), rs = dayRest(cmd);
+        (cmd.ex || []).forEach(function(e){
+          if(exSets(e) <= 1) e.sets = rr;
+          if(!(+e.rest)) e.rest = rs;
+        });
+      }
+      save(); render();
+      flash(want === "circuit" ? "Упражнения пойдут по кругу" : "Упражнения пойдут по очереди");
+      return;
+    }
+    if(act === "cust-exup" || act === "cust-exdown"){
+      var cup = custCur(); if(!cup) return;
+      var cud = cup.days[+b.getAttribute("data-di")]; if(!cud) return;
+      var xi0 = +b.getAttribute("data-xi"), xi1 = xi0 + (act === "cust-exdown" ? 1 : -1);
+      if(xi1 < 0 || xi1 >= cud.ex.length) return;
+      var tmp = cud.ex[xi0]; cud.ex[xi0] = cud.ex[xi1]; cud.ex[xi1] = tmp;
+      if(custExOpen === b.getAttribute("data-di") + "-" + xi0) custExOpen = b.getAttribute("data-di") + "-" + xi1;
+      save(); render();
+      return;
+    }
     if(act === "cust-save"){ custSave(); return; }
     if(act === "m-unmount"){ var ut = b.getAttribute("data-tab"); if(state.custom.mount) state.custom.mount[ut] = null; save(); render(); flash("Стандартная программа вернулась"); return; }
     if(act === "m-go" || act === "m-prev" || act === "m-next"){
@@ -5837,13 +6046,35 @@ create policy "friends drop" on public.friends
       save(); render();
       return;
     }
-    if(act === "cust-addday"){ var cp2 = custCur(); if(!cp2) return; cp2.days.push({name: "День " + (cp2.days.length + 1), ex: [{n: "Упражнение", sets: 3, kind: "rep", val: 10, rest: 120, hint: ""}]}); save(); render(); return; }
+    if(act === "cust-addday"){
+      var cp2 = custCur(); if(!cp2) return;
+      cp2.days.push({name: "День " + (cp2.days.length + 1), mode: "seq", rounds: 3, rest: 60,
+        ex: [{n: "Упражнение", sets: 3, kind: "rep", val: 10, rest: 120, hint: "", cat: ""}]});
+      if(custWeek(cp2)) cp2.days[cp2.days.length - 1].wd = [];
+      save(); render(); return;
+    }
     if(act === "cust-delday"){
       var cp3 = custCur(); if(!cp3 || cp3.days.length < 2) { flash("В программе должен остаться хотя бы один день"); return; }
       cp3.days.splice(+b.getAttribute("data-di"), 1); save(); render(); return;
     }
-    if(act === "cust-addex"){ var cp4 = custCur(); if(!cp4) return; var d4 = cp4.days[+b.getAttribute("data-di")]; if(d4){ d4.ex.push({n: "Упражнение", sets: 3, kind: "rep", val: 10, rest: 120, hint: ""}); save(); render(); } return; }
-    if(act === "cust-delex"){ var cp5 = custCur(); if(!cp5) return; var d5 = cp5.days[+b.getAttribute("data-di")]; if(d5){ d5.ex.splice(+b.getAttribute("data-xi"), 1); save(); render(); } return; }
+    if(act === "cust-addex"){
+      var cp4 = custCur(); if(!cp4) return;
+      var di4 = +b.getAttribute("data-di"), d4 = cp4.days[di4];
+      if(d4){
+        var prev = d4.ex[d4.ex.length - 1];
+        d4.ex.push({n: "", sets: prev ? exSets(prev) : 3, kind: prev ? exKind(prev) : "rep",
+          val: prev ? exVal(prev) : 10, rest: prev ? (+prev.rest || 0) : 120, hint: "", cat: prev ? (prev.cat || "") : ""});
+        custExOpen = di4 + "-" + (d4.ex.length - 1);
+        save(); render();
+      }
+      return;
+    }
+    if(act === "cust-delex"){
+      var cp5 = custCur(); if(!cp5) return;
+      var d5 = cp5.days[+b.getAttribute("data-di")];
+      if(d5){ d5.ex.splice(+b.getAttribute("data-xi"), 1); custExOpen = null; save(); render(); flash("Упражнение убрано"); }
+      return;
+    }
     if(act === "cust-delprog"){
       if(!b.classList.contains("armed")){
         b.classList.add("armed"); b.textContent = "Точно удалить?";
