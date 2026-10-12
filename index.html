@@ -1842,7 +1842,7 @@ create policy "friends drop" on public.friends
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzd3FsYmpsa3Bncm55a2dnY3pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwNDIyNDUsImV4cCI6MjEwNjYxODI0NX0.KQMAqfGyNr1NeLMKu3iRuufLaZ5DEMRj2sc1ulkK5QY"
   ]};
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 1, APP_BUILD_N = 21;
+  var APP_MAJOR = 1, APP_BUILD_N = 22;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
   var theme = "light";
@@ -3053,7 +3053,7 @@ create policy "friends drop" on public.friends
     hub:  {c: "blue",  x: 127, y: 88,  r: 13},
     gbot: {c: "green", x: 142, y: 144, r: 13},
     rtop: {c: "red",   x: 226, y: 37,  r: 13},
-    gmid: {c: "green", x: 243, y: 88,  r: 13},
+    gmid: {c: "green", x: 250, y: 88,  r: 13},
     bbot: {c: "blue",  x: 228, y: 144, r: 13},
     rin1: {c: "red",   x: 332, y: 37,  r: 13},
     rin2: {c: "red",   x: 310, y: 146, r: 13}
@@ -3061,8 +3061,8 @@ create policy "friends drop" on public.friends
   var BLINE = [
     ["blue", "o1", "o2"], ["blue", "b2", "o2"], ["blue", "hub", "bbot"],
     ["green", "o2", "hub"], ["green", "hub", "gmid"], ["green", "gmid", "gbot"],
-    ["yellow", "b2", "hub"], ["yellow", "hub", "gbot"], ["yellow", "gbot", "o2"],
-    ["red", "rin1", "rin2"], ["red", "rtop", "gmid"], ["red", "gmid", "bbot"], ["red", "rtop", "hub"]
+    ["yellow", "b2", "gbot"], ["yellow", "gbot", "o2"],
+    ["red", "rin1", "rin2"], ["red", "rtop", "bbot"], ["red", "rtop", "hub"]
   ];
   function pairCol(pr){
     for(var i = 0; i < BLINE.length; i++){
@@ -3109,10 +3109,19 @@ create policy "friends drop" on public.friends
         s += '<circle cx="' + cx + '" cy="' + pz.y + '" r="' + (pz.r + 5) + '" fill="none" stroke="' + col2 + '" stroke-width="' + (hot2 && !all ? 7 : 5) + '" opacity="' + (hot2 ? "1" : ".3") + '"/>';
       });
     }
+    var placed = [];
     if(num) pairs.forEach(function(pr, i){
       var a = BHOLE[pr[0]], b = BHOLE[pr[1]];
       if(!a || !b) return;
-      var col = BCOL[pairCol(pr)], mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+      // номер ставим на середину линии, а если там уже стоит другой — сдвигаем вдоль своей линии
+      var best = null, bestD = -1;
+      [0.5, 0.36, 0.64].forEach(function(t){
+        var x = a.x + (b.x - a.x) * t, y = a.y + (b.y - a.y) * t, d = 1e9;
+        placed.forEach(function(q){ d = Math.min(d, Math.sqrt((q[0] - x) * (q[0] - x) + (q[1] - y) * (q[1] - y))); });
+        if(best == null || (bestD < 36 && d > bestD)){ best = [x, y]; bestD = d; }
+      });
+      placed.push(best);
+      var col = BCOL[pairCol(pr)], mx = best[0], my = Math.round(best[1]);
       [mx, mir(mx)].forEach(function(cx){
         s += '<circle cx="' + cx.toFixed(1) + '" cy="' + my + '" r="16" fill="' + col + '"/>' +
           '<text x="' + cx.toFixed(1) + '" y="' + (my + 7) + '" text-anchor="middle" font-size="21" font-weight="700" fill="#fff">' + (i + 1) + '</text>';
@@ -3130,7 +3139,7 @@ create policy "friends drop" on public.friends
       h2 += '<li><i style="color:' + BCOL[c] + '"></i>' + BMUS[c] + '</li>';
     });
     h2 += '</ul>';
-    h2 += '<p class="hint">На половине десять отверстий и тринадцать линий: три синих, три зелёных, три жёлтых и четыре красных. Чем ближе линия к стыку половин, тем уже встают руки: красная пара у стыка даёт 10–15 см, крайняя синяя у ручки — около 70 см.</p>';
+    h2 += '<p class="hint">На половине десять отверстий и одиннадцать линий: по три синих, зелёных и красных и две жёлтых. Линия соединяет только два отверстия на своих концах: если она проходит рядом с третьим, упор туда не ставится. Чем ближе линия к стыку половин, тем уже встают руки: красная пара у стыка даёт 10–15 см, крайняя синяя у ручки — около 70 см.</p>';
     return h2;
   }
 
@@ -3147,18 +3156,14 @@ create policy "friends drop" on public.friends
       h: "Зелёная линия от среднего зелёного отверстия вниз-наружу к нижнему зелёному. Ручки разворачиваются к тебе, ширина самая узкая из зелёных — около 37 см. Локти прижаты, работает длинная головка трицепса."},
     triLong: {n: "Трицепс: длинная зелёная диагональ", pair: ["o2", "hub"],
       h: "Длинная зелёная линия от крайнего нижнего отверстия к центральному синему. Руки широко, около 60 см, но развёрнуты по диагонали — локти всё равно идут назад вдоль корпуса, а не в стороны."},
-    back: {n: "Спина: жёлтая линия к центру", pair: ["b2", "hub"],
-      h: "Жёлтая линия от второго верхнего отверстия к центральному синему, упор под 45°. Ширина около 55 см, кисти развёрнуты наружу. Тяни себя локтями назад, в нижней точке своди лопатки и держи секунду."},
-    backMid: {n: "Спина: жёлтая линия поперёк", pair: ["hub", "gbot"],
-      h: "Жёлтая линия от центрального синего вниз к зелёному нижнему, упор почти поперёк доски. Около 50 см, ручки смотрят на тебя. Опускайся, уводя локти назад вдоль корпуса, грудь держи раскрытой."},
+    back: {n: "Спина: длинная жёлтая диагональ", pair: ["b2", "gbot"],
+      h: "Жёлтая линия от второго синего отверстия верхнего ряда вниз к зелёному нижнему. Она проходит мимо центрального отверстия, упор в него не ставится. Ручка стоит почти поперёк доски, между ручками около 55 см, кисти развёрнуты наружу. Тяни себя локтями назад, в нижней точке своди лопатки и держи секунду."},
     backWide: {n: "Спина: жёлтая линия по нижнему ряду", pair: ["gbot", "o2"],
       h: "Жёлтая горизонталь нижнего ряда: от зелёного нижнего до крайнего нижнего отверстия. Упоры лежат вдоль доски почти на всю ширину, около 60 см. Самое сильное сведение лопаток — делай медленно."},
     shoulder: {n: "Плечи: красная пара у стыка", pair: ["rin1", "rin2"],
       h: "Красная линия у самого стыка половин, поперёк доски. Упоры встают всего в 10–15 см друг от друга и впереди головы. Подними таз выше плеч, тело складывается домиком, опускайся макушкой к полу между ручками."},
-    shoulderMid: {n: "Плечи: красная линия верхнего ряда", pair: ["rtop", "gmid"],
-      h: "Короткая красная линия поперёк доски: красное отверстие верхнего ряда и зелёное среднее. Между ручками около 30 см, ручки смотрят на тебя. Таз выше плеч, вес на передние дельты."},
-    shoulderLow: {n: "Плечи: красная линия нижнего ряда", pair: ["gmid", "bbot"],
-      h: "Вторая короткая красная линия, ниже предыдущей: зелёное среднее и синее нижнее отверстие. Та же ширина, около 30 см, но руки ближе к корпусу — плечи работают в более закрытом углу."},
+    shoulderMid: {n: "Плечи: красная линия поперёк доски", pair: ["rtop", "bbot"],
+      h: "Красная линия от красного отверстия верхнего ряда прямо вниз к синему нижнему. Она проходит мимо зелёного отверстия, упор в него не ставится. Ручка стоит поперёк доски, между ручками около 30 см. Таз выше плеч, вес на передние дельты, опускайся макушкой вперёд."},
     shoulderDiag: {n: "Плечи: длинная красная диагональ", pair: ["rtop", "hub"],
       h: "Длинная красная линия от красного отверстия верхнего ряда к центральному синему. Руки шире, около 40 см, и развёрнуты по диагонали. Таз чуть выше плеч, локти уходят назад-в стороны."},
     plank: {n: "Планка на упорах", pair: ["hub", "bbot"],
@@ -3167,8 +3172,8 @@ create policy "friends drop" on public.friends
   var BCYCLE = {
     chest: ["chest", "chestDiag", "chestWide"],
     tri: ["tri", "triDiag", "triLong"],
-    shoulder: ["shoulder", "shoulderMid", "shoulderLow", "shoulderDiag"],
-    back: ["back", "backMid", "backWide"]
+    shoulder: ["shoulder", "shoulderMid", "shoulderDiag"],
+    back: ["back", "backWide"]
   };
   function bPick(kind, block){ var a = BCYCLE[kind]; return a[block % a.length]; }
   function boardDay(ctx){
