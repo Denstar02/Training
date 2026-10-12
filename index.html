@@ -947,6 +947,95 @@ body{
   .pfoot{padding:12px;border-radius:var(--r-md)}
   .circ-it{width:86px}
 }
+
+/* ===== v1.21: океан и кольцо — два элемента с 21st.dev, развёрнутые по приложению ===== */
+:root{
+  --ocean-deep:#123A6B; --ocean-mid:#2E7CC0; --ocean-foam:#7FC6E6; --ocean-spray:#EAF7FB;
+  --tide:#5EEAD4; --tide-strong:#14B8A6;
+  --ocean-hero:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.215'/></svg>"),
+    radial-gradient(120% 150% at 100% 0%, rgba(127,198,230,.55) 0%, rgba(127,198,230,0) 52%),
+    radial-gradient(80% 140% at 0% 0%, rgba(46,124,192,.6) 0%, rgba(46,124,192,0) 60%),
+    linear-gradient(160deg, #1B4C86 0%, #143F73 50%, #0E2F58 100%);
+  --ocean-full:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.215'/></svg>"),
+    radial-gradient(150% 48.4% at 41.58% 4%, rgba(127,198,230,.55) 0%, rgba(127,198,230,0) 53%),
+    radial-gradient(150% 48.4% at 42.42% 33%, rgba(46,124,192,.75) 0%, rgba(46,124,192,0) 53%),
+    radial-gradient(150% 48.4% at 51.19% 70%, rgba(24,74,132,.9) 0%, rgba(24,74,132,0) 53%),
+    radial-gradient(150% 48.4% at 53.67% 100%, rgba(9,28,54,.95) 0%, rgba(9,28,54,0) 53%);
+}
+/* шапка карточки тренировки */
+article[id^="card-"]{--dpt:18px;--dpx:18px;--dpb:16px;padding:var(--dpt) var(--dpx) var(--dpb);overflow:hidden}
+@media (max-width:420px){article[id^="card-"]{--dpt:16px;--dpx:15px;--dpb:14px}}
+article[id^="card-"] > .day-head{margin:calc(-1 * var(--dpt)) calc(-1 * var(--dpx)) 16px;padding:16px var(--dpx) 16px;
+  background-color:var(--ocean-deep);background-image:var(--ocean-hero);background-size:120px 120px, auto, auto, auto;background-blend-mode:overlay, normal, normal, normal;
+  color:#fff;flex-wrap:nowrap;align-items:center}
+article.head-card[id^="card-"]{background:var(--ocean-deep)}
+article.head-card[id^="card-"] > .day-head{margin-bottom:calc(-1 * var(--dpb));padding-bottom:18px}
+article[id^="card-"] > .day-head > div:first-child{min-width:0}
+article[id^="card-"] > .day-head h2{color:#fff;font-size:22px;line-height:1.15;margin-top:2px;overflow-wrap:anywhere}
+article[id^="card-"] > .day-head .when{color:rgba(255,255,255,.8);text-transform:none;letter-spacing:0;font-size:var(--fs-sm);font-weight:500;margin:0}
+article[id^="card-"] > .day-head .badge{background:rgba(255,255,255,.18);color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.28);font-weight:600}
+article[id^="card-"] > .day-head .badge.ok{background:var(--tide-strong);box-shadow:none}
+article[id^="card-"] > .day-head .tally:not(.rt){color:rgba(255,255,255,.85)}
+article[id^="card-"].today{box-shadow:0 16px 36px -18px rgba(18,58,107,.55), 0 0 0 1px rgba(18,58,107,.12)}
+/* кольцо-счётчик */
+.tally.rt{position:relative;flex:0 0 auto;width:68px;height:68px;margin:-2px 0}
+.tally.rt svg{position:absolute;inset:0;width:100%;height:100%}
+.rt-track{fill:none;stroke:rgba(255,255,255,.2);stroke-width:5}
+.rt-bar{fill:none;stroke:var(--tide);stroke-width:5;stroke-linecap:round;transition:stroke-dasharray var(--dur-3) var(--ease)}
+.tally.rt.full .rt-bar{stroke:#fff}
+.rt-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;color:#fff}
+.rt-num strong{font-family:"Unbounded","Onest",system-ui,sans-serif;font-size:19px;font-weight:700;letter-spacing:-.02em;color:#fff}
+.rt-num small{font-size:10.5px;margin-top:3px;color:rgba(255,255,255,.75);font-variant-numeric:tabular-nums}
+.rt-check{position:absolute;right:-3px;bottom:-3px;width:22px;height:22px;border-radius:50%;background:var(--tide-strong);color:#fff;display:grid;place-items:center;box-shadow:0 0 0 2.5px var(--ocean-deep)}
+.rt-check svg{width:13px;height:13px}
+/* полоска таймера, когда пора: тот же океан */
+.timerbar.due{background-color:var(--ocean-deep);background-image:var(--ocean-hero);background-size:120px 120px, auto, auto, auto;background-blend-mode:overlay, normal, normal, normal;border-color:transparent;color:#fff}
+.timerbar.due .tb-do{background:#fff;color:var(--ocean-deep)}
+/* режим тренировки: целиком в океане */
+.focus{color:#fff;background-color:var(--ocean-deep);background-image:var(--ocean-full);background-size:120px 120px, auto, auto, auto, auto;background-blend-mode:overlay, normal, normal, normal, normal}
+.focus .tb-icon{color:#fff}
+.focus .fc-top{color:#fff}
+.focus .fc-ex{color:#fff}
+.focus .fc-sub,.focus .fc-bot .hint,.focus .fc-rest span{color:rgba(255,255,255,.74)}
+.focus .fc-rest strong{color:#fff}
+.focus .fc-restbtns .tb-icon{background:rgba(255,255,255,.12);border-radius:var(--r-sm)}
+.focus .fc-step{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:#fff;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.focus .fc-step:active{background:rgba(255,255,255,.22)}
+.fc-ringwrap{position:relative;width:252px;height:252px;display:grid;place-items:center;flex:0 0 auto}
+.fc-ring{position:absolute;inset:0;width:100%;height:100%}
+.fr-track{fill:none;stroke:rgba(255,255,255,.16);stroke-width:6}
+.fr-bar{fill:none;stroke:var(--tide);stroke-width:6;stroke-linecap:round;transition:stroke-dasharray var(--dur-3) var(--ease)}
+.focus .fc-big{position:relative;min-width:0;min-height:0;width:208px;height:208px;background:#fff;color:var(--ocean-deep);box-shadow:0 24px 60px -24px rgba(3,14,32,.7)}
+.focus .fc-big span{opacity:.72;color:var(--ocean-deep)}
+.focus .fc-big:focus-visible{outline:3px solid var(--tide);outline-offset:4px}
+.fc-ringwrap.done{width:132px;height:132px;margin-bottom:var(--s2)}
+.fc-ringwrap.done .fr-bar{stroke:var(--tide)}
+.fc-disc{width:100px;height:100px;border-radius:50%;background:var(--tide-strong);color:#fff;display:grid;place-items:center;box-shadow:0 18px 40px -18px rgba(3,14,32,.7)}
+.fc-disc svg{width:46px;height:46px}
+.focus .fc-big.ok{width:auto;height:auto;min-height:60px;min-width:260px;padding:0 28px;border-radius:var(--r-pill);background:#fff;color:var(--ocean-deep);font-weight:700}
+.focus .fc-big.ok b{font-size:18px}
+.focus .syncmini{color:rgba(255,255,255,.75)}
+.focus .syncmini.s-wait{color:#FCD34D}
+.focus .syncmini.s-err,.focus .syncmini.s-auth,.focus .syncmini.s-bad{color:#FCA5A5}
+@media (max-width:420px){
+  .fc-ringwrap{width:220px;height:220px}
+  .focus .fc-big{width:180px;height:180px}
+  .focus .fc-big b{font-size:50px}
+  .focus .fc-step{width:48px;height:48px}
+  .focus .fc-val{gap:var(--s2)}
+}
+@media (max-width:350px){
+  .fc-ringwrap{width:196px;height:196px}
+  .focus .fc-big{width:158px;height:158px}
+  .focus .fc-big b{font-size:42px}
+}
+@media (prefers-reduced-motion: reduce){.rt-bar,.fr-bar{transition:none}}
+@media (hover:none) and (pointer:coarse){.focus .fc-bot .hint{display:none}}
+.group.has-anim > .holdbtn{grid-column:1 / -1;justify-self:start}
+/* второстепенные карточки — стекло, чтобы главная карточка была одна */
+@supports (backdrop-filter: blur(10px)) and (background: color-mix(in srgb, white 50%, transparent)){
+  .phead,.pfoot{background:color-mix(in srgb, var(--surface) 72%, transparent);-webkit-backdrop-filter:blur(14px) saturate(1.15);backdrop-filter:blur(14px) saturate(1.15);box-shadow:none}
+}
 </style>
 </head>
 <body>
@@ -1753,7 +1842,7 @@ create policy "friends drop" on public.friends
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzd3FsYmpsa3Bncm55a2dnY3pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwNDIyNDUsImV4cCI6MjEwNjYxODI0NX0.KQMAqfGyNr1NeLMKu3iRuufLaZ5DEMRj2sc1ulkK5QY"
   ]};
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 1, APP_BUILD_N = 20;
+  var APP_MAJOR = 1, APP_BUILD_N = 21;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
   var theme = "light";
@@ -2250,6 +2339,17 @@ create policy "friends drop" on public.friends
       h += '</div>';
     });
     return h;
+  }
+  // счётчик в шапке карточки: кольцо, как у аватара, и галочка, когда всё отмечено
+  var CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 12.5l4 4L18.5 7.5"/></svg>';
+  function tallyRing(val, total, unit, numKey, full){
+    var f = total ? Math.max(0, Math.min(1, val / total)) : 0, R = 27, Cc = 2 * Math.PI * R;
+    if(full) f = 1;
+    return '<div class="tally rt' + (full ? " full" : "") + '" role="img" aria-label="Сделано ' + val + " из " + total + " " + unit + '">' +
+      '<svg viewBox="0 0 64 64" aria-hidden="true"><circle class="rt-track" cx="32" cy="32" r="' + R + '"/>' +
+      '<circle class="rt-bar" cx="32" cy="32" r="' + R + '" stroke-dasharray="' + (f * Cc).toFixed(1) + ' ' + Cc.toFixed(1) + '" transform="rotate(-90 32 32)"/></svg>' +
+      '<span class="rt-num" aria-hidden="true"><strong' + (numKey ? ' data-num="' + numKey + '"' : "") + '>' + val + '</strong><small>из ' + total + '</small></span>' +
+      (full ? '<span class="rt-check" aria-hidden="true">' + CHECK_SVG + '</span>' : "") + '</div>';
   }
   // низ карточки: режим тренировки, заметка и одна строка служебного
   var PLAY_IC = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.6v12.8a.9.9 0 0 0 1.37.77l10.2-6.4a.9.9 0 0 0 0-1.54L9.37 4.83A.9.9 0 0 0 8 5.6z"/></svg>';
@@ -2887,7 +2987,7 @@ create policy "friends drop" on public.friends
         h += '</div>';
       } else {
         var s2 = statsOf(w, key), wm = C.modeOf(i);
-        h += '<div class="tally"><strong data-num="t-' + key + '">' + s2.reps + '</strong> из ' + s2.planned + ' повт.</div></div>';
+        h += tallyRing(s2.reps, s2.planned, plural(s2.planned, ["повторения","повторений","повторений"]), "t-" + key, s2.plan > 0 && s2.done >= s2.plan) + '</div>';
         if(wm !== C.mode()) h += '<p class="hint modenote">Эту тренировку ты начал в темпе «' + MODES[wm].label + '», поэтому подходы и отметки показаны в нём. Следующие пойдут в темпе «' + MODES[C.mode()].label + '».</p>';
         h += groupsHtml(w, key);
         h += cardFoot(key, w.next);
@@ -3734,7 +3834,7 @@ create policy "friends drop" on public.friends
     h += '<article class="day head-card" id="card-' + key + '"><div class="day-head"><div><p class="when">' +
       (week ? esc(w.when) : "Занятие " + (i + 1)) +
       (isCur ? ' <span class="badge">текущее</span>' : isDone ? ' <span class="badge ok">готово</span>' : "") + '</p><h2>' + esc(w.title) + '</h2></div>' +
-      '<div class="tally"><strong>' + st2.done + '</strong> из ' + st2.plan + " " + plural(st2.plan, SETS) + '</div></div></article>';
+      tallyRing(st2.done, st2.plan, plural(st2.plan, ["подхода","подходов","подходов"]), "", st2.plan > 0 && st2.done >= st2.plan) + '</div></article>';
     w.groups.forEach(function(g, gi){ h += '<article class="day">' + groupsHtml({groups: [g]}, key, gi) + '</article>'; });
     h += '<article class="day cfcard">' + cardFoot(key, "") + '</article>';
     if(!isDone && allLogged(w, key)) h += finishHtml(key);
@@ -3949,7 +4049,7 @@ create policy "friends drop" on public.friends
       if(idx !== cur) h += '<div class="jumprow"><button type="button" class="linkbtn alt" data-act="m-go" data-tab="' + tab + '" data-i="' + cur + '">Перейти к занятию ' + (cur + 1) + '</button></div>';
       h += '<main><article class="day head-card" id="card-' + key + '"><div class="day-head"><div><p class="when">Занятие ' + (idx + 1) +
         (idx === cur ? ' <span class="badge">текущее</span>' : mountedDone(tab, prog, idx) ? ' <span class="badge ok">готово</span>' : "") + '</p><h2>' + esc(w.title) + '</h2></div>' +
-        '<div class="tally"><strong>' + st2.done + '</strong> из ' + st2.plan + " " + plural(st2.plan, SETS) + '</div></div></article>';
+        tallyRing(st2.done, st2.plan, plural(st2.plan, ["подхода","подходов","подходов"]), "", st2.plan > 0 && st2.done >= st2.plan) + '</div></article>';
       w.groups.forEach(function(g, gi2){ h += '<article class="day">' + groupsHtml({groups: [g]}, key, gi2) + '</article>'; });
       if(!mountedDone(tab, prog, idx) && allLogged(w, key)) h += finishHtml(key);
       else if(mountedDone(tab, prog, idx) && idx < total - 1) h += '<div class="test"><button type="button" class="primary" data-act="m-go" data-tab="' + tab + '" data-i="' + (idx + 1) + '">Дальше: занятие ' + (idx + 2) + '</button></div>';
@@ -4741,7 +4841,7 @@ create policy "friends drop" on public.friends
     if(i !== cur) h += '<div class="jumprow"><button type="button" class="linkbtn alt" data-act="tgo" data-i="' + cur + '">Перейти к занятию ' + (cur + 1) + '</button></div>';
     h += '<article class="day head-card" id="card-' + key + '"><div class="day-head"><div><p class="when">Занятие ' + (i + 1) +
       (i === cur ? ' <span class="badge">текущее</span>' : tDone(i) ? ' <span class="badge ok">готово</span>' : "") + '</p><h2>' + esc(w.title) + '</h2></div>' +
-      '<div class="tally"><strong>' + st2.done + '</strong> из ' + st2.plan + " " + plural(st2.plan, SETS) + '</div></div></article>';
+      tallyRing(st2.done, st2.plan, plural(st2.plan, ["подхода","подходов","подходов"]), "", st2.plan > 0 && st2.done >= st2.plan) + '</div></article>';
     w.groups.forEach(function(g, gi){
       h += '<article class="day">' + groupsHtml({groups: [g]}, key, gi) + '</article>';
     });
@@ -5996,6 +6096,11 @@ create policy "friends drop" on public.friends
     if(soundOn) playSig(tabOfKey(focusKey), "rep");
     try { if(navigator.vibrate) navigator.vibrate(30); } catch(e){}
   }
+  function focusRing(f, R){
+    var Cc = 2 * Math.PI * R, sz = 2 * R + 12;
+    return '<svg class="fc-ring" viewBox="0 0 ' + sz + ' ' + sz + '" aria-hidden="true"><circle class="fr-track" cx="' + sz / 2 + '" cy="' + sz / 2 + '" r="' + R + '"/>' +
+      '<circle class="fr-bar" cx="' + sz / 2 + '" cy="' + sz / 2 + '" r="' + R + '" stroke-dasharray="' + (Math.max(0, Math.min(1, f)) * Cc).toFixed(1) + ' ' + Cc.toFixed(1) + '" transform="rotate(-90 ' + sz / 2 + ' ' + sz / 2 + ')"/></svg>';
+  }
   function renderFocus(){
     var box = document.getElementById("focus");
     if(!box) return;
@@ -6008,7 +6113,8 @@ create policy "friends drop" on public.friends
     var h = '<div class="fc-top"><span>' + esc(w.title || "Тренировка") + '<span class="syncmini" data-syncpill data-mini hidden></span></span>' +
       '<button type="button" class="tb-icon" data-act="focus-close" aria-label="Выйти из режима тренировки">✕</button></div>';
     if(info.done){
-      h += '<div class="fc-mid"><p class="fc-ex">Все подходы отмечены</p>' +
+      h += '<div class="fc-mid"><div class="fc-ringwrap done" aria-hidden="true">' + focusRing(1, 120) + '<span class="fc-disc">' + CHECK_SVG + '</span></div>' +
+        '<p class="fc-ex">Все подходы отмечены</p>' +
         '<p class="fc-sub">' + info.total + " " + plural(info.total, SETS) + ' закрыто. Можно завершать.</p>' +
         '<button type="button" class="fc-big ok" data-act="focus-finish">Завершить тренировку</button></div>';
     } else {
@@ -6016,10 +6122,10 @@ create policy "friends drop" on public.friends
       h += '<div class="fc-mid"><p class="fc-ex">' + esc(info.group.title) + '</p>' +
         '<p class="fc-sub">Подход ' + info.n + ' из ' + info.total + (sec ? ", держать " + it.target + " с" : "") + '</p>' +
         '<div class="fc-val"><button type="button" class="fc-step" data-act="focus-less" aria-label="Меньше">−</button>' +
-        '<button type="button" class="fc-big" data-act="focus-mark"><b>' + val + '</b><span>' + (sec ? "секунд — отметить" : "повторений — отметить") + '</span></button>' +
+        '<div class="fc-ringwrap">' + focusRing(info.total ? (info.n - 1) / info.total : 0, 120) +
+        '<button type="button" class="fc-big" data-act="focus-mark"><b>' + val + '</b><span>' + (sec ? "секунд — отметить" : "повторений — отметить") + '</span></button></div>' +
         '<button type="button" class="fc-step" data-act="focus-more" aria-label="Больше">+</button></div>';
-      var pct = info.total ? Math.round(100 * (info.n - 1) / info.total) : 0;
-      h += '<div class="fc-bar"><i style="width:' + pct + '%"></i></div></div>';
+      h += '<p class="vh">Отмечено ' + (info.n - 1) + ' из ' + info.total + '</p></div>';
     }
     h += '<div class="fc-bot">';
     if(t && left > 0){
