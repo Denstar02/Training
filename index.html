@@ -889,6 +889,64 @@ body{
   .hd-arrow{width:42px}
   .tabs button .tprog{left:12px;right:12px}
 }
+
+/* ===== v1.20: карточка тренировки компактнее ===== */
+.howbtn{appearance:none;-webkit-appearance:none;border:0;background:none;padding:4px 0;margin:2px 0 0;min-height:32px;color:var(--accent);font:inherit;font-size:var(--fs-sm);font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.howbtn::after{content:"";width:6px;height:6px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(-2px) rotate(45deg);transition:transform var(--dur-2) var(--ease)}
+.howbtn[aria-expanded="true"]::after{transform:translateY(1px) rotate(-135deg)}
+.howbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+.gtext .howmore{margin-top:6px}
+/* круговая: текущий круг крупно, остальные полосой */
+.circ{margin-top:12px;padding:12px 12px 14px;border-radius:var(--r-md);background:var(--bg);border:1px solid var(--line)}
+.group.has-anim > .circ{grid-column:1 / -1;margin-top:2px}
+.circ-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.circ-now{margin:0;display:flex;flex-direction:column;gap:2px;min-width:0}
+.circ-now b{font-size:var(--fs-md);font-weight:700;letter-spacing:-.01em}
+.circ-now span{font-size:var(--fs-xs);color:var(--muted)}
+.hd-arrow.sm{width:40px;height:36px;font-size:20px;background:var(--surface)}
+.circ-map{display:flex;gap:4px;margin:12px 0 0;padding:6px 0}
+.cm{flex:1 1 0;min-width:0;height:10px;padding:0;border:0;border-radius:3px;background:var(--line);cursor:pointer;position:relative;transition:transform var(--dur-1) var(--ease),background var(--dur-2) var(--ease)}
+.cm::before{content:"";position:absolute;left:-2px;right:-2px;top:-12px;bottom:-12px}
+.cm.part,.cm.low{background:var(--part)}
+.cm.done{background:var(--done)}
+.cm.cur{outline:2px solid var(--accent);outline-offset:2px}
+.cm.v{transform:scaleY(1.7)}
+.cm:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.circ-row{display:flex;flex-wrap:wrap;gap:12px 10px;margin-top:12px}
+.circ-it{display:flex;flex-direction:column;align-items:center;gap:6px;width:92px;text-align:center}
+.circ-it .chip{margin:0;width:60px;height:60px;font-size:20px}
+.circ-it > span{font-size:var(--fs-xs);line-height:1.25;font-weight:600;color:var(--ink);overflow-wrap:anywhere}
+.circ-it.nx .chip:not(.done):not(.part){border-style:solid;border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 5px var(--accent-ghost)}
+.circ-back{margin:12px 0 0;min-height:38px}
+/* низ карточки */
+.cardfoot{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.cf-btns{display:flex;flex-wrap:wrap;gap:var(--s2)}
+.cf-btns .linkbtn{margin:0}
+.cf-focus{flex:1 1 200px}
+.cf-note{flex:0 0 auto}
+.cf-btns svg{width:16px;height:16px;flex:0 0 auto}
+.cf-noterow{display:flex;align-items:center;gap:8px;margin-top:10px;padding:0 12px;min-height:44px;border-radius:var(--r-sm);border:1px solid var(--line);background:var(--bg);color:var(--muted);cursor:text}
+.cf-noterow:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-ghost)}
+.cf-noterow svg{width:16px;height:16px;flex:0 0 auto}
+.cf-noterow input[type="text"]{flex:1 1 auto;min-width:0;height:42px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;color:var(--ink);font:inherit;font-size:var(--fs-sm);outline:none}
+.cfcard > .cardfoot{margin-top:0;padding-top:0;border-top:0}
+.cf-meta{margin:10px 2px 0;font-size:var(--fs-xs);line-height:1.5;color:var(--muted)}
+/* под тренировкой: одна карточка с раскрывашками */
+.pfoot{margin:var(--s4) 0 0;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--shadow-1)}
+.pfoot .pchips{margin-top:0}
+.pchip .ftsum{color:var(--muted);font-weight:500;white-space:nowrap}
+.pchip .ftsum:empty{display:none}
+.pfoot .hdbody .ring{margin-top:0}
+.pfoot .rules-t{margin:0 0 4px;font-size:var(--fs-sm);font-weight:700}
+.pfoot .rules ul{margin:0;padding-left:20px}
+.pfoot .rules li{margin:6px 0;max-width:64ch;font-size:var(--fs-sm);line-height:1.5}
+.pfoot .camb .counter{margin:0;padding:0;border:0;border-radius:0;box-shadow:none;background:none;backdrop-filter:none}
+.pfoot .camb .counter > summary{display:none}
+.pfoot .camb .counter > .hint:first-of-type{margin-top:0}
+@media (max-width:520px){
+  .pfoot{padding:12px;border-radius:var(--r-md)}
+  .circ-it{width:86px}
+}
 </style>
 </head>
 <body>
@@ -1036,13 +1094,13 @@ create policy "friends drop" on public.friends
 
     <main><div id="uwork"></div></main>
 
-    <section class="panel">
-      <h2>Прогресс</h2>
-      <div id="uring"></div>
-    </section>
-
-    <details>
-      <summary>Правила, без которых программа не работает</summary>
+    <section class="pfoot" aria-label="Прогресс и правила">
+      <div class="pchips">
+        <button type="button" class="pchip" data-act="hd" data-w="ring" aria-expanded="false" aria-controls="uftring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5" opacity=".35"/><path d="M12 3.5a8.5 8.5 0 0 1 8.2 10.7"/></svg><span>Прогресс</span><span class="ftsum" id="uringSum"></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button>
+        <button type="button" class="pchip" data-act="hd" data-w="rules" aria-expanded="false" aria-controls="uftrules"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4.5h10.5A3.5 3.5 0 0 1 19 8v11.5H8.5A3.5 3.5 0 0 1 5 16z"/><path d="M5 16a3.5 3.5 0 0 1 3.5-3.5H19"/></svg><span>Правила</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button>
+      </div>
+      <div class="hdbody" id="uftring" data-hd="ring" hidden><div id="uring"></div></div>
+      <div class="hdbody rules" id="uftrules" data-hd="rules" hidden><p class="rules-t">Правила, без которых программа не работает</p>
       <ul>
         <li>Никогда не подтягивайся до отказа. Заканчивай подход, когда можешь сделать ещё 1–2 повторения.</li>
         <li>Перед первым подходом разогрей плечи: круги руками, 10–15 секунд просто повиси на перекладине.</li>
@@ -1051,7 +1109,8 @@ create policy "friends drop" on public.friends
         <li>Если болят локти или плечи — пропусти тренировку. Тренировки идут подряд, ничего не сгорает.</li>
         <li>Подтягивания нагружают спину и бицепс. Для роста мышц нужны достаточно еды и белка и сон 7–8 часов, а для баланса делай отжимания из соседней вкладки.</li>
       </ul>
-    </details>
+      </div>
+    </section>
   </section>
 
   <section id="panel-push" role="tabpanel" aria-labelledby="tab-push" hidden>
@@ -1095,7 +1154,14 @@ create policy "friends drop" on public.friends
 
     <main><div id="pwork"></div></main>
 
-    <div id="pcounterSlot"><details class="panel counter" id="counterPanel">
+    <section class="pfoot" aria-label="Прогресс и правила">
+      <div class="pchips">
+        <button type="button" class="pchip" data-act="hd" data-w="ring" aria-expanded="false" aria-controls="pftring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5" opacity=".35"/><path d="M12 3.5a8.5 8.5 0 0 1 8.2 10.7"/></svg><span>Прогресс</span><span class="ftsum" id="pringSum"></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button>
+        <button type="button" class="pchip" data-act="hd" data-w="cam" aria-expanded="false" aria-controls="pftcam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5A2 2 0 0 1 6 6.5h2l1.5-2h5l1.5 2h2a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><circle cx="12" cy="12.5" r="3.3"/></svg><span>Счётчик по камере</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button>
+        <button type="button" class="pchip" data-act="hd" data-w="rules" aria-expanded="false" aria-controls="pftrules"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4.5h10.5A3.5 3.5 0 0 1 19 8v11.5H8.5A3.5 3.5 0 0 1 5 16z"/><path d="M5 16a3.5 3.5 0 0 1 3.5-3.5H19"/></svg><span>Правила</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button>
+      </div>
+      <div class="hdbody" id="pftring" data-hd="ring" hidden><div id="pring"></div></div>
+      <div class="hdbody camb" id="pftcam" data-hd="cam" hidden><div id="pcounterSlot"><details class="panel counter" id="counterPanel" open>
       <summary id="cntTitle">Счётчик отжиманий по камере</summary>
       <p class="hint" id="cntIntro">Положи телефон экраном вверх прямо под лицо.</p>
       <p class="hint" id="camNote" hidden></p>
@@ -1157,16 +1223,8 @@ create policy "friends drop" on public.friends
       </div>
 
       <p class="hint">Распознавание лица: BlazeFace (Google, лицензия Apache 2.0) на TensorFlow.js. Движок взят из твоего проекта <a href="https://denstar02.github.io/Pushups/" target="_blank">denstar02.github.io/Pushups</a>. Для приседаний логика своя: считается не размер лица, а то, насколько оно уходит вниз.</p>
-    </details></div>
-
-    <section class="panel">
-      <h2>Прогресс</h2>
-      <div id="pring"></div>
-    </section>
-
-
-    <details>
-      <summary>Правила для отжиманий</summary>
+    </details></div></div>
+      <div class="hdbody rules" id="pftrules" data-hd="rules" hidden><p class="rules-t">Правила для отжиманий</p>
       <ul>
         <li>Как и на турнике, не доходи до отказа: заканчивай подход, когда в запасе ещё 2–3 повторения.</li>
         <li>Техника: ладони под плечами, локти идут назад под углом 45 градусов, тело прямое, таз не проваливается и не задирается.</li>
@@ -1175,7 +1233,8 @@ create policy "friends drop" on public.friends
         <li>После медленных отжиманий мышцы могут побаливать: тогда сделай паузу в день. Лёгкую тренировку можно делать хоть каждый день.</li>
         <li>Отжимания и подтягивания не мешают друг другу: работают противоположные мышцы.</li>
       </ul>
-    </details>
+      </div>
+    </section>
   </section>
 
   <section id="panel-squat" role="tabpanel" aria-labelledby="tab-squat" hidden>
@@ -1215,16 +1274,15 @@ create policy "friends drop" on public.friends
 
     <main><div id="swork"></div></main>
 
-    <div id="scounterSlot"></div>
-
-    <section class="panel">
-      <h2>Прогресс</h2>
-      <div id="sring"></div>
-    </section>
-
-
-    <details>
-      <summary>Правила для приседаний</summary>
+    <section class="pfoot" aria-label="Прогресс и правила">
+      <div class="pchips">
+        <button type="button" class="pchip" data-act="hd" data-w="ring" aria-expanded="false" aria-controls="sftring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5" opacity=".35"/><path d="M12 3.5a8.5 8.5 0 0 1 8.2 10.7"/></svg><span>Прогресс</span><span class="ftsum" id="sringSum"></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button>
+        <button type="button" class="pchip" data-act="hd" data-w="cam" aria-expanded="false" aria-controls="sftcam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5A2 2 0 0 1 6 6.5h2l1.5-2h5l1.5 2h2a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><circle cx="12" cy="12.5" r="3.3"/></svg><span>Счётчик по камере</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button>
+        <button type="button" class="pchip" data-act="hd" data-w="rules" aria-expanded="false" aria-controls="sftrules"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4.5h10.5A3.5 3.5 0 0 1 19 8v11.5H8.5A3.5 3.5 0 0 1 5 16z"/><path d="M5 16a3.5 3.5 0 0 1 3.5-3.5H19"/></svg><span>Правила</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button>
+      </div>
+      <div class="hdbody" id="sftring" data-hd="ring" hidden><div id="sring"></div></div>
+      <div class="hdbody camb" id="sftcam" data-hd="cam" hidden><div id="scounterSlot"></div></div>
+      <div class="hdbody rules" id="sftrules" data-hd="rules" hidden><p class="rules-t">Правила для приседаний</p>
       <ul>
         <li>Не доходи до отказа: заканчивай подход, когда в запасе ещё 2–3 повторения.</li>
         <li>Техника: стопы на ширине плеч и слегка развёрнуты, пятки не отрываются, колени идут в стороны по носкам, спина прямая, взгляд вперёд.</li>
@@ -1233,7 +1291,8 @@ create policy "friends drop" on public.friends
         <li>Приседания хорошо сочетаются с турником и отжиманиями: ноги отдыхают, пока работает верх тела.</li>
         <li>Тренировки идут подряд, а не по дням недели. Пропустил день — ничего не сгорает, просто продолжай со следующей.</li>
       </ul>
-    </details>
+      </div>
+    </section>
   </section>
 
   <section id="panel-dumb" role="tabpanel" aria-labelledby="tab-dumb" hidden>
@@ -1274,13 +1333,13 @@ create policy "friends drop" on public.friends
 
     <main><div id="gwork"></div></main>
 
-    <section class="panel">
-      <h2>Прогресс</h2>
-      <div id="gring"></div>
-    </section>
-
-    <details>
-      <summary>Правила для гантелей</summary>
+    <section class="pfoot" aria-label="Прогресс и правила">
+      <div class="pchips">
+        <button type="button" class="pchip" data-act="hd" data-w="ring" aria-expanded="false" aria-controls="gftring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5" opacity=".35"/><path d="M12 3.5a8.5 8.5 0 0 1 8.2 10.7"/></svg><span>Прогресс</span><span class="ftsum" id="gringSum"></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button>
+        <button type="button" class="pchip" data-act="hd" data-w="rules" aria-expanded="false" aria-controls="gftrules"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4.5h10.5A3.5 3.5 0 0 1 19 8v11.5H8.5A3.5 3.5 0 0 1 5 16z"/><path d="M5 16a3.5 3.5 0 0 1 3.5-3.5H19"/></svg><span>Правила</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button>
+      </div>
+      <div class="hdbody" id="gftring" data-hd="ring" hidden><div id="gring"></div></div>
+      <div class="hdbody rules" id="gftrules" data-hd="rules" hidden><p class="rules-t">Правила для гантелей</p>
       <ul>
         <li>Максимум считается в жиме гантелей лёжа: сколько чистых повторений выходит с твоим весом. От него строятся все подходы.</li>
         <li>Не доходи до отказа: заканчивай подход, когда в запасе ещё 2–3 повторения.</li>
@@ -1289,7 +1348,8 @@ create policy "friends drop" on public.friends
         <li>В выпадах и тягах считается подход на каждую сторону, чередуй ноги и руки.</li>
         <li>Если гантель одна, делай подходы поочерёдно на каждую руку с тем же числом повторений.</li>
       </ul>
-    </details>
+      </div>
+    </section>
   </section>
 
   <section id="panel-stretch" role="tabpanel" aria-labelledby="tab-stretch" hidden>
@@ -1340,13 +1400,13 @@ create policy "friends drop" on public.friends
 
     <main><div id="twork"></div></main>
 
-    <section class="panel">
-      <h2>Прогресс</h2>
-      <div id="tring"></div>
-    </section>
-
-    <details>
-      <summary>Правила растяжки</summary>
+    <section class="pfoot" aria-label="Прогресс и правила">
+      <div class="pchips">
+        <button type="button" class="pchip" data-act="hd" data-w="ring" aria-expanded="false" aria-controls="tftring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5" opacity=".35"/><path d="M12 3.5a8.5 8.5 0 0 1 8.2 10.7"/></svg><span>Прогресс</span><span class="ftsum" id="tringSum"></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button>
+        <button type="button" class="pchip" data-act="hd" data-w="rules" aria-expanded="false" aria-controls="tftrules"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4.5h10.5A3.5 3.5 0 0 1 19 8v11.5H8.5A3.5 3.5 0 0 1 5 16z"/><path d="M5 16a3.5 3.5 0 0 1 3.5-3.5H19"/></svg><span>Правила</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button>
+      </div>
+      <div class="hdbody" id="tftring" data-hd="ring" hidden><div id="tring"></div></div>
+      <div class="hdbody rules" id="tftrules" data-hd="rules" hidden><p class="rules-t">Правила растяжки</p>
       <ul>
         <li>Всегда начинай с разминки. На холодные мышцы тянуться бесполезно и травмоопасно.</li>
         <li>Тяни до ощущения натяжения, а не боли. По десятибалльной шкале это 5–6 из 10: терпимо, можно спокойно дышать и говорить.</li>
@@ -1356,7 +1416,8 @@ create policy "friends drop" on public.friends
         <li>Резкая или стреляющая боль, особенно в задней поверхности бедра у таза или в паху, — сразу прекращай. Такие надрывы заживают месяцами.</li>
         <li>Месяц ежедневных занятий заметно прибавляет подвижность, но полный шпагат за 30 дней садится далеко не у всех. Ориентируйся на сантиметры в замерах, а не на срок.</li>
       </ul>
-    </details>
+      </div>
+    </section>
   </section>
 
   <section id="panel-custom" role="tabpanel" aria-labelledby="tab-custom" hidden>
@@ -1377,12 +1438,7 @@ create policy "friends drop" on public.friends
 
     <main><div id="custWork"></div></main>
 
-    <div class="legend" aria-hidden="true">
-      <span><i></i>Запланировано, нажми после подхода</span>
-      <span><i class="d"></i>Выполнено</span>
-      <span><i class="p"></i>Меньше плана</span>
-      <span><i class="h"></i>Секунды удержания</span>
-    </div>
+    
 
     <section class="panel">
       <h2>Редактор программы</h2>
@@ -1391,6 +1447,12 @@ create policy "friends drop" on public.friends
 
     <details>
       <summary>Как это работает</summary>
+      <div class="legend" aria-hidden="true">
+      <span><i></i>Запланировано, нажми после подхода</span>
+      <span><i class="d"></i>Выполнено</span>
+      <span><i class="p"></i>Меньше плана</span>
+      <span><i class="h"></i>Секунды удержания</span>
+    </div>
       <ul>
         <li>Программа состоит из дней. Каждый день — это список упражнений с числом подходов и повторений или секунд.</li>
         <li>Дни идут по кругу. Два дня и двенадцать занятий в цикле — значит шесть повторов каждого дня.</li>
@@ -1691,7 +1753,7 @@ create policy "friends drop" on public.friends
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzd3FsYmpsa3Bncm55a2dnY3pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwNDIyNDUsImV4cCI6MjEwNjYxODI0NX0.KQMAqfGyNr1NeLMKu3iRuufLaZ5DEMRj2sc1ulkK5QY"
   ]};
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 1, APP_BUILD_N = 19;
+  var APP_MAJOR = 1, APP_BUILD_N = 20;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
   var theme = "light";
@@ -2106,15 +2168,70 @@ create policy "friends drop" on public.friends
     return h + '<button type="button" class="ghost" data-act="clear" data-key="' + key + '" data-idx="' + it.idx + '">Не делал</button></div></div>';
   }
 
+  // ---------- карточка тренировки: компактно ----------
+  var HOW = {}, CIRC = {}, NOTEOPEN = {};
+  // первая фраза подсказки видна сразу, остальное — по «Как делать»
+  function splitHint(t){
+    t = String(t || "").trim();
+    var m = /^([\s\S]{24,}?[.!?])\s+(?=[А-ЯЁA-Z0-9«"(])([\s\S]+)$/.exec(t);
+    return m ? {lead: m[1], more: m[2]} : {lead: t, more: ""};
+  }
+  // состояние кругов: "" — не начат, part — начат, done — весь по плану, low — весь, но меньше плана
+  function circStates(g, log){
+    return g.rows.map(function(r){
+      var n = 0, full = true;
+      r.forEach(function(it){ var v = log[it.idx]; if(v != null){ n++; if(v < it.target) full = false; } });
+      return !n ? "" : n < r.length ? "part" : full ? "done" : "low";
+    });
+  }
+  function circCur(cs){ for(var i = 0; i < cs.length; i++) if(cs[i] === "" || cs[i] === "part") return i; return cs.length - 1; }
+  var CIRC_MIN = 5;
+  function circHtml(g, key, gIdx, log){
+    var cs = circStates(g, log), cur = circCur(cs), ck = key + ":" + gIdx, n = g.rows.length;
+    var ov = CIRC[ck];
+    if(ov && ov.cur !== cur) ov = CIRC[ck] = null;          // круг сменился — снова показываем текущий
+    var vr = ov ? Math.max(0, Math.min(n - 1, ov.r)) : cur;
+    var closed = 0;
+    cs.forEach(function(x){ if(x === "done" || x === "low") closed++; });
+    var allDone = closed === n;
+    var h = '<div class="circ">';
+    h += '<div class="circ-top"><p class="circ-now"><b>' + (allDone && vr === cur ? "Все " + n + " " + plural(n, ["круг","круга","кругов"]) + " пройдены" : "Круг " + (vr + 1) + " из " + n) + '</b>' +
+      (!allDone && vr !== cur ? '<span>сейчас идёт ' + (cur + 1) + '-й</span>' : closed && !allDone ? '<span>закрыто ' + closed + '</span>' : '') + '</p>' +
+      '<span class="hd-arrows"><button type="button" class="hd-arrow sm" data-act="circ" data-k="' + ck + '" data-r="' + (vr - 1) + '" data-cur="' + cur + '" aria-label="Предыдущий круг"' + (vr === 0 ? " disabled" : "") + '>‹</button>' +
+      '<button type="button" class="hd-arrow sm" data-act="circ" data-k="' + ck + '" data-r="' + (vr + 1) + '" data-cur="' + cur + '" aria-label="Следующий круг"' + (vr === n - 1 ? " disabled" : "") + '>›</button></span></div>';
+    h += '<div class="circ-map" role="group" aria-label="Все круги, нажми, чтобы открыть">';
+    cs.forEach(function(x, ri){
+      var lab = "Круг " + (ri + 1) + (x === "done" ? ", выполнен" : x === "low" ? ", выполнен, но меньше плана" : x === "part" ? ", начат" : "") + (ri === cur ? ", текущий" : "");
+      h += '<button type="button" class="cm' + (x ? " " + x : "") + (ri === cur ? " cur" : "") + (ri === vr ? " v" : "") + '" data-act="circ" data-k="' + ck + '" data-r="' + ri + '" data-cur="' + cur + '" aria-label="' + lab + '"' + (ri === vr ? ' aria-current="true"' : "") + '></button>';
+    });
+    h += '</div>';
+    var row = g.rows[vr], nx = null;
+    if(vr === cur) row.forEach(function(it){ if(nx == null && log[it.idx] == null) nx = it.idx; });
+    h += '<div class="circ-row">';
+    row.forEach(function(it, j){
+      h += '<div class="circ-it' + (it.idx === nx ? " nx" : "") + '">' + chipHtml(key, it, log) +
+        '<span>' + esc(it.lab || ("Подход " + (j + 1))) + '</span></div>';
+    });
+    h += '</div>';
+    if(vr !== cur && !allDone) h += '<button type="button" class="linkbtn alt circ-back" data-act="circ" data-k="' + ck + '" data-r="' + cur + '" data-cur="' + cur + '">Вернуться к кругу ' + (cur + 1) + '</button>';
+    return h + '</div>';
+  }
   function groupsHtml(day, key, gi0){
     var log = state.logs[key] || [], h = "";
     day.groups.forEach(function(g, gN){
       var gIdx = (gi0 || 0) + gN;
-      var selItem = null;
+      var selItem = null, hs = splitHint(g.hint), hk = key + ":" + gIdx, hOpen = !!HOW[hk];
       h += '<div class="group' + (g.anim ? ' has-anim' : '') + '">' + (g.anim ? figure(g.anim) : '') +
-        '<div class="gtext"><h3>' + esc(g.title) + '</h3><p class="hint">' + esc(g.hint) + '</p></div>' +
+        '<div class="gtext"><h3>' + esc(g.title) + '</h3>' +
+        (hs.lead ? '<p class="hint">' + esc(hs.lead) + '</p>' : '') +
+        (hs.more && hOpen ? '<p class="hint howmore">' + esc(hs.more) + '</p>' : '') +
+        (hs.more ? '<button type="button" class="howbtn" data-act="how" data-k="' + hk + '" aria-expanded="' + hOpen + '">' + (hOpen ? "Свернуть" : "Как делать") + '</button>' : '') +
+        '</div>' +
         (g.board ? boardMapHtml(g.board, "Схема доски: " + g.title) : '');
-      g.rows.forEach(function(r, ri){
+      if(g.circ && g.rows.length >= CIRC_MIN){
+        h += circHtml(g, key, gIdx, log);
+        g.rows.forEach(function(r){ r.forEach(function(it){ if(isSel(key, it.idx)) selItem = it; }); });
+      } else g.rows.forEach(function(r, ri){
         h += '<div class="row' + (g.ladder ? " ladder" : "") + '">';
         if(g.rnum) h += '<span class="rnum" aria-hidden="true">' + (ri + 1) + '</span>';
         r.forEach(function(it){
@@ -2132,11 +2249,28 @@ create policy "friends drop" on public.friends
       if(selItem) h += editorHtml(key, selItem, log);
       h += '</div>';
     });
-    if(state.times[key]){
-      var dt = new Date(state.times[key]);
-      h += '<p class="last">Последняя отметка: ' + dt.toLocaleDateString("ru-RU", {day: "numeric", month: "long"}) + ', ' + dt.toLocaleTimeString("ru-RU", {hour: "2-digit", minute: "2-digit"}) + '</p>';
-    }
     return h;
+  }
+  // низ карточки: режим тренировки, заметка и одна строка служебного
+  var PLAY_IC = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.6v12.8a.9.9 0 0 0 1.37.77l10.2-6.4a.9.9 0 0 0 0-1.54L9.37 4.83A.9.9 0 0 0 8 5.6z"/></svg>';
+  var PEN_IC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>';
+  function lastMarkText(t){
+    var d = new Date(t), now = new Date();
+    var d0 = new Date(now.getFullYear(), now.getMonth(), now.getDate()), d1 = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    var days = Math.round((d0 - d1) / 864e5), tm = hhmm(t);
+    return days <= 0 ? "сегодня в " + tm : days === 1 ? "вчера в " + tm : d.toLocaleDateString("ru-RU", {day: "numeric", month: "long"}) + " в " + tm;
+  }
+  function cardFoot(key, next){
+    var note = (state.notes && state.notes[key]) || "", open = !!note || !!NOTEOPEN[key], meta = [];
+    if(state.times[key]) meta.push("Последняя отметка " + lastMarkText(state.times[key]) + ".");
+    if(next) meta.push(next);
+    var h = '<div class="cardfoot"><div class="cf-btns">' +
+      '<button type="button" class="linkbtn cf-focus" data-act="focus-open" data-key="' + key + '">' + PLAY_IC + 'Режим тренировки</button>' +
+      (open ? "" : '<button type="button" class="linkbtn alt cf-note" data-act="note-open" data-key="' + key + '">' + PEN_IC + 'Заметка</button>') + '</div>';
+    if(open) h += '<label class="cf-noterow" for="note-' + key + '"><span class="vh">Заметка к тренировке</span>' + PEN_IC +
+      '<input type="text" id="note-' + key + '" data-note="' + key + '" maxlength="140" placeholder="Заметка: резина, вес, самочувствие" value="' + esc(note) + '"></label>';
+    if(meta.length) h += '<p class="cf-meta">' + esc(meta.join(" ")) + '</p>';
+    return h + '</div>';
   }
 
   // ---------- календарь ----------
@@ -2703,7 +2837,8 @@ create policy "friends drop" on public.friends
       el("capLeft").textContent = capLeftText(done, CCOUNT, view, cur, "тренировка");
     }
     function renderRing(){
-      if(!loggedIn()){ el("ring").innerHTML = lockHtml(); return; }
+      var rsum = el("ringSum");
+      if(!loggedIn()){ el("ring").innerHTML = lockHtml(); if(rsum) rsum.textContent = ""; return; }
       var total = C.total(), steps = [100, 250, 500, 1000, 2500, 5000, 10000], goal = steps[steps.length - 1], prev = 0, i;
       for(i = 0; i < steps.length; i++){ if(total < steps[i]){ goal = steps[i]; prev = i ? steps[i - 1] : 0; break; } }
       var frac = goal > prev ? Math.min(1, (total - prev) / (goal - prev)) : 1, R = 52, Cc = 2 * Math.PI * R;
@@ -2732,6 +2867,8 @@ create policy "friends drop" on public.friends
     }
     function renderWork(){
       var i = C.v(), w = C.build(i), key = C.key(i), cur = C.current(), h = "";
+      var rsum2 = el("ringSum");
+      if(rsum2 && loggedIn()) rsum2.textContent = C.total() + " " + plural(C.total(), cfg.unit);
       el("navLabel").innerHTML = "Тренировка <strong>" + (i + 1) + "</strong> из " + CCOUNT + ", " + C.name(C.type(i)).toLowerCase();
       el("prev").disabled = i === 0;
       el("next").disabled = i === CCOUNT - 1;
@@ -2753,8 +2890,7 @@ create policy "friends drop" on public.friends
         h += '<div class="tally"><strong data-num="t-' + key + '">' + s2.reps + '</strong> из ' + s2.planned + ' повт.</div></div>';
         if(wm !== C.mode()) h += '<p class="hint modenote">Эту тренировку ты начал в темпе «' + MODES[wm].label + '», поэтому подходы и отметки показаны в нём. Следующие пойдут в темпе «' + MODES[C.mode()].label + '».</p>';
         h += groupsHtml(w, key);
-        h += '<p class="last">' + esc(w.next) + '</p>';
-        h += focusBtn(key) + noteHtml(key);
+        h += cardFoot(key, w.next);
         if(!C.done(i) && allLogged(w, key)) h += finishHtml(key);
         else if(C.done(i) && i < CCOUNT - 1) h += '<div class="test"><button type="button" class="primary" data-act="cgo" data-c="' + cfg.pre + '" data-i="' + (i + 1) + '">Дальше: тренировка ' + (i + 2) + '</button></div>';
       }
@@ -2957,9 +3093,11 @@ create policy "friends drop" on public.friends
           order = ["chest", "shoulder", bPick("back", b), bPick("tri", b)], rows = [];
       for(var q = 0; q < rounds; q++) rows.push(order.map(function(pos, j){
         var last = j === order.length - 1, lastRound = q === rounds - 1;
-        return list(1, r, "rep", null, last ? (lastRound ? null : MP.ladOut) : MP.ladIn)[0];
+        var it = list(1, r, "rep", null, last ? (lastRound ? null : MP.ladOut) : MP.ladIn)[0];
+        it.lab = (j + 1) + " " + BOARD_POS[pos].n.split(":")[0].toLowerCase();
+        return it;
       }));
-      groups.push({title: rounds + " " + plural(rounds, ["круг","круга","кругов"]) + " по доске, по " + r + " в каждой позиции",
+      groups.push({circ: true, title: rounds + " " + plural(rounds, ["круг","круга","кругов"]) + " по доске, по " + r + " в каждой позиции",
         hint: "Круг — четыре подхода подряд с перестановкой упоров по номерам на схеме: " +
           order.map(function(pos, j){ return (j + 1) + " " + BOARD_POS[pos].n.toLowerCase(); }).join(" → ") +
           ". Отдых 45–60 секунд как раз уходит на перестановку. " + MP.ladHint,
@@ -3076,11 +3214,14 @@ create policy "friends drop" on public.friends
       next = "После медленных ноги могут побаливать: следующую тренировку лучше через день.";
     } else if(t === "lad"){
       var rounds = MP.ladRounds(b), r = re(base - 0.15), order = ["press", "row", "lunge", "curl"], rows = [];
+      var dlab = {press: "Жим", row: "Тяга", lunge: "Выпады", curl: "Бицепс"};
       for(var q = 0; q < rounds; q++) rows.push(order.map(function(ex, j){
         var last = j === order.length - 1, lastRound = q === rounds - 1;
-        return list(1, r, "rep", null, last ? (lastRound ? null : MP.ladOut) : MP.ladIn)[0];
+        var it = list(1, r, "rep", null, last ? (lastRound ? null : MP.ladOut) : MP.ladIn)[0];
+        it.lab = dlab[ex];
+        return it;
       }));
-      groups.push({title: rounds + " " + plural(rounds, ["круг","круга","кругов"]) + " по " + r + " " + plural(r, ["повторению","повторения","повторений"]),
+      groups.push({circ: true, title: rounds + " " + plural(rounds, ["круг","круга","кругов"]) + " по " + r + " " + plural(r, ["повторению","повторения","повторений"]),
         hint: "Круг — четыре упражнения подряд: жим, тяга, выпады, бицепс. Между ними отдых 45–60 секунд. " + MP.ladHint,
         rows: rows, ladder: true, anim: "dbpress"});
       next = "Следующую тренировку делай завтра или через день.";
@@ -3195,8 +3336,8 @@ create policy "friends drop" on public.friends
       var detail = ex.map(function(e){ return exName(e) + " — " + exAmount(e); }).join(", ");
       groups.push({
         title: rounds + " " + plural(rounds, ["круг","круга","кругов"]) + ": " + names.join(" → "),
-        hint: "В каждом круге по одному подходу на упражнение: " + detail + ". Пауза " + restWord(pause) + " после каждого подхода. Кружки в строке идут в том же порядке, что и упражнения.",
-        rows: rows, ladder: true, rnum: true});
+        hint: (pause ? "Пауза " + restWord(pause) + " после каждого подхода." : "Без пауз между подходами.") + " В круге по одному подходу каждого упражнения: " + detail + ". Кружки идут в том же порядке, что и упражнения.",
+        rows: rows, ladder: true, rnum: true, circ: true});
       return groups;
     }
     ex.forEach(function(e){
@@ -3595,7 +3736,7 @@ create policy "friends drop" on public.friends
       (isCur ? ' <span class="badge">текущее</span>' : isDone ? ' <span class="badge ok">готово</span>' : "") + '</p><h2>' + esc(w.title) + '</h2></div>' +
       '<div class="tally"><strong>' + st2.done + '</strong> из ' + st2.plan + " " + plural(st2.plan, SETS) + '</div></div></article>';
     w.groups.forEach(function(g, gi){ h += '<article class="day">' + groupsHtml({groups: [g]}, key, gi) + '</article>'; });
-    h += focusBtn(key) + noteHtml(key);
+    h += '<article class="day cfcard">' + cardFoot(key, "") + '</article>';
     if(!isDone && allLogged(w, key)) h += finishHtml(key);
     else if(isDone && week){
       var nx2 = custScanDate(prog, dateT, 1);
@@ -3788,7 +3929,7 @@ create policy "friends drop" on public.friends
     for(i = 0; i < kids.length; i++){
       var el = kids[i];
       if(el === box) continue;
-      var keep = el.id === "pcounterSlot" || el.id === "scounterSlot";
+      var keep = el.id === "pcounterSlot" || el.id === "scounterSlot" || el.classList.contains("pfoot");
       if(prog && !keep) el.classList.add("hidden-builtin"); else el.classList.remove("hidden-builtin");
     }
     if(!prog){ box.hidden = true; box.innerHTML = ""; return; }
@@ -4572,6 +4713,8 @@ create policy "friends drop" on public.friends
     document.getElementById("tcapLeft").textContent = capLeftText(done, TCOUNT, view, cur, "занятие");
   }
   function renderTRing(){
+    var tsum = document.getElementById("tringSum");
+    if(tsum) tsum.textContent = loggedIn() ? tMinutes() + " мин" : "";
     if(!loggedIn()){ document.getElementById("tring").innerHTML = lockHtml(); return; }
     var f0 = state.t.front, s0 = state.t.side, f = tMeasure("front"), s2 = tMeasure("side");
     function bar(name, from, now){
@@ -4614,7 +4757,7 @@ create policy "friends drop" on public.friends
         '<output>' + (m.side != null ? m.side : "—") + '</output>' +
         '<button type="button" data-act="tmeas+" data-i="' + i + '" data-k="side" data-base="' + tMeasure("side") + '" aria-label="Увеличить">+</button></div></div></div></article>';
     }
-    h += focusBtn(key) + noteHtml(key) + '<p class="last plan-note">' + esc(w.next) + '</p>';
+    h += cardFoot(key, w.next);
     if(!tDone(i) && allLogged(w, key)) h += finishHtml(key);
     else if(tDone(i) && i < TCOUNT - 1) h += '<div class="test"><button type="button" class="primary" data-act="tgo" data-i="' + (i + 1) + '">Дальше: занятие ' + (i + 2) + '</button></div>';
     document.getElementById("twork").innerHTML = h;
@@ -6013,19 +6156,22 @@ create policy "friends drop" on public.friends
   function renderHead(){
     var panel = document.getElementById("panel-" + TAB);
     if(!panel) return;
-    var open = HD[TAB] || null, chips = panel.querySelectorAll('.phead [data-act="hd"]'), bodies = panel.querySelectorAll(".phead .hdbody"), i;
-    for(i = 0; i < chips.length; i++){
-      if(chips[i].hidden && chips[i].getAttribute("data-w") === open) open = HD[TAB] = null;
-    }
-    for(i = 0; i < chips.length; i++) chips[i].setAttribute("aria-expanded", chips[i].getAttribute("data-w") === open ? "true" : "false");
-    for(i = 0; i < bodies.length; i++) bodies[i].hidden = bodies[i].getAttribute("data-hd") !== open;
+    ["phead", "pfoot"].forEach(function(zone){
+      var hk = TAB + ":" + zone, open = HD[hk] || null, i;
+      var chips = panel.querySelectorAll("." + zone + ' [data-act="hd"]'), bodies = panel.querySelectorAll("." + zone + " > .hdbody");
+      for(i = 0; i < chips.length; i++){
+        if(chips[i].hidden && chips[i].getAttribute("data-w") === open) open = HD[hk] = null;
+      }
+      for(i = 0; i < chips.length; i++) chips[i].setAttribute("aria-expanded", chips[i].getAttribute("data-w") === open ? "true" : "false");
+      for(i = 0; i < bodies.length; i++) bodies[i].hidden = bodies[i].getAttribute("data-hd") !== open;
+    });
   }
   function renderBoardKey(){
     var box = document.getElementById("boardKey"), btn = document.getElementById("boardKeyBtn");
     if(!box) return;
     var on = TAB === "push" && state.variant && state.variant.push === "board" && !mountedProg("push");
     if(btn) btn.hidden = !on;
-    if(!on){ box.hidden = true; if(HD.push === "board") HD.push = null; return; }
+    if(!on){ box.hidden = true; if(HD["push:phead"] === "board") HD["push:phead"] = null; return; }
     var body = document.getElementById("boardKeyBody");
     if(body && body.getAttribute("data-filled") !== "1"){
       body.innerHTML = boardKeyHtml();
@@ -6316,9 +6462,22 @@ create policy "friends drop" on public.friends
     if(act === "undo"){ undoDo(); return; }
     if(act === "sync-pill"){ pillTap(); return; }
     if(act === "hd"){
-      var hw = b.getAttribute("data-w");
-      HD[TAB] = HD[TAB] === hw ? null : hw;
+      var hw = b.getAttribute("data-w"), hz = b.closest(".pfoot") ? "pfoot" : "phead", hkey = TAB + ":" + hz;
+      if(HD[hkey] === "cam" && hw === "cam" && cam) camFinish(false);
+      HD[hkey] = HD[hkey] === hw ? null : hw;
       renderBoardKey(); renderHead();
+      if(HD[hkey] && hz === "pfoot"){ var hb = b.closest(".pfoot").querySelector('[data-hd="' + hw + '"]'); if(hb) setTimeout(function(){ scrollTo(b.closest(".pfoot")); }, 30); }
+      return;
+    }
+    if(act === "how"){ var hwk = b.getAttribute("data-k"); HOW[hwk] = !HOW[hwk]; render(); return; }
+    if(act === "circ"){
+      var crk = b.getAttribute("data-k"), crr = +b.getAttribute("data-r"), crc = +b.getAttribute("data-cur");
+      CIRC[crk] = crr === crc ? null : {r: crr, cur: crc};
+      sel = null; render(); return;
+    }
+    if(act === "note-open"){
+      var nok = b.getAttribute("data-key"); NOTEOPEN[nok] = true; render();
+      var nin = document.getElementById("note-" + nok); if(nin) try { nin.focus(); } catch(e){}
       return;
     }
     if(act === "sync-retry"){
