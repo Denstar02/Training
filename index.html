@@ -362,6 +362,53 @@ h1{letter-spacing:-.02em;line-height:1.05}
 .tst-act:active{transform:translateY(1px)}
 .tst-act:focus-visible{outline:2px solid currentColor;outline-offset:2px;border-radius:6px}
 .tabs.solo{display:none}
+/* v1.18: значок сохранения */
+.syncpill{position:absolute;top:9px;left:0;display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px 0 9px;border-radius:var(--r-pill);border:1px solid var(--line);background:var(--surface);color:var(--muted);font-size:var(--fs-xs);font-weight:600;line-height:1;box-shadow:var(--shadow-1);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:border-color var(--dur-2) var(--ease),color var(--dur-2) var(--ease)}
+.syncpill::after{content:"";position:absolute;inset:-8px -6px}
+.syncpill:active{transform:translateY(1px)}
+.syncpill[hidden],.syncmini[hidden]{display:none}
+.syncpill svg{width:16px;height:16px;flex:0 0 auto}
+.syncpill.s-ok svg{color:var(--done)}
+.syncpill.s-saving svg{color:var(--accent)}
+.syncpill.s-wait{color:var(--part);border-color:var(--part)}
+.syncpill.s-err,.syncpill.s-auth,.syncpill.s-bad{color:var(--danger);border-color:var(--danger)}
+.sp-spin{transform-origin:12px 12px;animation:spspin 1s linear infinite}
+@keyframes spspin{to{transform:rotate(360deg)}}
+.syncpill.pop svg,.syncmini.pop svg{animation:sppop .5s var(--ease)}
+@keyframes sppop{0%{transform:scale(.55)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
+.syncmini{display:inline-flex;vertical-align:-3px;margin-left:8px;color:var(--muted)}
+.syncmini svg{width:17px;height:17px}
+.syncmini.lead{margin:0 6px 0 0;vertical-align:-4px;opacity:1}
+.syncmini.lead svg{width:15px;height:15px}
+.timerbar.due .syncmini{color:inherit}
+.syncmini.s-ok{color:var(--done)}
+.syncmini.s-saving{color:var(--accent)}
+.syncmini.s-wait{color:var(--part)}
+.syncmini.s-err,.syncmini.s-auth,.syncmini.s-bad{color:var(--danger)}
+@media (prefers-reduced-motion: reduce){.sp-spin,.syncpill.pop svg,.syncmini.pop svg{animation:none}}
+/* v1.18: поделиться программой */
+.sharebox{margin:0 0 var(--s4)}
+.sharebtn{margin-top:0}
+.sharebtn svg{width:18px;height:18px;flex:0 0 auto}
+.sharepanel{margin-top:var(--s3);padding:var(--s3) var(--s4) var(--s4);border-radius:var(--r-md);background:var(--accent-ghost);border:1px solid var(--line)}
+.sharepanel .hint{margin:0}
+.sharebtns{display:flex;flex-wrap:wrap;gap:var(--s2);margin:var(--s3) 0}
+.sharebtns .primary,.sharebtns .linkbtn{margin-top:0;flex:1 1 160px}
+.sharecode{display:block;width:100%;min-height:64px;padding:10px 12px;border-radius:var(--r-sm);border:1px solid var(--line-strong);background:var(--surface);color:var(--muted);font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;resize:none;word-break:break-all}
+.tplfriend{margin-top:var(--s3)}
+.tplfriend .linkbtn{margin:var(--s2) 0 0}
+.imp-card h2{font-size:var(--fs-lg);margin-top:var(--s2);overflow-wrap:anywhere}
+.imp-card textarea{display:block;width:100%;margin-top:var(--s3);padding:10px 12px;border-radius:var(--r-sm);border:2px solid var(--line);background:var(--surface);color:var(--ink);font:14px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;resize:vertical;min-height:104px;word-break:break-all}
+.imp-card textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.imp-days{list-style:none;margin:var(--s3) 0 0;padding:0;display:grid;gap:var(--s2)}
+.imp-days li{padding:10px 12px;border-radius:var(--r-sm);background:var(--accent-ghost);display:grid;gap:3px}
+.imp-days b{font-weight:700}
+.imp-days li > span{color:var(--muted);font-size:var(--fs-sm);line-height:1.45}
+.imp-wd{font-weight:600;color:var(--accent);font-size:var(--fs-xs);margin-left:4px}
+.imp-err{color:var(--danger)}
+.imp-note{color:var(--ink);font-weight:600}
+.imp-copy{display:block;margin:var(--s2) auto 0;min-height:36px}
+
 /* редактор своей программы */
 .tplgrid{display:grid;gap:var(--s2);margin-top:var(--s2)}
 .tplcard{display:block;width:100%;text-align:left;padding:14px;border-radius:var(--r-sm);border:1px solid var(--line-strong);background:transparent;color:var(--ink);cursor:pointer;transition:border-color .15s, background .15s}
@@ -790,6 +837,58 @@ body{
 /* карточки чуть приподняты над фоном */
 .panel,.day,.maxrow,.pstatus,.today-box,.tabs,.counter,.todaypanel{backdrop-filter:saturate(1.08)}
 .lede{color:var(--ink);opacity:.78}
+
+/* ===== v1.19: шапка раздела одной карточкой ===== */
+.vh{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.todaypanel[hidden]{display:none}
+.phead{margin:var(--s3) 0 0;padding:14px 14px 14px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--shadow-1)}
+.hd-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 10px}
+.phead .rig-cap{margin:0;padding:0 0 0 2px;display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:0;font-size:var(--fs-xs);color:var(--muted)}
+.phead .rig-cap > span:first-child{font-size:var(--fs-md);color:var(--ink);font-weight:600;letter-spacing:-.01em}
+.phead .rig-cap > span:first-child strong{font-weight:800}
+.phead .rig-cap > span:empty{display:none}
+.hd-arrows{display:flex;gap:6px;flex:0 0 auto}
+.hd-arrow{width:44px;height:40px;padding:0;border-radius:var(--r-sm);border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:22px;line-height:1;display:grid;place-items:center;cursor:pointer;transition:background var(--dur-1) var(--ease),transform var(--dur-1) var(--ease)}
+.hd-arrow:active:not(:disabled){transform:translateY(1px)}
+.hd-arrow:disabled{opacity:.35;cursor:default}
+.phead .rig{margin:0}
+.phead .pushrig .weeks,.phead .rig .weeks{padding:0}
+.phead .track{background:var(--bg)}
+.phead .pstatus{margin:12px 2px 0;padding:0;border:0;border-radius:0;background:none;box-shadow:none;backdrop-filter:none;font-size:var(--fs-sm);line-height:1.5;color:var(--muted)}
+.phead .pstatus strong{color:var(--ink);font-weight:600}
+.pchips{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:12px}
+.pchip{display:inline-flex;align-items:center;gap:7px;min-height:38px;max-width:100%;padding:0 10px 0 12px;border-radius:var(--r-pill);border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:var(--fs-xs);font-weight:600;line-height:1.2;cursor:pointer;transition:background var(--dur-1) var(--ease),border-color var(--dur-1) var(--ease),color var(--dur-1) var(--ease)}
+.pchip[hidden]{display:none}
+.pchip svg{width:16px;height:16px;flex:0 0 auto;color:var(--muted)}
+.pchip .chev{width:14px;height:14px;transition:transform var(--dur-2) var(--ease)}
+.pchip .setsum{font-size:inherit;color:inherit;font-weight:inherit;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.pchip[aria-expanded="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.pchip[aria-expanded="true"] svg{color:var(--accent)}
+.pchip[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.pchip:active{transform:translateY(1px)}
+.hdbody{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.hdbody[hidden]{display:none}
+.hdbody .maxrow{margin:0;padding:0;border:0;box-shadow:none;background:transparent;backdrop-filter:none}
+.hdbody .legend{margin:0;padding:12px 0 0}
+.hdbody.boardkey{padding-bottom:2px}
+.phead + main,.phead ~ main{margin-top:var(--s3)}
+.phead ~ .jumprow{margin-top:var(--s3)}
+#panel-custom > .maxrow{margin:var(--s3) 0 0;padding:0 2px;border:0;background:none;box-shadow:none;backdrop-filter:none}
+#panel-custom > .maxrow .picker{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2);margin:0}
+#panel-custom > .maxrow .picker .linkbtn,#panel-custom > .maxrow .picker .blockbtn{margin:0}
+/* вкладки: полоска того, что сделано сегодня */
+.tabs button .tprog{position:absolute;left:14px;right:14px;bottom:5px;height:3px;border-radius:2px;background:color-mix(in srgb, currentColor 18%, transparent);overflow:hidden;pointer-events:none}
+.tabs button .tprog[hidden]{display:none}
+.tabs button .tprog::after{content:"";position:absolute;left:0;top:0;bottom:0;width:var(--p,0%);border-radius:inherit;background:var(--part);transition:width var(--dur-3) var(--ease)}
+.tabs button[data-st="done"] .tprog::after{background:var(--done)}
+.tabs button[aria-selected="true"] .tprog{background:rgba(255,255,255,.28)}
+.tabs button[aria-selected="true"] .tprog::after{background:var(--accent-ink)}
+.tabs button[data-st="part"]::after,.tabs button[data-st="done"]::after{display:none}
+@media (max-width:520px){
+  .phead{padding:12px 12px 12px;border-radius:var(--r-md)}
+  .hd-arrow{width:42px}
+  .tabs button .tprog{left:12px;right:12px}
+}
 </style>
 </head>
 <body>
@@ -799,6 +898,7 @@ body{
     <h1>Тренировки</h1>
     <p class="lede">Шесть программ: турник, отжимания, приседания, гантели, растяжка и своя. Везде короткие подходы вместо одной тяжёлой тренировки — в своём темпе и с запасом сил.</p>
     </div>
+    <button type="button" class="syncpill" id="syncPill" data-syncpill data-act="sync-pill" aria-label="Состояние сохранения" hidden></button>
     <button type="button" class="accbtn" id="accBtn" data-act="acc" aria-label="Войти в аккаунт" aria-pressed="false"></button>
   </header>
 
@@ -812,7 +912,7 @@ body{
     <button type="button" role="tab" id="tab-custom" data-act="tab" data-tab="custom" aria-controls="panel-custom" aria-selected="false">Создать</button>
   </div>
 
-  <section class="panel todaypanel" id="todayBox" aria-label="Сегодня"></section>
+  <section class="panel todaypanel" id="todayBox" aria-label="Сегодня" hidden></section>
 
 
   <section id="panel-profile" role="region" aria-label="Профиль" hidden>
@@ -899,14 +999,21 @@ create policy "friends drop" on public.friends
   </section>
 
   <section id="panel-pull" role="tabpanel" aria-labelledby="tab-pull">
-    <nav class="rig pushrig" aria-label="Тренировки программы">
-      <div class="bar" aria-hidden="true"></div>
-      <div class="weeks" id="uweeks"></div>
-      <div class="rig-cap"><span id="ucapRange"></span><span id="ucapLeft"></span></div>
-    </nav>
-
-    <details class="panel progset">
-      <summary><span>Нагрузка и темп</span><span class="setsum" id="usetSum"></span></summary>
+    <section class="phead" aria-label="Ход программы">
+      <div class="hd-top">
+        <div class="rig-cap"><span id="ucapRange"></span><span id="ucapLeft"></span></div>
+        <div class="hd-arrows">
+          <button type="button" class="hd-arrow" id="uprev" data-act="cprev" data-c="u" aria-label="Предыдущая тренировка">‹</button>
+          <button type="button" class="hd-arrow" id="unext" data-act="cnext" data-c="u" aria-label="Следующая тренировка">›</button>
+        </div>
+      </div>
+      <nav class="rig pushrig" aria-label="Тренировки программы"><div class="weeks" id="uweeks"></div></nav>
+      <p class="vh" id="unavLabel" aria-live="polite"></p>
+      <p class="pstatus" id="ustatus"></p>
+      <div class="pchips">
+        <button type="button" class="pchip" data-act="hd" data-w="set" aria-expanded="false" aria-controls="uhdset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></svg><span class="vh">Нагрузка и темп: </span><span class="setsum" id="usetSum"></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button>
+      </div>
+      <div class="hdbody" id="uhdset" data-hd="set" hidden>
       <div class="maxrow">
         <p id="umaxText"></p>
         <div class="stepper" role="group" aria-label="Стартовый максимум подтягиваний">
@@ -924,15 +1031,8 @@ create policy "friends drop" on public.friends
         <span><i class="p"></i>Меньше плана</span>
         <span><i class="h"></i>Секунды: удержание и вис</span>
       </div>
-    </details>
-
-    <p class="pstatus" id="ustatus"></p>
-
-    <div class="pnav">
-      <button type="button" id="uprev" data-act="cprev" data-c="u" aria-label="Предыдущая тренировка">‹</button>
-      <p id="unavLabel"></p>
-      <button type="button" id="unext" data-act="cnext" data-c="u" aria-label="Следующая тренировка">›</button>
-    </div>
+      </div>
+    </section>
 
     <main><div id="uwork"></div></main>
 
@@ -956,14 +1056,22 @@ create policy "friends drop" on public.friends
 
   <section id="panel-push" role="tabpanel" aria-labelledby="tab-push" hidden>
 
-    <nav class="rig pushrig" aria-label="Тренировки программы">
-      <div class="bar" aria-hidden="true"></div>
-      <div class="weeks" id="pweeks"></div>
-      <div class="rig-cap"><span id="pcapRange"></span><span id="pcapLeft"></span></div>
-    </nav>
-
-    <details class="panel progset">
-      <summary><span>Нагрузка и темп</span><span class="setsum" id="psetSum"></span></summary>
+    <section class="phead" aria-label="Ход программы">
+      <div class="hd-top">
+        <div class="rig-cap"><span id="pcapRange"></span><span id="pcapLeft"></span></div>
+        <div class="hd-arrows">
+          <button type="button" class="hd-arrow" id="pprev" data-act="cprev" data-c="p" aria-label="Предыдущая тренировка">‹</button>
+          <button type="button" class="hd-arrow" id="pnext" data-act="cnext" data-c="p" aria-label="Следующая тренировка">›</button>
+        </div>
+      </div>
+      <nav class="rig pushrig" aria-label="Тренировки программы"><div class="weeks" id="pweeks"></div></nav>
+      <p class="vh" id="pnavLabel" aria-live="polite"></p>
+      <p class="pstatus" id="pstatus"></p>
+      <div class="pchips">
+        <button type="button" class="pchip" data-act="hd" data-w="set" aria-expanded="false" aria-controls="phdset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></svg><span class="vh">Нагрузка и темп: </span><span class="setsum" id="psetSum"></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button>
+        <button type="button" class="pchip" id="boardKeyBtn" data-act="hd" data-w="board" aria-expanded="false" aria-controls="boardKey" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="7" width="19" height="10" rx="2.5"/><circle cx="7" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="17" cy="12" r="1.3"/></svg><span>Разметка доски</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button>
+      </div>
+      <div class="hdbody" id="phdset" data-hd="set" hidden>
       <div class="maxrow">
         <p id="pmaxText"></p>
         <div class="stepper" role="group" aria-label="Стартовый максимум отжиманий">
@@ -981,20 +1089,9 @@ create policy "friends drop" on public.friends
         <span><i class="p"></i>Меньше плана</span>
         <span><i class="h"></i>Секунды: планка</span>
       </div>
-    </details>
-
-    <p class="pstatus" id="pstatus"></p>
-
-    <details class="panel subdet boardkey" id="boardKey" hidden>
-      <summary>Разметка доски</summary>
-      <div id="boardKeyBody"></div>
-    </details>
-
-    <div class="pnav">
-      <button type="button" id="pprev" data-act="cprev" data-c="p" aria-label="Предыдущая тренировка">‹</button>
-      <p id="pnavLabel"></p>
-      <button type="button" id="pnext" data-act="cnext" data-c="p" aria-label="Следующая тренировка">›</button>
-    </div>
+      </div>
+      <div class="hdbody boardkey" id="boardKey" data-hd="board" hidden><div id="boardKeyBody"></div></div>
+    </section>
 
     <main><div id="pwork"></div></main>
 
@@ -1082,14 +1179,21 @@ create policy "friends drop" on public.friends
   </section>
 
   <section id="panel-squat" role="tabpanel" aria-labelledby="tab-squat" hidden>
-    <nav class="rig pushrig" aria-label="Тренировки программы">
-      <div class="bar" aria-hidden="true"></div>
-      <div class="weeks" id="sweeks"></div>
-      <div class="rig-cap"><span id="scapRange"></span><span id="scapLeft"></span></div>
-    </nav>
-
-    <details class="panel progset">
-      <summary><span>Нагрузка и темп</span><span class="setsum" id="ssetSum"></span></summary>
+    <section class="phead" aria-label="Ход программы">
+      <div class="hd-top">
+        <div class="rig-cap"><span id="scapRange"></span><span id="scapLeft"></span></div>
+        <div class="hd-arrows">
+          <button type="button" class="hd-arrow" id="sprev" data-act="cprev" data-c="s" aria-label="Предыдущая тренировка">‹</button>
+          <button type="button" class="hd-arrow" id="snext" data-act="cnext" data-c="s" aria-label="Следующая тренировка">›</button>
+        </div>
+      </div>
+      <nav class="rig pushrig" aria-label="Тренировки программы"><div class="weeks" id="sweeks"></div></nav>
+      <p class="vh" id="snavLabel" aria-live="polite"></p>
+      <p class="pstatus" id="sstatus"></p>
+      <div class="pchips">
+        <button type="button" class="pchip" data-act="hd" data-w="set" aria-expanded="false" aria-controls="shdset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></svg><span class="vh">Нагрузка и темп: </span><span class="setsum" id="ssetSum"></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button>
+      </div>
+      <div class="hdbody" id="shdset" data-hd="set" hidden>
       <div class="maxrow">
         <p id="smaxText"></p>
         <div class="stepper" role="group" aria-label="Стартовый максимум приседаний">
@@ -1106,15 +1210,8 @@ create policy "friends drop" on public.friends
         <span><i class="p"></i>Меньше плана</span>
         <span><i class="h"></i>Секунды: стульчик у стены</span>
       </div>
-    </details>
-
-    <p class="pstatus" id="sstatus"></p>
-
-    <div class="pnav">
-      <button type="button" id="sprev" data-act="cprev" data-c="s" aria-label="Предыдущая тренировка">‹</button>
-      <p id="snavLabel"></p>
-      <button type="button" id="snext" data-act="cnext" data-c="s" aria-label="Следующая тренировка">›</button>
-    </div>
+      </div>
+    </section>
 
     <main><div id="swork"></div></main>
 
@@ -1140,14 +1237,21 @@ create policy "friends drop" on public.friends
   </section>
 
   <section id="panel-dumb" role="tabpanel" aria-labelledby="tab-dumb" hidden>
-    <nav class="rig pushrig" aria-label="Тренировки программы">
-      <div class="bar" aria-hidden="true"></div>
-      <div class="weeks" id="gweeks"></div>
-      <div class="rig-cap"><span id="gcapRange"></span><span id="gcapLeft"></span></div>
-    </nav>
-
-    <details class="panel progset">
-      <summary><span>Нагрузка и темп</span><span class="setsum" id="gsetSum"></span></summary>
+    <section class="phead" aria-label="Ход программы">
+      <div class="hd-top">
+        <div class="rig-cap"><span id="gcapRange"></span><span id="gcapLeft"></span></div>
+        <div class="hd-arrows">
+          <button type="button" class="hd-arrow" id="gprev" data-act="cprev" data-c="g" aria-label="Предыдущая тренировка">‹</button>
+          <button type="button" class="hd-arrow" id="gnext" data-act="cnext" data-c="g" aria-label="Следующая тренировка">›</button>
+        </div>
+      </div>
+      <nav class="rig pushrig" aria-label="Тренировки программы"><div class="weeks" id="gweeks"></div></nav>
+      <p class="vh" id="gnavLabel" aria-live="polite"></p>
+      <p class="pstatus" id="gstatus"></p>
+      <div class="pchips">
+        <button type="button" class="pchip" data-act="hd" data-w="set" aria-expanded="false" aria-controls="ghdset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></svg><span class="vh">Нагрузка и темп: </span><span class="setsum" id="gsetSum"></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button>
+      </div>
+      <div class="hdbody" id="ghdset" data-hd="set" hidden>
       <div class="maxrow">
         <p id="gmaxText"></p>
         <div class="stepper" role="group" aria-label="Рабочий максимум повторений с гантелями">
@@ -1165,15 +1269,8 @@ create policy "friends drop" on public.friends
         <span><i class="p"></i>Меньше плана</span>
         <span><i class="h"></i>Секунды: планка</span>
       </div>
-    </details>
-
-    <p class="pstatus" id="gstatus"></p>
-
-    <div class="pnav">
-      <button type="button" id="gprev" data-act="cprev" data-c="g" aria-label="Предыдущая тренировка">‹</button>
-      <p id="gnavLabel"></p>
-      <button type="button" id="gnext" data-act="cnext" data-c="g" aria-label="Следующая тренировка">›</button>
-    </div>
+      </div>
+    </section>
 
     <main><div id="gwork"></div></main>
 
@@ -1196,14 +1293,21 @@ create policy "friends drop" on public.friends
   </section>
 
   <section id="panel-stretch" role="tabpanel" aria-labelledby="tab-stretch" hidden>
-    <nav class="rig pushrig" aria-label="Занятия программы">
-      <div class="bar" aria-hidden="true"></div>
-      <div class="weeks" id="tweeks"></div>
-      <div class="rig-cap"><span id="tcapRange"></span><span id="tcapLeft"></span></div>
-    </nav>
-
-    <details class="panel progset">
-      <summary><span>Замеры и темп</span><span class="setsum" id="tsetSum"></span></summary>
+    <section class="phead" aria-label="Ход программы">
+      <div class="hd-top">
+        <div class="rig-cap"><span id="tcapRange"></span><span id="tcapLeft"></span></div>
+        <div class="hd-arrows">
+          <button type="button" class="hd-arrow" id="tprev" data-act="tprev" aria-label="Предыдущее занятие">‹</button>
+          <button type="button" class="hd-arrow" id="tnext" data-act="tnext" aria-label="Следующее занятие">›</button>
+        </div>
+      </div>
+      <nav class="rig pushrig" aria-label="Занятия программы"><div class="weeks" id="tweeks"></div></nav>
+      <p class="vh" id="tnavLabel" aria-live="polite"></p>
+      <p class="pstatus" id="tstatus"></p>
+      <div class="pchips">
+        <button type="button" class="pchip" data-act="hd" data-w="set" aria-expanded="false" aria-controls="thdset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></svg><span class="vh">Замеры и темп: </span><span class="setsum" id="tsetSum"></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button>
+      </div>
+      <div class="hdbody" id="thdset" data-hd="set" hidden>
       <div class="maxrow">
         <p id="tmaxText"></p>
         <div class="modebox" id="tmode"></div>
@@ -1231,15 +1335,8 @@ create policy "friends drop" on public.friends
         <span><i class="p"></i>Меньше плана</span>
         <span><i class="h"></i>Секунды удержания</span>
       </div>
-    </details>
-
-    <p class="pstatus" id="tstatus"></p>
-
-    <div class="pnav">
-      <button type="button" id="tprev" data-act="tprev" aria-label="Предыдущее занятие">‹</button>
-      <p id="tnavLabel"></p>
-      <button type="button" id="tnext" data-act="tnext" aria-label="Следующее занятие">›</button>
-    </div>
+      </div>
+    </section>
 
     <main><div id="twork"></div></main>
 
@@ -1267,13 +1364,16 @@ create policy "friends drop" on public.friends
       <p id="custPick" class="picker"></p>
     </div>
 
-    <p class="pstatus" id="custStatus"></p>
-
-    <div class="pnav">
-      <button type="button" id="custPrev" data-act="cust-prev" aria-label="Предыдущее занятие">‹</button>
-      <p id="custNav"></p>
-      <button type="button" id="custNext" data-act="cust-next" aria-label="Следующее занятие">›</button>
-    </div>
+    <section class="phead" aria-label="Ход программы">
+      <div class="hd-top">
+        <div class="rig-cap"><span id="custNav"></span></div>
+        <div class="hd-arrows">
+          <button type="button" class="hd-arrow" id="custPrev" data-act="cust-prev" aria-label="Предыдущее занятие">‹</button>
+          <button type="button" class="hd-arrow" id="custNext" data-act="cust-next" aria-label="Следующее занятие">›</button>
+        </div>
+      </div>
+      <p class="pstatus" id="custStatus"></p>
+    </section>
 
     <main><div id="custWork"></div></main>
 
@@ -1298,6 +1398,7 @@ create policy "friends drop" on public.friends
         <li>Отметки ставятся так же, как в остальных программах: нажал на кружок — подход засчитан, можно поправить число в редакторе под ним.</li>
         <li>Изменения сохраняются сразу и попадают в синхронизацию вместе с остальным прогрессом.</li>
         <li>Программ может быть несколько: переключай их кнопками сверху. Прогресс у каждой свой.</li>
+        <li>Программой можно поделиться: в редакторе нажми «Поделиться программой» и отправь ссылку. Получатель откроет её, и программа добавится к нему, без твоих отметок. Если ссылка не открывается в нужном месте, в «Создать» есть «Добавить по коду» — туда можно вставить ссылку целиком.</li>
       </ul>
     </details>
   </section>
@@ -1331,6 +1432,7 @@ create policy "friends drop" on public.friends
 </div>
 
 <div id="onb" class="warm" role="dialog" aria-modal="true" hidden></div>
+<div id="imp" class="warm" role="dialog" aria-modal="true" aria-labelledby="impTitle" hidden></div>
 <div id="focus" class="focus" role="dialog" aria-modal="true" aria-label="Режим тренировки" hidden></div>
 <div id="holdbar" class="holdbar" hidden></div>
 <div id="timerbar" class="timerbar" hidden></div>
@@ -1589,7 +1691,7 @@ create policy "friends drop" on public.friends
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzd3FsYmpsa3Bncm55a2dnY3pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwNDIyNDUsImV4cCI6MjEwNjYxODI0NX0.KQMAqfGyNr1NeLMKu3iRuufLaZ5DEMRj2sc1ulkK5QY"
   ]};
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 1, APP_BUILD_N = 17;
+  var APP_MAJOR = 1, APP_BUILD_N = 19;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
   var theme = "light";
@@ -1710,27 +1812,8 @@ create policy "friends drop" on public.friends
     var M0 = C0.mount && typeof C0.mount === "object" ? C0.mount : {};
     ["pull", "push", "squat", "dumb", "stretch"].forEach(function(tb2){ f.custom.mount[tb2] = typeof M0[tb2] === "string" ? M0[tb2] : null; });
     (Array.isArray(C0.progs) ? C0.progs : []).forEach(function(p){
-      if(!p || typeof p !== "object" || typeof p.id !== "string") return;
-      var days = (Array.isArray(p.days) ? p.days : []).map(function(d){
-        return {
-          name: String((d && d.name) || "").slice(0, 40),
-          wd: (Array.isArray(d && d.wd) ? d.wd : []).map(function(x){ return clampInt(x, 0, 6, 0); }).filter(function(x, k, arr){ return arr.indexOf(x) === k; }),
-          ex: (Array.isArray(d && d.ex) ? d.ex : []).map(function(e){
-            return {
-              n: String((e && e.n) || "").slice(0, 60),
-              sets: clampInt(e && e.sets, 1, 30, 1),
-              kind: (e && e.kind) === "sec" ? "sec" : "rep",
-              val: clampInt(e && e.val, 0, 600, 0),
-              rest: clampInt(e && e.rest, 0, 10800, 0),
-              cat: ["pull","push","squat","dumb","stretch"].indexOf(e && e.cat) >= 0 ? e.cat : "",
-              hint: String((e && e.hint) || "").slice(0, 200)
-            };
-          })
-        };
-      });
-      f.custom.progs.push({id: p.id, name: String(p.name || "Программа").slice(0, 60),
-        count: clampInt(p.count, 1, 120, Math.max(1, days.length * 4)),
-        sched: p.sched === "week" ? "week" : "chain", days: days});
+      var np = normProg(p);
+      if(np) f.custom.progs.push(np);
     });
     var T = s.t && typeof s.t === "object" ? s.t : {};
     f.t = {
@@ -1753,6 +1836,43 @@ create policy "friends drop" on public.friends
     return f;
   }
   function clampInt(v, lo, hi, dflt){ v = parseInt(v, 10); if(isNaN(v)) return dflt; return Math.min(hi, Math.max(lo, v)); }
+  // одна своя программа: чистим всё, что пришло из памяти, облака или по ссылке
+  function normProg(p){
+    if(!p || typeof p !== "object" || typeof p.id !== "string") return null;
+    var days = (Array.isArray(p.days) ? p.days : []).slice(0, 30).map(function(d){
+      d = d && typeof d === "object" ? d : {};
+      return {
+        name: String(d.name || "").slice(0, 40),
+        wd: (Array.isArray(d.wd) ? d.wd : []).map(function(x){ return clampInt(x, 0, 6, 0); }).filter(function(x, k, arr){ return arr.indexOf(x) === k; }),
+        mode: d.mode === "circuit" ? "circuit" : "seq",
+        rounds: clampInt(d.rounds, 1, 60, 1),
+        rest: clampInt(d.rest, 0, 3600, 60),
+        ex: (Array.isArray(d.ex) ? d.ex : []).slice(0, 40).map(function(e){
+          return {
+            n: String((e && e.n) || "").slice(0, 60),
+            sets: clampInt(e && e.sets, 1, 30, 1),
+            kind: (e && e.kind) === "sec" ? "sec" : "rep",
+            val: clampInt(e && e.val, 0, 600, 0),
+            rest: clampInt(e && e.rest, 0, 10800, 0),
+            cat: ["pull","push","squat","dumb","stretch"].indexOf(e && e.cat) >= 0 ? e.cat : "",
+            hint: String((e && e.hint) || "").slice(0, 200)
+          };
+        })
+      };
+    });
+    return {id: p.id, name: String(p.name || "Программа").slice(0, 60),
+      count: clampInt(p.count, 1, 120, Math.max(1, days.length * 4)),
+      sched: p.sched === "week" ? "week" : "chain", days: days};
+  }
+
+  // ---------- что и куда сохранено ----------
+  // REV.r — сколько раз менялся прогресс на этом устройстве, REV.n и REV.d — до какой правки дошли облако и аккаунт Claude
+  var localBad = false;
+  var REVKEY = "pullups-rev", REV = {r: 0, n: 0, d: 0};
+  try { var rv0 = JSON.parse(localStorage.getItem(REVKEY) || "null"); if(rv0 && typeof rv0 === "object"){ REV.r = +rv0.r || 0; REV.n = Math.min(REV.r, +rv0.n || 0); REV.d = Math.min(REV.r, +rv0.d || 0); } } catch(e){}
+  function revSave(){ try { localStorage.setItem(REVKEY, JSON.stringify(REV)); } catch(e){} }
+  var NET = {busy: false, err: "", kind: "", okAt: 0, fails: 0, rt: null};
+  var DBS = {busy: false, err: "", kind: "", okAt: 0, fails: 0, wait: !!(window.claude && typeof window.claude.use === "function")};
 
   var state = fresh();
   try { var raw = localStorage.getItem(KEY); if(raw){ state = normalize(JSON.parse(raw)); persistLocal(); } } catch(e){}
@@ -2104,7 +2224,7 @@ create policy "friends drop" on public.friends
     var left = (t.due - Date.now()) / 1000, due = left <= 0;
     bar.hidden = false; document.body.classList.add("has-timer");
     bar.classList.toggle("due", due);
-    bar.innerHTML = '<div class="tb-main"><button type="button" class="tb-text" data-act="timer-go"><strong>' + (due ? dueTitle(t.key) : "Следующий подход через " + fmt(left)) + '</strong><span>' + esc(nextText(t)) + '</span></button>' +
+    bar.innerHTML = '<div class="tb-main"><button type="button" class="tb-text" data-act="timer-go"><strong>' + (due ? dueTitle(t.key) : "Следующий подход через " + fmt(left)) + '</strong><span><span class="syncmini lead" data-syncpill data-mini hidden></span>' + esc(nextText(t)) + '</span></button>' +
       '<div class="tb-actions">' +
       (due ? '' : '<span class="tb-adj"><button type="button" class="tb-icon" data-act="timer-minus" aria-label="Минус минута">−1</button>' +
         '<button type="button" class="tb-icon" data-act="timer-plus" aria-label="Плюс минута">+1</button></span>') +
@@ -2122,6 +2242,7 @@ create policy "friends drop" on public.friends
     } else {
       document.title = fmt(left) + " до подхода";
     }
+    renderPill();
   }
   function tick(){
     var t = state.timer; if(!t) return;
@@ -2218,14 +2339,15 @@ create policy "friends drop" on public.friends
       })(p, ang, dist);
     }
   }
-  function flash(t, undoable){
+  function flash(t, opt){
     var el = document.getElementById("toast"); if(!el) return;
-    var can = undoable && UNDO.length > 0;
-    el.innerHTML = '<span class="tst-txt"></span>' + (can ? '<button type="button" class="tst-act" data-act="undo">Отменить</button>' : "");
+    var act = opt === true ? (UNDO.length > 0 ? {label: "Отменить", act: "undo"} : null) : (opt && opt.act ? opt : null);
+    el.innerHTML = '<span class="tst-txt"></span>' + (act ? '<button type="button" class="tst-act" data-act="' + act.act + '">' + act.label + '</button>' : "");
     var tx = el.querySelector(".tst-txt");
     if(tx) tx.textContent = t; else el.textContent = t;
     el.hidden = false;
-    clearTimeout(flashTimer); flashTimer = setTimeout(function(){ el.hidden = true; }, can ? 5500 : 2600);
+    var ms = Math.min(9000, Math.max(act ? 5500 : 2600, 1200 + String(t).length * 45));
+    clearTimeout(flashTimer); flashTimer = setTimeout(function(){ el.hidden = true; }, ms);
   }
   function buzz(ms){ try { if(navigator.vibrate) navigator.vibrate(ms); } catch(e){} }
 
@@ -2277,6 +2399,15 @@ create policy "friends drop" on public.friends
   function undoDo(){
     var u = UNDO.pop();
     if(!u){ flash("Отменять нечего"); return; }
+    if(u.fn){
+      u.fn();
+      if(u.tab && u.tab !== TAB && (u.tab === "profile" || tabOn(u.tab))){
+        TAB = u.tab;
+        try { localStorage.setItem(TKEY, TAB === "profile" ? prevTab : TAB); } catch(e){}
+      }
+      sel = null; save(); render(); flash(u.label || "Отменено"); buzz(20);
+      return;
+    }
     var o; try { o = JSON.parse(u.snap); } catch(e){ return; }
     for(var i = 0; i < UNDO_KEYS.length; i++){ var k = UNDO_KEYS[i]; if(o[k] !== undefined) state[k] = o[k]; }
     state.timer = null;
@@ -2555,7 +2686,6 @@ create policy "friends drop" on public.friends
         else if(days === 1) h = "<strong>Вчера была тренировка.</strong> Сегодня можно сделать следующую или отдохнуть день.";
         else h = "<strong>Последняя тренировка была " + days + " " + plural(days, ["день","дня","дней"]) + " назад.</strong> Самое время вернуться.";
       }
-      h += ' <span class="muted">Пройдено ' + done + " из " + CCOUNT + ".</span>";
       el("status").innerHTML = h;
     }
     function renderTrack(){
@@ -2569,8 +2699,8 @@ create policy "friends drop" on public.friends
       }
       h += '</div>';
       el("weeks").innerHTML = h;
-      el("capRange").innerHTML = "Тренировка <strong>" + (view + 1) + "</strong> из " + CCOUNT + ", " + C.name(C.type(view)).toLowerCase();
-      el("capLeft").textContent = "Пройдено " + done;
+      el("capRange").innerHTML = "Тренировка <strong>" + (view + 1) + "</strong> из " + CCOUNT;
+      el("capLeft").textContent = capLeftText(done, CCOUNT, view, cur, "тренировка");
     }
     function renderRing(){
       if(!loggedIn()){ el("ring").innerHTML = lockHtml(); return; }
@@ -3168,6 +3298,225 @@ create policy "friends drop" on public.friends
     flash("Программа создана — поправь названия и числа под себя");
   }
 
+  // ---------- обмен программами: ссылка или код ----------
+  // в ссылку кладём только план: названия, числа, паузы и расписание, без отметок
+  var custShareOpen = null, IMP = null, impOnb = false;
+  function b64uEnc(str){ return btoa(unescape(encodeURIComponent(str))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); }
+  function b64uDec(c){ c = c.replace(/-/g, "+").replace(/_/g, "/"); while(c.length % 4) c += "="; return decodeURIComponent(escape(atob(c))); }
+  function progPack(p){
+    return {v: 1, n: p.name || "", c: custCount(p), s: custWeek(p) ? "w" : "c",
+      d: (p.days || []).map(function(d){
+        var o = {n: d.name || "", x: dayEx(d).map(function(e){
+          var a = [e.n || "", exKind(e) === "sec" ? 1 : 0, exVal(e), exSets(e), Math.max(0, +e.rest || 0)];
+          if(e.cat || e.hint) a.push(e.cat || "", e.hint || "");
+          return a;
+        })};
+        if(custWeek(p) && d.wd && d.wd.length) o.w = d.wd.slice();
+        if(dayCircuit(d)){ o.m = 1; o.r = dayRounds(d); o.p = dayRest(d); }
+        return o;
+      })};
+  }
+  function progCode(p){ return b64uEnc(JSON.stringify(progPack(p))); }
+  function progUnpack(o){
+    if(!o || typeof o !== "object" || o.v !== 1 || !Array.isArray(o.d) || !o.d.length) return null;
+    var raw = {id: "in", name: String(o.n || "Программа"), count: o.c, sched: o.s === "w" ? "week" : "chain",
+      days: o.d.slice(0, 30).map(function(d){
+        d = d && typeof d === "object" ? d : {};
+        return {name: d.n, wd: Array.isArray(d.w) ? d.w : [], mode: d.m ? "circuit" : "seq", rounds: d.r, rest: d.p == null ? 60 : d.p,
+          ex: (Array.isArray(d.x) ? d.x : []).filter(Array.isArray).map(function(a){
+            return {n: a[0], kind: a[1] ? "sec" : "rep", val: a[2], sets: a[3], rest: a[4], cat: a[5] || "", hint: a[6] || ""};
+          })};
+      })};
+    var p = normProg(raw);
+    if(!p) return null;
+    var any = false;
+    p.days.forEach(function(d){ if(d.ex.length) any = true; });
+    return any ? p : null;
+  }
+  function progFromText(text){
+    var t = String(text || "").replace(/\s+/g, ""), cands = [], m = t.match(/prog=([A-Za-z0-9_\-]+)/);
+    if(m) cands.push(m[1]);
+    (t.match(/[A-Za-z0-9_\-]{16,}/g) || []).sort(function(a, b){ return b.length - a.length; }).forEach(function(c){ cands.push(c); });
+    for(var i = 0; i < cands.length; i++){
+      try { var p = progUnpack(JSON.parse(b64uDec(cands[i]))); if(p) return p; } catch(e){}
+    }
+    return null;
+  }
+  function canLink(){ return /^https?:$/.test(location.protocol) && !hostApi(); }
+  function shareLink(p){ return canLink() ? location.origin + location.pathname + "#prog=" + progCode(p) : ""; }
+  function shareText(p){
+    var link = shareLink(p), n = "«" + (p.name || "Программа") + "»";
+    return link
+      ? "Программа " + n + " для «Тренировок». Открой ссылку, и она добавится:\n" + link + "\n\nЕсли приложение установлено значком на экране: «Создать» → «Добавить по коду» и вставь эту ссылку."
+      : "Программа " + n + " для «Тренировок». В приложении открой «Создать» → «Добавить по коду» и вставь этот код:\n" + progCode(p);
+  }
+  function copyText(t, okMsg){
+    function fallback(){
+      var ok = false;
+      try {
+        var ta = document.createElement("textarea");
+        ta.value = t; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.top = "0"; ta.style.opacity = "0";
+        document.body.appendChild(ta); ta.focus(); ta.select();
+        try { ta.setSelectionRange(0, t.length); } catch(e2){}
+        ok = document.execCommand && document.execCommand("copy");
+        ta.remove();
+      } catch(e){ ok = false; }
+      flash(ok ? okMsg : "Скопировать не вышло. Выдели текст в поле ниже и скопируй вручную");
+    }
+    try {
+      if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function(){ flash(okMsg); }, fallback);
+      else fallback();
+    } catch(e){ fallback(); }
+  }
+  var SHARE_IC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3.5"/><path d="M7.5 8L12 3.5 16.5 8"/><path d="M5 12.5v6.2A1.8 1.8 0 0 0 6.8 20.5h10.4a1.8 1.8 0 0 0 1.8-1.8v-6.2"/></svg>';
+  function shareHtml(p){
+    var open = custShareOpen === p.id;
+    var h = '<div class="sharebox"><button type="button" class="linkbtn sharebtn" data-act="cust-share" aria-expanded="' + open + '">' + SHARE_IC + 'Поделиться программой</button>';
+    if(open){
+      var link = shareLink(p), can = typeof navigator !== "undefined" && !!navigator.share;
+      h += '<div class="sharepanel"><p class="hint">' + (link
+          ? "Отправь ссылку тому, кто будет заниматься по этой программе: откроет её — и программа добавится к нему."
+          : "Отправь код: получатель откроет «Создать» → «Добавить по коду» и вставит его.") +
+        ' Уходит только план: упражнения, числа и паузы. Твои отметки остаются у тебя.</p><div class="sharebtns">';
+      if(can) h += '<button type="button" class="primary" data-act="share-send">Отправить…</button>';
+      h += '<button type="button" class="' + (can ? "linkbtn" : "primary") + '" data-act="share-copy">' + (link ? "Скопировать ссылку" : "Скопировать код") + '</button></div>';
+      h += '<textarea class="sharecode" readonly rows="3" aria-label="' + (link ? "Ссылка на программу" : "Код программы") + '">' + esc(link || progCode(p)) + '</textarea></div>';
+    }
+    return h + '</div>';
+  }
+  function dayPlanText(day){
+    var ex = dayEx(day);
+    if(!ex.length) return "Пока без упражнений.";
+    function amt(e){ return exVal(e) + (exKind(e) === "sec" ? " с" : ""); }
+    var t;
+    if(dayCircuit(day)){
+      t = dayRounds(day) + " " + plural(dayRounds(day), ["круг","круга","кругов"]) + ": " +
+        ex.map(function(e){ return exName(e) + " " + amt(e); }).join(" → ") + ", пауза " + restWord(dayRest(day));
+    } else {
+      t = ex.map(function(e){ return exName(e) + " " + exSets(e) + "×" + amt(e); }).join(", ");
+    }
+    var pl = custPlan(day);
+    return t + ". Примерно " + pl.mins + " " + plural(pl.mins, ["минута","минуты","минут"]) + ".";
+  }
+  function impDup(p){
+    var c = progCode(p), l = custList();
+    for(var i = 0; i < l.length; i++) if(progCode(l[i]) === c) return l[i];
+    return null;
+  }
+  function impName(n){
+    var used = {}, k = 2, out = n;
+    custList().forEach(function(p){ used[p.name] = true; });
+    while(used[out] && k < 100){ out = n + " (" + k + ")"; k++; }
+    return out.slice(0, 60);
+  }
+  function impOpen(text, src){
+    var p = text ? progFromText(text) : null;
+    IMP = p ? {mode: "preview", prog: p, src: src || "paste"}
+            : {mode: "paste", text: text || "", err: String(text || "").trim() ? (src === "link"
+                ? "Ссылка пришла не целиком, программу не прочитать. Попроси прислать её ещё раз."
+                : "Не похоже на код программы. Скопируй ссылку или код целиком, вместе с концом строки.") : ""};
+    renderImp();
+  }
+  function impClose(){
+    IMP = null; renderImp();
+    if(impOnb){ impOnb = false; if(onbNeeded()) onbStart(); }
+  }
+  function impFromHash(){
+    var hs = location.hash || "";
+    if(!/prog=/.test(hs)) return false;
+    try { history.replaceState(history.state, "", location.pathname + location.search); } catch(e){}
+    impOnb = onbNeeded() && !ONB;
+    impOpen(hs, "link");
+    return true;
+  }
+  function impGoCustom(){
+    if(tabsOff.custom){ delete tabsOff.custom; tabsOffSave(); }
+    if(focusKey) focusClose();
+    if(TAB !== "custom"){
+      if(TAB !== "profile") prevTab = TAB;
+      TAB = "custom";
+      try { localStorage.setItem(TKEY, TAB); } catch(e){}
+      navPush();
+    }
+  }
+  function impAfter(){
+    if(impOnb){ impOnb = false; if(onbNeeded()){ onbStart(); ONB.keepTab = true; } }
+  }
+  function impAdd(){
+    if(!IMP || !IMP.prog) return;
+    var p = JSON.parse(JSON.stringify(IMP.prog));
+    var id = "p" + Date.now().toString(36) + Math.floor(Math.random() * 1296).toString(36);
+    p.id = id; p.name = impName(p.name || "Программа");
+    var prevCur = state.custom.cur;
+    UNDO.push({label: "Программа «" + p.name + "» убрана", tab: TAB, fn: function(){
+      state.custom.progs = state.custom.progs.filter(function(x){ return x.id !== id; });
+      if(state.custom.cur === id) state.custom.cur = prevCur;
+    }});
+    if(UNDO.length > 30) UNDO.shift();
+    state.custom.progs.push(p); state.custom.cur = id;
+    custView[id] = 0; custTplOpen = false; custExOpen = null; custShareOpen = null;
+    impGoCustom();
+    IMP = null; renderImp();
+    save(); render();
+    try { window.scrollTo(0, 0); } catch(e){}
+    flash("Программа «" + p.name + "» добавлена", true);
+    buzz(30);
+    impAfter();
+  }
+  function impShow(id){
+    if(!custProgById(id)) return;
+    state.custom.cur = id; custTplOpen = false; custExOpen = null;
+    impGoCustom();
+    IMP = null; renderImp();
+    save(); render();
+    impAfter();
+  }
+  function renderImp(){
+    var box = document.getElementById("imp");
+    if(!box) return;
+    if(!IMP){
+      box.hidden = true; box.innerHTML = "";
+      if(!ONB && !focusKey) document.body.classList.remove("modal-open");
+      return;
+    }
+    box.hidden = false;
+    document.body.classList.add("modal-open");
+    var h = '<div class="warm-card imp-card" role="document"><div class="warm-top"><span>' + (IMP.mode === "preview" ? "Тебе прислали программу" : "Программа от друга") + '</span>' +
+      '<button type="button" class="tb-icon" data-act="imp-close" aria-label="Закрыть">✕</button></div>';
+    if(IMP.mode === "paste"){
+      var canRead = typeof navigator !== "undefined" && navigator.clipboard && navigator.clipboard.readText;
+      h += '<h2 id="impTitle">Добавить по коду</h2><p class="hint">Вставь ссылку или код, которые тебе прислали. Можно прямо с текстом сообщения — лишнее не помешает.</p>' +
+        '<textarea id="impText" rows="4" placeholder="Ссылка или код программы" spellcheck="false" autocapitalize="off" autocomplete="off">' + esc(IMP.text || "") + '</textarea>' +
+        (IMP.err ? '<p class="hint imp-err" role="alert">' + esc(IMP.err) + '</p>' : "") +
+        '<div class="warm-actions">' +
+        (canRead ? '<button type="button" class="linkbtn alt" data-act="imp-paste">Вставить из буфера</button>' : '<button type="button" class="linkbtn alt" data-act="imp-close">Отмена</button>') +
+        '<button type="button" class="primary" data-act="imp-read">Показать программу</button></div>';
+    } else {
+      var p = IMP.prog, dup = impDup(p), week = custWeek(p);
+      h += '<h2 id="impTitle">' + esc(p.name || "Программа") + '</h2>';
+      h += '<p class="hint">' + (week
+        ? "По дням недели, занятие появляется в свой день."
+        : "Цепочкой: " + custCount(p) + " " + plural(custCount(p), ["занятие","занятия","занятий"]) +
+          (p.days.length > 1 ? ", " + p.days.length + " " + plural(p.days.length, ["день","дня","дней"]) + " идут по очереди" : "") + ".") + '</p>';
+      h += '<ul class="imp-days">';
+      p.days.forEach(function(d, di){
+        var wd = week ? (d.wd || []).map(function(x){ return WDN[x]; }).join(", ") : "";
+        h += '<li><b>' + esc(d.name || ("День " + (di + 1))) + (wd ? ' <span class="imp-wd">' + wd + '</span>' : "") + '</b><span>' + esc(dayPlanText(d)) + '</span></li>';
+      });
+      h += '</ul>';
+      h += dup
+        ? '<p class="hint imp-note">Такая программа у тебя уже есть: «' + esc(dup.name) + '».</p>'
+        : '<p class="hint">Добавится только план. Отметки того, кто прислал, не переносятся, а твои останутся как были.</p>';
+      h += '<div class="warm-actions"><button type="button" class="linkbtn alt" data-act="imp-close">Не надо</button>' +
+        (dup ? '<button type="button" class="primary" data-act="imp-openprog" data-id="' + dup.id + '">Открыть её</button>'
+             : '<button type="button" class="primary" data-act="imp-add">Добавить себе</button>') + '</div>';
+      if(dup) h += '<button type="button" class="linkbtn alt imp-copy" data-act="imp-add">Всё равно добавить копию</button>';
+    }
+    box.innerHTML = h + '</div>';
+    var f = box.querySelector(IMP.mode === "paste" ? "#impText" : ".primary");
+    if(f) try { f.focus({preventScroll: true}); } catch(e){ try { f.focus(); } catch(e2){} }
+  }
+
   function renderCustPick(){
     var list = custList(), cur = custCur(), h = "";
     if(!list.length) h = '<span class="muted">Программ пока нет. Создай первую — и занимайся по своему плану.</span>';
@@ -3175,6 +3524,7 @@ create policy "friends drop" on public.friends
       h += '<button type="button" class="blockbtn" data-act="cust-pick" data-id="' + p.id + '" aria-pressed="' + (cur && p.id === cur.id) + '">' + esc(p.name || "Без названия") + '</button>';
     });
     h += '<button type="button" class="linkbtn" style="margin-top:0" data-act="cust-new">Новая программа</button>';
+    h += '<button type="button" class="linkbtn alt" style="margin-top:0" data-act="imp-open">Добавить по коду</button>';
     document.getElementById("custPick").innerHTML = h;
   }
   function renderCustStatus(){
@@ -3182,11 +3532,10 @@ create policy "friends drop" on public.friends
     if(!prog){ el.innerHTML = "<strong>Здесь живут твои собственные программы.</strong> Выбери заготовку ниже — названия и числа потом поправишь под себя."; return; }
     if(custWeek(prog)){
       var td = custDayFor(prog, new Date()), nd = custScanDate(prog, ymdOf(new Date()), 1);
-      var h2 = "<strong>" + esc(prog.name || "Программа") + ".</strong> ";
-      h2 += td ? "Сегодня по плану: " + esc(td.name || "занятие") + "."
-               : "Сегодня отдых." + (nd ? " Ближайшее занятие в " + WDFULL[wdIdx(fromYmd(nd))] + "." : "");
+      var h2 = td ? "<strong>Сегодня по плану: " + esc(td.name || "занятие") + ".</strong>"
+               : "<strong>Сегодня отдых.</strong>" + (nd ? " Ближайшее занятие в " + WDFULL[wdIdx(fromYmd(nd))] + "." : "");
       var wdone = custWeekDone(prog);
-      h2 += ' <span class="muted">Всего занятий закрыто: ' + wdone + ".</span>";
+      if(wdone) h2 += " Всего закрыто занятий: " + wdone + ".";
       el.innerHTML = h2;
       return;
     }
@@ -3194,15 +3543,15 @@ create policy "friends drop" on public.friends
     for(i = 0; i < total; i++) if(custDone(prog, i)) done++;
     var last = 0;
     for(i = 0; i < total; i++){ var v = state.times[custKey(prog, i)]; if(v > last) last = v; }
-    var h = "<strong>" + esc(prog.name || "Программа") + ".</strong> ";
-    if(!last) h += "Занятия ещё не начинались.";
+    var h = "";
+    if(!last) h += "<strong>Занятия ещё не начинались.</strong> Отмечай подходы, нажимая на кружки.";
     else {
       var now = new Date(), d0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       var lt = new Date(last), d1 = new Date(lt.getFullYear(), lt.getMonth(), lt.getDate());
       var days = Math.round((d0 - d1) / 864e5);
-      h += days <= 0 ? "Последняя отметка сегодня." : days === 1 ? "Последнее занятие было вчера." : "Последнее занятие было " + days + " " + plural(days, ["день","дня","дней"]) + " назад.";
+      h += "<strong>" + (days <= 0 ? "Последняя отметка сегодня." : days === 1 ? "Последнее занятие было вчера." : "Последнее занятие было " + days + " " + plural(days, ["день","дня","дней"]) + " назад.") + "</strong>";
     }
-    h += ' <span class="muted">Пройдено ' + done + " из " + total + ".</span>";
+    if(done) h += " Пройдено " + done + " из " + total + ".";
     el.innerHTML = h;
   }
   function renderCustWork(){
@@ -3214,7 +3563,7 @@ create policy "friends drop" on public.friends
       w = custBuildDate(prog, dateT);
       key = custDateKey(prog, dateT);
       cur = custCurDate(prog);
-      nav.innerHTML = w ? esc(w.when.charAt(0).toUpperCase() + w.when.slice(1)) + " · <strong>" + esc(w.title) + "</strong>"
+      nav.innerHTML = w ? "<strong>" + esc(w.when.charAt(0).toUpperCase() + w.when.slice(1)) + "</strong>"
                         : esc(fromYmd(dateT).toLocaleDateString("ru-RU", {weekday: "long", day: "numeric", month: "long"})) + " · отдых";
       document.getElementById("custPrev").disabled = !custScanDate(prog, dateT, -1);
       document.getElementById("custNext").disabled = !custScanDate(prog, dateT, 1);
@@ -3228,7 +3577,7 @@ create policy "friends drop" on public.friends
     } else {
       i = custV(prog); total = custCount(prog); cur = custCurrent(prog);
       w = custBuild(prog, i); key = custKey(prog, i);
-      nav.innerHTML = "Занятие <strong>" + (i + 1) + "</strong> из " + total + ", " + esc(w ? w.title : "");
+      nav.innerHTML = "Занятие <strong>" + (i + 1) + "</strong> из " + total;
       document.getElementById("custPrev").disabled = i === 0;
       document.getElementById("custNext").disabled = i === total - 1;
     }
@@ -3261,6 +3610,7 @@ create policy "friends drop" on public.friends
       h += '<button type="button" class="tplcard" data-act="cust-tpl" data-k="' + t.k + '"><strong>' + esc(t.n) + '</strong><span>' + esc(t.d) + '</span></button>';
     });
     h += '</div>';
+    h += '<p class="hint tplfriend">Прислали программу? <button type="button" class="linkbtn alt" data-act="imp-open">Добавить по ссылке или коду</button></p>';
     if(cancel) h += '<button type="button" class="linkbtn alt" data-act="cust-tpl-cancel">Не создавать</button>';
     return h;
   }
@@ -3309,7 +3659,7 @@ create policy "friends drop" on public.friends
     if(!box) return;
     if(!prog || custTplOpen){ box.innerHTML = tplGridHtml(!!prog); return; }
     var week = custWeek(prog);
-    var h = '<div class="edrow"><label class="edwide">Название программы<input type="text" data-f="prog" data-k="name" value="' + esc(prog.name || "") + '" placeholder="Например, силовая на неделю"></label>' +
+    var h = shareHtml(prog) + '<div class="edrow"><label class="edwide">Название программы<input type="text" data-f="prog" data-k="name" value="' + esc(prog.name || "") + '" placeholder="Например, силовая на неделю"></label>' +
       (week ? "" : '<label>Занятий в цикле<input type="number" min="1" max="120" step="1" data-f="prog" data-k="count" value="' + custCount(prog) + '"></label>') + '</div>';
     h += '<div class="modebox"><span class="seg-label">Расписание</span><div class="seg" role="radiogroup" aria-label="Расписание программы">' +
       '<button type="button" role="radio" data-act="cust-sched" data-v="chain" aria-checked="' + (!week) + '">Цепочкой</button>' +
@@ -3446,12 +3796,13 @@ create policy "friends drop" on public.friends
     var total = custCount(prog), idx = mountedV(tab, prog), cur = mountedCurrent(tab, prog);
     var w = mountedBuild(tab, prog, idx), key = mountedKey(tab, prog, idx), done = 0;
     for(i = 0; i < total; i++) if(mountedDone(tab, prog, i)) done++;
-    var h = '<div class="today-box"><p><strong>Здесь идёт твоя программа «' + esc(prog.name || "Программа") + '».</strong> ' +
-      'Стандартная программа раздела никуда не делась: отметки в ней сохранены и вернутся вместе с ней. <span class="muted">Пройдено ' + done + ' из ' + total + '.</span></p>' +
-      '<button type="button" class="linkbtn alt" data-act="m-unmount" data-tab="' + tab + '">Вернуть стандартную программу</button></div>';
-    h += '<div class="pnav"><button type="button" data-act="m-prev" data-tab="' + tab + '" aria-label="Предыдущее занятие"' + (idx === 0 ? " disabled" : "") + '>‹</button>' +
-      '<p>Занятие <strong>' + (idx + 1) + '</strong> из ' + total + ', ' + esc(w ? w.title : "") + '</p>' +
-      '<button type="button" data-act="m-next" data-tab="' + tab + '" aria-label="Следующее занятие"' + (idx === total - 1 ? " disabled" : "") + '>›</button></div>';
+    var h = '<section class="phead" aria-label="Ход программы"><div class="hd-top"><div class="rig-cap"><span>Занятие <strong>' + (idx + 1) + '</strong> из ' + total + '</span>' +
+      '<span>' + esc("«" + (prog.name || "Программа") + "»") + (done ? " · пройдено " + done : "") + '</span></div>' +
+      '<div class="hd-arrows"><button type="button" class="hd-arrow" data-act="m-prev" data-tab="' + tab + '" aria-label="Предыдущее занятие"' + (idx === 0 ? " disabled" : "") + '>‹</button>' +
+      '<button type="button" class="hd-arrow" data-act="m-next" data-tab="' + tab + '" aria-label="Следующее занятие"' + (idx === total - 1 ? " disabled" : "") + '>›</button></div></div>' +
+      '<p class="vh">Занятие ' + (idx + 1) + ' из ' + total + ', ' + esc(w ? w.title : "") + '</p>' +
+      '<p class="pstatus">Здесь идёт твоя программа. Стандартная никуда не делась: её отметки сохранены и вернутся вместе с ней.</p>' +
+      '<div class="pchips"><button type="button" class="pchip" data-act="m-unmount" data-tab="' + tab + '">Вернуть стандартную программу</button></div></section>';
     if(w){
       var st2 = statsOf(w, key);
       if(idx !== cur) h += '<div class="jumprow"><button type="button" class="linkbtn alt" data-act="m-go" data-tab="' + tab + '" data-i="' + cur + '">Перейти к занятию ' + (cur + 1) + '</button></div>';
@@ -3723,7 +4074,9 @@ create policy "friends drop" on public.friends
   }
   function ghSync(silent){
     if(!ghOn() || GH.busy) return Promise.resolve();
-    GH.busy = true;
+    GH.busy = true; NET.busy = true;
+    clearTimeout(GH.timer); clearTimeout(NET.rt);
+    var r0 = 0;
     if(!silent) syncStatus("Синхронизирую…");
     return ghFetch("https://api.github.com/gists/" + GH.gist + "?nocache=" + Date.now(), {headers: ghHeaders(), cache: "no-store"})
       .then(function(g){
@@ -3735,16 +4088,17 @@ create policy "friends drop" on public.friends
           if(JSON.stringify(merged) !== before){ state = merged; persistLocal(); render(); }
         }
         var body = {files: {}};
+        r0 = REV.r;
         body.files[GH.file] = {content: JSON.stringify(state)};
         return ghFetch("https://api.github.com/gists/" + GH.gist, {method: "PATCH", headers: ghHeaders(), body: JSON.stringify(body)});
       })
-      .then(function(){ GH.last = Date.now(); GH.busy = false; renderSync(); })
-      .catch(function(e){ GH.busy = false; syncStatus("Синхронизация не прошла: " + ((e && e.message) || "ошибка сети") + "."); });
+      .then(function(){ netOk(r0); GH.last = Date.now(); GH.busy = false; renderSync(); netDone(); })
+      .catch(function(e){ GH.busy = false; syncStatus("Синхронизация не прошла: " + ((e && e.message) || "ошибка сети") + "."); netFail(e); });
   }
   function ghSchedule(){
     if(!ghOn()) return;
     clearTimeout(GH.timer);
-    GH.timer = setTimeout(function(){ ghSync(true); }, 4000);
+    GH.timer = setTimeout(function(){ ghSync(true); }, 2500);
   }
   function ghConnect(){
     var input = document.getElementById("ghToken"), token = (input && input.value || "").trim();
@@ -3812,7 +4166,7 @@ create policy "friends drop" on public.friends
     var h = {apikey: SB.key, "Content-Type": "application/json"};
     if(opts.headers) for(var k in opts.headers) h[k] = opts.headers[k];
     if(auth !== false && SB.tok) h.Authorization = "Bearer " + SB.tok.access_token;
-    return fetch(sbBase() + path, {method: opts.method || "GET", headers: h, body: opts.body})
+    return fetch(sbBase() + path, {method: opts.method || "GET", headers: h, body: opts.body, keepalive: !!opts.keepalive})
       .then(function(r){
         if(r.status === 401 && auth !== false && SB.tok && SB.tok.refresh_token && !opts.retried){
           return sbRefresh().then(function(){ opts.retried = true; return sbReq(path, opts, auth); });
@@ -3866,8 +4220,10 @@ create policy "friends drop" on public.friends
     if(!sbOn() || SB.busy) return Promise.resolve();
     var uid = sbUser();
     if(!uid) return Promise.resolve();
-    SB.busy = true;
+    SB.busy = true; NET.busy = true;
+    clearTimeout(SB.timer); clearTimeout(NET.rt);
     if(!silent) syncStatus("Синхронизирую…");
+    var r0 = 0, sent = false;
     return sbReq("/rest/v1/progress?select=data&limit=1")
       .then(function(rows){
         var remote = (rows && rows[0] && rows[0].data) ? normalize(rows[0].data) : null;
@@ -3875,20 +4231,23 @@ create policy "friends drop" on public.friends
           var merged = mergeStates(state, remote);
           if(JSON.stringify(merged) !== JSON.stringify(state)){ state = merged; persistLocal(); render(); }
         }
+        r0 = REV.r;
+        var body = JSON.stringify([{user_id: uid, data: JSON.parse(JSON.stringify(state)), updated_at: new Date().toISOString()}]);
         return sbReq("/rest/v1/progress", {
           method: "POST",
           headers: {Prefer: "resolution=merge-duplicates,return=minimal"},
-          body: JSON.stringify([{user_id: uid, data: JSON.parse(JSON.stringify(state)), updated_at: new Date().toISOString()}])
+          body: body,
+          keepalive: !!document.hidden && body.length < 60000
         });
       })
-      .then(function(){ return sbPutProfile(); })
-      .then(function(){ SB.last = Date.now(); SB.busy = false; renderSync(); renderAcc(); renderProfile(); })
-      .catch(function(e){ SB.busy = false; syncStatus("Синхронизация не прошла: " + sbErr(e)); });
+      .then(function(){ sent = true; netOk(r0); return sbPutProfile(); })
+      .then(function(){ SB.last = Date.now(); SB.busy = false; renderSync(); renderAcc(); renderProfile(); netDone(); })
+      .catch(function(e){ SB.busy = false; syncStatus("Синхронизация не прошла: " + sbErr(e)); if(sent) netDone(); else netFail(e); });
   }
   function sbSchedule(){
     if(!sbOn()) return;
     clearTimeout(SB.timer);
-    SB.timer = setTimeout(function(){ sbSync(true); }, 4000);
+    SB.timer = setTimeout(function(){ sbSync(true); }, 2500);
   }
   function sbErr(e){
     var m = (e && e.message) || "ошибка";
@@ -3950,6 +4309,107 @@ create policy "friends drop" on public.friends
   }
   function syncSchedule(){ var m = syncMode(); if(m === "gist") ghSchedule(); else if(m === "sb") sbSchedule(); }
   function syncNow(silent){ var m = syncMode(); if(m === "gist") return ghSync(silent); if(m === "sb") return sbSync(silent); return Promise.resolve(); }
+
+  // ---------- значок «что сохранилось» ----------
+  function netOn(){ var m = syncMode(); return (m === "sb" && sbOn()) || (m === "gist" && ghOn()); }
+  function errKind(e){
+    var m = String((e && (e.message || e.code)) || "");
+    if(/сессия истекла|refresh token|токен не подошёл|jwt expired|invalid jwt/i.test(m)) return "auth";
+    if((typeof navigator !== "undefined" && navigator.onLine === false) ||
+       /failed to fetch|networkerror|network request|load failed|network connection|internet|timed? ?out|aborted|unavailable|нет связи/i.test(m)) return "net";
+    return "other";
+  }
+  function netOk(r0){
+    if(r0 > REV.n){ REV.n = Math.min(r0, REV.r); revSave(); }
+    NET.err = ""; NET.kind = ""; NET.fails = 0; NET.okAt = Date.now();
+  }
+  function netDone(){
+    NET.busy = false;
+    clearTimeout(NET.rt);
+    // пока шла отправка, могли появиться новые отметки — отправим и их
+    if(REV.r > REV.n) NET.rt = setTimeout(function(){ syncNow(true); }, 1500);
+    renderPill();
+  }
+  function netFail(e){
+    NET.busy = false; NET.fails++;
+    NET.kind = errKind(e); NET.err = (e && e.message) || "ошибка";
+    clearTimeout(NET.rt);
+    if(NET.kind !== "auth"){
+      var steps = [5, 15, 30, 60, 120, 300];
+      NET.rt = setTimeout(function(){ syncNow(true); }, steps[Math.min(NET.fails, steps.length) - 1] * 1000);
+    }
+    renderPill();
+  }
+  function syncFlushNow(){
+    if(netOn() && REV.r > REV.n){ clearTimeout(SB.timer); clearTimeout(GH.timer); syncNow(true); }
+    if(db && REV.r > REV.d) flush();
+  }
+  function syncView(){
+    var ch = [], i, c;
+    if(db) ch.push({pend: REV.r > REV.d, kind: DBS.kind, err: DBS.err, okAt: DBS.okAt});
+    if(netOn()) ch.push({pend: REV.r > REV.n, kind: NET.kind, err: NET.err, okAt: NET.okAt});
+    if(!ch.length) return {k: DBS.wait ? "none" : localBad ? "bad" : "local"};
+    var off = typeof navigator !== "undefined" && navigator.onLine === false, pend = false, at = 0;
+    for(i = 0; i < ch.length; i++) if(ch[i].kind === "auth") return {k: "auth"};
+    for(i = 0; i < ch.length; i++) if(ch[i].kind === "other" && ch[i].pend) return {k: "err", msg: ch[i].err};
+    for(i = 0; i < ch.length; i++){ c = ch[i]; if(c.kind === "net") off = true; if(c.pend) pend = true; if(c.okAt > at) at = c.okAt; }
+    if(pend) return {k: off ? "wait" : "saving"};
+    return {k: off ? "offline" : "ok", at: at};
+  }
+  var PILL = {
+    none: ["", "", ""],
+    local: ["dev", "На устройстве", "Прогресс хранится только на этом устройстве"],
+    bad: ["alert", "Не сохраняется", "Браузер не даёт сохранять прогресс"],
+    saving: ["spin", "Сохраняю…", "Отправляю изменения в облако"],
+    ok: ["ok", "Сохранено", "Всё сохранено в облаке"],
+    wait: ["off", "Ждёт сети", "Нет связи, изменения уйдут в облако, когда появится сеть"],
+    offline: ["off", "Нет сети", "Нет связи, всё отмеченное уже в облаке"],
+    err: ["alert", "Не сохранено", "Не получилось сохранить в облако"],
+    auth: ["alert", "Войди заново", "Вход в аккаунт устарел"]
+  };
+  function pillIcon(k){
+    var a = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
+    var cloud = '<path d="M7 18.5h10a4 4 0 0 0 .7-7.94 6 6 0 0 0-11.5 1.6A3.2 3.2 0 0 0 7 18.5z"/>';
+    if(k === "ok") return a + cloud + '<path d="M9.4 14.2l1.9 1.9 3.4-3.6"/></svg>';
+    if(k === "off") return a + cloud + '<path d="M4 4l16 16"/></svg>';
+    if(k === "dev") return a + '<rect x="7" y="2.8" width="10" height="18.4" rx="2.2"/><path d="M11 17.6h2"/></svg>';
+    if(k === "spin") return a + '<g class="sp-spin"><path d="M12 4a8 8 0 1 0 8 8"/></g></svg>';
+    if(k === "alert") return a + '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.8v5"/><path d="M12 16.2v.01"/></svg>';
+    return "";
+  }
+  function hhmm(t){ return new Date(t).toLocaleTimeString("ru-RU", {hour: "2-digit", minute: "2-digit"}); }
+  function renderPill(){
+    var els = document.querySelectorAll("[data-syncpill]");
+    if(!els.length) return;
+    var v = syncView(), p = PILL[v.k] || PILL.none;
+    var label = p[2] + (v.k === "ok" && v.at ? ", последний раз в " + hhmm(v.at) : "");
+    for(var i = 0; i < els.length; i++){
+      var el = els[i], mini = el.hasAttribute("data-mini"), was = el.getAttribute("data-k");
+      if(was !== v.k){
+        el.setAttribute("data-k", v.k);
+        el.className = (mini ? "syncmini" + (el.classList.contains("lead") ? " lead" : "") : "syncpill") + " s-" + v.k + (was === "saving" && v.k === "ok" ? " pop" : "");
+        el.innerHTML = mini ? pillIcon(p[0]) : pillIcon(p[0]) + '<span class="sp-t">' + p[1] + '</span>';
+      }
+      el.hidden = v.k === "none" || (mini && v.k === "local");
+      if(mini){ el.setAttribute("role", "img"); el.setAttribute("aria-label", label); el.title = label; }
+      else { el.setAttribute("aria-label", label + ". Подробнее"); el.title = label; }
+    }
+  }
+  function pillTap(){
+    var v = syncView();
+    if(v.k === "local") flash("Прогресс хранится только на этом устройстве. Войди в аккаунт, и он будет сохраняться в облаке и появится на других устройствах", {label: "Войти", act: "sync-login"});
+    else if(v.k === "bad") flash("Браузер не даёт сохранять данные, так бывает в приватном режиме. Войди в аккаунт, чтобы ничего не потерять", {label: "Войти", act: "sync-login"});
+    else if(v.k === "saving"){ syncFlushNow(); flash("Отправляю изменения в облако…"); }
+    else if(v.k === "ok") flash("Всё сохранено в облаке" + (v.at ? ", последний раз в " + hhmm(v.at) : "") + ". На другом устройстве появится, когда откроешь там приложение");
+    else if(v.k === "wait") flash("Нет связи. Отметки сохранены на этом устройстве и сами уйдут в облако, когда появится сеть", {label: "Повторить", act: "sync-retry"});
+    else if(v.k === "offline") flash("Нет связи. Всё отмеченное уже в облаке, новое уйдёт туда, когда появится сеть");
+    else if(v.k === "err") flash("Не получилось сохранить в облако: " + (sbErr({message: v.msg}) || "ошибка").replace(/\.$/, "") + ". На устройстве всё цело, попробую ещё раз сам", {label: "Повторить", act: "sync-retry"});
+    else if(v.k === "auth") flash("Вход в аккаунт устарел. Войди заново — отметки на этом устройстве никуда не денутся", {label: "Войти", act: "sync-login"});
+  }
+  window.addEventListener("online", function(){ NET.fails = 0; DBS.fails = 0; if(db && REV.r > REV.d) flush(); syncNow(true); renderPill(); });
+  window.addEventListener("offline", function(){ renderPill(); });
+  document.addEventListener("visibilitychange", function(){ if(document.hidden) syncFlushNow(); });
+  window.addEventListener("pagehide", syncFlushNow);
 
   function ghOff(){
     GH.token = null; GH.gist = null; GH.last = 0;
@@ -4095,7 +4555,6 @@ create policy "friends drop" on public.friends
       else if(days === 1) h = "<strong>Вчера было занятие.</strong> Сегодня можно сделать следующее.";
       else h = "<strong>Последнее занятие было " + days + " " + plural(days, ["день","дня","дней"]) + " назад.</strong> Возвращайся, перерывы откатывают прогресс быстрее всего.";
     }
-    h += ' <span class="muted">Пройдено ' + done + " из " + TCOUNT + ".</span>";
     document.getElementById("tstatus").innerHTML = h;
   }
   function renderTTrack(){
@@ -4109,8 +4568,8 @@ create policy "friends drop" on public.friends
     }
     h += '</div>';
     document.getElementById("tweeks").innerHTML = h;
-    document.getElementById("tcapRange").innerHTML = "Занятие <strong>" + (view + 1) + "</strong> из " + TCOUNT + ", " + TNAME[tType(view)].toLowerCase();
-    document.getElementById("tcapLeft").textContent = "Пройдено " + done;
+    document.getElementById("tcapRange").innerHTML = "Занятие <strong>" + (view + 1) + "</strong> из " + TCOUNT;
+    document.getElementById("tcapLeft").textContent = capLeftText(done, TCOUNT, view, cur, "занятие");
   }
   function renderTRing(){
     if(!loggedIn()){ document.getElementById("tring").innerHTML = lockHtml(); return; }
@@ -5124,7 +5583,7 @@ create policy "friends drop" on public.friends
       state.b.startMax = Math.max(1, Math.round(ONB.max.p * 0.8));
       state.s.startMax = ONB.max.s;
       state.g.startMax = ONB.max.g;
-      TAB = ONB.gear.bar ? "pull" : ONB.gear.dumb ? "dumb" : ONB.gear.board ? "push" : "push";
+      if(!ONB.keepTab) TAB = ONB.gear.bar ? "pull" : ONB.gear.dumb ? "dumb" : ONB.gear.board ? "push" : "push";
     }
     ONB = null;
     document.getElementById("onb").hidden = true;
@@ -5403,7 +5862,7 @@ create policy "friends drop" on public.friends
     box.hidden = false;
     var w = info.day, t = state.timer && state.timer.key === focusKey ? state.timer : null;
     var left = t ? Math.max(0, Math.round((t.due - Date.now()) / 1000)) : 0;
-    var h = '<div class="fc-top"><span>' + esc(w.title || "Тренировка") + '</span>' +
+    var h = '<div class="fc-top"><span>' + esc(w.title || "Тренировка") + '<span class="syncmini" data-syncpill data-mini hidden></span></span>' +
       '<button type="button" class="tb-icon" data-act="focus-close" aria-label="Выйти из режима тренировки">✕</button></div>';
     if(info.done){
       h += '<div class="fc-mid"><p class="fc-ex">Все подходы отмечены</p>' +
@@ -5429,6 +5888,7 @@ create policy "friends drop" on public.friends
     }
     h += '</div>';
     box.innerHTML = h;
+    renderPill();
   }
   function focusBtn(key){
     return '<div class="test focusrow"><button type="button" class="linkbtn" data-act="focus-open" data-key="' + key + '">Режим тренировки</button></div>';
@@ -5543,12 +6003,29 @@ create policy "friends drop" on public.friends
     box.innerHTML = h;
   }
 
+  // ---------- шапка раздела ----------
+  // одна карточка: где ты в программе, дорожка, короткий статус и две кнопки-раскрывашки
+  var HD = {};
+  function capLeftText(done, total, view, cur, word){
+    if(done >= total) return "программа пройдена";
+    return done ? "пройдено " + done : "";
+  }
+  function renderHead(){
+    var panel = document.getElementById("panel-" + TAB);
+    if(!panel) return;
+    var open = HD[TAB] || null, chips = panel.querySelectorAll('.phead [data-act="hd"]'), bodies = panel.querySelectorAll(".phead .hdbody"), i;
+    for(i = 0; i < chips.length; i++){
+      if(chips[i].hidden && chips[i].getAttribute("data-w") === open) open = HD[TAB] = null;
+    }
+    for(i = 0; i < chips.length; i++) chips[i].setAttribute("aria-expanded", chips[i].getAttribute("data-w") === open ? "true" : "false");
+    for(i = 0; i < bodies.length; i++) bodies[i].hidden = bodies[i].getAttribute("data-hd") !== open;
+  }
   function renderBoardKey(){
-    var box = document.getElementById("boardKey");
+    var box = document.getElementById("boardKey"), btn = document.getElementById("boardKeyBtn");
     if(!box) return;
     var on = TAB === "push" && state.variant && state.variant.push === "board" && !mountedProg("push");
-    box.hidden = !on;
-    if(!on) return;
+    if(btn) btn.hidden = !on;
+    if(!on){ box.hidden = true; if(HD.push === "board") HD.push = null; return; }
     var body = document.getElementById("boardKeyBody");
     if(body && body.getAttribute("data-filled") !== "1"){
       body.innerHTML = boardKeyHtml();
@@ -5587,6 +6064,7 @@ create policy "friends drop" on public.friends
   window.addEventListener("popstate", function(ev){
     var st = ev.state;
     if(!st || !st.app){ navSync(); return; }
+    if(IMP){ impClose(); navPush(); return; }
     if(ONB){ onbClose(true); navPush(); return; }
     var want = st.focus && itemInfo(st.focus) ? st.focus : null;
     if(focusKey && focusKey !== want){
@@ -5635,14 +6113,27 @@ create policy "friends drop" on public.friends
     TABDEF.forEach(function(d){ if(d.t === t) nm = d.n; });
     return nm;
   }
+  function tabProg(){
+    var m = {};
+    todayRows().forEach(function(r){
+      if(!(r.today || r.fin)) return;
+      var pct = r.fin ? 100 : (r.plan ? Math.round(100 * r.done / r.plan) : 0);
+      if(m[r.tab] == null || pct > m[r.tab]) m[r.tab] = pct;
+    });
+    return m;
+  }
   function renderTabs(){
-    var els = document.querySelectorAll('[data-act="tab"]'), marks = tabMarks();
+    var els = document.querySelectorAll('[data-act="tab"]'), marks = tabMarks(), prog = tabProg();
     for(var i = 0; i < els.length; i++){
       var tv0 = els[i].getAttribute("data-tab"), on = tv0 === TAB, mk = marks[tv0] || "";
       els[i].hidden = !tabOn(tv0);
       els[i].setAttribute("aria-selected", on ? "true" : "false");
       els[i].tabIndex = on ? 0 : -1;
       els[i].setAttribute("data-st", mk);
+      var tpr = els[i].querySelector(".tprog");
+      if(!tpr){ tpr = document.createElement("i"); tpr.className = "tprog"; tpr.setAttribute("aria-hidden", "true"); els[i].appendChild(tpr); }
+      tpr.hidden = prog[tv0] == null;
+      tpr.style.setProperty("--p", (prog[tv0] || 0) + "%");
       els[i].setAttribute("aria-label", tabName(tv0) + (mk === "done" ? ", сегодня завершено" : mk === "part" ? ", есть отметки за сегодня" : ""));
     }
     var bar0 = document.querySelector(".tabs");
@@ -5723,7 +6214,6 @@ create policy "friends drop" on public.friends
     var gw = document.getElementById("gweight");
     if(gw && document.activeElement !== gw) gw.value = (state.g && state.g.weight) ? String(state.g.weight) : "";
     ledeToggle();
-    renderToday();
     if(TAB === "pull") PULL.render();
     else if(TAB === "push") pushChain().render();
     else if(TAB === "squat") SQUAT.render();
@@ -5733,11 +6223,12 @@ create policy "friends drop" on public.friends
     if(MTABS[TAB]) renderMounted(TAB);
     if(TAB === "push" || TAB === "squat") renderCounter();
     if(TAB === "profile"){ renderSync(); renderProfile(); }
-    renderSound(); renderNotify(); renderAcc(); renderTabPick(); renderBoardKey();
+    renderSound(); renderNotify(); renderAcc(); renderTabPick(); renderBoardKey(); renderHead();
     animateFills();
     animateNums();
     renderHold();
     renderTimer();
+    renderPill();
   }
 
   function setStatus(cloud){
@@ -5747,24 +6238,36 @@ create policy "friends drop" on public.friends
     var el = document.getElementById("status"), old = el.textContent;
     el.textContent = t; setTimeout(function(){ el.textContent = old; }, 4000);
   }
-  function persistLocal(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e){} }
+  function persistLocal(){ try { localStorage.setItem(KEY, JSON.stringify(state)); localBad = false; } catch(e){ localBad = true; } }
   function save(){
-    state.updatedAt = Date.now();
+    // время правки только растёт: если часы на устройствах расходятся, свежая правка всё равно считается свежей
+    state.updatedAt = Math.max(Date.now(), (state.updatedAt || 0) + 1);
     persistLocal();
+    REV.r++; revSave();
     if(db){ clearTimeout(timer); timer = setTimeout(flush, 700); }
     syncSchedule();
+    renderPill();
   }
   function flush(){
     if(!db) return;
     if(writing){ dirty = true; return; }
-    writing = true;
+    clearTimeout(timer);
+    writing = true; DBS.busy = true;
+    var r0 = REV.r;
     db.doc("pullups/state").set(JSON.parse(JSON.stringify(state))).then(function(){
       setStatus(true);
+      if(r0 > REV.d){ REV.d = r0; revSave(); }
+      DBS.err = ""; DBS.kind = ""; DBS.fails = 0; DBS.okAt = Date.now();
     }).catch(function(e){
-      if(e && e.code === "unavailable") dirty = true; else setStatus(false);
+      DBS.fails++;
+      if(e && e.code === "unavailable"){ DBS.kind = "net"; DBS.err = "нет связи"; }
+      else { setStatus(false); DBS.kind = errKind(e); DBS.err = (e && (e.message || e.code)) || "ошибка"; }
     }).then(function(){
-      writing = false;
-      if(dirty){ dirty = false; setTimeout(flush, 800 + Math.random() * 800); }
+      writing = false; DBS.busy = false;
+      var again = dirty || REV.r > REV.d;
+      dirty = false;
+      if(again) timer = setTimeout(flush, DBS.fails ? Math.min(120000, 2000 * Math.pow(2, DBS.fails - 1)) : 400);
+      renderPill();
     });
   }
   function logFor(key, idx){
@@ -5811,6 +6314,67 @@ create policy "friends drop" on public.friends
       return;
     }
     if(act === "undo"){ undoDo(); return; }
+    if(act === "sync-pill"){ pillTap(); return; }
+    if(act === "hd"){
+      var hw = b.getAttribute("data-w");
+      HD[TAB] = HD[TAB] === hw ? null : hw;
+      renderBoardKey(); renderHead();
+      return;
+    }
+    if(act === "sync-retry"){
+      NET.fails = 0; DBS.fails = 0; clearTimeout(NET.rt);
+      if(db) flush();
+      if(netOn()) syncNow(true);
+      renderPill(); flash("Пробую отправить ещё раз…"); return;
+    }
+    if(act === "sync-login"){
+      var tst = document.getElementById("toast"); if(tst) tst.hidden = true;
+      if(focusKey) focusClose();
+      if(TAB !== "profile"){ prevTab = TAB; TAB = "profile"; navPush(); }
+      render();
+      try { window.scrollTo(0, 0); } catch(e){}
+      return;
+    }
+    if(act === "imp-open"){ impOpen("", "paste"); return; }
+    if(act === "imp-close"){ impClose(); return; }
+    if(act === "imp-read"){
+      var itx = document.getElementById("impText"), itv = itx ? itx.value : "";
+      impOpen(itv, "paste");
+      if(IMP && IMP.mode === "paste" && !String(itv).trim()){ IMP.err = "Сначала вставь ссылку или код."; renderImp(); }
+      return;
+    }
+    if(act === "imp-paste"){
+      try {
+        navigator.clipboard.readText().then(function(t){ impOpen(t || "", "paste"); })
+          .catch(function(){ flash("Браузер не дал прочитать буфер. Вставь вручную: долгое нажатие в поле → «Вставить»"); });
+      } catch(e){ flash("Вставь вручную: долгое нажатие в поле → «Вставить»"); }
+      return;
+    }
+    if(act === "imp-add"){ impAdd(); return; }
+    if(act === "imp-openprog"){ impShow(b.getAttribute("data-id")); return; }
+    if(act === "cust-share"){
+      var csp = custCur(); if(!csp) return;
+      custShareOpen = custShareOpen === csp.id ? null : csp.id;
+      render(); return;
+    }
+    if(act === "share-send"){
+      var ssp = custCur(); if(!ssp) return;
+      var stx = shareText(ssp);
+      try {
+        navigator.share({title: "Программа «" + (ssp.name || "Программа") + "»", text: stx}).catch(function(e){
+          if(e && e.name === "AbortError") return;
+          copyText(stx, "Сообщение со ссылкой скопировано — вставь его в чат");
+        });
+      } catch(e){ copyText(stx, "Сообщение со ссылкой скопировано — вставь его в чат"); }
+      return;
+    }
+    if(act === "share-copy"){
+      var scp = custCur(); if(!scp) return;
+      var lnk = shareLink(scp);
+      if(lnk) copyText(lnk, "Ссылка скопирована — вставь её в сообщение");
+      else copyText(progCode(scp), "Код скопирован — отправь его в сообщении");
+      return;
+    }
     if(act === "tab-vis"){ tabVisToggle(b.getAttribute("data-t")); return; }
     if(act === "theme"){ theme = theme === "light" ? "dark" : theme === "dark" ? "auto" : "light"; try { localStorage.setItem(THKEY, theme); } catch(e){} applyTheme(); return; }
     if(act === "tab"){ var tv2 = b.getAttribute("data-tab"); if(!tabOn(tv2)) return; prevTab = tv2; if(cam) camFinish(false); var tbf = TAB; TAB = (tv2 === "push" || tv2 === "squat" || tv2 === "dumb" || tv2 === "stretch" || tv2 === "custom") ? tv2 : "pull"; sel = null; cntVal = null; try { localStorage.setItem(TKEY, TAB); } catch(e){} if(TAB !== tbf) navPush(); render(); return; }
@@ -6038,7 +6602,7 @@ create policy "friends drop" on public.friends
       if(act === "m-go") scrollTo(document.getElementById(mt + "Mounted"));
       return;
     }
-    if(act === "cust-pick"){ state.custom.cur = b.getAttribute("data-id"); sel = null; save(); render(); return; }
+    if(act === "cust-pick"){ state.custom.cur = b.getAttribute("data-id"); custShareOpen = null; sel = null; save(); render(); return; }
     if(act === "cust-go"){ var cp0 = custCur(); if(cp0){ custView[cp0.id] = +b.getAttribute("data-i"); sel = null; render(); scrollTo(document.getElementById("custWork")); } return; }
     if(act === "cust-date"){
       var cpd = custCur();
@@ -6208,6 +6772,7 @@ create policy "friends drop" on public.friends
 
   document.addEventListener("keydown", function(ev){
     if(ev.key === "Escape" && focusKey){ focusClose(); return; }
+    if(ev.key === "Escape" && IMP){ impClose(); return; }
     if(ev.key === "Escape" && ONB){ onbClose(true); return; }
     if((ev.ctrlKey || ev.metaKey) && !ev.shiftKey && !ev.altKey && String(ev.key).toLowerCase() === "z"){
       var t6 = ev.target;
@@ -6262,6 +6827,14 @@ create policy "friends drop" on public.friends
   document.addEventListener("input", function(ev){
     var t2 = ev.target;
     if(!t2) return;
+    if(t2.id === "impText"){
+      if(!IMP) return;
+      IMP.text = t2.value; IMP.err = "";
+      var ipr = progFromText(t2.value);
+      if(ipr){ IMP = {mode: "preview", prog: ipr, src: "paste"}; renderImp(); }
+      else { var ie = document.querySelector("#imp .imp-err"); if(ie) ie.remove(); }
+      return;
+    }
     if(t2.getAttribute && t2.getAttribute("data-f")){ custEdit(t2); save(); return; }
     if(t2.id === "pfName"){ state.profile.name = String(t2.value || "").slice(0, 40); save(); renderAcc(); return; }
     if(t2.getAttribute && t2.getAttribute("data-note")){
@@ -6341,24 +6914,31 @@ create policy "friends drop" on public.friends
   sbCatchRecovery();
   navSync();
   render();
-  if(onbNeeded()) onbStart();
+  if(!impFromHash() && onbNeeded()) onbStart();
+  window.addEventListener("hashchange", function(){ if(/prog=/.test(location.hash || "")){ if(ONB){ ONB = null; renderOnb(); } impFromHash(); } });
   syncNow(true);
 
   if(window.claude && typeof window.claude.use === "function"){
     window.claude.use("db").then(function(d){
-      if(!d) return;
+      if(!d){ DBS.wait = false; renderPill(); return; }
       return d.doc("pullups/state").get().then(function(snap){
-        db = d;
+        db = d; DBS.wait = false;
         if(snap.exists){
-          state = mergeStates(state, normalize(JSON.parse(JSON.stringify(snap.data()))));
+          var remote = normalize(JSON.parse(JSON.stringify(snap.data())));
+          var merged = mergeStates(state, remote);
+          state = merged;
           persistLocal();
+          // в облаке нет того, что накопилось здесь, — дошлём
+          if(JSON.stringify(merged) !== JSON.stringify(mergeStates(remote, remote))){ if(REV.d >= REV.r){ REV.r++; revSave(); } flush(); }
+          else { REV.d = REV.r; revSave(); DBS.okAt = Date.now(); }
           render();
         } else {
           flush();
         }
         setStatus(true);
+        renderPill();
       });
-    }).catch(function(){ setStatus(false); });
+    }).catch(function(){ DBS.wait = false; setStatus(false); renderPill(); });
   }
 })();
 </script>
