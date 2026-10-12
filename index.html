@@ -1031,6 +1031,8 @@ article[id^="card-"].today{box-shadow:0 16px 36px -18px rgba(18,58,107,.55), 0 0
 }
 @media (prefers-reduced-motion: reduce){.rt-bar,.fr-bar{transition:none}}
 @media (hover:none) and (pointer:coarse){.focus .fc-bot .hint{display:none}}
+.focus .fc-rest.due strong{color:var(--tide)}
+.focus .fc-rest.due span{color:#fff}
 .group.has-anim > .holdbtn{grid-column:1 / -1;justify-self:start}
 /* второстепенные карточки — стекло, чтобы главная карточка была одна */
 @supports (backdrop-filter: blur(10px)) and (background: color-mix(in srgb, white 50%, transparent)){
@@ -1842,7 +1844,7 @@ create policy "friends drop" on public.friends
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzd3FsYmpsa3Bncm55a2dnY3pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwNDIyNDUsImV4cCI6MjEwNjYxODI0NX0.KQMAqfGyNr1NeLMKu3iRuufLaZ5DEMRj2sc1ulkK5QY"
   ]};
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 1, APP_BUILD_N = 22;
+  var APP_MAJOR = 1, APP_BUILD_N = 23;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
   var theme = "light";
@@ -2481,8 +2483,13 @@ create policy "friends drop" on public.friends
   function tick(){
     var t = state.timer; if(!t) return;
     var el = document.querySelector("#timerbar .tb-text strong"), left = (t.due - Date.now()) / 1000;
-    if(el && left > 0 && !document.getElementById("timerbar").classList.contains("due")){
-      el.textContent = "Следующий подход через " + fmt(left); document.title = fmt(left) + " до подхода";
+    // в режиме тренировки отдых показан своим счётчиком — его тоже обновляем каждую секунду
+    var fr = focusKey ? document.querySelector("#focus .fc-rest strong") : null;
+    var barDue = el && document.getElementById("timerbar").classList.contains("due");
+    if(left > 0 && (el || fr) && !barDue){
+      if(el) el.textContent = "Следующий подход через " + fmt(left);
+      if(fr) fr.textContent = fmt(left);
+      document.title = fmt(left) + " до подхода";
     } else renderTimer();
   }
   setInterval(tick, 1000);
@@ -6137,6 +6144,8 @@ create policy "friends drop" on public.friends
       h += '<div class="fc-rest"><strong>' + fmt(left) + '</strong><span>отдых</span></div>' +
         '<div class="fc-restbtns"><button type="button" class="tb-icon" data-act="timer-minus">−1</button>' +
         '<button type="button" class="tb-icon" data-act="timer-plus">+1</button></div>';
+    } else if(t && !info.done){
+      h += '<div class="fc-rest due" role="status"><strong>Пора</strong><span>отдых закончился, делай подход</span></div>';
     } else {
       h += '<p class="hint">Пробел на компьютере тоже отмечает подход. Esc — выйти.</p>';
     }
