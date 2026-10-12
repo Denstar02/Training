@@ -1038,6 +1038,64 @@ article[id^="card-"].today{box-shadow:0 16px 36px -18px rgba(18,58,107,.55), 0 0
 @supports (backdrop-filter: blur(10px)) and (background: color-mix(in srgb, white 50%, transparent)){
   .phead,.pfoot{background:color-mix(in srgb, var(--surface) 72%, transparent);-webkit-backdrop-filter:blur(14px) saturate(1.15);backdrop-filter:blur(14px) saturate(1.15);box-shadow:none}
 }
+
+/* ===== v1.24: режим тренировки ===== */
+.focus{overflow-y:auto;overscroll-behavior:contain}
+.toast{z-index:60}
+.focus .fc-top{gap:8px}
+.fc-title{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fc-topbtns{display:flex;align-items:center;gap:4px;flex:0 0 auto}
+.fc-undo svg{width:20px;height:20px}
+.focus .fc-mid{gap:10px;padding:8px 0}
+.focus .fc-ex{max-width:22ch}
+.focus .fc-sub{margin-top:-4px}
+.fc-lead{margin:0;max-width:34ch;font-size:var(--fs-sm);line-height:1.45;color:rgba(255,255,255,.82);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.fc-map{width:min(320px,88%);border-radius:var(--r-sm);overflow:hidden;box-shadow:0 10px 30px -14px rgba(3,14,32,.7)}
+.fc-map .bmap{margin:0}
+.fc-dots{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;max-width:300px;margin:2px 0}
+.fc-dots i{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.22)}
+.fc-dots i.d{background:var(--tide)}
+.fc-dots i.p{background:#FCD34D}
+.fc-dots i.c{background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.25)}
+.fc-count{margin:0;font-size:var(--fs-sm);color:rgba(255,255,255,.8)}
+.fc-ringwrap.ready .fr-bar{stroke:rgba(255,255,255,.55)}
+.fc-ringwrap.rest .fr-bar{stroke:var(--tide)}
+.fc-ringwrap.due .fr-bar{stroke:var(--tide);animation:fcpulse 1.4s ease-in-out infinite}
+.fc-ringwrap.hold .fr-bar{stroke:#FCD34D;transition:stroke-dasharray .2s linear}
+@keyframes fcpulse{0%,100%{opacity:1}50%{opacity:.35}}
+.focus .fc-big.holding{background:#FFF7D6}
+.focus .fc-big span{max-width:14ch;line-height:1.25}
+.fc-state{margin:2px 0 0;font-size:var(--fs-sm);color:rgba(255,255,255,.78);display:flex;align-items:baseline;gap:8px}
+.fc-state b{font-family:"Unbounded","Onest",system-ui,sans-serif;font-size:26px;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.fc-state.due b{color:var(--tide)}
+.fc-state.due{color:#fff}
+.fc-tools{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:4px}
+.fc-tool{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 18px;border-radius:var(--r-pill);border:1px solid rgba(255,255,255,.32);background:rgba(255,255,255,.12);color:#fff;font:inherit;font-weight:600;font-size:var(--fs-sm);cursor:pointer;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.fc-tool svg{width:18px;height:18px}
+.fc-tool:active{background:rgba(255,255,255,.22)}
+.fc-next{margin:0;font-size:var(--fs-sm);color:rgba(255,255,255,.72)}
+.fc-skip{min-height:44px;padding:0 16px;border-radius:var(--r-pill);border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;font:inherit;font-weight:600;font-size:var(--fs-sm);cursor:pointer}
+.focus .fc-restbtns{align-items:center;gap:8px}
+.focus .fc-restbtns .tb-icon{min-width:52px}
+/* камера внутри режима тренировки */
+.fc-cam{width:min(460px,100%)}
+.fc-cam .cam{margin:0}
+.fc-cam .cam-view{border-radius:var(--r-lg);max-height:56vh;margin:0 auto;box-shadow:0 20px 50px -20px rgba(3,14,32,.8)}
+.fc-cam .cam-num b{font-size:64px}
+.fc-cam .hint{color:rgba(255,255,255,.8);text-align:center}
+.fc-cam .hint.diag{display:none}
+.fc-cam .test{justify-content:center}
+.fc-cam .primary{background:#fff;color:var(--ocean-deep)}
+.fc-cam .linkbtn.alt{background:rgba(255,255,255,.14);color:#fff}
+.fc-cammode .fc-sub{max-width:34ch}
+@media (max-height:740px){
+  .fc-lead{-webkit-line-clamp:2}
+  .fc-map{width:min(260px,80%)}
+  .fc-ringwrap{width:200px;height:200px}
+  .focus .fc-big{width:164px;height:164px}
+  .focus .fc-big b{font-size:44px}
+}
+@media (prefers-reduced-motion: reduce){.fc-ringwrap.due .fr-bar{animation:none}}
 </style>
 </head>
 <body>
@@ -1844,7 +1902,7 @@ create policy "friends drop" on public.friends
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzd3FsYmpsa3Bncm55a2dnY3pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwNDIyNDUsImV4cCI6MjEwNjYxODI0NX0.KQMAqfGyNr1NeLMKu3iRuufLaZ5DEMRj2sc1ulkK5QY"
   ]};
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 1, APP_BUILD_N = 23;
+  var APP_MAJOR = 1, APP_BUILD_N = 24;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
   var theme = "light";
@@ -2428,7 +2486,7 @@ create policy "friends drop" on public.friends
     if(next == null){ state.timer = null; flash("На сегодня всё. Отличная работа!"); return; }
     if(it && it.rest === 0){ state.timer = null; return; }
     var rest = it && it.rest != null ? it.rest : 50 * 60;
-    state.timer = {key: key, next: next, due: Date.now() + rest * 1000};
+    state.timer = {key: key, next: next, due: Date.now() + rest * 1000, len: rest * 1000};
     alerted = null;
   }
   function fmt(sec){
@@ -2483,12 +2541,13 @@ create policy "friends drop" on public.friends
   function tick(){
     var t = state.timer; if(!t) return;
     var el = document.querySelector("#timerbar .tb-text strong"), left = (t.due - Date.now()) / 1000;
-    // в режиме тренировки отдых показан своим счётчиком — его тоже обновляем каждую секунду
-    var fr = focusKey ? document.querySelector("#focus .fc-rest strong") : null;
+    // в режиме тренировки отдых показан своим счётчиком и кольцом — их тоже обновляем каждую секунду
+    var inFocus = focusKey && t.key === focusKey && !FH && !FC;
+    var fr = inFocus ? document.querySelector("#focus .fc-state:not(.due) b") : null;
     var barDue = el && document.getElementById("timerbar").classList.contains("due");
     if(left > 0 && (el || fr) && !barDue){
       if(el) el.textContent = "Следующий подход через " + fmt(left);
-      if(fr) fr.textContent = fmt(left);
+      if(fr){ fr.textContent = fmt(Math.ceil(left)); setRing(1 - left * 1000 / (t.len || Math.max(60000, t.due - Date.now()))); }
       document.title = fmt(left) + " до подхода";
     } else renderTimer();
   }
@@ -2655,7 +2714,7 @@ create policy "friends drop" on public.friends
     sel = null; cntVal = null; lastLogged = null;
     if(focusKey){
       var fi0 = itemInfo(focusKey);
-      if(!fi0){ focusKey = null; focusVal = null; document.body.classList.remove("modal-open"); var fb0 = document.getElementById("focus"); if(fb0){ fb0.hidden = true; fb0.innerHTML = ""; } }
+      if(!fi0){ focusTeardown(); focusKey = null; focusVal = null; document.body.classList.remove("modal-open"); var fb0 = document.getElementById("focus"); if(fb0){ fb0.hidden = true; fb0.innerHTML = ""; } }
       else focusVal = null;
     }
     if(u.tab && u.tab !== TAB && (u.tab === "profile" || tabOn(u.tab))){
@@ -3440,7 +3499,7 @@ create policy "friends drop" on public.friends
         rows.push(ex.map(function(e, j2){
           var lastEx = j2 === ex.length - 1, lastRound = r === rounds - 1;
           var it = list(1, exVal(e), exKind(e), null, lastEx && lastRound ? null : pause)[0];
-          it.lab = shortLab(e.n);
+          it.lab = shortLab(e.n); it.cat = e.cat || "";
           return it;
         }));
       }
@@ -3454,9 +3513,11 @@ create policy "friends drop" on public.friends
     }
     ex.forEach(function(e){
       var n = exSets(e), v = exVal(e), rest = Math.max(0, Math.min(10800, +e.rest || 0));
+      var row = list(n, v, exKind(e), rest, rest);
+      row.forEach(function(it){ it.cat = e.cat || ""; });
       groups.push({title: exName(e),
         hint: n + " " + plural(n, SETS) + " по " + exAmount(e) + ", пауза " + restWord(rest) + (e.hint ? ". " + e.hint : ""),
-        rows: [list(n, v, exKind(e), rest, rest)]});
+        rows: [row]});
     });
     return groups;
   }
@@ -4952,8 +5013,9 @@ create policy "friends drop" on public.friends
   function cue(kind, n){
     if(camVoice === "off" || (cam && cam.source === "file")) return;
     var v = camVoice === "voice";
-    if(kind === "rep") v ? say(String(n)) : playSig(camMode() === "s" ? "squat" : "push", "rep");
-    else if(kind === "goal") v ? say(n + ". Цель выполнена") : playSig(camMode() === "s" ? "squat" : "push", "done");
+    var cm = cam ? cam.mode : camMode();
+    if(kind === "rep") v ? say(String(n)) : playSig(cm === "s" ? "squat" : "push", "rep");
+    else if(kind === "goal") v ? say(n + ". Цель выполнена") : playSig(cm === "s" ? "squat" : "push", "done");
     else if(kind === "partial") v ? say("Ниже") : tone(330, 0.14);
     else if(kind === "tick") v ? say(String(n)) : tone(660, 0.06);
     else if(kind === "go") v ? say("Поехали") : tone(990, 0.14);
@@ -5169,11 +5231,11 @@ create policy "friends drop" on public.friends
       v.addEventListener("loadeddata", ok1); v.addEventListener("error", ok0);
     });
   }
-  function camStart(source, file){
+  function camStart(source, file, opts){
     if(cam) return;
-    var mode = camMode();
+    var mode = (opts && opts.mode) || camMode();
     unlockAudio();
-    var slot = nextPushSlot();
+    var slot = opts ? null : nextPushSlot();
     camShow(true);
     camEl("camCd").hidden = true;
     camEl("camChip").textContent = "Готовлюсь";
@@ -5187,22 +5249,24 @@ create policy "friends drop" on public.friends
         .then(function(s){ stream = s; return {model: model, stream: s}; });
     }).then(function(r){
       if(!r || id !== camId) return;
-      camBegin(source, file, r.model, r.stream, slot, mode);
+      camBegin(source, file, r.model, r.stream, slot, mode, opts);
     }).catch(function(e){
       if(stream) stream.getTracks().forEach(function(t){ t.stop(); });
       camShow(false);
       var isCam = /NotAllowed|NotFound|NotReadable|Overconstrained|Security|Abort|Permission/.test((e && e.name) || "");
-      camEl("camNote").textContent = isCam ? camErrorText(e)
+      var msg = isCam ? camErrorText(e)
         : "Движок распознавания не запустился: " + ((e && e.message) || "неизвестная ошибка") + ". Обнови страницу или запиши подход вручную.";
+      if(opts && opts.onFail){ stageBack(); opts.onFail(msg); return; }
+      camEl("camNote").textContent = msg;
       camEl("camNote").hidden = false;
       flash(isCam ? "Камера недоступна" : "Счётчик не запустился");
     });
   }
-  function camBegin(source, file, model, stream, slot, mode){
+  function camBegin(source, file, model, stream, slot, mode, opts){
     var v = camEl("camVideo");
     cam = {
-      id: ++camId, source: source, mode: mode, model: model, stream: stream, counter: CAMMODE[mode].counter(camDepth), goalHit: false,
-      video: v, goal: slot ? slot.item.target : 0, busy: false, lastProc: 0, lastT: -1, dims: "", box: null,
+      id: ++camId, source: source, mode: mode, model: model, stream: stream, counter: CAMMODE[mode].counter(camDepth), goalHit: false, opts: opts || null,
+      video: v, goal: opts ? (opts.goal || 0) : slot ? slot.item.target : 0, busy: false, lastProc: 0, lastT: -1, dims: "", box: null,
       countStarted: source !== "camera", cdUntil: 0, lastCd: 0, mirror: source === "camera", url: null, frames: 0, rateWin: null
     };
     camEl("camNote").hidden = true;
@@ -5391,7 +5455,7 @@ create policy "friends drop" on public.friends
   }
   function camFinish(saveIt){
     if(!cam) return;
-    var n = cam.counter ? cam.counter.count : 0;
+    var n = cam.counter ? cam.counter.count : 0, copts = cam.opts;
     camId++;
     if(cam.raf) cancelAnimationFrame(cam.raf);
     if(cam.stream) cam.stream.getTracks().forEach(function(t){ t.stop(); });
@@ -5403,6 +5467,12 @@ create policy "friends drop" on public.friends
     cam = null;
     camShow(false);
     camEl("camBar").style.width = "0%";
+    if(copts && copts.focus){
+      stageBack();
+      if(saveIt && copts.onDone) copts.onDone(n);
+      else if(copts.onCancel) copts.onCancel();
+      return;
+    }
     if(saveIt){
       if(n > 0) logCounter(n);
       else flash("Повторов не засчитано");
@@ -6060,7 +6130,10 @@ create policy "friends drop" on public.friends
   }
 
   // ---------- режим тренировки на весь экран ----------
+  // ---------- режим тренировки ----------
+  // FS — сессия (когда открыли, блокировка сна экрана), FH — таймер удержания, FC — счёт по камере
   var focusKey = null, focusVal = null;
+  var FS = {key: null, start: 0, wake: null}, FH = null, FC = null;
   function itemInfo(key){
     var w = dayOfKey(key);
     if(!w || w.test) return null;
@@ -6077,14 +6150,37 @@ create policy "friends drop" on public.friends
       ? {done: false, it: found.it, group: found.group, n: found.n, total: total, day: w}
       : {done: true, total: total, n: total, day: w};
   }
+  function wakeOn(){
+    try {
+      if(!navigator.wakeLock || !navigator.wakeLock.request || FS.wake) return;
+      navigator.wakeLock.request("screen").then(function(l){
+        if(!focusKey){ try { l.release(); } catch(e){} return; }
+        FS.wake = l;
+        l.addEventListener && l.addEventListener("release", function(){ if(FS.wake === l) FS.wake = null; });
+      }).catch(function(){});
+    } catch(e){}
+  }
+  function wakeOff(){ try { if(FS.wake) FS.wake.release(); } catch(e){} FS.wake = null; }
+  document.addEventListener("visibilitychange", function(){ if(!document.hidden && focusKey) wakeOn(); });
   function focusOpen(key){
     focusKey = key;
     focusVal = null;
+    if(FS.key !== key){ FS.key = key; FS.start = Date.now(); }
     document.body.classList.add("modal-open");
     navPush();
+    wakeOn();
     renderFocus();
   }
+  // всё, что живёт только пока открыт режим тренировки
+  function focusTeardown(){
+    fhStop();
+    if(cam && cam.opts && cam.opts.focus) camFinish(false);
+    stageBack();
+    FC = null;
+    wakeOff();
+  }
   function focusClose(){
+    focusTeardown();
     focusKey = null; focusVal = null;
     document.body.classList.remove("modal-open");
     navSync();
@@ -6096,6 +6192,7 @@ create policy "friends drop" on public.friends
     if(!focusKey) return;
     var info = itemInfo(focusKey);
     if(!info || info.done) return;
+    fhStop();
     var it = info.it, log = logFor(focusKey, it.idx);
     undoPush("Отметка снята");
     log[it.idx] = focusVal == null ? it.target : focusVal;
@@ -6108,49 +6205,226 @@ create policy "friends drop" on public.friends
     if(soundOn) playSig(tabOfKey(focusKey), "rep");
     try { if(navigator.vibrate) navigator.vibrate(30); } catch(e){}
   }
+  // главная кнопка: для секунд — старт и стоп удержания, для повторов — отметка
+  function focusPrimary(){
+    if(!focusKey || FC) return;
+    var info = itemInfo(focusKey);
+    if(!info || info.done) return;
+    if(isSec(info.it.kind)){
+      if(FH) fhFinish(true);
+      else fhStart(info);
+      return;
+    }
+    focusMark();
+  }
+  function fhStart(info){
+    var target = focusVal == null ? info.it.target : focusVal;
+    if(target <= 0) return;
+    unlockAudio();
+    FH = {key: focusKey, idx: info.it.idx, target: target, start: Date.now(), end: Date.now() + target * 1000, last: null, iv: null};
+    FH.iv = setInterval(fhTick, 200);
+    if(soundOn) playSig(tabOfKey(focusKey), "start");
+    try { if(navigator.vibrate) navigator.vibrate(40); } catch(e){}
+    renderFocus();
+  }
+  function fhStop(){ if(FH){ clearInterval(FH.iv); FH = null; } }
+  function fhFinish(early){
+    if(!FH) return;
+    var sec = early ? Math.max(0, Math.round((Date.now() - FH.start) / 1000)) : FH.target;
+    fhStop();
+    focusVal = sec;
+    focusMark();
+    if(!early && soundOn) playSig(tabOfKey(focusKey), "done");
+  }
+  function fhTick(){
+    if(!FH) return;
+    if(FH.key !== focusKey){ fhStop(); return; }
+    var left = (FH.end - Date.now()) / 1000;
+    if(left <= 0){ fhFinish(false); return; }
+    var n = Math.ceil(left);
+    if(n !== FH.last){
+      FH.last = n;
+      var b = document.querySelector("#focus .fc-big b");
+      if(b) b.textContent = n;
+      if(n <= 3 && soundOn) playSig(tabOfKey(focusKey), "tick");
+    }
+    setRing(1 - left / FH.target);
+  }
+  function setRing(f){
+    var bar = document.querySelector("#focus .fc-ringwrap:not(.done) .fr-bar");
+    if(!bar) return;
+    var R = +bar.getAttribute("r"), Cc = 2 * Math.PI * R;
+    bar.setAttribute("stroke-dasharray", (Math.max(0, Math.min(1, f)) * Cc).toFixed(1) + " " + Cc.toFixed(1));
+  }
   function focusRing(f, R){
     var Cc = 2 * Math.PI * R, sz = 2 * R + 12;
     return '<svg class="fc-ring" viewBox="0 0 ' + sz + ' ' + sz + '" aria-hidden="true"><circle class="fr-track" cx="' + sz / 2 + '" cy="' + sz / 2 + '" r="' + R + '"/>' +
       '<circle class="fr-bar" cx="' + sz / 2 + '" cy="' + sz / 2 + '" r="' + R + '" stroke-dasharray="' + (Math.max(0, Math.min(1, f)) * Cc).toFixed(1) + ' ' + Cc.toFixed(1) + '" transform="rotate(-90 ' + sz / 2 + ' ' + sz / 2 + ')"/></svg>';
   }
+  // какое упражнение можно считать камерой: отжимания (классика, доска) и приседания, в том числе в своих программах
+  function focusCamMode(key, info){
+    if(!info || info.done || !info.it || isSec(info.it.kind)) return null;
+    var m = /^([pbs])[dq]\d+$/.exec(key);
+    if(m) return m[1] === "s" ? "s" : "p";
+    var it = info.it, nm = String(it.lab || (info.group && info.group.title) || "").toLowerCase();
+    if(it.cat === "squat" || /присед/.test(nm)) return "s";
+    if(it.cat === "push" || /отжим/.test(nm)) return "p";
+    return null;
+  }
+  // экран камеры физически переезжает из блока «Счётчик по камере» в режим тренировки и обратно
+  var stageHome = null;
+  function stageTo(slot){
+    var st = document.getElementById("camStage");
+    if(!st || !slot) return;
+    if(!stageHome) stageHome = {p: st.parentNode, n: st.nextSibling};
+    if(st.parentNode !== slot) slot.appendChild(st);
+  }
+  function stageBack(){
+    var st = document.getElementById("camStage");
+    if(st && stageHome && st.parentNode !== stageHome.p) stageHome.p.insertBefore(st, stageHome.n);
+  }
+  function focusCamStart(){
+    if(!focusKey || cam) return;
+    var info = itemInfo(focusKey), mode = focusCamMode(focusKey, info);
+    if(!mode) return;
+    fhStop();
+    var key = focusKey, goal = focusVal == null ? info.it.target : focusVal;
+    FC = {key: key, idx: info.it.idx, mode: mode, err: "", name: focusName(info), goal: goal};
+    renderFocus();
+    camStart("camera", null, {focus: true, mode: mode, goal: goal,
+      onDone: function(n){
+        FC = null;
+        if(focusKey !== key){ renderFocus(); return; }
+        if(n > 0){
+          focusVal = n;
+          focusMark();
+          flash("Записано: " + n + " " + plural(n, ["повторение","повторения","повторений"]), true);
+        } else { renderFocus(); flash("Повторов не засчитано"); }
+      },
+      onCancel: function(){ FC = null; renderFocus(); },
+      onFail: function(msg){ if(FC) FC.err = msg; renderFocus(); }
+    });
+  }
+  function focusName(info){ return (info.it && info.it.lab) || (info.group && info.group.title) || "Подход"; }
+  function focusRound(info){
+    var g = info.group;
+    if(!g || !(g.circ || g.rnum) || g.rows.length < 2) return "";
+    for(var r = 0; r < g.rows.length; r++) for(var j = 0; j < g.rows[r].length; j++)
+      if(g.rows[r][j].idx === info.it.idx) return "Круг " + (r + 1) + " из " + g.rows.length;
+    return "";
+  }
+  // что будет дальше, если это другое упражнение
+  function focusNext(key, info){
+    var log = state.logs[key] || [], seen = false, out = null;
+    info.day.groups.forEach(function(g){ g.rows.forEach(function(r){ r.forEach(function(it){
+      if(out) return;
+      if(it.idx === info.it.idx){ seen = true; return; }
+      if(seen && log[it.idx] == null) out = {it: it, g: g};
+    }); }); });
+    if(!out) return "";
+    var nm = out.it.lab || out.g.title, cur = focusName(info);
+    if(nm === cur) return "";
+    return nm + " · " + out.it.target + (isSec(out.it.kind) ? " с" : "");
+  }
+  function focusDots(key, info){
+    var log = state.logs[key] || [], all = items(info.day), done = 0;
+    all.forEach(function(it){ if(log[it.idx] != null) done++; });
+    if(all.length > 44) return '<p class="fc-count">Подход ' + info.n + ' из ' + info.total + '</p>';
+    var h = '<div class="fc-dots" role="img" aria-label="Отмечено ' + done + ' из ' + all.length + ' подходов">';
+    all.forEach(function(it){
+      var v = log[it.idx];
+      h += '<i class="' + (v != null ? (v >= it.target ? "d" : "p") : it.idx === info.it.idx ? "c" : "") + '"></i>';
+    });
+    return h + '</div>';
+  }
+  function focusSummary(key, info){
+    var log = state.logs[key] || [], reps = 0, secs = 0, parts = [];
+    items(info.day).forEach(function(it){
+      var v = log[it.idx];
+      if(v == null) return;
+      if(isSec(it.kind)) secs += v; else reps += v;
+    });
+    if(reps) parts.push(reps + " " + plural(reps, ["повторение","повторения","повторений"]));
+    if(secs) parts.push((secs >= 120 ? Math.round(secs / 60) + " мин" : secs + " с") + " удержаний");
+    parts.push(info.total + " " + plural(info.total, SETS));
+    if(FS.key === key && FS.start){
+      var mins = Math.round((Date.now() - FS.start) / 60000);
+      if(mins >= 1 && mins < 600) parts.push("за " + mins + " " + plural(mins, ["минуту","минуты","минут"]));
+    }
+    return parts.join(" · ");
+  }
+  function restInfo(){
+    var t = state.timer && state.timer.key === focusKey ? state.timer : null;
+    if(!t) return null;
+    var now = Date.now(), left = (t.due - now) / 1000, len = t.len || Math.max(60000, t.due - now);
+    return {t: t, left: left, len: len, f: left > 0 ? Math.max(0, Math.min(1, 1 - left * 1000 / len)) : 1, due: left <= 0, small: len <= 180000};
+  }
+  var CAM_IC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5A2 2 0 0 1 6 6.5h2l1.5-2h5l1.5 2h2a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><circle cx="12" cy="12.5" r="3.3"/></svg>';
+  var UNDO_IC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>';
   function renderFocus(){
     var box = document.getElementById("focus");
     if(!box) return;
+    stageBack();
     if(!focusKey){ box.hidden = true; box.innerHTML = ""; return; }
     var info = itemInfo(focusKey);
     if(!info){ focusClose(); return; }
     box.hidden = false;
-    var w = info.day, t = state.timer && state.timer.key === focusKey ? state.timer : null;
-    var left = t ? Math.max(0, Math.round((t.due - Date.now()) / 1000)) : 0;
-    var h = '<div class="fc-top"><span>' + esc(w.title || "Тренировка") + '<span class="syncmini" data-syncpill data-mini hidden></span></span>' +
-      '<button type="button" class="tb-icon" data-act="focus-close" aria-label="Выйти из режима тренировки">✕</button></div>';
+    var w = info.day, ri = restInfo();
+    var canUndo = UNDO.length > 0 && lastLogged && lastLogged.key === focusKey && !FC;
+    var h = '<div class="fc-top"><span class="fc-title">' + esc(w.title || "Тренировка") + '<span class="syncmini" data-syncpill data-mini hidden></span></span>' +
+      '<span class="fc-topbtns">' +
+      (canUndo ? '<button type="button" class="tb-icon fc-undo" data-act="undo" aria-label="Отменить последнюю отметку" title="Отменить последнюю отметку">' + UNDO_IC + '</button>' : '') +
+      '<button type="button" class="tb-icon" data-act="focus-close" aria-label="Выйти из режима тренировки">✕</button></span></div>';
     if(info.done){
       h += '<div class="fc-mid"><div class="fc-ringwrap done" aria-hidden="true">' + focusRing(1, 120) + '<span class="fc-disc">' + CHECK_SVG + '</span></div>' +
         '<p class="fc-ex">Все подходы отмечены</p>' +
-        '<p class="fc-sub">' + info.total + " " + plural(info.total, SETS) + ' закрыто. Можно завершать.</p>' +
+        '<p class="fc-sub">' + esc(focusSummary(focusKey, info)) + '</p>' +
         '<button type="button" class="fc-big ok" data-act="focus-finish">Завершить тренировку</button></div>';
+      h += '<div class="fc-bot"></div>';
+    } else if(FC){
+      // счёт по камере
+      h += '<div class="fc-mid fc-cammode"><p class="fc-ex">' + esc(FC.name) + '</p>' +
+        '<p class="fc-sub">' + (FC.err ? "Камера не включилась" : "Цель — " + FC.goal + ". Повтор засчитается, когда лицо опустится и вернётся.") + '</p>';
+      if(FC.err){
+        h += '<p class="fc-lead">' + esc(FC.err) + '</p><div class="fc-tools">' +
+          '<button type="button" class="fc-tool" data-act="focus-cam">' + CAM_IC + 'Попробовать снова</button>' +
+          '<button type="button" class="fc-tool" data-act="focus-cam-off">Отметить вручную</button></div>';
+      } else h += '<div class="fc-cam" id="fcCamSlot"></div>';
+      h += '</div><div class="fc-bot"></div>';
     } else {
-      var it = info.it, val = focusVal == null ? it.target : focusVal, sec = isSec(it.kind);
-      h += '<div class="fc-mid"><p class="fc-ex">' + esc(info.group.title) + '</p>' +
-        '<p class="fc-sub">Подход ' + info.n + ' из ' + info.total + (sec ? ", держать " + it.target + " с" : "") + '</p>' +
-        '<div class="fc-val"><button type="button" class="fc-step" data-act="focus-less" aria-label="Меньше">−</button>' +
-        '<div class="fc-ringwrap">' + focusRing(info.total ? (info.n - 1) / info.total : 0, 120) +
-        '<button type="button" class="fc-big" data-act="focus-mark"><b>' + val + '</b><span>' + (sec ? "секунд — отметить" : "повторений — отметить") + '</span></button></div>' +
-        '<button type="button" class="fc-step" data-act="focus-more" aria-label="Больше">+</button></div>';
+      var it = info.it, sec = isSec(it.kind), val = focusVal == null ? it.target : focusVal;
+      var hint = splitHint(info.group.hint).lead, round = focusRound(info), next = focusNext(focusKey, info);
+      var camMode = focusCamMode(focusKey, info);
+      var ringF = FH ? Math.min(1, (Date.now() - FH.start) / (FH.target * 1000)) : ri ? ri.f : 1;
+      var ringCls = FH ? "hold" : ri && !ri.due ? "rest" : ri && ri.due ? "due" : "ready";
+      h += '<div class="fc-mid"><p class="fc-ex">' + esc(focusName(info)) + '</p>';
+      h += '<p class="fc-sub">' + (round ? round + " · " : "") + "подход " + info.n + " из " + info.total + (sec ? " · держать " + it.target + " с" : "") + '</p>';
+      if(hint) h += '<p class="fc-lead">' + esc(hint) + '</p>';
+      if(info.group.board) h += '<div class="fc-map">' + boardMapHtml(info.group.board, "Схема доски: " + info.group.title) + '</div>';
+      h += focusDots(focusKey, info);
+      var bigLab = FH ? "держи · нажми, чтобы закончить" : sec ? "секунд · нажми, чтобы начать" : "повторений · отметить";
+      h += '<div class="fc-val"><button type="button" class="fc-step" data-act="focus-less" aria-label="Меньше"' + (FH ? " disabled" : "") + '>−</button>' +
+        '<div class="fc-ringwrap ' + ringCls + '">' + focusRing(ringF, 120) +
+        '<button type="button" class="fc-big' + (FH ? " holding" : "") + '" data-act="focus-mark"><b>' + (FH ? Math.max(1, Math.ceil((FH.end - Date.now()) / 1000)) : val) + '</b><span>' + bigLab + '</span></button></div>' +
+        '<button type="button" class="fc-step" data-act="focus-more" aria-label="Больше"' + (FH ? " disabled" : "") + '>+</button></div>';
+      if(ri && !ri.due && !FH) h += '<p class="fc-state"><b>' + fmt(Math.ceil(ri.left)) + '</b> отдых</p>';
+      else if(ri && ri.due && !FH) h += '<p class="fc-state due" role="status"><b>Пора</b> отдых закончился, делай подход</p>';
+      if(camMode && !FH) h += '<div class="fc-tools"><button type="button" class="fc-tool" data-act="focus-cam">' + CAM_IC + 'Считать камерой</button></div>';
+      if(next) h += '<p class="fc-next">Дальше: ' + esc(next) + '</p>';
       h += '<p class="vh">Отмечено ' + (info.n - 1) + ' из ' + info.total + '</p></div>';
+      h += '<div class="fc-bot">';
+      if(ri && !ri.due && !FH){
+        var st = ri.small ? 15 : 60, lab = ri.small ? "15 с" : "1 мин";
+        h += '<div class="fc-restbtns"><button type="button" class="tb-icon" data-act="timer-minus" data-s="' + st + '" aria-label="Отдых короче на ' + lab + '">−' + (ri.small ? "15" : "1") + '</button>' +
+          '<button type="button" class="fc-skip" data-act="timer-skip">Пропустить отдых</button>' +
+          '<button type="button" class="tb-icon" data-act="timer-plus" data-s="' + st + '" aria-label="Отдых длиннее на ' + lab + '">+' + (ri.small ? "15" : "1") + '</button></div>';
+      } else {
+        h += '<p class="hint">Пробел на компьютере тоже отмечает подход. Esc — выйти.</p>';
+      }
+      h += '</div>';
     }
-    h += '<div class="fc-bot">';
-    if(t && left > 0){
-      h += '<div class="fc-rest"><strong>' + fmt(left) + '</strong><span>отдых</span></div>' +
-        '<div class="fc-restbtns"><button type="button" class="tb-icon" data-act="timer-minus">−1</button>' +
-        '<button type="button" class="tb-icon" data-act="timer-plus">+1</button></div>';
-    } else if(t && !info.done){
-      h += '<div class="fc-rest due" role="status"><strong>Пора</strong><span>отдых закончился, делай подход</span></div>';
-    } else {
-      h += '<p class="hint">Пробел на компьютере тоже отмечает подход. Esc — выйти.</p>';
-    }
-    h += '</div>';
     box.innerHTML = h;
+    if(FC && !FC.err) stageTo(document.getElementById("fcCamSlot"));
     renderPill();
   }
   function focusBtn(key){
@@ -6334,6 +6608,7 @@ create policy "friends drop" on public.friends
     if(ONB){ onbClose(true); navPush(); return; }
     var want = st.focus && itemInfo(st.focus) ? st.focus : null;
     if(focusKey && focusKey !== want){
+      focusTeardown();
       focusKey = null; focusVal = null;
       document.body.classList.remove("modal-open");
       var fb = document.getElementById("focus");
@@ -6775,7 +7050,16 @@ create policy "friends drop" on public.friends
     }
     if(act === "focus-open"){ focusOpen(b.getAttribute("data-key")); return; }
     if(act === "focus-close"){ focusClose(); return; }
-    if(act === "focus-mark"){ focusMark(); return; }
+    if(act === "focus-mark"){ focusPrimary(); return; }
+    if(act === "focus-cam"){ unlockAudio(); focusCamStart(); return; }
+    if(act === "focus-cam-off"){ FC = null; renderFocus(); return; }
+    if(act === "timer-skip"){
+      var tsk = state.timer;
+      if(!tsk) return;
+      tsk.due = Date.now() - 1; alerted = tsk.due;
+      save(); renderTimer();
+      return;
+    }
     if(act === "focus-finish"){
       confetti(b);
       var fkey = focusKey;
@@ -6996,12 +7280,13 @@ create policy "friends drop" on public.friends
     if(act === "timer-minus" || act === "timer-plus"){
       var tt = state.timer;
       if(!tt) return;
-      var delta = (act === "timer-plus" ? 60 : -60) * 1000;
-      var min = Date.now() + 10000, max = Date.now() + 6 * 3600 * 1000;
+      var stp = +b.getAttribute("data-s") || 60, delta = (act === "timer-plus" ? stp : -stp) * 1000;
+      var min = Date.now() + 10000, max = Date.now() + 6 * 3600 * 1000, was = tt.due;
       tt.due = Math.max(min, Math.min(max, tt.due + delta));
+      if(tt.len) tt.len = Math.max(10000, tt.len + (tt.due - was));
       if(tt.due > Date.now()) alerted = null;
       save(); renderTimer();
-      flash(act === "timer-plus" ? "Отдых длиннее на минуту" : "Отдых короче на минуту");
+      flash(act === "timer-plus" ? "Отдых длиннее на " + (stp === 60 ? "минуту" : stp + " секунд") : "Отдых короче на " + (stp === 60 ? "минуту" : stp + " секунд"));
       return;
     }
     if(act === "timer-close"){ state.timer = null; save(); renderTimer(); return; }
@@ -7060,7 +7345,7 @@ create policy "friends drop" on public.friends
     }
     if((ev.key === " " || ev.code === "Space") && focusKey){
       ev.preventDefault();
-      focusMark();
+      focusPrimary();
       return;
     }
     if(ev.key === " " || ev.code === "Space"){
