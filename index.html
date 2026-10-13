@@ -1096,6 +1096,121 @@ article[id^="card-"].today{box-shadow:0 16px 36px -18px rgba(18,58,107,.55), 0 0
   .focus .fc-big b{font-size:44px}
 }
 @media (prefers-reduced-motion: reduce){.fc-ringwrap.due .fr-bar{animation:none}}
+
+/* ===== v1.25: медали, картинка результата, неделя с другом ===== */
+.medals{margin-top:var(--s4)}
+.md-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.md-count{color:var(--muted);font-weight:600;font-size:var(--fs-sm)}
+.md-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:18px 10px;margin-top:var(--s4)}
+.md{display:flex;flex-direction:column;align-items:center;text-align:center;gap:3px;min-width:0}
+.md-ring{position:relative;width:72px;height:72px;margin-bottom:4px}
+.md-ring svg{position:absolute;inset:0;width:100%;height:100%}
+.md-track{fill:none;stroke:var(--line);stroke-width:5}
+.md-bar{fill:none;stroke:var(--tide-strong);stroke-width:5;stroke-linecap:round}
+.md-e{position:absolute;inset:11px;border-radius:50%;display:grid;place-items:center;font-size:25px;line-height:1;background:var(--bg);filter:grayscale(1);opacity:.5}
+.md.on .md-e{filter:none;opacity:1;background-color:var(--ocean-deep);background-image:var(--ocean-hero);background-size:120px 120px, auto, auto, auto;background-blend-mode:overlay, normal, normal, normal;box-shadow:0 8px 18px -10px rgba(18,58,107,.7)}
+.md.on .md-track{stroke:color-mix(in srgb, var(--tide-strong) 25%, transparent)}
+.md-check{position:absolute;right:2px;bottom:2px;width:22px;height:22px;border-radius:50%;background:var(--tide-strong);color:#fff;display:grid;place-items:center;box-shadow:0 0 0 2.5px var(--surface)}
+.md-check svg{position:static;width:13px;height:13px}
+.md b{font-size:var(--fs-xs);line-height:1.2;font-weight:700}
+.md small{font-size:11.5px;line-height:1.3;color:var(--muted)}
+.md .md-when{color:var(--done);font-weight:600}
+.sc-dlg{z-index:65}
+.sc-card{max-width:440px}
+.sc-img{display:block;width:100%;height:auto;margin-top:12px;border-radius:var(--r-md);box-shadow:0 18px 40px -20px rgba(3,14,32,.6)}
+.duel{margin:8px 0 4px}
+.duel-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;font-size:var(--fs-sm)}
+.duel-top b{font-family:"Unbounded","Onest",system-ui,sans-serif;font-weight:700}
+.duel-cap{color:var(--muted);font-size:var(--fs-xs)}
+.duel-me b{color:var(--accent)}
+.duel-them b{color:var(--tide-strong)}
+.duel-bar{height:8px;margin-top:6px;border-radius:4px;background:var(--tide-strong);overflow:hidden}
+.duel-bar i{display:block;height:100%;background:var(--accent);border-right:2px solid var(--surface)}
+.focus .fc-big.ok + .fc-tool{margin-top:6px}
+
+/* v1.25b: компактная витрина медалей, неделя, тост по ширине текста */
+.toast{width:max-content;max-width:min(92vw,440px)}
+.md-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px 8px}
+.md{appearance:none;-webkit-appearance:none;border:0;background:none;padding:4px 2px;margin:0;font:inherit;color:inherit;cursor:pointer;border-radius:var(--r-sm);-webkit-tap-highlight-color:transparent}
+.md:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.md:active .md-ring{transform:scale(.96)}
+.md-ring{width:64px;height:64px;margin-bottom:2px;transition:transform .15s}
+.md-e{inset:10px;font-size:22px}
+.md-check{width:20px;height:20px;right:0;bottom:0}
+.md-check svg{width:12px;height:12px}
+.md b{font-size:12.5px}
+.md small{font-size:11px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.md-more{display:block;margin:14px auto 0}
+@media (min-width:560px){.md-grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}}
+.duel{margin:10px 0 6px;padding:10px 12px;border-radius:var(--r-sm);background:color-mix(in srgb, var(--tide-strong) 8%, var(--surface))}
+.duel-cap{font-size:var(--fs-xs);color:var(--muted);font-weight:600}
+.duel-top{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;margin-top:4px}
+.duel-top > span{display:flex;flex-direction:column;min-width:0}
+.duel-them{align-items:flex-end;text-align:right}
+.duel-top small{font-size:var(--fs-xs);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.duel-top b{font-size:22px;line-height:1.1;font-variant-numeric:tabular-nums}
+.duel-note{margin-top:6px;font-size:var(--fs-xs);color:var(--muted)}
+
+/* ===== v1.26: голосовой тренер, рекорды, итоги недели ===== */
+.fc-voice.on{background:rgba(94,234,212,.2);border-color:rgba(94,234,212,.65)}
+.fc-pr{margin:0;font-size:var(--fs-sm);font-weight:700;color:#FCD34D;text-align:center}
+.wk-dlg{z-index:62}
+.wk-card{padding:0;max-width:440px}
+.wk-hero{color:#fff;background-color:var(--ocean-deep);background-image:var(--ocean-hero);background-size:120px 120px, auto, auto, auto;background-blend-mode:overlay, normal, normal, normal;padding:14px 18px 16px;border-radius:calc(var(--r-lg) - 1px) calc(var(--r-lg) - 1px) 0 0}
+.wk-top{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:var(--fs-xs);font-weight:600;color:rgba(255,255,255,.8)}
+.wk-hero .tb-icon{color:#fff;background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25)}
+.wk-hero .tb-icon[disabled]{opacity:.3;cursor:default}
+.wk-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}
+.wk-range{font-family:"Unbounded","Onest",system-ui,sans-serif;font-weight:700;font-size:17px;text-align:center}
+.wk-big{margin:14px 0 0;font-size:var(--fs-sm);color:rgba(255,255,255,.85)}
+.wk-big b{font-family:"Unbounded","Onest",system-ui,sans-serif;font-size:46px;line-height:1;color:#fff;letter-spacing:-.02em;margin-right:4px;font-variant-numeric:tabular-nums}
+.wk-cmp{margin:8px 0 0;font-size:var(--fs-xs);color:rgba(255,255,255,.75)}
+.wk-cmp.up{color:var(--tide);font-weight:600}
+.wk-bars{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;height:150px;margin-top:16px}
+.wk-bar{display:flex;flex-direction:column;align-items:center;height:100%;gap:4px;min-width:0}
+.wk-col{flex:1 1 auto;min-height:0;width:100%;display:flex;align-items:flex-end;justify-content:center}
+.wk-col i{display:block;width:100%;max-width:34px;min-height:4px;border-radius:8px 8px 3px 3px;background:rgba(255,255,255,.38)}
+.wk-bar em{font-style:normal;font-size:11px;line-height:14px;height:14px;font-weight:700;color:rgba(255,255,255,.85);font-variant-numeric:tabular-nums;white-space:nowrap}
+.wk-bar span{font-size:11.5px;color:rgba(255,255,255,.7)}
+.wk-bar.best i{background:var(--tide)}
+.wk-bar.act i{background:rgba(255,255,255,.6);min-height:8px}
+.wk-bar.today span{color:#fff;font-weight:700}
+.wk-bar.fut i{background:rgba(255,255,255,.12)}
+.wk-body{padding:14px 18px 18px}
+.wk-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.wk-stats div{display:flex;flex-direction:column;gap:2px;padding:10px 10px 9px;border-radius:var(--r-sm);background:color-mix(in srgb, var(--tide-strong) 9%, var(--surface));min-width:0}
+.wk-stats b{font-family:"Unbounded","Onest",system-ui,sans-serif;font-size:22px;line-height:1.15;font-variant-numeric:tabular-nums}
+.wk-stats b small{font-family:"Onest",system-ui,sans-serif;font-size:12px;color:var(--muted);font-weight:600}
+.wk-stats span{font-size:var(--fs-xs);color:var(--muted);line-height:1.3}
+.wk-line{margin:12px 0 0;font-size:var(--fs-sm)}
+.wk-cats{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:8px}
+.wk-cats li{display:grid;grid-template-columns:minmax(0,10em) 1fr auto;align-items:center;gap:10px;font-size:var(--fs-sm)}
+.wk-cats li span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wk-cats i{display:block;height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.wk-cats s{display:block;height:100%;background:var(--tide-strong);border-radius:4px}
+.wk-cats b{font-variant-numeric:tabular-nums}
+.wk-sec{margin-top:14px}
+.wk-sec h3{margin:0 0 6px;font-size:var(--fs-sm)}
+.wk-pr{margin:4px 0 0;font-size:var(--fs-sm)}
+.wk-pr small{color:var(--muted);margin-left:4px}
+.wk-md{display:flex;flex-wrap:wrap;gap:6px;margin:0}
+.wk-md span{padding:4px 10px;border-radius:var(--r-pill);background:color-mix(in srgb, var(--tide-strong) 10%, var(--surface));font-size:var(--fs-xs);font-weight:600}
+.wk-body .warm-actions .primary{display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.wk-body .warm-actions .primary svg{width:18px;height:18px}
+/* неделя в профиле */
+.wkp .wk-bars{height:120px;margin-top:12px}
+.wkp .wk-col i{background:color-mix(in srgb, var(--accent) 28%, transparent)}
+.wkp .wk-bar.best i{background:var(--tide-strong)}
+.wkp .wk-bar.act i{background:color-mix(in srgb, var(--accent) 45%, transparent)}
+.wkp .wk-bar.fut i{background:var(--line)}
+.wkp .wk-bar em{color:var(--muted)}
+.wkp .wk-bar span{color:var(--muted)}
+.wkp .wk-bar.today span{color:var(--ink)}
+.wkp-act{margin-top:10px}
+
+.wkp.empty .wk-bars{height:40px}
+.wk-body .warm-actions .primary{white-space:nowrap;flex:1 1 auto}
+.wk-body .warm-actions .linkbtn{flex:0 0 auto;min-width:0}
 </style>
 </head>
 <body>
@@ -1124,6 +1239,8 @@ article[id^="card-"].today{box-shadow:0 16px 36px -18px rgba(18,58,107,.55), 0 0
 
   <section id="panel-profile" role="region" aria-label="Профиль" hidden>
     <section class="panel" id="profileBox"></section>
+    <div id="weekSlot"></div>
+    <div id="medalsSlot"></div>
     <div id="friendsBox"></div>
 
     <details class="panel">
@@ -1644,6 +1761,8 @@ create policy "friends drop" on public.friends
 
 <div id="onb" class="warm" role="dialog" aria-modal="true" hidden></div>
 <div id="imp" class="warm" role="dialog" aria-modal="true" aria-labelledby="impTitle" hidden></div>
+<div id="weekDlg" class="warm wk-dlg" role="dialog" aria-modal="true" aria-label="Итоги недели" hidden></div>
+<div id="shareDlg" class="warm sc-dlg" role="dialog" aria-modal="true" aria-label="Картинка результата" hidden></div>
 <div id="focus" class="focus" role="dialog" aria-modal="true" aria-label="Режим тренировки" hidden></div>
 <div id="holdbar" class="holdbar" hidden></div>
 <div id="timerbar" class="timerbar" hidden></div>
@@ -1902,7 +2021,7 @@ create policy "friends drop" on public.friends
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzd3FsYmpsa3Bncm55a2dnY3pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwNDIyNDUsImV4cCI6MjEwNjYxODI0NX0.KQMAqfGyNr1NeLMKu3iRuufLaZ5DEMRj2sc1ulkK5QY"
   ]};
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 1, APP_BUILD_N = 24;
+  var APP_MAJOR = 1, APP_BUILD_N = 26;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
   var theme = "light";
@@ -1945,6 +2064,14 @@ create policy "friends drop" on public.friends
     f.fin = (s.fin && typeof s.fin === "object" && !Array.isArray(s.fin)) ? s.fin : {};
     f.notes = (s.notes && typeof s.notes === "object" && !Array.isArray(s.notes)) ? s.notes : {};
     f.reacts = (s.reacts && typeof s.reacts === "object" && !Array.isArray(s.reacts)) ? s.reacts : {};
+    if(s.medals && typeof s.medals === "object" && !Array.isArray(s.medals)){
+      f.medals = {};
+      Object.keys(s.medals).forEach(function(k){ if(typeof s.medals[k] === "number") f.medals[k] = s.medals[k]; });
+    }
+    f.flags = {};
+    if(s.flags && typeof s.flags === "object" && !Array.isArray(s.flags))
+      Object.keys(s.flags).forEach(function(k){ if(typeof s.flags[k] === "number") f.flags[k] = s.flags[k]; });
+    if(typeof s.wkSeen === "number" && s.wkSeen > 0) f.wkSeen = s.wkSeen;
     f.onb = {done: !!(s.onb && s.onb.done)};
     f.lastEvent = (s.lastEvent && typeof s.lastEvent === "object" && typeof s.lastEvent.title === "string") ? s.lastEvent : null;
     f.times = (s.times && typeof s.times === "object") ? s.times : {};
@@ -2420,13 +2547,16 @@ create policy "friends drop" on public.friends
     var days = Math.round((d0 - d1) / 864e5), tm = hhmm(t);
     return days <= 0 ? "сегодня в " + tm : days === 1 ? "вчера в " + tm : d.toLocaleDateString("ru-RU", {day: "numeric", month: "long"}) + " в " + tm;
   }
+  var PIC_IC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="M20.5 15.5l-4.5-4.5-8.5 8.5"/></svg>';
   function cardFoot(key, next){
     var note = (state.notes && state.notes[key]) || "", open = !!note || !!NOTEOPEN[key], meta = [];
+    var cdw = dayOfKey(key), canCard = !!(cdw && !cdw.test && allLogged(cdw, key));
     if(state.times[key]) meta.push("Последняя отметка " + lastMarkText(state.times[key]) + ".");
     if(next) meta.push(next);
     var h = '<div class="cardfoot"><div class="cf-btns">' +
       '<button type="button" class="linkbtn cf-focus" data-act="focus-open" data-key="' + key + '">' + PLAY_IC + 'Режим тренировки</button>' +
-      (open ? "" : '<button type="button" class="linkbtn alt cf-note" data-act="note-open" data-key="' + key + '">' + PEN_IC + 'Заметка</button>') + '</div>';
+      (open ? "" : '<button type="button" class="linkbtn alt cf-note" data-act="note-open" data-key="' + key + '">' + PEN_IC + 'Заметка</button>') +
+      (canCard ? '<button type="button" class="linkbtn alt cf-note" data-act="share-card" data-key="' + key + '">' + PIC_IC + 'Картинка</button>' : '') + '</div>';
     if(open) h += '<label class="cf-noterow" for="note-' + key + '"><span class="vh">Заметка к тренировке</span>' + PEN_IC +
       '<input type="text" id="note-' + key + '" data-note="' + key + '" maxlength="140" placeholder="Заметка: резина, вес, самочувствие" value="' + esc(note) + '"></label>';
     if(meta.length) h += '<p class="cf-meta">' + esc(meta.join(" ")) + '</p>';
@@ -2529,7 +2659,8 @@ create policy "friends drop" on public.friends
       document.title = "⏰ " + dueTitle(t.key);
       if(alerted !== t.due){
         alerted = t.due;
-        if(soundOn) playSig(tabOfKey(t.key), "due");
+        if(focusKey === t.key && coachActive()) coachDue();
+        else if(soundOn) playSig(tabOfKey(t.key), "due");
         if(document.hidden) notifyFire(dueTitle(t.key), nextText(t));
         try { if(navigator.vibrate) navigator.vibrate([180, 90, 180]); } catch(e){}
       }
@@ -2545,6 +2676,7 @@ create policy "friends drop" on public.friends
     var inFocus = focusKey && t.key === focusKey && !FH && !FC;
     var fr = inFocus ? document.querySelector("#focus .fc-state:not(.due) b") : null;
     var barDue = el && document.getElementById("timerbar").classList.contains("due");
+    if(inFocus && left > 0) coachTick(t, left);
     if(left > 0 && (el || fr) && !barDue){
       if(el) el.textContent = "Следующий подход через " + fmt(left);
       if(fr){ fr.textContent = fmt(Math.ceil(left)); setRing(1 - left * 1000 / (t.len || Math.max(60000, t.due - Date.now()))); }
@@ -2559,7 +2691,7 @@ create policy "friends drop" on public.friends
       if(audio && audio.state === "suspended") audio.resume();
     } catch(e){}
     try {
-      if(window.speechSynthesis && typeof SpeechSynthesisUtterance !== "undefined" && camVoice === "voice"){
+      if(window.speechSynthesis && typeof SpeechSynthesisUtterance !== "undefined" && (camVoice === "voice" || COACH)){
         var u = new SpeechSynthesisUtterance(" "); u.volume = 0; window.speechSynthesis.speak(u);
       }
     } catch(e){}
@@ -4383,6 +4515,12 @@ create policy "friends drop" on public.friends
     Object.keys(old.custom.mount || {}).forEach(function(tb){
       if(!out.custom.mount[tb] && old.custom.mount[tb]) out.custom.mount[tb] = old.custom.mount[tb];
     });
+    ["medals", "flags"].forEach(function(f2){
+      if(!old[f2]) return;
+      if(!out[f2]) out[f2] = {};
+      Object.keys(old[f2]).forEach(function(k){ if(!out[f2][k] || old[f2][k] < out[f2][k]) out[f2][k] = old[f2][k]; });
+    });
+    if(old.wkSeen || out.wkSeen) out.wkSeen = Math.max(old.wkSeen || 0, out.wkSeen || 0);
     out.updatedAt = Math.max(a.updatedAt || 0, b.updatedAt || 0);
     return out;
   }
@@ -5052,6 +5190,8 @@ create policy "friends drop" on public.friends
     var slot = nextPushSlot();
     if(!slot){ flash("Все подходы уже отмечены"); return; }
     undoPush("Запись со счётчика убрана");
+    if(!state.flags) state.flags = {};
+    if(!state.flags.cam) state.flags.cam = Date.now();
     logFor(slot.key, slot.idx)[slot.idx] = n;
     state.times[slot.key] = Date.now();
     startTimer(slot.key, slot.idx);
@@ -5660,7 +5800,8 @@ create policy "friends drop" on public.friends
   function myStats(){
     return {
       pull: PULL.total(), push: PUSH.total() + BOARD.total(), squat: SQUAT.total(),
-      dumb: DUMB.total(), stretch: tMinutes(), ts: Date.now(), last: state.lastEvent || null, reacts: state.reacts || {}
+      dumb: DUMB.total(), stretch: tMinutes(), ts: Date.now(), last: state.lastEvent || null, reacts: state.reacts || {},
+      wk: {id: weekId(), reps: weekReps()}
     };
   }
   function sbPutProfile(){
@@ -5733,6 +5874,22 @@ create policy "friends drop" on public.friends
     var days = Math.round((today - day) / 864e5);
     return days <= 0 ? "сегодня" : days === 1 ? "вчера" : days + " " + plural(days, ["день","дня","дней"]) + " назад";
   }
+  // соревнование недели: повторения с понедельника, ты против друга
+  function duelHtml(st, name){
+    if(!st || !st.wk) return "";
+    var mine = weekReps(), theirs = st.wk.id === weekId() ? (+st.wk.reps || 0) : 0;
+    if(!mine && !theirs) return '<p class="hint duel-none">На этой неделе пока никто не тренировался — начни первым.</p>';
+    var tot = mine + theirs, pm = tot ? Math.round(100 * mine / tot) : 50;
+    var lead = mine > theirs ? "me" : theirs > mine ? "them" : "";
+    var gap = Math.abs(mine - theirs);
+    var cap = !lead ? "Ничья — кто первым сделает подход?" : (lead === "me" ? "Ты впереди на " : name + " впереди на ") + gap + " " + plural(gap, ["повторение", "повторения", "повторений"]);
+    return '<div class="duel" role="img" aria-label="Повторений за неделю: у тебя ' + mine + ', у ' + esc(name) + ' ' + theirs + '">' +
+      '<div class="duel-cap">Эта неделя</div>' +
+      '<div class="duel-top"><span class="duel-me"><small>Ты' + (lead === "me" ? " 👑" : "") + '</small><b>' + mine + '</b></span>' +
+      '<span class="duel-them"><small>' + esc(name) + (lead === "them" ? " 👑" : "") + '</small><b>' + theirs + '</b></span></div>' +
+      '<div class="duel-bar"><i style="width:' + pm + '%"></i></div>' +
+      '<div class="duel-note">' + esc(cap) + '</div></div>';
+  }
   function frCard(p){
     var st = p.stats || {}, name = p.nick || "Без имени";
     var ava = p.photo
@@ -5751,7 +5908,7 @@ create policy "friends drop" on public.friends
     return '<div class="frcard">' + ava +
       '<div class="frmain"><div class="frtop"><strong>' + esc(name) + '</strong>' +
       (FR.mutual[p.user_id] ? '<span class="badge ok">взаимно</span>' : '<span class="badge quiet">в одну сторону</span>') + '</div>' +
-      '<p class="hint">' + esc(line) + '</p>' +
+      '<p class="hint">' + esc(line) + '</p>' + duelHtml(st, name) +
       '<p class="hint">Последняя отметка: ' + frWhen(st.ts) + ', код ' + esc(p.code || "") + (theirReact(p) ? " · тебе поставили " + theirReact(p) : "") + '</p>' +
       (st.last && st.last.title
         ? '<button type="button" class="linkbtn alt react" data-act="react" data-id="' + esc(p.user_id) + '" data-ts="' + (st.last.ts || 0) + '">' +
@@ -6021,6 +6178,725 @@ create policy "friends drop" on public.friends
     return h + '</div>';
   }
 
+
+  // ---------- медали ----------
+  // всё считается из уже отмеченного; в state.medals хранится только, когда медаль получена
+  var MEDALS = [
+    {id: "first",    e: "👣", n: "Первый шаг",          d: "Отметить первый подход",                   g: 1,    k: "sets"},
+    {id: "r100",     e: "💯", n: "Сотня",               d: "100 повторений за всё время",              g: 100,  k: "reps"},
+    {id: "r1k",      e: "🏅", n: "Тысяча",              d: "1000 повторений за всё время",             g: 1000, k: "reps"},
+    {id: "r5k",      e: "🏆", n: "Пять тысяч",          d: "5000 повторений за всё время",             g: 5000, k: "reps"},
+    {id: "pull100",  e: "🧗", n: "Сто подтягиваний",    d: "100 подтягиваний",                         g: 100,  k: "pull"},
+    {id: "push500",  e: "💪", n: "Полтысячи от пола",   d: "500 отжиманий, обычных и на доске",        g: 500,  k: "push"},
+    {id: "board300", e: "🎛️", n: "Хозяин доски",        d: "300 отжиманий на доске",                   g: 300,  k: "board"},
+    {id: "squat1k",  e: "🦵", n: "Тысяча приседаний",   d: "1000 приседаний",                          g: 1000, k: "squat"},
+    {id: "set30",    e: "🔥", n: "Тридцатка",           d: "30 повторений в одном подходе",            g: 30,   k: "bestSet"},
+    {id: "hold60",   e: "⏱️", n: "Железная выдержка",   d: "Удержание или планка на 60 секунд",        g: 60,   k: "bestHold"},
+    {id: "streak3",  e: "📅", n: "Три дня подряд",      d: "Заниматься три дня подряд",                g: 3,    k: "streak"},
+    {id: "streak7",  e: "🗓️", n: "Неделя без пропусков", d: "Заниматься семь дней подряд",             g: 7,    k: "streak"},
+    {id: "streak30", e: "🌊", n: "Месяц в строю",       d: "Заниматься 30 дней подряд",                g: 30,   k: "streak"},
+    {id: "fin10",    e: "🎯", n: "Десять тренировок",   d: "Завершить 10 тренировок",                  g: 10,   k: "fins"},
+    {id: "circuit",  e: "🔄", n: "Круговорот",          d: "Пройти все круги круговой тренировки",     g: 1,    k: "circuits"},
+    {id: "test",     e: "📈", n: "Новый максимум",      d: "Пройти тест максимума",                    g: 1,    k: "tests"},
+    {id: "record",   e: "⚡", n: "Рекордсмен",          d: "Побить свой лучший подход",                g: 1,    k: "pr"},
+    {id: "early",    e: "🌅", n: "Ранняя пташка",       d: "Отметить подход с 4 до 7 утра",            g: 1,    k: "early"},
+    {id: "night",    e: "🌙", n: "Ночная смена",        d: "Отметить подход после 23:00",              g: 1,    k: "night"},
+    {id: "cam",      e: "📷", n: "Под присмотром",      d: "Посчитать подход камерой",                 g: 1,    k: "cam"},
+    {id: "share",    e: "📣", n: "Делюсь успехом",      d: "Поделиться картинкой результата или программой", g: 1, k: "share"},
+    {id: "friend",   e: "🤝", n: "Вместе веселее",      d: "Добавить друга",                           g: 1,    k: "friends"}
+  ];
+  function dayNum(ts){ var d = new Date(ts); return Math.round(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 864e5); }
+  function medalCtx(){
+    var c = {sets: 0, reps: 0, bestSet: 0, bestHold: 0, early: 0, night: 0, circuits: 0, tests: 0, streak: 0,
+      pull: PULL.total(), push: PUSH.total() + BOARD.total(), board: BOARD.total(), squat: SQUAT.total(),
+      fins: Object.keys(state.fin || {}).length,
+      cam: state.flags && state.flags.cam ? 1 : 0, share: state.flags && state.flags.share ? 1 : 0, pr: state.flags && state.flags.pr ? 1 : 0,
+      friends: FR && FR.list ? FR.list.length : 0};
+    Object.keys(state.logs || {}).forEach(function(k){
+      var w = dayOfKey(k);
+      if(!w || w.test) return;
+      var log = state.logs[k] || [], all = items(w), full = all.length > 0;
+      all.forEach(function(it){
+        var v = log[it.idx];
+        if(v == null){ full = false; return; }
+        c.sets++;
+        if(isSec(it.kind)){ if(v > c.bestHold) c.bestHold = v; }
+        else { c.reps += v; if(v > c.bestSet) c.bestSet = v; }
+      });
+      if(full && w.groups.some(function(g){ return g.circ && g.rows.length >= 3; })) c.circuits++;
+    });
+    ["u", "p", "s", "b", "g"].forEach(function(p){ if(state[p] && state[p].tests && Object.keys(state[p].tests).length) c.tests = 1; });
+    if(state.t && state.t.tests && Object.keys(state.t.tests).length) c.tests = 1;
+    var days = {};
+    function seen(ts){
+      if(!ts) return;
+      var hr = new Date(ts).getHours();
+      if(hr >= 4 && hr < 7) c.early = 1;
+      if(hr >= 23 || hr < 4) c.night = 1;
+      days[dayNum(ts)] = 1;
+    }
+    Object.keys(state.times || {}).forEach(function(k){ seen(state.times[k]); });
+    Object.keys(state.fin || {}).forEach(function(k){ seen(state.fin[k]); });
+    var list = Object.keys(days).map(Number).sort(function(a, b){ return a - b; }), run = 0, prev = null;
+    list.forEach(function(dn){ run = prev != null && dn === prev + 1 ? run + 1 : 1; if(run > c.streak) c.streak = run; prev = dn; });
+    return c;
+  }
+  var medalT = null;
+  function medalSchedule(){ clearTimeout(medalT); medalT = setTimeout(medalCheck, 700); }
+  function medalCheck(){
+    if(PRT.until > Date.now()){ clearTimeout(medalT); medalT = setTimeout(medalCheck, PRT.until - Date.now() + 100); return; }
+    var first = !state.medals || typeof state.medals !== "object";
+    if(first) state.medals = {};
+    var c = medalCtx(), now = Date.now(), got = [];
+    MEDALS.forEach(function(m){ if(!state.medals[m.id] && (c[m.k] || 0) >= m.g){ state.medals[m.id] = now; got.push(m); } });
+    if(first){
+      save();
+      if(got.length) flash("За прошлые тренировки открыто медалей: " + got.length + ". Они в профиле", {label: "Смотреть", act: "medals-open"});
+      return;
+    }
+    if(!got.length) return;
+    save();
+    flash(got.length === 1 ? "Новая медаль: " + got[0].e + " " + got[0].n : "Новые медали: " + got.map(function(m){ return m.e + " " + m.n; }).join(", "),
+      {label: "Смотреть", act: "medals-open"});
+    var tst = document.getElementById("toast");
+    if(tst) setTimeout(function(){ confetti(tst); }, 60);
+    buzz([40, 60, 40]);
+    if(TAB === "profile") renderProfile();
+  }
+  function medalRing(f, on){
+    var R = 30, Cc = 2 * Math.PI * R;
+    return '<svg viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="' + R + '" class="md-track"/>' +
+      '<circle cx="36" cy="36" r="' + R + '" class="md-bar" stroke-dasharray="' + (Math.max(0, Math.min(1, on ? 1 : f)) * Cc).toFixed(1) + ' ' + Cc.toFixed(1) + '" transform="rotate(-90 36 36)"/></svg>';
+  }
+  var MD_ALL = false, MD_SHOW = 9;
+  function medalOrder(c, got){
+    // сначала полученные (свежие первыми), потом те, до которых ближе всего, потом остальные
+    return MEDALS.map(function(m, i){
+      var v = Math.min(c[m.k] || 0, m.g), f = m.g ? v / m.g : 0;
+      return {m: m, i: i, on: !!got[m.id], ts: got[m.id] || 0, v: v, f: f};
+    }).sort(function(x, y){
+      if(x.on !== y.on) return x.on ? -1 : 1;
+      if(x.on) return y.ts - x.ts;
+      if(x.f !== y.f) return y.f - x.f;
+      return x.i - y.i;
+    });
+  }
+  function mdDate(ts){ return new Date(ts).toLocaleDateString("ru-RU", {day: "numeric", month: "short"}).replace(".", ""); }
+  function medalsHtml(){
+    var c = medalCtx(), got = state.medals || {}, list = medalOrder(c, got), n = 0;
+    list.forEach(function(x){ if(x.on) n++; });
+    var show = MD_ALL ? list : list.slice(0, Math.max(MD_SHOW, Math.min(list.length, n + 3)));
+    var h = '<section class="panel medals" id="medalsBox"><div class="md-head"><h2>Медали</h2><span class="md-count">' + n + ' из ' + MEDALS.length + '</span></div>' +
+      '<div class="md-grid">';
+    show.forEach(function(x){
+      var m = x.m, on = x.on;
+      var sub = on ? mdDate(x.ts) : m.g > 1 && x.v > 0 ? x.v + " / " + m.g : m.d;
+      var lab = m.n + ". " + m.d + ". " + (on ? "Получена " + new Date(x.ts).toLocaleDateString("ru-RU", {day: "numeric", month: "long"}) : "Пока не получена" + (m.g > 1 ? ", " + x.v + " из " + m.g : ""));
+      h += '<button type="button" class="md' + (on ? " on" : "") + '" data-act="medal-info" data-id="' + m.id + '" aria-label="' + esc(lab) + '">' +
+        '<span class="md-ring">' + medalRing(x.f, on) + '<span class="md-e" aria-hidden="true">' + m.e + '</span>' +
+        (on ? '<span class="md-check" aria-hidden="true">' + CHECK_SVG + '</span>' : "") + '</span>' +
+        '<b>' + esc(m.n) + '</b><small' + (on ? ' class="md-when"' : '') + '>' + esc(sub) + '</small></button>';
+    });
+    h += '</div>';
+    if(show.length < list.length || MD_ALL)
+      h += '<button type="button" class="linkbtn alt md-more" data-act="medals-all">' + (MD_ALL ? "Свернуть" : "Все медали · " + MEDALS.length) + '</button>';
+    return h + '</section>';
+  }
+  function medalInfo(id){
+    var m = null;
+    MEDALS.forEach(function(x){ if(x.id === id) m = x; });
+    if(!m) return;
+    var got = state.medals || {}, c = medalCtx(), v = Math.min(c[m.k] || 0, m.g);
+    flash(m.e + " " + m.n + ": " + m.d.charAt(0).toLowerCase() + m.d.slice(1) +
+      (got[id] ? ". Получена " + new Date(got[id]).toLocaleDateString("ru-RU", {day: "numeric", month: "long"}) : m.g > 1 ? ". Сейчас " + v + " из " + m.g : ""));
+  }
+  function setFlag(k){
+    if(!state.flags || typeof state.flags !== "object") state.flags = {};
+    if(!state.flags[k]){ state.flags[k] = Date.now(); save(); }
+  }
+
+  // ---------- неделя: сколько повторений с понедельника ----------
+  function weekStart(ts){
+    var d = new Date(ts || Date.now());
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() - (d.getDay() + 6) % 7);
+    return d.getTime();
+  }
+  function weekId(ts){ var d = new Date(weekStart(ts)); return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); }
+  function weekReps(){
+    var from = weekStart(), sum = 0;
+    Object.keys(state.logs || {}).forEach(function(k){
+      if(!state.times || !(state.times[k] >= from)) return;
+      var w = dayOfKey(k);
+      if(!w || w.test) return;
+      var log = state.logs[k] || [];
+      items(w).forEach(function(it){ var v = log[it.idx]; if(v != null && !isSec(it.kind)) sum += v; });
+    });
+    return sum;
+  }
+
+  // ---------- картинка результата ----------
+  function keyProgTitle(key){
+    var mk = /^m([a-z]+)_([a-z0-9]+)-(\d+)$/.exec(key);
+    if(mk){ var mp = custProgById(mk[2]); return (MTABS[mk[1]] || "Своя программа") + (mp ? ": " + mp.name : "") + ", занятие " + mk[3]; }
+    var xd = /^x([a-z0-9]+)-(\d{4}-\d{2}-\d{2})$/.exec(key);
+    if(xd){ var xp0 = custProgById(xd[1]); return (xp0 ? xp0.name : "Своя программа") + ", " + fromYmd(xd[2]).toLocaleDateString("ru-RU", {day: "numeric", month: "long"}); }
+    var xk = /^x([a-z0-9]+)-(\d+)$/.exec(key);
+    if(xk){ var xp = custProgById(xk[1]); return (xp ? xp.name : "Своя программа") + ", занятие " + xk[2]; }
+    var cm = /^([psubg])[dq](\d+)$/.exec(key);
+    if(cm) return ({p: "Отжимания", s: "Приседания", u: "Турник", b: "Отжимания на доске", g: "Гантели"})[cm[1]] + ", тренировка " + cm[2];
+    var tm = /^t[dq](\d+)$/.exec(key);
+    if(tm) return "Растяжка, занятие " + tm[1];
+    return "Тренировка";
+  }
+  function cardData(key){
+    var w = dayOfKey(key);
+    if(!w || w.test) return null;
+    var log = state.logs[key] || [], reps = 0, secs = 0, sets = 0, total = 0;
+    items(w).forEach(function(it){
+      total++;
+      var v = log[it.idx];
+      if(v == null) return;
+      sets++;
+      if(isSec(it.kind)) secs += v; else reps += v;
+    });
+    var mins = 0;
+    if(FS.key === key && FS.start){ mins = Math.round((Date.now() - FS.start) / 60000); if(mins > 300) mins = 0; }
+    var ts = (state.fin && state.fin[key]) || state.times[key] || Date.now();
+    return {title: w.title || "Тренировка", prog: keyProgTitle(key), reps: reps, secs: secs, sets: sets, total: total, mins: mins,
+      streak: streakDays(activityMap()), date: new Date(ts), prs: keyRecords(key)};
+  }
+  function wrapText(ctx, text, maxW){
+    var words = String(text).split(/\s+/), lines = [], cur = "";
+    words.forEach(function(wd){
+      var t = cur ? cur + " " + wd : wd;
+      if(ctx.measureText(t).width > maxW && cur){ lines.push(cur); cur = wd; } else cur = t;
+    });
+    if(cur) lines.push(cur);
+    return lines;
+  }
+  function cardBg(x, W, H){
+    var g = x.createLinearGradient(0, 0, W * 0.35, H);
+    g.addColorStop(0, "#1B4C86"); g.addColorStop(0.5, "#143F73"); g.addColorStop(1, "#0B2A50");
+    x.fillStyle = g; x.fillRect(0, 0, W, H);
+    [[W * 0.42, -60, 760, "rgba(127,198,230,.55)"], [W * 1.05, H * 0.1, 620, "rgba(46,124,192,.55)"], [W * 0.1, H * 0.95, 700, "rgba(9,28,54,.8)"]].forEach(function(r){
+      var rg = x.createRadialGradient(r[0], r[1], 0, r[0], r[1], r[2]);
+      rg.addColorStop(0, r[3]); rg.addColorStop(1, "rgba(0,0,0,0)");
+      x.fillStyle = rg; x.fillRect(0, 0, W, H);
+    });
+    // зерно, как у фона с 21st.dev
+    var nc = document.createElement("canvas"); nc.width = nc.height = 160;
+    var nx = nc.getContext("2d"), id = nx.createImageData(160, 160);
+    for(var i = 0; i < id.data.length; i += 4){ var v = Math.random() * 255; id.data[i] = id.data[i + 1] = id.data[i + 2] = v; id.data[i + 3] = 26; }
+    nx.putImageData(id, 0, 0);
+    x.fillStyle = x.createPattern(nc, "repeat"); x.fillRect(0, 0, W, H);
+  }
+  function drawCard(d){
+    var W = 1080, H = 1350, cv = document.createElement("canvas");
+    cv.width = W; cv.height = H;
+    var x = cv.getContext("2d");
+    if(!x) return null;
+    cardBg(x, W, H);
+    var D = '"Unbounded","Onest",system-ui,sans-serif', B = '"Onest",system-ui,sans-serif', P = 80;
+    x.textBaseline = "alphabetic";
+    x.fillStyle = "rgba(255,255,255,.88)"; x.font = "700 38px " + D; x.textAlign = "left";
+    x.fillText("Тренировки", P, 118);
+    x.textAlign = "right"; x.font = "500 36px " + B; x.fillStyle = "rgba(255,255,255,.72)";
+    x.fillText(d.date.toLocaleDateString("ru-RU", {day: "numeric", month: "long"}), W - P, 118);
+    x.textAlign = "left"; x.font = "500 38px " + B; x.fillStyle = "rgba(255,255,255,.75)";
+    x.fillText(d.prog.length > 46 ? d.prog.slice(0, 45) + "…" : d.prog, P, 236);
+    x.font = "700 78px " + D; x.fillStyle = "#fff";
+    var tl = wrapText(x, d.title, W - P * 2).slice(0, 2);
+    tl.forEach(function(l, k){ x.fillText(l, P, 330 + k * 92); });
+    // кольцо результата
+    var cx = W / 2, cy = 780, R = 235;
+    x.lineCap = "round";
+    x.strokeStyle = "rgba(255,255,255,.16)"; x.lineWidth = 30;
+    x.beginPath(); x.arc(cx, cy, R, 0, Math.PI * 2); x.stroke();
+    var f = d.total ? d.sets / d.total : 1;
+    x.strokeStyle = "#5EEAD4"; x.lineWidth = 30;
+    x.beginPath(); x.arc(cx, cy, R, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.max(0.02, Math.min(1, f))); x.stroke();
+    var big = d.reps ? String(d.reps) : d.secs >= 120 ? String(Math.round(d.secs / 60)) : String(d.secs);
+    var lab = d.reps ? plural(d.reps, ["повторение","повторения","повторений"]) : d.secs >= 120 ? "минут удержаний" : "секунд удержаний";
+    x.textAlign = "center"; x.fillStyle = "#fff";
+    x.font = "700 " + (big.length > 3 ? 150 : 190) + "px " + D;
+    x.fillText(big, cx, cy + (big.length > 3 ? 40 : 55));
+    x.font = "500 42px " + B; x.fillStyle = "rgba(255,255,255,.8)";
+    x.fillText(lab, cx, cy + 125);
+    if(f >= 1){
+      var bx = cx + R * 0.7, by = cy + R * 0.7;
+      x.fillStyle = "#0E2F58"; x.beginPath(); x.arc(bx, by, 52, 0, Math.PI * 2); x.fill();
+      x.fillStyle = "#14B8A6"; x.beginPath(); x.arc(bx, by, 44, 0, Math.PI * 2); x.fill();
+      x.strokeStyle = "#fff"; x.lineWidth = 11; x.lineJoin = "round";
+      x.beginPath(); x.moveTo(bx - 19, by + 2); x.lineTo(bx - 5, by + 16); x.lineTo(bx + 20, by - 12); x.stroke();
+    }
+    // нижняя строка
+    var cols = [[String(d.sets), plural(d.sets, SETS)]];
+    if(d.prs && d.prs.length) cols.push(["🏆 " + d.prs[0].best + (d.prs[0].sec ? " с" : ""), "рекорд"]);
+    if(d.streak >= 2) cols.push([d.streak + " 🔥", plural(d.streak, ["день подряд","дня подряд","дней подряд"])]);
+    if(d.mins && cols.length < 3) cols.push([String(d.mins), plural(d.mins, ["минута","минуты","минут"])]);
+    var cw = (W - P * 2) / cols.length;
+    cols.forEach(function(cl, k){
+      var mx = P + cw * k + cw / 2;
+      x.fillStyle = "#fff"; x.font = "700 70px " + D; x.fillText(cl[0], mx, 1160);
+      x.fillStyle = "rgba(255,255,255,.72)"; x.font = "500 34px " + B; x.fillText(cl[1], mx, 1214);
+    });
+    if(/^https?:$/.test(location.protocol) && !hostApi()){
+      x.font = "500 28px " + B; x.fillStyle = "rgba(255,255,255,.5)";
+      x.fillText((location.host + location.pathname).replace(/\/index\.html$/, "").replace(/\/$/, ""), W / 2, H - 46);
+    }
+    return cv;
+  }
+  var SC = null;
+  function shareCardOpen(key){
+    var d = cardData(key);
+    if(!d){ flash("Картинку для этой тренировки не сделать"); return; }
+    var fontsReady = Promise.resolve();
+    try {
+      if(document.fonts && document.fonts.load){
+        fontsReady = Promise.race([
+          Promise.all([document.fonts.load('700 80px "Unbounded"'), document.fonts.load('500 40px "Onest"')]),
+          new Promise(function(r){ setTimeout(r, 1500); })
+        ]).catch(function(){});
+      }
+    } catch(e){}
+    fontsReady.then(function(){
+      var cv = drawCard(d);
+      if(!cv){ flash("Браузер не умеет рисовать картинки"); return; }
+      var url = "";
+      try { url = cv.toDataURL("image/png"); } catch(e){}
+      SC = {cv: cv, url: url, name: "trenirovka-" + ymdOf(d.date) + ".png", title: d.title, text: d.prog + ": " + (d.reps ? d.reps + " " + plural(d.reps, ["повторение","повторения","повторений"]) : d.sets + " " + plural(d.sets, SETS))};
+      renderShareDlg();
+    });
+  }
+  function renderShareDlg(){
+    var box = document.getElementById("shareDlg");
+    if(!box) return;
+    if(!SC){ box.hidden = true; box.innerHTML = ""; if(!focusKey && !ONB && !IMP && !WK) document.body.classList.remove("modal-open"); return; }
+    box.hidden = false; document.body.classList.add("modal-open");
+    var canFiles = false;
+    try { canFiles = !!(navigator.canShare && typeof File !== "undefined" && navigator.canShare({files: [new File([new Blob(["x"], {type: "image/png"})], "x.png", {type: "image/png"})]})); } catch(e){}
+    box.innerHTML = '<div class="warm-card sc-card" role="document"><div class="warm-top"><span>' + esc(SC.head || "Картинка результата") + '</span>' +
+      '<button type="button" class="tb-icon" data-act="sc-close" aria-label="Закрыть">✕</button></div>' +
+      (SC.url ? '<img class="sc-img" src="' + SC.url + '" alt="' + (SC.head ? esc(SC.title) : 'Картинка с результатом тренировки «' + esc(SC.title) + '»') + '">' : '<p class="hint">Не получилось показать превью.</p>') +
+      '<div class="warm-actions">' + (canFiles ? '<button type="button" class="primary" data-act="sc-share">Поделиться</button>' : '') +
+      '<button type="button" class="' + (canFiles ? "linkbtn alt" : "primary") + '" data-act="sc-save">Сохранить картинку</button></div></div>';
+    var f = box.querySelector(".primary");
+    if(f) try { f.focus({preventScroll: true}); } catch(e){}
+  }
+  function shareCardBlob(){
+    return new Promise(function(res){
+      if(!SC || !SC.cv) return res(null);
+      try { SC.cv.toBlob(function(b){ res(b); }, "image/png"); } catch(e){ res(null); }
+    });
+  }
+  function shareCardSend(){
+    shareCardBlob().then(function(blob){
+      if(!blob){ flash("Картинка не получилась"); return; }
+      var file = new File([blob], SC.name, {type: "image/png"});
+      navigator.share({files: [file], title: SC.title, text: SC.text}).then(function(){
+        setFlag("share"); SC = null; renderShareDlg();
+      }).catch(function(e){ if(!e || e.name !== "AbortError") flash("Поделиться не вышло — сохрани картинку"); });
+    });
+  }
+  function shareCardSave(){
+    shareCardBlob().then(function(blob){
+      if(!blob){ flash("Картинка не получилась"); return; }
+      saveFile(SC.name, blob, "Картинка сохранена");
+      setFlag("share");
+      SC = null; renderShareDlg();
+    });
+  }
+
+  // ---------- рекорды в моменте ----------
+  // рекорд считается по «семье» упражнения: отжимания, подтягивания, планка, своё упражнение по названию
+  var PR_NAMES = {p: "Отжимания", s: "Приседания", u: "Подтягивания", b: "Отжимания на доске"};
+  var PR_SEC = {plank: "Планка", wall: "Стульчик", hang: "Вис", hold: "Удержание", sec: "Удержание"};
+  function prFam(key, it, g){
+    if(!it) return null;
+    var sec = isSec(it.kind);
+    if(!sec && it.kind !== "rep") return null;
+    if(/^t[dq]\d+$/.test(key)) return null;
+    var cm = /^([psub])[dq]\d+$/.exec(key);
+    if(cm) return sec ? {id: cm[1] + ":s:" + it.kind, name: PR_SEC[it.kind] || "Удержание", sec: true}
+      : {id: cm[1] + ":r", name: PR_NAMES[cm[1]], sec: false};
+    var nm = String(it.lab || (g && g.title) || "").trim();
+    if(!nm) return null;
+    return {id: "n:" + nm.toLowerCase() + (sec ? ":s" : ":r"), name: nm, sec: sec};
+  }
+  function prScan(o){
+    o = o || {};
+    var m = {};
+    Object.keys(state.logs || {}).forEach(function(k){
+      if(o.only && k !== o.only) return;
+      if(o.skip && k === o.skip) return;
+      var ts = state.times && state.times[k];
+      if(o.from != null && !(ts >= o.from)) return;
+      if(o.to != null && !(ts < o.to)) return;
+      var w = dayOfKey(k);
+      if(!w || w.test) return;
+      var log = state.logs[k] || [];
+      w.groups.forEach(function(g){ g.rows.forEach(function(r){ r.forEach(function(it){
+        var v = log[it.idx];
+        if(v == null || !(v > 0)) return;
+        var f = prFam(k, it, g);
+        if(!f) return;
+        var e = m[f.id] || (m[f.id] = {best: 0, key: "", idx: -1, n: 0, name: f.name, sec: f.sec});
+        e.n++;
+        if(v > e.best){ e.best = v; e.key = k; e.idx = it.idx; }
+      }); }); });
+    });
+    return m;
+  }
+  // рекорды, которые держит эта тренировка: лучше всего, что было в других
+  function keyRecords(key){
+    var mine = prScan({only: key}), rest = prScan({skip: key}), out = [];
+    Object.keys(mine).forEach(function(id){
+      var r = rest[id];
+      if(r && r.n >= 3 && mine[id].best > r.best) out.push({name: mine[id].name, best: mine[id].best, was: r.best, sec: mine[id].sec});
+    });
+    return out;
+  }
+  function prText(r){ return r.name + ": " + r.best + (r.sec ? " с" : " за подход"); }
+  var PRB = null, prT = null, PRT = {until: 0, at: 0};
+  function prSchedule(){ clearTimeout(prT); prT = setTimeout(prCheck, 250); }
+  function prCheck(){
+    var m = prScan(), old = PRB, now = Date.now(), hit = null;
+    PRB = m;
+    if(!old) return;
+    Object.keys(m).forEach(function(id){
+      var e = m[id], o = old[id];
+      if(!o || !o.best || o.n < 3 || !(e.best > o.best)) return;
+      // празднуем только то, что отметили здесь и сейчас, а не то, что приехало с другого устройства
+      var ts = state.times && state.times[e.key];
+      if(!ts || now - ts > 20000) return;
+      if(!hit || e.best - o.best > hit.e.best - hit.was) hit = {e: e, was: o.best};
+    });
+    if(hit) prCelebrate(hit.e, hit.was);
+  }
+  function prCelebrate(e, was){
+    PRT.until = Date.now() + 4000; PRT.at = Date.now();
+    var u = e.sec ? " с" : "";
+    flash("🏆 Новый рекорд! " + e.name + ": " + e.best + u + (e.sec ? "" : " за подход") + " (было " + was + u + ")", true);
+    var anchor = focusKey ? document.querySelector("#focus .fc-ringwrap") : null;
+    var tst = document.getElementById("toast");
+    setTimeout(function(){ confetti(anchor || tst); if(anchor && tst) confetti(tst); }, 60);
+    buzz([30, 50, 30, 50, 80]);
+    setFlag("pr");
+  }
+
+  // ---------- голосовой тренер в режиме тренировки ----------
+  var CKEY = "pullups-coach", COACH = false, coachPrefix = "", coachT = null, CT = {due: 0, said: {}};
+  try { COACH = localStorage.getItem(CKEY) === "1"; } catch(e){}
+  function canSpeak(){ return !!(window.speechSynthesis && typeof SpeechSynthesisUtterance !== "undefined"); }
+  function coachActive(){ return COACH && !!focusKey && !FC && canSpeak(); }
+  function hush(){ try { if(canSpeak()) window.speechSynthesis.cancel(); } catch(e){} }
+  // длительность так, как её говорят вслух
+  function spokenDur(sec){
+    sec = Math.max(0, Math.round(sec));
+    if(sec < 60) return sec + " " + plural(sec, ["секунда","секунды","секунд"]);
+    if(sec === 90) return "полторы минуты";
+    var m = Math.floor(sec / 60), s = sec % 60;
+    if(m >= 10){ m = Math.round(sec / 60); s = 0; }
+    var ms = m === 1 ? "минута" : m === 2 ? "две минуты" : m + " " + plural(m, ["минута","минуты","минут"]);
+    return s ? ms + " " + s + " " + plural(s, ["секунда","секунды","секунд"]) : ms;
+  }
+  function coachSetText(info){
+    var it = info.it, sec = isSec(it.kind), val = focusVal == null ? it.target : focusVal, round = focusRound(info);
+    var parts = [focusName(info) + "."];
+    if(round) parts.push(round + ".");
+    else if(info.total > 1) parts.push("Подход " + info.n + " из " + info.total + ".");
+    parts.push(val + " " + (sec ? plural(val, ["секунда","секунды","секунд"]) : plural(val, ["повторение","повторения","повторений"])) + ".");
+    return parts.join(" ");
+  }
+  function coachIntro(lead){
+    if(!coachActive()) return;
+    var info = itemInfo(focusKey);
+    if(!info) return;
+    var ri = restInfo(), txt = lead ? lead + " " : "";
+    if(info.done) txt += "Все подходы отмечены.";
+    else if(ri && !ri.due) txt += "Отдых, осталось " + spokenDur(ri.left) + ". Потом: " + coachSetText(info);
+    else txt += coachSetText(info);
+    say(txt);
+  }
+  // после отметки: рекорд, отдых или следующий подход
+  function coachAfterMark(prefix){
+    if(!coachActive()) return;
+    var key = focusKey, t0 = Date.now();
+    clearTimeout(coachT);
+    coachT = setTimeout(function(){
+      if(!coachActive() || focusKey !== key) return;
+      var info = itemInfo(key), parts = [];
+      if(prefix) parts.push(prefix);
+      if(PRT.at >= t0 - 50) parts.push("Новый рекорд!");
+      if(!info || info.done) parts.push("Все подходы сделаны. Отличная работа!");
+      else {
+        var ri = restInfo();
+        if(ri && !ri.due) parts.push("Отдых: " + spokenDur(ri.len / 1000) + ".");
+        else parts.push("Дальше: " + coachSetText(info));
+      }
+      say(parts.join(" "));
+    }, 420);
+  }
+  // каждую секунду отдыха: «десять секунд» и «три, два, один»
+  function coachTick(t, left){
+    if(!coachActive() || t.key !== focusKey) return;
+    if(CT.due !== t.due){ CT.due = t.due; CT.said = {}; }
+    var n = Math.ceil(left), len = (t.len || 0) / 1000;
+    if(n === 10 && len >= 25 && !CT.said[10]){ CT.said[10] = 1; say("Десять секунд"); }
+    else if(n >= 1 && n <= 3 && !CT.said[n]){ CT.said[n] = 1; say(["", "Один", "Два", "Три"][n]); }
+  }
+  function coachDue(){
+    var info = itemInfo(focusKey);
+    if(info && !info.done) say("Поехали! " + coachSetText(info));
+  }
+  function coachToggle(){
+    COACH = !COACH;
+    try { localStorage.setItem(CKEY, COACH ? "1" : "0"); } catch(e){}
+    if(COACH){
+      unlockAudio();
+      coachIntro("Голосовой тренер включён.");
+    } else {
+      hush();
+      flash("Голос выключен");
+    }
+    renderFocus();
+  }
+  var VOICE_IC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
+  var MUTE_IC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M22 9l-6 6"/><path d="M16 9l6 6"/></svg>';
+  function coachBtn(){
+    if(!canSpeak()) return "";
+    return '<button type="button" class="fc-tool fc-voice' + (COACH ? " on" : "") + '" data-act="coach" aria-pressed="' + (COACH ? "true" : "false") + '">' +
+      (COACH ? VOICE_IC + "Голос включён" : MUTE_IC + "Голосовой тренер") + '</button>';
+  }
+
+  // ---------- итоги недели ----------
+  function addDays(ts, n){ var d = new Date(ts); d.setDate(d.getDate() + n); return d.getTime(); }
+  var CAT_NAMES = {p: "Отжимания", s: "Приседания", u: "Турник", b: "Отжимания на доске", g: "Гантели"};
+  function catOfKey(k){
+    var xk = /^x([a-z0-9]+)-/.exec(k);
+    if(xk){ var xp = custProgById(xk[1]); return xp ? xp.name : "Своя программа"; }
+    var mk = /^m([a-z]+)_([a-z0-9]+)-/.exec(k);
+    if(mk){ var mp = custProgById(mk[2]); return mp ? mp.name : (MTABS[mk[1]] || "Своя программа"); }
+    var cm = /^([psubg])[dq]\d+$/.exec(k);
+    if(cm) return CAT_NAMES[cm[1]];
+    if(/^t[dq]\d+$/.test(k)) return "Растяжка";
+    return "Тренировка";
+  }
+  function repsIn(from, to){
+    var sum = 0;
+    Object.keys(state.logs || {}).forEach(function(k){
+      var ts = state.times && state.times[k];
+      if(!(ts >= from && ts < to)) return;
+      var w = dayOfKey(k);
+      if(!w || w.test) return;
+      var log = state.logs[k] || [];
+      items(w).forEach(function(it){ var v = log[it.idx]; if(v != null && !isSec(it.kind)) sum += v; });
+    });
+    return sum;
+  }
+  function weekData(ws){
+    var we = addDays(ws, 7), d = {ws: ws, we: we, reps: 0, secs: 0, sets: 0, days: [0, 0, 0, 0, 0, 0, 0], act: [0, 0, 0, 0, 0, 0, 0],
+      trains: 0, cats: {}, medals: [], prs: [], prev: 0, best: -1, actDays: 0};
+    Object.keys(state.logs || {}).forEach(function(k){
+      var ts = state.times && state.times[k];
+      if(!(ts >= ws && ts < we)) return;
+      var w = dayOfKey(k);
+      if(!w || w.test) return;
+      var log = state.logs[k] || [], r = 0, s = 0, n = 0;
+      items(w).forEach(function(it){ var v = log[it.idx]; if(v == null) return; n++; if(isSec(it.kind)) s += v; else r += v; });
+      if(!n) return;
+      var di = (new Date(ts).getDay() + 6) % 7;
+      d.reps += r; d.secs += s; d.sets += n; d.days[di] += r; d.act[di] = 1; d.trains++;
+      var c = catOfKey(k);
+      d.cats[c] = (d.cats[c] || 0) + r;
+    });
+    var got = state.medals || {};
+    MEDALS.forEach(function(m){ if(got[m.id] >= ws && got[m.id] < we) d.medals.push(m); });
+    var before = prScan({to: ws}), inside = prScan({from: ws, to: we});
+    Object.keys(inside).forEach(function(id){
+      var b = before[id];
+      if(b && b.n >= 3 && inside[id].best > b.best) d.prs.push({name: inside[id].name, best: inside[id].best, was: b.best, sec: inside[id].sec});
+    });
+    d.prev = repsIn(addDays(ws, -7), ws);
+    var bv = 0;
+    d.days.forEach(function(v, i){ if(v > bv){ bv = v; d.best = i; } });
+    d.act.forEach(function(a){ d.actDays += a; });
+    return d;
+  }
+  var MONTHS_G = ["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
+  var WD_FULL = ["понедельник","вторник","среда","четверг","пятница","суббота","воскресенье"];
+  function weekRange(ws){
+    var a = new Date(ws), b = new Date(addDays(ws, 6));
+    if(a.getMonth() === b.getMonth()) return a.getDate() + "–" + b.getDate() + " " + MONTHS_G[b.getMonth()];
+    return a.getDate() + " " + MONTHS_G[a.getMonth()] + " – " + b.getDate() + " " + MONTHS_G[b.getMonth()];
+  }
+  function numSp(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
+  function weekCmp(d, cur){
+    if(!d.prev) return d.reps ? "неделей раньше повторений не было" : "";
+    var pct = Math.round((d.reps - d.prev) / d.prev * 100);
+    if(cur && pct < 0) return "неделей раньше было " + numSp(d.prev) + " — догоняй";
+    if(d.reps >= d.prev * 2){
+      var rt = Math.round(d.reps / d.prev * 10) / 10;
+      return "▲ в " + String(rt).replace(".", ",") + " " + (rt === Math.round(rt) ? plural(rt, ["раз","раза","раз"]) : "раза") + " больше, чем неделей раньше";
+    }
+    if(pct > 0) return "▲ на " + pct + "% больше, чем неделей раньше";
+    if(pct < 0) return "▼ на " + (-pct) + "% меньше, чем неделей раньше";
+    return "столько же, сколько неделей раньше";
+  }
+  var WK = null;
+  function weekOpen(ws, auto){ WK = {ws: ws, auto: !!auto}; renderWeekDlg(); }
+  function weekClose(){ WK = null; renderWeekDlg(); }
+  // первый вход на новой неделе: показываем итоги прошлой, если было что считать
+  function weekCheck(){
+    if(ONB || IMP || focusKey || SC || WK || onbNeeded()) return;
+    var ws = weekStart();
+    if((+state.wkSeen || 0) >= ws) return;
+    var pws = addDays(ws, -7), d = weekData(pws);
+    state.wkSeen = ws;
+    save();
+    if(d.sets > 0) weekOpen(pws, true);
+  }
+  function weekBars(d, cur){
+    var mx = 0, today = cur ? (new Date().getDay() + 6) % 7 : -1;
+    d.days.forEach(function(v){ if(v > mx) mx = v; });
+    var h = '<div class="wk-bars" role="img" aria-label="Повторения по дням: ' + WD.map(function(w, i){ return w + " " + d.days[i]; }).join(", ") + '">';
+    d.days.forEach(function(v, i){
+      var pct = mx ? Math.max(v ? 6 : 0, Math.round(v / mx * 100)) : 0;
+      var cls = (i === d.best && v ? " best" : "") + (i === today ? " today" : "") + (!v && d.act[i] ? " act" : "") + (cur && i > today ? " fut" : "");
+      h += '<div class="wk-bar' + cls + '"><em>' + (v ? numSp(v) : "") + '</em><b class="wk-col"><i style="height:' + pct + '%"></i></b><span>' + WD[i] + '</span></div>';
+    });
+    return h + '</div>';
+  }
+  function renderWeekDlg(){
+    var box = document.getElementById("weekDlg");
+    if(!box) return;
+    if(!WK){ box.hidden = true; box.innerHTML = ""; if(!focusKey && !ONB && !IMP && !SC) document.body.classList.remove("modal-open"); return; }
+    box.hidden = false; document.body.classList.add("modal-open");
+    var cws = weekStart(), cur = WK.ws >= cws, d = weekData(WK.ws);
+    var h = '<div class="warm-card wk-card" role="document"><div class="wk-hero">' +
+      '<div class="wk-top"><span>' + (cur ? "Эта неделя" : "Итоги недели") + '</span>' +
+      '<button type="button" class="tb-icon" data-act="wk-close" aria-label="Закрыть">✕</button></div>' +
+      '<div class="wk-nav"><button type="button" class="tb-icon" data-act="wk-prev" aria-label="Неделя раньше">‹</button>' +
+      '<span class="wk-range">' + weekRange(WK.ws) + '</span>' +
+      '<button type="button" class="tb-icon" data-act="wk-next" aria-label="Неделя позже"' + (cur ? " disabled" : "") + '>›</button></div>';
+    if(!d.sets){
+      h += '<p class="wk-big"><b>0</b></p><p class="wk-cmp">' + (cur ? "На этой неделе пока пусто — самое время начать." : "На этой неделе тренировок не было.") + '</p>' + weekBars(d, cur) + '</div>';
+      h += '<div class="wk-body"><div class="warm-actions"><button type="button" class="primary" data-act="wk-close">Закрыть</button></div></div></div>';
+      box.innerHTML = h;
+      return;
+    }
+    var cmp = weekCmp(d, cur);
+    h += '<p class="wk-big"><b>' + numSp(d.reps) + '</b> ' + plural(d.reps, ["повторение","повторения","повторений"]) + (cur ? " пока" : "") + '</p>' +
+      (cmp ? '<p class="wk-cmp' + (/▲/.test(cmp) ? " up" : "") + '">' + cmp + '</p>' : '') +
+      weekBars(d, cur) + '</div><div class="wk-body">';
+    h += '<div class="wk-stats"><div><b>' + d.trains + '</b><span>' + plural(d.trains, ["тренировка","тренировки","тренировок"]) + '</span></div>' +
+      '<div><b>' + d.actDays + '<small> из 7</small></b><span>дней в деле</span></div>' +
+      '<div><b>' + d.sets + '</b><span>' + plural(d.sets, SETS) + '</span></div></div>';
+    if(d.best >= 0) h += '<p class="wk-line">Лучший день — <b>' + WD_FULL[d.best] + '</b>, ' + numSp(d.days[d.best]) + ' ' + plural(d.days[d.best], ["повторение","повторения","повторений"]) + '.</p>';
+    if(d.secs >= 30) h += '<p class="wk-line">Удержания: <b>' + (d.secs >= 120 ? Math.round(d.secs / 60) + " мин" : d.secs + " с") + '</b>.</p>';
+    var cats = Object.keys(d.cats).filter(function(c){ return d.cats[c] > 0; }).sort(function(a, b){ return d.cats[b] - d.cats[a]; });
+    if(cats.length > 1){
+      var cmx = d.cats[cats[0]];
+      h += '<ul class="wk-cats">' + cats.slice(0, 5).map(function(c){
+        return '<li><span>' + esc(c) + '</span><i><s style="width:' + Math.max(4, Math.round(d.cats[c] / cmx * 100)) + '%"></s></i><b>' + numSp(d.cats[c]) + '</b></li>';
+      }).join("") + '</ul>';
+    }
+    if(d.prs.length) h += '<div class="wk-sec"><h3>Рекорды</h3>' + d.prs.map(function(r){
+      return '<p class="wk-pr">🏆 ' + esc(prText(r)) + ' <small>было ' + r.was + (r.sec ? " с" : "") + '</small></p>'; }).join("") + '</div>';
+    if(d.medals.length) h += '<div class="wk-sec"><h3>Медали недели</h3><p class="wk-md">' + d.medals.map(function(m){
+      return '<span title="' + esc(m.d) + '">' + m.e + ' ' + esc(m.n) + '</span>'; }).join("") + '</p></div>';
+    h += '<div class="warm-actions"><button type="button" class="primary" data-act="wk-card">' + PIC_IC + 'Картинка недели</button>' +
+      '<button type="button" class="linkbtn alt" data-act="wk-close">Закрыть</button></div></div></div>';
+    box.innerHTML = h;
+    if(WK.auto){ WK.auto = false; var c0 = box.querySelector(".wk-card"); if(c0) setTimeout(function(){ confetti(c0.querySelector(".wk-big") || c0); }, 250); }
+  }
+  // короткая неделя в профиле
+  function weekPanelHtml(){
+    var ws = weekStart(), d = weekData(ws), last = repsIn(addDays(ws, -7), ws);
+    var h = '<section class="panel wkp' + (d.sets ? "" : " empty") + '" id="weekBox"><div class="md-head"><h2>Эта неделя</h2><span class="md-count">' +
+      (d.reps ? numSp(d.reps) + " " + plural(d.reps, ["повторение","повторения","повторений"]) : "пока пусто") + '</span></div>' +
+      weekBars(d, true) +
+      '<div class="test wkp-act"><button type="button" class="linkbtn" data-act="wk-open" data-w="cur">Подробнее</button>' +
+      (last ? '<button type="button" class="linkbtn alt" data-act="wk-open" data-w="prev">Итоги прошлой недели</button>' : '') + '</div></section>';
+    return h;
+  }
+  function fontsWait(){
+    try {
+      if(document.fonts && document.fonts.load){
+        return Promise.race([
+          Promise.all([document.fonts.load('700 80px "Unbounded"'), document.fonts.load('500 40px "Onest"')]),
+          new Promise(function(r){ setTimeout(r, 1500); })
+        ]).catch(function(){});
+      }
+    } catch(e){}
+    return Promise.resolve();
+  }
+  function drawWeekCard(d){
+    var W = 1080, H = 1350, cv = document.createElement("canvas");
+    cv.width = W; cv.height = H;
+    var x = cv.getContext("2d");
+    if(!x) return null;
+    cardBg(x, W, H);
+    var D = '"Unbounded","Onest",system-ui,sans-serif', B = '"Onest",system-ui,sans-serif', P = 80;
+    x.textBaseline = "alphabetic";
+    x.fillStyle = "rgba(255,255,255,.88)"; x.font = "700 38px " + D; x.textAlign = "left";
+    x.fillText("Тренировки", P, 118);
+    x.textAlign = "right"; x.font = "500 36px " + B; x.fillStyle = "rgba(255,255,255,.72)";
+    x.fillText(weekRange(d.ws), W - P, 118);
+    x.textAlign = "left"; x.font = "500 40px " + B; x.fillStyle = "rgba(255,255,255,.75)";
+    x.fillText("Итоги недели", P, 250);
+    var big = numSp(d.reps);
+    x.font = "700 " + (big.length > 5 ? 150 : 180) + "px " + D; x.fillStyle = "#fff";
+    x.fillText(big, P - 6, 430);
+    x.font = "500 46px " + B; x.fillStyle = "rgba(255,255,255,.82)";
+    x.fillText(plural(d.reps, ["повторение","повторения","повторений"]), P, 500);
+    var cmp = weekCmp(d, false);
+    if(cmp){ x.font = "600 38px " + B; x.fillStyle = /▲/.test(cmp) ? "#5EEAD4" : "rgba(255,255,255,.7)"; x.fillText(cmp, P, 572); }
+    // столбики по дням
+    var top = 660, bot = 1000, bw = 92, gap = (W - P * 2 - bw * 7) / 6, mx = 0;
+    d.days.forEach(function(v){ if(v > mx) mx = v; });
+    d.days.forEach(function(v, i){
+      var bx = P + i * (bw + gap), hgt = mx && v ? Math.max(14, (bot - top) * v / mx) : 8;
+      x.fillStyle = i === d.best && v ? "#5EEAD4" : v ? "rgba(255,255,255,.42)" : d.act[i] ? "rgba(255,255,255,.3)" : "rgba(255,255,255,.12)";
+      var r = Math.min(18, hgt / 2), y0 = bot - hgt;
+      x.beginPath();
+      x.moveTo(bx, bot); x.lineTo(bx, y0 + r); x.quadraticCurveTo(bx, y0, bx + r, y0);
+      x.lineTo(bx + bw - r, y0); x.quadraticCurveTo(bx + bw, y0, bx + bw, y0 + r); x.lineTo(bx + bw, bot); x.closePath(); x.fill();
+      x.textAlign = "center";
+      if(v){ x.font = "700 30px " + D; x.fillStyle = i === d.best ? "#fff" : "rgba(255,255,255,.8)"; x.fillText(numSp(v), bx + bw / 2, y0 - 16); }
+      x.font = "500 32px " + B; x.fillStyle = "rgba(255,255,255,.7)"; x.fillText(WD[i], bx + bw / 2, bot + 50);
+    });
+    var cols = [[String(d.trains), plural(d.trains, ["тренировка","тренировки","тренировок"])], [d.actDays + " из 7", "дней в деле"]];
+    if(d.prs.length) cols.push(["🏆 " + d.prs.length, plural(d.prs.length, ["рекорд","рекорда","рекордов"])]);
+    else if(d.medals.length) cols.push([d.medals.slice(0, 3).map(function(m){ return m.e; }).join(""), plural(d.medals.length, ["медаль","медали","медалей"])]);
+    else cols.push([String(d.sets), plural(d.sets, SETS)]);
+    var cw = (W - P * 2) / cols.length;
+    x.textAlign = "center";
+    cols.forEach(function(cl, k){
+      var mx2 = P + cw * k + cw / 2;
+      x.fillStyle = "#fff"; x.font = "700 64px " + D; x.fillText(cl[0], mx2, 1170);
+      x.fillStyle = "rgba(255,255,255,.72)"; x.font = "500 34px " + B; x.fillText(cl[1], mx2, 1222);
+    });
+    if(/^https?:$/.test(location.protocol) && !hostApi()){
+      x.font = "500 28px " + B; x.fillStyle = "rgba(255,255,255,.5)";
+      x.fillText((location.host + location.pathname).replace(/\/index\.html$/, "").replace(/\/$/, ""), W / 2, H - 46);
+    }
+    return cv;
+  }
+  function shareWeekOpen(ws){
+    var d = weekData(ws);
+    fontsWait().then(function(){
+      var cv = drawWeekCard(d);
+      if(!cv){ flash("Браузер не умеет рисовать картинки"); return; }
+      var url = "";
+      try { url = cv.toDataURL("image/png"); } catch(e){}
+      SC = {cv: cv, url: url, name: "nedelya-" + ymdOf(new Date(ws)) + ".png", title: "Итоги недели " + weekRange(ws), head: "Картинка недели",
+        text: "Итоги недели: " + d.reps + " " + plural(d.reps, ["повторение","повторения","повторений"]) + ", тренировок: " + d.trains};
+      renderShareDlg();
+    });
+  }
+
   // ---------- график тестов ----------
   function testChart(C){
     var st2 = state[C.cfg.pre];
@@ -6170,10 +7046,13 @@ create policy "friends drop" on public.friends
     navPush();
     wakeOn();
     renderFocus();
+    coachIntro();
   }
   // всё, что живёт только пока открыт режим тренировки
   function focusTeardown(){
     fhStop();
+    clearTimeout(coachT);
+    if(COACH) hush();
     if(cam && cam.opts && cam.opts.focus) camFinish(false);
     stageBack();
     FC = null;
@@ -6204,6 +7083,8 @@ create policy "friends drop" on public.friends
     renderFocus();
     if(soundOn) playSig(tabOfKey(focusKey), "rep");
     try { if(navigator.vibrate) navigator.vibrate(30); } catch(e){}
+    coachAfterMark(coachPrefix);
+    coachPrefix = "";
   }
   // главная кнопка: для секунд — старт и стоп удержания, для повторов — отметка
   function focusPrimary(){
@@ -6225,6 +7106,7 @@ create policy "friends drop" on public.friends
     FH.iv = setInterval(fhTick, 200);
     if(soundOn) playSig(tabOfKey(focusKey), "start");
     try { if(navigator.vibrate) navigator.vibrate(40); } catch(e){}
+    if(coachActive()) say("Держим!");
     renderFocus();
   }
   function fhStop(){ if(FH){ clearInterval(FH.iv); FH = null; } }
@@ -6232,6 +7114,7 @@ create policy "friends drop" on public.friends
     if(!FH) return;
     var sec = early ? Math.max(0, Math.round((Date.now() - FH.start) / 1000)) : FH.target;
     fhStop();
+    coachPrefix = early ? "" : "Время!";
     focusVal = sec;
     focusMark();
     if(!early && soundOn) playSig(tabOfKey(focusKey), "done");
@@ -6246,7 +7129,8 @@ create policy "friends drop" on public.friends
       FH.last = n;
       var b = document.querySelector("#focus .fc-big b");
       if(b) b.textContent = n;
-      if(n <= 3 && soundOn) playSig(tabOfKey(focusKey), "tick");
+      if(coachActive() && (n <= 3 || (n === 10 && FH.target >= 20))) say(n === 10 ? "Десять секунд" : ["", "Один", "Два", "Три"][n]);
+      else if(n <= 3 && soundOn) playSig(tabOfKey(focusKey), "tick");
     }
     setRing(1 - left / FH.target);
   }
@@ -6296,6 +7180,7 @@ create policy "friends drop" on public.friends
         FC = null;
         if(focusKey !== key){ renderFocus(); return; }
         if(n > 0){
+          setFlag("cam");
           focusVal = n;
           focusMark();
           flash("Записано: " + n + " " + plural(n, ["повторение","повторения","повторений"]), true);
@@ -6379,7 +7264,9 @@ create policy "friends drop" on public.friends
       h += '<div class="fc-mid"><div class="fc-ringwrap done" aria-hidden="true">' + focusRing(1, 120) + '<span class="fc-disc">' + CHECK_SVG + '</span></div>' +
         '<p class="fc-ex">Все подходы отмечены</p>' +
         '<p class="fc-sub">' + esc(focusSummary(focusKey, info)) + '</p>' +
-        '<button type="button" class="fc-big ok" data-act="focus-finish">Завершить тренировку</button></div>';
+        keyRecords(focusKey).map(function(r){ return '<p class="fc-pr">🏆 Рекорд — ' + esc(prText(r)) + '</p>'; }).join("") +
+        '<button type="button" class="fc-big ok" data-act="focus-finish">Завершить тренировку</button>' +
+        '<button type="button" class="fc-tool" data-act="share-card" data-key="' + focusKey + '">' + PIC_IC + 'Картинка результата</button></div>';
       h += '<div class="fc-bot"></div>';
     } else if(FC){
       // счёт по камере
@@ -6409,7 +7296,8 @@ create policy "friends drop" on public.friends
         '<button type="button" class="fc-step" data-act="focus-more" aria-label="Больше"' + (FH ? " disabled" : "") + '>+</button></div>';
       if(ri && !ri.due && !FH) h += '<p class="fc-state"><b>' + fmt(Math.ceil(ri.left)) + '</b> отдых</p>';
       else if(ri && ri.due && !FH) h += '<p class="fc-state due" role="status"><b>Пора</b> отдых закончился, делай подход</p>';
-      if(camMode && !FH) h += '<div class="fc-tools"><button type="button" class="fc-tool" data-act="focus-cam">' + CAM_IC + 'Считать камерой</button></div>';
+      var tools = (camMode && !FH ? '<button type="button" class="fc-tool" data-act="focus-cam">' + CAM_IC + 'Считать камерой</button>' : '') + coachBtn();
+      if(tools) h += '<div class="fc-tools">' + tools + '</div>';
       if(next) h += '<p class="fc-next">Дальше: ' + esc(next) + '</p>';
       h += '<p class="vh">Отмечено ' + (info.n - 1) + ' из ' + info.total + '</p></div>';
       h += '<div class="fc-bot">';
@@ -6495,6 +7383,10 @@ create policy "friends drop" on public.friends
   function renderProfile(){
     var box = document.getElementById("profileBox");
     if(!box) return;
+    var mslot = document.getElementById("medalsSlot");
+    if(mslot) mslot.innerHTML = medalsHtml();
+    var wslot = document.getElementById("weekSlot");
+    if(wslot) wslot.innerHTML = weekPanelHtml();
     var h = "";
     if(loggedIn()){
       sbUser();
@@ -6788,6 +7680,8 @@ create policy "friends drop" on public.friends
     if(db){ clearTimeout(timer); timer = setTimeout(flush, 700); }
     syncSchedule();
     renderPill();
+    medalSchedule();
+    prSchedule();
   }
   function flush(){
     if(!db) return;
@@ -6856,6 +7750,32 @@ create policy "friends drop" on public.friends
     }
     if(act === "undo"){ undoDo(); return; }
     if(act === "sync-pill"){ pillTap(); return; }
+    if(act === "medals-open"){
+      var mt0 = document.getElementById("toast"); if(mt0) mt0.hidden = true;
+      if(focusKey) focusClose();
+      if(TAB !== "profile"){ prevTab = TAB; TAB = "profile"; navPush(); }
+      render();
+      setTimeout(function(){ scrollTo(document.getElementById("medalsBox")); }, 40);
+      return;
+    }
+    if(act === "coach"){ coachToggle(); return; }
+    if(act === "wk-open"){ weekOpen(b.getAttribute("data-w") === "prev" ? addDays(weekStart(), -7) : weekStart()); return; }
+    if(act === "wk-close"){ weekClose(); return; }
+    if(act === "wk-prev"){ if(WK){ WK.ws = addDays(WK.ws, -7); renderWeekDlg(); } return; }
+    if(act === "wk-next"){ if(WK && WK.ws < weekStart()){ WK.ws = addDays(WK.ws, 7); renderWeekDlg(); } return; }
+    if(act === "wk-card"){ if(WK) shareWeekOpen(WK.ws); return; }
+    if(act === "medal-info"){ medalInfo(b.getAttribute("data-id")); return; }
+    if(act === "medals-all"){
+      MD_ALL = !MD_ALL;
+      var mslot2 = document.getElementById("medalsSlot");
+      if(mslot2) mslot2.innerHTML = medalsHtml();
+      if(!MD_ALL) scrollTo(document.getElementById("medalsBox"));
+      return;
+    }
+    if(act === "share-card"){ shareCardOpen(b.getAttribute("data-key")); return; }
+    if(act === "sc-close"){ SC = null; renderShareDlg(); return; }
+    if(act === "sc-share"){ shareCardSend(); return; }
+    if(act === "sc-save"){ shareCardSave(); return; }
     if(act === "hd"){
       var hw = b.getAttribute("data-w"), hz = b.closest(".pfoot") ? "pfoot" : "phead", hkey = TAB + ":" + hz;
       if(HD[hkey] === "cam" && hw === "cam" && cam) camFinish(false);
@@ -6915,7 +7835,7 @@ create policy "friends drop" on public.friends
       var ssp = custCur(); if(!ssp) return;
       var stx = shareText(ssp);
       try {
-        navigator.share({title: "Программа «" + (ssp.name || "Программа") + "»", text: stx}).catch(function(e){
+        navigator.share({title: "Программа «" + (ssp.name || "Программа") + "»", text: stx}).then(function(){ setFlag("share"); }, function(e){
           if(e && e.name === "AbortError") return;
           copyText(stx, "Сообщение со ссылкой скопировано — вставь его в чат");
         });
@@ -6925,6 +7845,7 @@ create policy "friends drop" on public.friends
     if(act === "share-copy"){
       var scp = custCur(); if(!scp) return;
       var lnk = shareLink(scp);
+      setFlag("share");
       if(lnk) copyText(lnk, "Ссылка скопирована — вставь её в сообщение");
       else copyText(progCode(scp), "Код скопирован — отправь его в сообщении");
       return;
@@ -7058,6 +7979,7 @@ create policy "friends drop" on public.friends
       if(!tsk) return;
       tsk.due = Date.now() - 1; alerted = tsk.due;
       save(); renderTimer();
+      if(tsk.key === focusKey && coachActive()) coachDue();
       return;
     }
     if(act === "focus-finish"){
@@ -7335,6 +8257,8 @@ create policy "friends drop" on public.friends
   });
 
   document.addEventListener("keydown", function(ev){
+    if(ev.key === "Escape" && SC){ SC = null; renderShareDlg(); return; }
+    if(ev.key === "Escape" && WK){ weekClose(); return; }
     if(ev.key === "Escape" && focusKey){ focusClose(); return; }
     if(ev.key === "Escape" && IMP){ impClose(); return; }
     if(ev.key === "Escape" && ONB){ onbClose(true); return; }
@@ -7479,6 +8403,9 @@ create policy "friends drop" on public.friends
   navSync();
   render();
   if(!impFromHash() && onbNeeded()) onbStart();
+  medalSchedule();
+  prSchedule();
+  setTimeout(weekCheck, 1800);
   window.addEventListener("hashchange", function(){ if(/prog=/.test(location.hash || "")){ if(ONB){ ONB = null; renderOnb(); } impFromHash(); } });
   syncNow(true);
 
