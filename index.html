@@ -1211,6 +1211,51 @@ article[id^="card-"].today{box-shadow:0 16px 36px -18px rgba(18,58,107,.55), 0 0
 .wkp.empty .wk-bars{height:40px}
 .wk-body .warm-actions .primary{white-space:nowrap;flex:1 1 auto}
 .wk-body .warm-actions .linkbtn{flex:0 0 auto;min-width:0}
+
+/* ===== v1.27: что нового, лента друзей ===== */
+.wn-dlg{z-index:63}
+.wn-card{padding:0;max-width:440px}
+.wn-title{margin:12px 0 0;font-family:"Unbounded","Onest",system-ui,sans-serif;font-weight:700;font-size:28px;line-height:1.1;color:#fff;letter-spacing:-.01em}
+.wn-sub{margin:8px 0 2px;font-size:var(--fs-sm);line-height:1.45;color:rgba(255,255,255,.82)}
+.wn-body{padding:4px 18px 18px}
+.wn-ver{margin:16px 0 2px;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.wn-item{display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.wn-ver + .wn-item{border-top:0}
+.wn-e{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:21px;background-color:var(--ocean-deep);background-image:var(--ocean-hero);background-size:120px 120px, auto, auto, auto;background-blend-mode:overlay, normal, normal, normal;box-shadow:0 6px 14px -8px rgba(18,58,107,.7)}
+.wn-item b{display:block;font-size:var(--fs-md);line-height:1.3}
+.wn-item p{margin:3px 0 0;font-size:var(--fs-sm);color:var(--muted);line-height:1.45}
+.wn-go{margin:4px 0 0;padding-left:0;padding-right:0;min-height:36px}
+.wn-foot{margin-top:14px}
+.ver-btn{appearance:none;-webkit-appearance:none;border:0;background:none;padding:8px 12px;font:inherit;color:inherit;cursor:pointer;border-radius:var(--r-pill);text-decoration:underline;text-decoration-color:color-mix(in srgb, currentColor 35%, transparent);text-underline-offset:3px}
+.ver-btn:hover{color:var(--ink)}
+.ver-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* лента */
+.feedp .md-head{align-items:center}
+.fd-reload{margin:0;min-height:36px}
+.fd-list{list-style:none;margin:6px 0 0;padding:0}
+.fd-day{margin:14px 0 2px;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.fd-day:first-child{margin-top:4px}
+.fd-item{display:grid;grid-template-columns:42px minmax(0,1fr);gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.fd-day + .fd-item{border-top:0}
+.fd-item.new{margin:0 -10px;padding:12px 10px;border-radius:var(--r-sm);background:color-mix(in srgb, var(--tide-strong) 8%, transparent)}
+.fd-ava{position:relative;width:40px;height:40px}
+.fd-ava .ava{width:40px;height:40px;font-size:17px;background-size:cover;background-position:center}
+.fd-ic{position:absolute;right:-6px;bottom:-6px;width:22px;height:22px;border-radius:50%;background:var(--surface);display:grid;place-items:center;font-size:12px;line-height:1;box-shadow:0 0 0 2px var(--surface), 0 2px 6px rgba(0,0,0,.18)}
+.fd-top{display:flex;align-items:baseline;gap:8px;min-width:0}
+.fd-top b{font-size:var(--fs-sm);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fd-top time{margin-left:auto;font-size:var(--fs-xs);color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.fd-dot{font-size:11px;font-weight:700;color:var(--tide-strong);white-space:nowrap}
+.fd-h{margin:2px 0 0;font-size:var(--fs-sm);font-weight:600;line-height:1.4}
+.fd-sub{margin:2px 0 0;font-size:var(--fs-xs);color:var(--muted);line-height:1.4}
+.fd-rx{display:flex;gap:6px;margin-top:8px}
+.fd-r{appearance:none;-webkit-appearance:none;min-width:46px;height:36px;padding:0 10px;border-radius:var(--r-pill);border:1px solid var(--line);background:var(--surface);font-size:17px;line-height:1;cursor:pointer;transition:transform .12s, background-color .12s, border-color .12s}
+.fd-r.on{background:color-mix(in srgb, var(--tide-strong) 16%, var(--surface));border-color:var(--tide-strong);transform:scale(1.06)}
+.fd-r:active{transform:scale(.92)}
+.fd-r:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.fd-got{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.fd-got span{padding:4px 10px;border-radius:var(--r-pill);background:color-mix(in srgb, var(--tide-strong) 10%, var(--surface));font-size:var(--fs-xs);font-weight:600}
+.accbtn.news::after{content:"";position:absolute;top:1px;right:1px;width:12px;height:12px;border-radius:50%;background:#F43F5E;box-shadow:0 0 0 2.5px var(--bg)}
+@media (prefers-reduced-motion: reduce){.fd-r,.fd-r.on,.fd-r:active{transition:none;transform:none}}
 </style>
 </head>
 <body>
@@ -1761,6 +1806,7 @@ create policy "friends drop" on public.friends
 
 <div id="onb" class="warm" role="dialog" aria-modal="true" hidden></div>
 <div id="imp" class="warm" role="dialog" aria-modal="true" aria-labelledby="impTitle" hidden></div>
+<div id="wnDlg" class="warm wn-dlg" role="dialog" aria-modal="true" aria-label="Что нового" hidden></div>
 <div id="weekDlg" class="warm wk-dlg" role="dialog" aria-modal="true" aria-label="Итоги недели" hidden></div>
 <div id="shareDlg" class="warm sc-dlg" role="dialog" aria-modal="true" aria-label="Картинка результата" hidden></div>
 <div id="focus" class="focus" role="dialog" aria-modal="true" aria-label="Режим тренировки" hidden></div>
@@ -2021,7 +2067,7 @@ create policy "friends drop" on public.friends
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzd3FsYmpsa3Bncm55a2dnY3pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwNDIyNDUsImV4cCI6MjEwNjYxODI0NX0.KQMAqfGyNr1NeLMKu3iRuufLaZ5DEMRj2sc1ulkK5QY"
   ]};
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 1, APP_BUILD_N = 26;
+  var APP_MAJOR = 1, APP_BUILD_N = 27;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
   var theme = "light";
@@ -2053,7 +2099,7 @@ create policy "friends drop" on public.friends
   normalizeTab();
   var SETS = ["подход","подхода","подходов"];
   // тип дня: 0 — смазка канавки, 1 — удержания и подходы, 2 — лесенки/тест
-  function fresh(){ return {v:4, profile:{name:"", photo:""}, fin:{}, lastEvent:null, notes:{}, reacts:{}, onb:{done:false}, updatedAt:0, mode:{pull:"short", push:"short", squat:"short", stretch:"short"}, variant:{push:"classic"}, start:null, timer:null, p:{startMax:15, max:null, tests:{}}, s:{startMax:25, max:null, tests:{}}, b:{startMax:12, max:null, tests:{}}, g:{startMax:12, max:null, tests:{}, weight:0, autoAt:0}, t:{front:40, side:45, tests:{}}, u:{startMax:4, max:null, tests:{}, legacy:0}, custom:{progs:[], cur:null, mount:{pull:null, push:null, squat:null, stretch:null}}, startMax:4, test4:null, test8:null, logs:{}, times:{}, cycles:[]}; }
+  function fresh(){ return {v:4, profile:{name:"", photo:""}, fin:{}, lastEvent:null, notes:{}, reacts:{}, feed:[], onb:{done:false}, updatedAt:0, mode:{pull:"short", push:"short", squat:"short", stretch:"short"}, variant:{push:"classic"}, start:null, timer:null, p:{startMax:15, max:null, tests:{}}, s:{startMax:25, max:null, tests:{}}, b:{startMax:12, max:null, tests:{}}, g:{startMax:12, max:null, tests:{}, weight:0, autoAt:0}, t:{front:40, side:45, tests:{}}, u:{startMax:4, max:null, tests:{}, legacy:0}, custom:{progs:[], cur:null, mount:{pull:null, push:null, squat:null, stretch:null}}, startMax:4, test4:null, test8:null, logs:{}, times:{}, cycles:[]}; }
   function normalize(s){
     var f = fresh();
     if(!s || typeof s !== "object") return f;
@@ -2072,6 +2118,7 @@ create policy "friends drop" on public.friends
     if(s.flags && typeof s.flags === "object" && !Array.isArray(s.flags))
       Object.keys(s.flags).forEach(function(k){ if(typeof s.flags[k] === "number") f.flags[k] = s.flags[k]; });
     if(typeof s.wkSeen === "number" && s.wkSeen > 0) f.wkSeen = s.wkSeen;
+    f.feed = Array.isArray(s.feed) ? s.feed.filter(function(e){ return e && typeof e === "object" && typeof e.ts === "number" && typeof e.k === "string"; }).slice(-30) : [];
     f.onb = {done: !!(s.onb && s.onb.done)};
     f.lastEvent = (s.lastEvent && typeof s.lastEvent === "object" && typeof s.lastEvent.title === "string") ? s.lastEvent : null;
     f.times = (s.times && typeof s.times === "object") ? s.times : {};
@@ -2817,7 +2864,7 @@ create policy "friends drop" on public.friends
 
   // ---------- отмена последнего действия ----------
   var UNDO = [];
-  var UNDO_KEYS = ["logs", "times", "fin", "notes", "cycles", "lastEvent", "p", "s", "b", "g", "t", "u", "test4", "test8", "startMax"];
+  var UNDO_KEYS = ["logs", "times", "fin", "notes", "cycles", "lastEvent", "feed", "p", "s", "b", "g", "t", "u", "test4", "test8", "startMax"];
   function undoSnap(){
     var o = {}, i;
     for(i = 0; i < UNDO_KEYS.length; i++){ var k = UNDO_KEYS[i]; if(state[k] !== undefined) o[k] = state[k]; }
@@ -4521,6 +4568,11 @@ create policy "friends drop" on public.friends
       Object.keys(old[f2]).forEach(function(k){ if(!out[f2][k] || old[f2][k] < out[f2][k]) out[f2][k] = old[f2][k]; });
     });
     if(old.wkSeen || out.wkSeen) out.wkSeen = Math.max(old.wkSeen || 0, out.wkSeen || 0);
+    if((old.feed && old.feed.length) || (out.feed && out.feed.length)){
+      var fseen = {};
+      out.feed = (out.feed || []).concat(old.feed || []).filter(function(e){ var id = e.k + ":" + e.ts; if(fseen[id]) return false; fseen[id] = 1; return true; })
+        .sort(function(x, y){ return x.ts - y.ts; }).slice(-30);
+    }
     out.updatedAt = Math.max(a.updatedAt || 0, b.updatedAt || 0);
     return out;
   }
@@ -5773,6 +5825,10 @@ create policy "friends drop" on public.friends
     b.classList.toggle("on", on);
     b.setAttribute("aria-label", on ? "Профиль: " + (SB.mail || "аккаунт") : "Войти в аккаунт");
     b.setAttribute("aria-pressed", TAB === "profile");
+    if(TAB !== "profile") FDH = null;
+    var fnews = TAB !== "profile" && loggedIn() && FR.loaded ? feedNews() : 0;
+    b.classList.toggle("news", fnews > 0);
+    if(fnews) b.setAttribute("aria-label", b.getAttribute("aria-label") + ", в ленте новое");
     b.innerHTML = on
       ? avatarHtml("")
       : '<span class="ava guest" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.8 20c.9-3.6 3.8-5.6 7.2-5.6s6.3 2 7.2 5.6" stroke-linecap="round"/></svg></span>';
@@ -5801,7 +5857,7 @@ create policy "friends drop" on public.friends
     return {
       pull: PULL.total(), push: PUSH.total() + BOARD.total(), squat: SQUAT.total(),
       dumb: DUMB.total(), stretch: tMinutes(), ts: Date.now(), last: state.lastEvent || null, reacts: state.reacts || {},
-      wk: {id: weekId(), reps: weekReps()}
+      wk: {id: weekId(), reps: weekReps()}, feed: (state.feed || []).slice(-15)
     };
   }
   function sbPutProfile(){
@@ -5838,6 +5894,7 @@ create policy "friends drop" on public.friends
         });
         FR.loading = false; FR.loaded = Date.now();
         renderProfile();
+        feedAfterLoad();
       })
       .catch(function(e){ FR.loading = false; FR.loaded = Date.now(); FR.err = sbErr(e); renderProfile(); });
   }
@@ -5909,11 +5966,8 @@ create policy "friends drop" on public.friends
       '<div class="frmain"><div class="frtop"><strong>' + esc(name) + '</strong>' +
       (FR.mutual[p.user_id] ? '<span class="badge ok">взаимно</span>' : '<span class="badge quiet">в одну сторону</span>') + '</div>' +
       '<p class="hint">' + esc(line) + '</p>' + duelHtml(st, name) +
-      '<p class="hint">Последняя отметка: ' + frWhen(st.ts) + ', код ' + esc(p.code || "") + (theirReact(p) ? " · тебе поставили " + theirReact(p) : "") + '</p>' +
-      (st.last && st.last.title
-        ? '<button type="button" class="linkbtn alt react" data-act="react" data-id="' + esc(p.user_id) + '" data-ts="' + (st.last.ts || 0) + '">' +
-          (myReact(p.user_id, st.last.ts) ? "🔥 отмечено" : "🔥 поддержать") + '</button>'
-        : "") + '</div>' +
+      '<p class="hint">Последняя отметка: ' + frWhen(st.ts) + ', код ' + esc(p.code || "") + (theirReact(p) ? " · тебе поставили " + theirReact(p) : "") + '</p></div>' +
+
       '<button type="button" class="linkbtn alt" data-act="fr-drop" data-id="' + esc(p.user_id) + '">Убрать</button></div>';
   }
   function friendsHtml(){
@@ -5928,8 +5982,7 @@ create policy "friends drop" on public.friends
       '<div class="skelcard"><span class="skel sk-ava"></span><span class="skel sk-l1"></span><span class="skel sk-l2"></span></div>';
     else if(!FR.list.length) h += '<p class="hint">Друзей пока нет. Обменяйтесь кодами — и увидите цифры друг друга: сколько подтягиваний, отжиманий, приседаний и минут растяжки набрано и когда была последняя отметка.</p>';
     else FR.list.forEach(function(p){ h += frCard(p); });
-    h += feedHtml();
-    return h + '</section>';
+    return feedSectionHtml() + h + '</section>';
   }
 
   // ---------- напоминания ----------
@@ -6255,6 +6308,7 @@ create policy "friends drop" on public.friends
       return;
     }
     if(!got.length) return;
+    got.slice(0, 3).forEach(function(m){ feedPush({k: "medal", t: m.n, e: m.e, d: m.d}); });
     save();
     flash(got.length === 1 ? "Новая медаль: " + got[0].e + " " + got[0].n : "Новые медали: " + got.map(function(m){ return m.e + " " + m.n; }).join(", "),
       {label: "Смотреть", act: "medals-open"});
@@ -6472,7 +6526,7 @@ create policy "friends drop" on public.friends
   function renderShareDlg(){
     var box = document.getElementById("shareDlg");
     if(!box) return;
-    if(!SC){ box.hidden = true; box.innerHTML = ""; if(!focusKey && !ONB && !IMP && !WK) document.body.classList.remove("modal-open"); return; }
+    if(!SC){ box.hidden = true; box.innerHTML = ""; if(!focusKey && !ONB && !IMP && !WK && !WN) document.body.classList.remove("modal-open"); return; }
     box.hidden = false; document.body.classList.add("modal-open");
     var canFiles = false;
     try { canFiles = !!(navigator.canShare && typeof File !== "undefined" && navigator.canShare({files: [new File([new Blob(["x"], {type: "image/png"})], "x.png", {type: "image/png"})]})); } catch(e){}
@@ -6582,7 +6636,10 @@ create policy "friends drop" on public.friends
     var tst = document.getElementById("toast");
     setTimeout(function(){ confetti(anchor || tst); if(anchor && tst) confetti(tst); }, 60);
     buzz([30, 50, 30, 50, 80]);
-    setFlag("pr");
+    feedPush({k: "pr", t: e.name, n: e.best, was: was, sec: e.sec ? 1 : 0});
+    if(!state.flags) state.flags = {};
+    if(!state.flags.pr) state.flags.pr = Date.now();
+    save();
   }
 
   // ---------- голосовой тренер в режиме тренировки ----------
@@ -6749,7 +6806,7 @@ create policy "friends drop" on public.friends
   function weekClose(){ WK = null; renderWeekDlg(); }
   // первый вход на новой неделе: показываем итоги прошлой, если было что считать
   function weekCheck(){
-    if(ONB || IMP || focusKey || SC || WK || onbNeeded()) return;
+    if(ONB || IMP || focusKey || SC || WK || WN || onbNeeded()) return;
     var ws = weekStart();
     if((+state.wkSeen || 0) >= ws) return;
     var pws = addDays(ws, -7), d = weekData(pws);
@@ -6771,7 +6828,7 @@ create policy "friends drop" on public.friends
   function renderWeekDlg(){
     var box = document.getElementById("weekDlg");
     if(!box) return;
-    if(!WK){ box.hidden = true; box.innerHTML = ""; if(!focusKey && !ONB && !IMP && !SC) document.body.classList.remove("modal-open"); return; }
+    if(!WK){ box.hidden = true; box.innerHTML = ""; if(!focusKey && !ONB && !IMP && !SC && !WN) document.body.classList.remove("modal-open"); return; }
     box.hidden = false; document.body.classList.add("modal-open");
     var cws = weekStart(), cur = WK.ws >= cws, d = weekData(WK.ws);
     var h = '<div class="warm-card wk-card" role="document"><div class="wk-hero">' +
@@ -6896,6 +6953,275 @@ create policy "friends drop" on public.friends
       renderShareDlg();
     });
   }
+
+  // ---------- что нового ----------
+  var WN_KEY = "pullups-seen-ver", WN = null;
+  var NEWS = [
+    {v: 27, items: [
+      {e: "📰", t: "Лента друзей", d: "Тренировки, рекорды и медали — твои и друзей — в одной ленте. Под чужими событиями можно поставить 🔥, 💪 или 👏, а кто поддержал тебя — видно под твоими.", go: "feed-open", btn: "Открыть ленту"}
+    ]},
+    {v: 26, items: [
+      {e: "🗣️", t: "Голосовой тренер", d: "В режиме тренировки нажми «Голосовой тренер»: он называет подход, отсчитывает «три, два, один» в конце отдыха и говорит «Поехали!». Можно не смотреть на экран."},
+      {e: "🏆", t: "Рекорд в моменте", d: "Сделал больше, чем когда-либо за подход, — салют и поздравление прямо во время тренировки."},
+      {e: "📊", t: "Итоги недели", d: "В начале недели — сводка прошлой: график по дням, лучший день, рекорды и картинка, чтобы поделиться.", go: "wk-open", btn: "Моя неделя"}
+    ]},
+    {v: 25, items: [
+      {e: "🏅", t: "Медали", d: "Награды за повторения, серии дней и маленькие подвиги вроде тренировки в 6 утра.", go: "medals-open", btn: "Мои медали"},
+      {e: "🖼️", t: "Картинка результата", d: "После тренировки — красивая картинка с итогом, чтобы отправить в мессенджер."},
+      {e: "⚔️", t: "Соревнование недели", d: "В карточке друга видно, кто больше сделал с понедельника. У лидера — корона."}
+    ]},
+    {v: 24, items: [
+      {e: "🎯", t: "Новый режим тренировки", d: "Большая кнопка, кольцо отдыха, «Пропустить отдых» и подсчёт камерой для отжиманий и приседаний."}
+    ]}
+  ];
+  function wnSeen(){ try { return +localStorage.getItem(WN_KEY) || 0; } catch(e){ return 0; } }
+  function wnMark(){ try { localStorage.setItem(WN_KEY, String(APP_BUILD_N)); } catch(e){} }
+  // после обновления: один раз показываем, что появилось; новичку — ничего, он и так всё увидит впервые
+  function wnCheck(){
+    var seen = wnSeen();
+    if(seen >= APP_BUILD_N) return false;
+    var hasData = Object.keys(state.logs || {}).length > 0 || Object.keys(state.fin || {}).length > 0;
+    if(!hasData || onbNeeded()){ wnMark(); return false; }
+    if(ONB || IMP || focusKey || SC || WK) return false;
+    WN = {from: Math.max(seen, APP_BUILD_N - 3)};
+    renderWn();
+    return true;
+  }
+  function wnOpen(){ WN = {from: 0, manual: true}; renderWn(); }
+  function wnClose(){
+    var auto = WN && !WN.manual;
+    WN = null; wnMark(); renderWn();
+    if(auto) setTimeout(weekCheck, 400);
+  }
+  function wnGo(go){
+    WN = null; wnMark(); renderWn();
+    if(go === "wk-open") weekOpen(weekStart());
+    else if(go === "medals-open" || go === "feed-open") goProfile(go === "medals-open" ? "medalsBox" : "feedBox");
+  }
+  function renderWn(){
+    var box = document.getElementById("wnDlg");
+    if(!box) return;
+    if(!WN){ box.hidden = true; box.innerHTML = ""; if(!focusKey && !ONB && !IMP && !SC && !WK) document.body.classList.remove("modal-open"); return; }
+    box.hidden = false; document.body.classList.add("modal-open");
+    var h = '<div class="warm-card wn-card" role="document"><div class="wk-hero wn-hero">' +
+      '<div class="wk-top"><span>Версия ' + APP_VERSION + '</span><button type="button" class="tb-icon" data-act="wn-close" aria-label="Закрыть">✕</button></div>' +
+      '<p class="wn-title">' + (WN.manual ? "Что появилось" : "Что нового") + '</p>' +
+      '<p class="wn-sub">' + (WN.manual ? "Последние обновления, самые свежие сверху." : "Пока тебя не было, приложение подросло. Вот главное.") + '</p></div><div class="wn-body">';
+    NEWS.forEach(function(g){
+      if(g.v <= WN.from || g.v > APP_BUILD_N) return;
+      h += '<p class="wn-ver">' + (g.v === APP_BUILD_N ? "Сейчас" : "Версия " + (APP_MAJOR + g.v / 100).toFixed(2)) + '</p>';
+      g.items.forEach(function(it){
+        h += '<div class="wn-item"><span class="wn-e" aria-hidden="true">' + it.e + '</span><div><b>' + esc(it.t) + '</b><p>' + esc(it.d) + '</p>' +
+          (it.go ? '<button type="button" class="linkbtn alt wn-go" data-act="wn-go" data-go="' + it.go + '">' + esc(it.btn) + ' →</button>' : '') + '</div></div>';
+      });
+    });
+    h += '<p class="hint wn-foot">Открыть этот список снова — нажми на номер версии внизу страницы.</p>' +
+      '<div class="warm-actions"><button type="button" class="primary" data-act="wn-close">Понятно</button></div></div></div>';
+    box.innerHTML = h;
+    var f = box.querySelector(".primary");
+    if(f) try { f.focus({preventScroll: true}); } catch(e){}
+  }
+  function goProfile(anchor){
+    var mt0 = document.getElementById("toast"); if(mt0) mt0.hidden = true;
+    if(focusKey) focusClose();
+    if(TAB !== "profile"){ prevTab = TAB; TAB = "profile"; navPush(); }
+    render();
+    if(anchor === "feedBox" && !loggedIn()) flash("Лента работает с аккаунтом: войди, и увидишь друзей");
+    if(anchor === "feedBox" && loggedIn() && !FR.loading && Date.now() - (FR.loaded || 0) > 30000) sbFriends();
+    setTimeout(function(){ scrollTo(document.getElementById(anchor)); }, 40);
+  }
+
+  // ---------- лента друзей ----------
+  // свои события лежат в state.feed и уходят друзьям в профиль; у друзей — то же самое в stats.feed
+  var RX = ["🔥", "💪", "👏"], FDK = "pullups-feed-seen", RXK = "pullups-rx-seen", FDH = null, FD_ALL = false;
+  function feedPush(ev){
+    if(!Array.isArray(state.feed)) state.feed = [];
+    var ts = ev.ts || Date.now(), lastF = state.feed[state.feed.length - 1];
+    if(lastF && lastF.ts >= ts) ts = lastF.ts + 1;
+    ev.ts = ts;
+    state.feed.push(ev);
+    if(state.feed.length > 30) state.feed = state.feed.slice(-30);
+  }
+  function feedFin(key){
+    var w = dayOfKey(key), cd = cardData(key), ev = {k: "fin", t: (w && w.title) || "тренировка", p: keyProgTitle(key), ts: state.lastEvent && state.lastEvent.ts};
+    if(cd){ if(cd.reps) ev.n = cd.reps; if(cd.secs) ev.h = cd.secs; if(cd.sets) ev.s = cd.sets; }
+    feedPush(ev);
+  }
+  function lsNum(k){ try { return +localStorage.getItem(k) || 0; } catch(e){ return 0; } }
+  function rxSeenList(){ try { var a = JSON.parse(localStorage.getItem(RXK) || "[]"); return Array.isArray(a) ? a : []; } catch(e){ return []; } }
+  function rxSeenAdd(ids){
+    if(!ids.length) return;
+    var a = rxSeenList().concat(ids);
+    try { localStorage.setItem(RXK, JSON.stringify(a.slice(-80))); } catch(e){}
+  }
+  function myEvents(){
+    if(Array.isArray(state.feed) && state.feed.length) return state.feed;
+    return state.lastEvent && state.lastEvent.title ? [{k: "fin", t: state.lastEvent.title, ts: state.lastEvent.ts}] : [];
+  }
+  function friendEvents(p){
+    var st = p.stats || {};
+    if(Array.isArray(st.feed) && st.feed.length) return st.feed.filter(function(ev){ return ev && typeof ev.ts === "number" && typeof ev.k === "string"; });
+    return st.last && st.last.title ? [{k: "fin", t: st.last.title, ts: st.last.ts || 0}] : [];
+  }
+  function feedEvents(){
+    var cutoff = Date.now() - 21 * 864e5, out = [];
+    var me = {id: sbUser() || "me", name: profName() || "Ты", photo: profPhoto(), me: true};
+    myEvents().forEach(function(ev){ if(ev.ts > cutoff) out.push({who: me, ev: ev, mine: true}); });
+    FR.list.forEach(function(p){
+      var who = {id: p.user_id, name: p.nick || "Друг", photo: p.photo};
+      friendEvents(p).forEach(function(ev){ if(ev.ts > cutoff) out.push({who: who, ev: ev, mine: false}); });
+    });
+    out.sort(function(a, b){ return b.ev.ts - a.ev.ts; });
+    return out;
+  }
+  // реакции: у каждого друга своя запись, all — по событиям; ts/e — последняя (её понимают и старые версии)
+  function reactSet(fid, ts, e){
+    if(!state.reacts) state.reacts = {};
+    var cur = state.reacts[fid] || {}, all = {};
+    if(cur.all && typeof cur.all === "object") Object.keys(cur.all).forEach(function(k){ all[k] = cur.all[k]; });
+    if(cur.ts && cur.e && !all[cur.ts]) all[cur.ts] = cur.e;
+    var was = all[ts];
+    if(was === e) delete all[ts]; else all[ts] = e;
+    var ks = Object.keys(all).map(Number).sort(function(a, b){ return b - a; }).slice(0, 30), na = {};
+    ks.forEach(function(k){ na[k] = all[k]; });
+    if(ks.length) state.reacts[fid] = {ts: ks[0], e: na[ks[0]], all: na};
+    else delete state.reacts[fid];
+    save();
+    sbPutProfile();
+    renderProfile();
+    if(was !== e) buzz(20);
+  }
+  function myReactTo(fid, ts){
+    var r = state.reacts && state.reacts[fid];
+    if(!r) return "";
+    if(r.all && r.all[ts]) return r.all[ts];
+    return r.ts === ts ? r.e || "" : "";
+  }
+  function reactsToMe(ts){
+    var uid = sbUser(), out = [];
+    if(!uid) return out;
+    FR.list.forEach(function(p){
+      var r = p.stats && p.stats.reacts && p.stats.reacts[uid];
+      if(!r) return;
+      var e = (r.all && r.all[ts]) || (r.ts === ts ? r.e : "");
+      if(e) out.push({id: p.user_id, name: p.nick || "Друг", e: e});
+    });
+    return out;
+  }
+  function rxNew(){
+    var seen = rxSeenList(), out = [], had = {};
+    myEvents().forEach(function(ev){
+      reactsToMe(ev.ts).forEach(function(r){
+        var id = r.id + ":" + ev.ts + ":" + r.e;
+        if(seen.indexOf(id) < 0 && !had[id]){ had[id] = 1; out.push({id: id, r: r, ev: ev}); }
+      });
+    });
+    return out;
+  }
+  function feedNews(){
+    if(!loggedIn() || !FR.loaded) return 0;
+    var seen = lsNum(FDK), n = 0;
+    feedEvents().forEach(function(x){ if(!x.mine && x.ev.ts > seen) n++; });
+    return n + rxNew().length;
+  }
+  function evTitle(ev){
+    var t = String(ev.t || "тренировка");
+    if(ev.k === "pr") return "Рекорд: " + t + " — " + ev.n + (ev.sec ? " с" : " за подход");
+    if(ev.k === "medal") return "Медаль «" + t + "»";
+    return "Тренировка «" + t + "»";
+  }
+  function evSub(ev){
+    if(ev.k === "pr") return ev.was ? "было " + ev.was + (ev.sec ? " с" : "") : "";
+    if(ev.k === "medal") return ev.d || "";
+    var bits = [];
+    if(ev.p) bits.push(ev.p);
+    if(ev.n) bits.push(ev.n + " " + plural(ev.n, ["повторение","повторения","повторений"]));
+    if(ev.h) bits.push((ev.h >= 120 ? Math.round(ev.h / 60) + " мин" : ev.h + " с") + " удержаний");
+    if(!ev.n && !ev.h && ev.s) bits.push(ev.s + " " + plural(ev.s, SETS));
+    return bits.join(" · ");
+  }
+  function evIcon(ev){ return ev.k === "pr" ? "🏆" : ev.k === "medal" ? (ev.e || "🏅") : "🏁"; }
+  function fdDay(ts){
+    var dn = dayNum(ts), today = dayNum(Date.now());
+    if(dn === today) return "Сегодня";
+    if(dn === today - 1) return "Вчера";
+    var s = new Date(ts).toLocaleDateString("ru-RU", {weekday: "long", day: "numeric", month: "long"});
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+  function fdWhen(ts){
+    var d = Date.now() - ts;
+    if(d < 60000) return "только что";
+    if(d < 3600000) return Math.floor(d / 60000) + " мин назад";
+    var t = new Date(ts);
+    return pad(t.getHours()) + ":" + pad(t.getMinutes());
+  }
+  function fdAva(who){
+    if(who.photo) return '<span class="ava photo" style="background-image:url(' + esc(who.photo) + ')"></span>';
+    return '<span class="ava">' + esc((who.me ? avatarLetter() : who.name.charAt(0)).toUpperCase()) + '</span>';
+  }
+  function feedSectionHtml(){
+    var list = feedEvents(), h = '<section class="panel feedp" id="feedBox"><div class="md-head"><h2>Лента</h2>' +
+      '<button type="button" class="linkbtn alt fd-reload" data-act="fr-reload">Обновить</button></div>';
+    if(FR.loading && !FR.loaded){
+      return h + '<div class="skelcard"><span class="skel sk-ava"></span><span class="skel sk-l1"></span><span class="skel sk-l2"></span></div></section>';
+    }
+    if(!list.length){
+      return h + '<p class="hint">Здесь появятся завершённые тренировки, рекорды и медали — твои и друзей.' +
+        (FR.list.length ? "" : " Добавь друга по коду ниже, чтобы видеть и его.") + '</p></section>';
+    }
+    if(FDH == null) FDH = lsNum(FDK);
+    var show = FD_ALL ? list : list.slice(0, 12), lastDay = "";
+    h += '<ol class="fd-list">';
+    show.forEach(function(x){
+      var ev = x.ev, day = fdDay(ev.ts);
+      if(day !== lastDay){ h += '<li class="fd-day">' + esc(day) + '</li>'; lastDay = day; }
+      var isNew = !x.mine && ev.ts > FDH, sub = evSub(ev);
+      h += '<li class="fd-item fd-' + esc(ev.k) + (isNew ? " new" : "") + '">' +
+        '<span class="fd-ava">' + fdAva(x.who) + '<span class="fd-ic" aria-hidden="true">' + evIcon(ev) + '</span></span>' +
+        '<div class="fd-main"><div class="fd-top"><b>' + esc(x.mine ? "Ты" : x.who.name) + '</b>' + (isNew ? '<span class="fd-dot">новое</span>' : '') +
+        '<time datetime="' + new Date(ev.ts).toISOString() + '">' + fdWhen(ev.ts) + '</time></div>' +
+        '<p class="fd-h">' + esc(evTitle(ev)) + '</p>' + (sub ? '<p class="fd-sub">' + esc(sub) + '</p>' : '');
+      if(x.mine){
+        var got = reactsToMe(ev.ts);
+        if(got.length) h += '<div class="fd-got">' + got.map(function(r){ return '<span>' + r.e + ' ' + esc(r.name) + '</span>'; }).join("") + '</div>';
+      } else {
+        var mine = myReactTo(x.who.id, ev.ts);
+        h += '<div class="fd-rx" role="group" aria-label="Поддержать ' + esc(x.who.name) + '">' + RX.map(function(e){
+          return '<button type="button" class="fd-r' + (mine === e ? " on" : "") + '" data-act="fd-react" data-id="' + esc(x.who.id) + '" data-ts="' + ev.ts + '" data-e="' + e + '" aria-pressed="' + (mine === e ? "true" : "false") + '">' + e + '</button>';
+        }).join("") + '</div>';
+      }
+      h += '</div></li>';
+    });
+    h += '</ol>';
+    if(list.length > 12) h += '<button type="button" class="linkbtn alt md-more" data-act="fd-all">' + (FD_ALL ? "Свернуть" : "Показать ещё " + (list.length - 12)) + '</button>';
+    // всё, что сейчас на экране, считаем просмотренным (подсветка «новое» живёт, пока не ушёл из профиля)
+    if(TAB === "profile") setTimeout(feedMarkSeen, 0);
+    return h + '</section>';
+  }
+  function feedMarkSeen(){
+    if(TAB !== "profile" || !FR.loaded) return;
+    try { localStorage.setItem(FDK, String(Date.now())); } catch(e){}
+    rxSeenAdd(rxNew().map(function(x){ return x.id; }));
+    renderAcc();
+  }
+  // после загрузки друзей: кто тебя поддержал — короткий тост, и точка на кнопке профиля
+  function feedAfterLoad(){
+    if(!lsNum(FDK)){ try { localStorage.setItem(FDK, String(Date.now() - 2 * 864e5)); } catch(e){} }
+    var nx = rxNew();
+    if(nx.length && TAB !== "profile" && !focusKey && !WN && !WK && !SC){
+      var t = nx.length === 1
+        ? nx[0].r.e + " " + nx[0].r.name + " — за «" + String(nx[0].ev.t || "тренировку") + "»"
+        : "Тебя поддержали: " + nx.slice(0, 3).map(function(x){ return x.r.e + " " + x.r.name; }).join(", ") + (nx.length > 3 ? " и ещё " + (nx.length - 3) : "");
+      flash(t, {label: "Лента", act: "feed-open"});
+    }
+    renderAcc();
+  }
+  setInterval(function(){
+    if(!loggedIn() || document.hidden || FR.loading) return;
+    var ae = document.activeElement;
+    if(ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) return;
+    if(Date.now() - (FR.loaded || 0) > (TAB === "profile" ? 90000 : 300000)) sbFriends();
+  }, 30000);
 
   // ---------- график тестов ----------
   function testChart(C){
@@ -7895,6 +8221,7 @@ create policy "friends drop" on public.friends
       state.times[fk] = Date.now();
       var fday = dayOfKey(fk);
       state.lastEvent = {title: (fday && fday.title) || "тренировка", no: (fday && fday.no) || null, ts: Date.now()};
+      feedFin(fk);
       sel = null; save(); render();
       flash("Тренировка засчитана", true);
       return;
@@ -7930,7 +8257,13 @@ create policy "friends drop" on public.friends
       save(); render();
       return;
     }
-    if(act === "react"){ reactOn(b.getAttribute("data-id"), +b.getAttribute("data-ts") || 0); return; }
+    if(act === "react"){ reactSet(b.getAttribute("data-id"), +b.getAttribute("data-ts") || 0, "🔥"); return; }
+    if(act === "fd-react"){ reactSet(b.getAttribute("data-id"), +b.getAttribute("data-ts") || 0, b.getAttribute("data-e") || "🔥"); return; }
+    if(act === "fd-all"){ FD_ALL = !FD_ALL; renderProfile(); return; }
+    if(act === "feed-open"){ goProfile("feedBox"); return; }
+    if(act === "wn-open"){ wnOpen(); return; }
+    if(act === "wn-close"){ wnClose(); return; }
+    if(act === "wn-go"){ wnGo(b.getAttribute("data-go")); return; }
     if(act === "csv"){ csvDump(); return; }
     if(act === "notify"){ notifyAsk(); return; }
     if(act === "pw-forgot"){ sbRecover(); return; }
@@ -7993,6 +8326,7 @@ create policy "friends drop" on public.friends
         state.times[fkey] = Date.now();
         var fd = dayOfKey(fkey);
         state.lastEvent = {title: (fd && fd.title) || "тренировка", no: (fd && fd.no) || null, ts: Date.now()};
+        feedFin(fkey);
         save(); render();
         flash("Тренировка засчитана", true);
       }
@@ -8259,6 +8593,7 @@ create policy "friends drop" on public.friends
   document.addEventListener("keydown", function(ev){
     if(ev.key === "Escape" && SC){ SC = null; renderShareDlg(); return; }
     if(ev.key === "Escape" && WK){ weekClose(); return; }
+    if(ev.key === "Escape" && WN){ wnClose(); return; }
     if(ev.key === "Escape" && focusKey){ focusClose(); return; }
     if(ev.key === "Escape" && IMP){ impClose(); return; }
     if(ev.key === "Escape" && ONB){ onbClose(true); return; }
@@ -8383,7 +8718,7 @@ create policy "friends drop" on public.friends
   (function(){
     var v = document.getElementById("appVer");
     if(!v) return;
-    v.textContent = "v. " + APP_VERSION;
+    v.innerHTML = '<button type="button" class="ver-btn" data-act="wn-open">v. ' + APP_VERSION + ' · что нового</button>';
     (function(){
       var dl = new Date(document.lastModified);
       v.title = "Версия " + APP_VERSION + (isNaN(dl) ? "" : ", файл от " + dl.toLocaleDateString("ru-RU", {day: "numeric", month: "long", year: "numeric"}));
@@ -8405,7 +8740,8 @@ create policy "friends drop" on public.friends
   if(!impFromHash() && onbNeeded()) onbStart();
   medalSchedule();
   prSchedule();
-  setTimeout(weekCheck, 1800);
+  setTimeout(function(){ if(!wnCheck()) weekCheck(); }, 1500);
+  setTimeout(function(){ if(loggedIn() && !FR.loaded && !FR.loading) sbFriends(); }, 3000);
   window.addEventListener("hashchange", function(){ if(/prog=/.test(location.hash || "")){ if(ONB){ ONB = null; renderOnb(); } impFromHash(); } });
   syncNow(true);
 
