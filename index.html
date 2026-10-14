@@ -1389,6 +1389,30 @@ body.modal-open .xpf{color:var(--tide);text-shadow:0 2px 10px rgba(3,14,32,.6)}
 .aw-lu-note{margin:6px 0 0;font-size:var(--fs-sm);line-height:1.45;color:rgba(255,255,255,.85)}
 
 .aw-status{padding:10px 12px;border-radius:var(--r-sm);background:color-mix(in srgb, var(--tide-strong) 9%, var(--surface));color:var(--ink)}
+
+/* v1.33: своё эмодзи для значка */
+.aw-own-e{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin-top:10px;font-size:var(--fs-sm);color:var(--muted)}
+.aw-own-e label{font-weight:600;color:var(--ink)}
+.aw-own-e input{width:72px;height:44px;border-radius:10px;border:1px dashed var(--line-strong);background:var(--bg);color:var(--ink);font-size:22px;text-align:center}
+.aw-own-e input::placeholder{opacity:.35}
+.aw-own-e.on input{border-style:solid;border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 1px var(--accent) inset}
+.aw-tip{flex-basis:100%;margin:0;font-size:var(--fs-xs);line-height:1.45;color:var(--muted)}
+
+/* v1.34: спокойная кнопка профиля — кольцо уровня и одна плашка */
+.accbtn.acc2{border-color:transparent;background:transparent;box-shadow:none}
+.accbtn.acc2[aria-pressed="true"]{background:transparent;border-color:transparent}
+.accbtn.acc2 .acc-ring{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.acc-trk{fill:none;stroke:var(--line);stroke-width:2.5}
+.acc-arc{fill:none;stroke:var(--tide-strong);stroke-width:2.5;stroke-linecap:round;transition:stroke-dasharray .6s cubic-bezier(.2,.7,.3,1)}
+.accbtn.acc2[aria-pressed="true"] .acc-trk{stroke:color-mix(in srgb, var(--accent) 35%, transparent)}
+.accbtn.acc2 .ava{width:40px;height:40px;font-size:17px;box-shadow:none;background-size:cover;background-position:center}
+.accbtn.acc2 .ava.guest{width:40px;height:40px;background:var(--surface);color:var(--muted);border:0;display:grid;place-items:center;box-shadow:var(--shadow-1)}
+.accbtn.acc2 .ava.guest svg{width:22px;height:22px}
+.acc-pill{position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);display:inline-flex;align-items:center;gap:2px;height:18px;padding:0 6px;border-radius:var(--r-pill);color:#fff;background-color:var(--ocean-deep);background-image:var(--ocean-hero);background-size:120px 120px, auto, auto, auto;background-blend-mode:overlay, normal, normal, normal;box-shadow:0 0 0 2px var(--bg);white-space:nowrap;pointer-events:none}
+.acc-pill i{font-style:normal;font-size:10.5px;line-height:1}
+.acc-pill b{font:700 10px/1 "Unbounded","Onest",system-ui,sans-serif;font-variant-numeric:tabular-nums}
+.accbtn.acc2.news::after{top:2px;right:2px;width:10px;height:10px}
+@media (prefers-reduced-motion: reduce){.acc-arc{transition:none}}
 </style>
 </head>
 <body>
@@ -2248,7 +2272,7 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzd3FsYmpsa3Bncm55a2dnY3pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwNDIyNDUsImV4cCI6MjEwNjYxODI0NX0.KQMAqfGyNr1NeLMKu3iRuufLaZ5DEMRj2sc1ulkK5QY"
   ]};
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 1, APP_BUILD_N = 32;
+  var APP_MAJOR = 1, APP_BUILD_N = 34;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
   var LSW = null;   // что эта вкладка последней записала в хранилище: если там другое — писала соседняя вкладка
@@ -6048,23 +6072,22 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
     var fnews = TAB !== "profile" && loggedIn() && FR.loaded ? feedNews() : 0;
     b.classList.toggle("news", fnews > 0);
     if(fnews) b.setAttribute("aria-label", b.getAttribute("aria-label") + ", в ленте новое");
-    b.innerHTML = on
-      ? avatarHtml("")
-      : '<span class="ava guest" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.8 20c.9-3.6 3.8-5.6 7.2-5.6s6.3 2 7.2 5.6" stroke-linecap="round"/></svg></span>';
-    var myAw = on && AW.ok ? awFor(sbUser()) : [];
-    if(myAw.length){
-      var la = myAw[myAw.length - 1], lc = AW_COLORS[awColor(la)], awe = document.createElement("span");
-      awe.className = "awb acc-aw"; awe.setAttribute("aria-hidden", "true");
-      awe.style.setProperty("--aw1", lc[0]); awe.style.setProperty("--aw2", lc[1]);
-      awe.innerHTML = "<span></span>"; awe.firstChild.textContent = la.emoji;
-      b.appendChild(awe);
-    }
-    if(typeof state.lvl === "number"){
-      var lvb = document.createElement("span");
-      lvb.className = "acc-lv"; lvb.textContent = levelOf(XPB != null ? XPB : xpCalc().xp); lvb.setAttribute("aria-hidden", "true");
-      b.appendChild(lvb);
-      b.setAttribute("aria-label", b.getAttribute("aria-label") + ", уровень " + lvb.textContent);
-    }
+    // одно кольцо — прогресс уровня, одна плашка снизу — уровень и последний значок; статус синхронизации — в плашке слева
+    var xp = XPB != null ? XPB : xpCalc().xp, L = lvInfo(xp), R = 22.5, C = 2 * Math.PI * R;
+    var ph = on ? profPhoto() : "";
+    var face = !on
+      ? '<span class="ava guest" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.8 20c.9-3.6 3.8-5.6 7.2-5.6s6.3 2 7.2 5.6" stroke-linecap="round"/></svg></span>'
+      : ph ? '<span class="ava photo" style="background-image:url(' + ph + ')" aria-hidden="true"></span>'
+      : '<span class="ava" aria-hidden="true">' + esc(avatarLetter()) + '</span>';
+    var myAw = on && AW.ok ? awFor(sbUser()) : [], la = myAw.length ? myAw[myAw.length - 1] : null;
+    var hasLv = typeof state.lvl === "number";
+    b.classList.add("acc2");
+    b.innerHTML = '<svg class="acc-ring" viewBox="0 0 48 48" aria-hidden="true"><circle class="acc-trk" cx="24" cy="24" r="' + R + '"/>' +
+      (hasLv ? '<circle class="acc-arc" cx="24" cy="24" r="' + R + '" stroke-dasharray="' + (Math.max(0.03, L.f) * C).toFixed(1) + ' ' + C.toFixed(1) + '" transform="rotate(-90 24 24)"/>' : '') + '</svg>' +
+      face + (hasLv ? '<span class="acc-pill" aria-hidden="true">' + (la ? '<i></i>' : '') + '<b>' + L.n + '</b></span>' : '');
+    if(la){ var li = b.querySelector(".acc-pill i"); if(li) li.textContent = la.emoji; }
+    if(hasLv) b.setAttribute("aria-label", b.getAttribute("aria-label") + ", уровень " + L.n);
+    b.title = (hasLv ? "Уровень " + L.n + " · " + L.rank[1] : "Профиль") + (la ? " · значок «" + la.title + "»" : "");
   }
   function profileStats(){
     var rows = [
@@ -7232,9 +7255,9 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
     var hasData = Object.keys(state.logs || {}).length > 0 || Object.keys(state.fin || {}).length > 0;
     if(!hasData || onbNeeded()){ wnMark(); return false; }
     if(ONB || IMP || focusKey || SC || WK) return false;
-    var from = Math.max(seen, APP_BUILD_N - 3);
-    if(!NEWS.some(function(g){ return g.v > from && g.v <= APP_BUILD_N; })){ wnMark(); return false; }
-    WN = {from: from};
+    // показываем то, что вышло после последнего просмотра, но не больше трёх обновлений с новостями
+    if(!NEWS.some(function(g){ return g.v > seen && g.v <= APP_BUILD_N; })){ wnMark(); return false; }
+    WN = {from: seen, limit: 3};
     renderWn();
     return true;
   }
@@ -7258,8 +7281,11 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
       '<div class="wk-top"><span>Версия ' + APP_VERSION + '</span><button type="button" class="tb-icon" data-act="wn-close" aria-label="Закрыть">✕</button></div>' +
       '<p class="wn-title">' + (WN.manual ? "Что появилось" : "Что нового") + '</p>' +
       '<p class="wn-sub">' + (WN.manual ? "Последние обновления, самые свежие сверху." : "Пока тебя не было, приложение подросло. Вот главное.") + '</p></div><div class="wn-body">';
+    var shown = 0;
     NEWS.forEach(function(g){
       if(g.v <= WN.from || g.v > APP_BUILD_N) return;
+      if(WN.limit && shown >= WN.limit) return;
+      shown++;
       h += '<p class="wn-ver">' + (g.v === APP_BUILD_N ? "Сейчас" : "Версия " + (APP_MAJOR + g.v / 100).toFixed(2)) + '</p>';
       g.items.forEach(function(it){
         h += '<div class="wn-item"><span class="wn-e" aria-hidden="true">' + it.e + '</span><div><b>' + esc(it.t) + '</b><p>' + esc(it.d) + '</p>' +
@@ -7868,6 +7894,8 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
     if(n) n.textContent = g.note || "за что — по желанию";
     if(id === "awEmoji"){
       if(!ev.target.value.trim()) g.emoji = AW_EMOJI[0];
+      var own = document.querySelector("#awDlg .aw-own-e");
+      if(own) own.classList.toggle("on", !!ev.target.value.trim());
       if(e) e.textContent = g.emoji;
       [].forEach.call(document.querySelectorAll("#awDlg .aw-e"), function(x){ var on = x.getAttribute("data-e") === g.emoji; x.classList.toggle("on", on); x.setAttribute("aria-pressed", on); });
     }
@@ -7902,7 +7930,9 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
       '<div><b id="awPrevT">' + esc(g.title || "Название значка") + '</b><small id="awPrevN">' + esc(g.note || "за что — по желанию") + '</small></div></div>' +
       '<p class="aw-cap">Значок</p><div class="aw-emoji" role="group" aria-label="Выбери значок">' + AW_EMOJI.map(function(e){
         return '<button type="button" class="aw-e' + (e === g.emoji ? " on" : "") + '" data-act="aw-emoji" data-e="' + e + '" aria-pressed="' + (e === g.emoji) + '">' + e + '</button>';
-      }).join("") + '<label class="aw-own-e"><span>свой</span><input type="text" id="awEmoji" maxlength="8" autocomplete="off" value="' + (AW_EMOJI.indexOf(g.emoji) < 0 ? esc(g.emoji) : "") + '" aria-label="Свой эмодзи"></label></div>' +
+      }).join("") + '</div>' +
+      '<div class="aw-own-e' + (AW_EMOJI.indexOf(g.emoji) < 0 ? " on" : "") + '"><label for="awEmoji">Или свой:</label><input type="text" id="awEmoji" maxlength="12" autocomplete="off" placeholder="😀" value="' + (AW_EMOJI.indexOf(g.emoji) < 0 ? esc(g.emoji) : "") + '">' +
+      '<p class="aw-tip">Нажми на поле и вставь любой эмодзи — ' + awKbdTip() + '. Можно и одну-две буквы или цифры, например «№1».</p></div>' +
       '<p class="aw-cap">Цвет</p><div class="aw-colors" role="group" aria-label="Цвет значка">' + Object.keys(AW_COLORS).map(function(k){
         var cc = AW_COLORS[k];
         return '<button type="button" class="aw-col' + (k === g.color ? " on" : "") + '" data-act="aw-color" data-c="' + k + '" style="--aw1:' + cc[0] + ';--aw2:' + cc[1] + '" aria-label="' + cc[2] + '" aria-pressed="' + (k === g.color) + '"></button>';
@@ -7914,12 +7944,35 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
       '<button type="button" class="linkbtn alt" data-act="aw-close">Отмена</button></div></div>';
     box.innerHTML = h;
   }
+  function awKbdTip(){
+    var ua = navigator.userAgent || "";
+    if(/iPhone|iPad|Android/.test(ua)) return "переключи клавиатуру на смайлики (кнопка 🙂 или 🌐)";
+    if(/Mac OS X|Macintosh/.test(ua)) return "на Mac их открывает Control + Command + Пробел";
+    if(/Windows/.test(ua)) return "на Windows их открывает Win + . (точка)";
+    return "с эмодзи-клавиатуры";
+  }
+  // из того, что вставили, берём один эмодзи (вместе с цветом кожи и т. п.) или до двух знаков
+  function awPickEmoji(v){
+    v = String(v || "").trim();
+    if(!v) return "";
+    var first = v;
+    try {
+      if(typeof Intl !== "undefined" && Intl.Segmenter){
+        var it = new Intl.Segmenter("ru", {granularity: "grapheme"}).segment(v)[Symbol.iterator]().next();
+        if(!it.done) first = it.value.segment;
+      }
+    } catch(e){}
+    var pict = false;
+    try { pict = new RegExp("\\p{Extended_Pictographic}", "u").test(first); } catch(e){ pict = /[\uD800-\uDBFF]/.test(first); }
+    if(pict) return first.slice(0, 16);
+    return Array.from(v).slice(0, 2).join("");
+  }
   function awReadFields(){
     var g = AW.give; if(!g) return;
     var t = document.getElementById("awTitle"), n = document.getElementById("awNote"), e = document.getElementById("awEmoji");
     if(t) g.title = t.value.slice(0, 40);
     if(n) g.note = n.value.slice(0, 140);
-    if(e && e.value.trim()) g.emoji = e.value.trim().slice(0, 8);
+    if(e && e.value.trim()) g.emoji = awPickEmoji(e.value) || g.emoji;
   }
   function awSend(){
     var g = AW.give;
