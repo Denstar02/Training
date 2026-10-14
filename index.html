@@ -1387,6 +1387,8 @@ body.modal-open .xpf{color:var(--tide);text-shadow:0 2px 10px rgba(3,14,32,.6)}
 .aw-err{color:#B91C1C}
 .aw-lu .lu-cap{margin-top:18px}
 .aw-lu-note{margin:6px 0 0;font-size:var(--fs-sm);line-height:1.45;color:rgba(255,255,255,.85)}
+
+.aw-status{padding:10px 12px;border-radius:var(--r-sm);background:color-mix(in srgb, var(--tide-strong) 9%, var(--surface));color:var(--ink)}
 </style>
 </head>
 <body>
@@ -1424,6 +1426,7 @@ body.modal-open .xpf{color:var(--tide);text-shadow:0 2px 10px rgba(3,14,32,.6)}
     <details class="panel">
       <summary>Подключение базы: для тех, кто разворачивает страницу у себя</summary>
       <p class="hint">Нужно только тем, кто разворачивает эту страницу у себя: здесь подключается своя база.</p>
+      <p class="hint aw-status" id="awStatus" hidden></p>
       <div id="syncSb">
       <div id="sbProject" hidden>
         <p class="hint">Подключение базы. Нужно один раз на всё приложение: дальше людям хватит почты и пароля.</p>
@@ -1501,6 +1504,8 @@ create table if not exists public.awards (
   created_at timestamptz not null default now()
 );
 alter table public.awards enable row level security;
+grant select on public.badge_admins to authenticated;
+grant select, insert, delete on public.awards to authenticated;
 drop policy if exists "awards read" on public.awards;
 drop policy if exists "awards give" on public.awards;
 drop policy if exists "awards take" on public.awards;
@@ -1515,8 +1520,12 @@ create policy "awards take" on public.awards
     exists (select 1 from public.badge_admins a where a.user_id = auth.uid()));
 
 insert into public.badge_admins (user_id)
-  select id from auth.users where email = 'почта@админа'
-  on conflict do nothing;</code></pre>
+  select id from auth.users where lower(email) = lower('почта@админа')
+  on conflict do nothing;
+
+-- проверка: кто есть в базе и кто из них админ
+select u.email, (a.user_id is not null) as admin
+from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></pre>
         <p class="hint">Ключ anon публичный по задумке: сами данные закрыты правилами выше, их видит только владелец строки.</p>
         </details>
       </div>
@@ -2239,7 +2248,7 @@ insert into public.badge_admins (user_id)
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzd3FsYmpsa3Bncm55a2dnY3pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwNDIyNDUsImV4cCI6MjEwNjYxODI0NX0.KQMAqfGyNr1NeLMKu3iRuufLaZ5DEMRj2sc1ulkK5QY"
   ]};
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 1, APP_BUILD_N = 31;
+  var APP_MAJOR = 1, APP_BUILD_N = 32;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
   var LSW = null;   // что эта вкладка последней записала в хранилище: если там другое — писала соседняя вкладка
@@ -7800,11 +7809,28 @@ insert into public.badge_admins (user_id)
     ]).then(function(r){
       AW.list = (r[0] || []).filter(function(a){ return a && a.id && a.user_id && a.emoji && a.title; });
       AW.admin = !!(r[1] && r[1].length);
-      AW.ok = true; AW.loaded = Date.now();
-      renderProfile(); awAfterLoad();
+      AW.ok = true; AW.loaded = Date.now(); AW.lastErr = "";
+      renderProfile(); awAfterLoad(); renderAwStatus();
     }).catch(function(e){
-      if(/schema cache|does not exist|relation|could not find/i.test((e && e.message) || "")) AW.ok = false;
+      var m = (e && e.message) || "ошибка сети";
+      if(/schema cache|does not exist|relation|could not find/i.test(m)){ AW.ok = false; AW.lastErr = ""; }
+      else AW.lastErr = m;
+      renderAwStatus();
     });
+  }
+  // состояние значков — в блоке «Подключение базы», чтобы админ понял, что не так
+  function renderAwStatus(){
+    var el = document.getElementById("awStatus");
+    if(!el) return;
+    var t;
+    if(!loggedIn()) t = "Значки: войди в аккаунт, и здесь появится, работают ли они.";
+    else if(AW.ok === false) t = "Значки: в базе ещё нет таблиц. Выполни в Supabase запрос для значков из инструкции ниже (SQL Editor → New query → Run), потом нажми «Обновить» у друзей.";
+    else if(AW.lastErr) t = "Значки: база не пускает — " + AW.lastErr + ". Выполни запрос для значков ещё раз: в нём есть нужные разрешения.";
+    else if(AW.ok == null) t = "Значки: проверяю…";
+    else if(AW.admin) t = "Значки работают, ты админ: кнопка «Выдать значок» — в карточке каждого друга и в твоём профиле.";
+    else t = "Значки работают, но ты не админ. Ты вошёл как " + (SB.mail || "этот аккаунт") + " — если выдавать значки должен ты, именно эта почта должна стоять в последней строке запроса для значков.";
+    el.textContent = t;
+    el.hidden = false;
   }
   function awFor(uid){ return AW.list.filter(function(a){ return a.user_id === uid; }); }
   function awColor(a){ return AW_COLORS[a.color] ? a.color : "ocean"; }
@@ -8456,6 +8482,7 @@ insert into public.badge_admins (user_id)
     if(wslot) wslot.innerHTML = weekPanelHtml();
     var lslot = document.getElementById("levelSlot");
     if(lslot) lslot.innerHTML = levelPanelHtml();
+    renderAwStatus();
     var h = "";
     if(loggedIn()){
       sbUser();
