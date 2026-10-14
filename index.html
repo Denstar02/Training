@@ -1256,6 +1256,137 @@ article[id^="card-"].today{box-shadow:0 16px 36px -18px rgba(18,58,107,.55), 0 0
 .fd-got span{padding:4px 10px;border-radius:var(--r-pill);background:color-mix(in srgb, var(--tide-strong) 10%, var(--surface));font-size:var(--fs-xs);font-weight:600}
 .accbtn.news::after{content:"";position:absolute;top:1px;right:1px;width:12px;height:12px;border-radius:50%;background:#F43F5E;box-shadow:0 0 0 2.5px var(--bg)}
 @media (prefers-reduced-motion: reduce){.fd-r,.fd-r.on,.fd-r:active{transition:none;transform:none}}
+
+/* ===== v1.28: синхронизация ===== */
+.sbanner{display:flex;gap:12px;align-items:flex-start;margin:0 0 var(--s4);padding:12px 14px;border-radius:var(--r-md);background:color-mix(in srgb, #F59E0B 13%, var(--surface));border:1px solid color-mix(in srgb, #F59E0B 50%, transparent);color:var(--ink);font-size:var(--fs-sm);line-height:1.45;box-shadow:var(--shadow-1)}
+.sbanner[hidden]{display:none}
+.sbn-ic{flex:0 0 auto;margin-top:1px;color:#B45309}
+.sbn-ic svg{width:22px;height:22px;display:block}
+.sbn-txt{min-width:0}
+.sbn-txt b{display:block;margin-bottom:2px}
+.sbn-txt .primary,.sbn-txt .linkbtn{margin:10px 8px 0 0;min-height:40px}
+.relogin{margin:var(--s4) 0;padding:12px 14px;border-radius:var(--r-md);background:color-mix(in srgb, #F59E0B 13%, var(--surface));border:1px solid color-mix(in srgb, #F59E0B 50%, transparent)}
+.relogin p{margin:0;font-size:var(--fs-sm);line-height:1.45}
+.devs{margin-top:var(--s4)}
+.dev-list{list-style:none;margin:6px 0 0;padding:0}
+.dev-list li{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:9px 0;border-top:1px solid var(--line);font-size:var(--fs-sm)}
+.dev-list li:first-child{border-top:0}
+.dev-n{min-width:0}
+.dev-n small{color:var(--muted);font-size:var(--fs-xs);margin-left:2px}
+.dev-n em{font-style:normal;font-size:11px;font-weight:700;color:var(--tide-strong);margin-left:6px;white-space:nowrap}
+.dev-t{color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums;font-size:var(--fs-xs)}
+
+/* ===== v1.29: своё время отдыха ===== */
+.tb-text{padding:2px 0;gap:1px}
+.tb-line{display:flex;align-items:center;gap:6px;min-width:0;max-width:100%;background:none;border:0;padding:2px 0;margin:0;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.tb-line strong{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-sub{opacity:.95}
+.tb-sub > span{font-size:13px;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-text .tb-time{display:inline-block;font-size:inherit;opacity:1;overflow:visible;padding:0 7px;margin:0 2px 0 -2px;border-radius:7px;background:color-mix(in srgb, var(--accent) 14%, transparent);color:var(--accent)}
+.tb-set svg{flex:0 0 auto;width:15px;height:15px;opacity:.55}
+.tb-set:hover .tb-time{background:color-mix(in srgb, var(--accent) 22%, transparent)}
+.tb-line:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+button.fc-state{appearance:none;-webkit-appearance:none;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);border-radius:var(--r-pill);padding:4px 14px 4px 16px;font:inherit;font-size:var(--fs-sm);color:rgba(255,255,255,.82);cursor:pointer;align-items:center}
+button.fc-state svg{width:15px;height:15px;opacity:.7}
+button.fc-state:active{background:rgba(255,255,255,.18)}
+button.fc-state:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.rest-dlg{z-index:66}
+.rs-card{max-width:400px}
+.rs-now{margin:10px 0 0;font-size:var(--fs-sm);line-height:1.45;color:var(--muted)}
+.rs-now b{color:var(--ink);font-variant-numeric:tabular-nums}
+.rs-presets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px}
+.rs-p{min-height:48px;border-radius:var(--r-sm);border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);font:inherit;font-weight:700;font-size:var(--fs-md);font-variant-numeric:tabular-nums;cursor:pointer}
+.rs-p:active{transform:scale(.97)}
+.rs-p:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.rs-own{margin-top:16px}
+.rs-cap{display:block;font-size:var(--fs-xs);color:var(--muted);font-weight:600;margin-bottom:6px}
+.rs-fields{display:flex;align-items:center;gap:8px}
+.rs-f{display:flex;align-items:center;gap:6px;flex:1 1 0}
+.rs-f input{width:100%;min-width:0;height:52px;border-radius:var(--r-sm);border:1px solid var(--line-strong);background:var(--bg);color:var(--ink);font:inherit;font-family:"Unbounded","Onest",system-ui,sans-serif;font-size:24px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums;-moz-appearance:textfield}
+.rs-f input::-webkit-outer-spin-button,.rs-f input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.rs-f input:focus{outline:2px solid var(--accent);outline-offset:1px}
+.rs-f span{font-size:var(--fs-sm);color:var(--muted)}
+.rs-colon{font-family:"Unbounded","Onest",system-ui,sans-serif;font-size:24px;font-weight:700;color:var(--muted)}
+
+/* ===== v1.30: уровни и опыт ===== */
+.accbtn .acc-lv{position:absolute;left:-4px;bottom:-4px;min-width:21px;height:21px;padding:0 5px;border-radius:var(--r-pill);display:grid;place-items:center;font:700 11px/1 "Unbounded","Onest",system-ui,sans-serif;color:#fff;background-color:var(--ocean-deep);background-image:var(--ocean-hero);background-size:120px 120px, auto, auto, auto;background-blend-mode:overlay, normal, normal, normal;box-shadow:0 0 0 2px var(--bg);font-variant-numeric:tabular-nums}
+.lvlp .lv-row{display:flex;align-items:center;gap:16px}
+.lv-badge{position:relative;flex:0 0 auto;width:76px;height:76px}
+.lv-badge svg{position:absolute;inset:0;width:100%;height:100%}
+.lv-track{fill:none;stroke:var(--line);stroke-width:5}
+.lv-arc{fill:none;stroke:var(--tide-strong);stroke-width:5;stroke-linecap:round;transition:stroke-dasharray .6s cubic-bezier(.2,.7,.3,1)}
+.lv-n{position:absolute;inset:11px;border-radius:50%;display:grid;place-items:center;color:#fff;font:700 24px/1 "Unbounded","Onest",system-ui,sans-serif;font-variant-numeric:tabular-nums;background-color:var(--ocean-deep);background-image:var(--ocean-hero);background-size:120px 120px, auto, auto, auto;background-blend-mode:overlay, normal, normal, normal;box-shadow:0 8px 18px -10px rgba(18,58,107,.75)}
+.lv-main{flex:1 1 auto;min-width:0}
+.lv-cap{margin:0;font-size:var(--fs-xs);font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.lv-title{margin:2px 0 0;font:700 22px/1.2 "Unbounded","Onest",system-ui,sans-serif;letter-spacing:-.01em}
+.lv-bar{height:8px;margin-top:10px;border-radius:4px;background:var(--line);overflow:hidden}
+.lv-bar i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg, var(--tide-strong), var(--tide))}
+.lv-sub{margin:6px 0 0;font-size:var(--fs-xs);color:var(--muted);font-variant-numeric:tabular-nums}
+.lv-sub b{color:var(--ink)}
+.lv-next{margin-top:12px}
+.lv-how{margin-top:10px}
+.lv-rules{list-style:none;margin:8px 0 0;padding:0}
+.lv-rules li{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-top:1px solid var(--line);font-size:var(--fs-sm)}
+.lv-rules li:first-child{border-top:0}
+.lv-rules b{color:var(--tide-strong);font-variant-numeric:tabular-nums}
+.lv-ladder{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.lv-ladder span{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:var(--r-pill);border:1px solid var(--line);font-size:var(--fs-xs);font-weight:600;color:var(--muted);opacity:.6}
+.lv-ladder span i{font-style:normal}
+.lv-ladder span small{font-weight:700;font-size:10.5px;opacity:.8}
+.lv-ladder span.on{opacity:1;color:var(--ink);background:color-mix(in srgb, var(--tide-strong) 9%, var(--surface))}
+.lv-ladder span.cur{border-color:var(--tide-strong);box-shadow:0 0 0 1px var(--tide-strong) inset}
+.xpf{position:fixed;z-index:80;pointer-events:none;transform:translate(-50%,-50%);font:800 19px/1 "Unbounded","Onest",system-ui,sans-serif;color:var(--tide-strong);text-shadow:0 1px 0 var(--surface), 0 0 10px color-mix(in srgb, var(--surface) 70%, transparent);white-space:nowrap}
+body.modal-open .xpf{color:var(--tide);text-shadow:0 2px 10px rgba(3,14,32,.6)}
+.lvlup{position:fixed;inset:0;z-index:75;display:grid;place-items:center;padding:24px;background:rgba(5,15,30,.5);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);cursor:pointer}
+.lvlup[hidden]{display:none}
+.lu-card{width:min(320px,86vw);padding:28px 24px 22px;border-radius:var(--r-lg);text-align:center;color:#fff;background-color:var(--ocean-deep);background-image:var(--ocean-full);background-size:120px 120px, auto, auto, auto, auto;background-blend-mode:overlay, normal, normal, normal, normal;box-shadow:0 30px 70px -20px rgba(3,14,32,.8)}
+.lu-badge{position:relative;width:124px;height:124px;margin:0 auto}
+.lu-badge svg{position:absolute;inset:0;width:100%;height:100%}
+.lu-badge .lv-track{stroke:rgba(255,255,255,.18)}
+.lu-badge .lv-arc{stroke:var(--tide)}
+.lu-badge .lv-n{inset:16px;font-size:44px;background:rgba(255,255,255,.12);box-shadow:none}
+.lu-cap{margin:16px 0 0;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--tide)}
+.lu-title{margin:6px 0 0;font:700 20px/1.3 "Unbounded","Onest",system-ui,sans-serif}
+.lu-sub{margin:14px 0 0;font-size:var(--fs-xs);color:rgba(255,255,255,.6)}
+.fr-lv{display:flex;align-items:center;gap:6px;margin:4px 0 0;font-size:var(--fs-xs);font-weight:600;color:var(--muted)}
+.fr-lvn{min-width:20px;height:20px;padding:0 5px;border-radius:var(--r-pill);display:grid;place-items:center;color:#fff;font:700 10.5px/1 "Unbounded","Onest",system-ui,sans-serif;background-color:var(--ocean-deep);background-image:var(--ocean-hero);background-size:120px 120px, auto, auto, auto;background-blend-mode:overlay, normal, normal, normal}
+@media (prefers-reduced-motion: reduce){.lv-arc{transition:none}}
+
+/* ===== v1.31: именные значки ===== */
+.awb{display:inline-grid;place-items:center;flex:0 0 auto;width:24px;height:24px;padding:0;border:0;border-radius:50%;background:linear-gradient(135deg, var(--aw1, #2E7CC0), var(--aw2, #123A6B));box-shadow:0 0 0 2px var(--surface), 0 3px 8px -3px rgba(0,0,0,.45);font-size:13px;line-height:1;cursor:pointer;vertical-align:middle;color:#fff}
+.awb > span{display:block;transform:translateY(.5px)}
+.awb:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.awb.sm{width:18px;height:18px;font-size:10px}
+.awb.lg{width:56px;height:56px;font-size:28px;cursor:default}
+.awb.xl{display:grid;width:112px;height:112px;margin:0 auto;font-size:56px;cursor:default;box-shadow:0 0 0 5px rgba(255,255,255,.18), 0 22px 44px -16px rgba(0,0,0,.65)}
+.aw-row{display:inline-flex;align-items:center;gap:5px;margin-left:8px;vertical-align:middle}
+.aw-row.pf{display:flex;margin:6px 0 2px}
+.aw-row.pf .awb{width:30px;height:30px;font-size:16px}
+.aw-row.fd{margin-left:6px;gap:3px}
+.aw-row.fd .awb{width:19px;height:19px;font-size:10.5px}
+.aw-more{font-size:11px;font-weight:700;color:var(--muted)}
+.frtop{flex-wrap:wrap}
+.accbtn .acc-aw{position:absolute;top:-5px;left:-5px;width:21px;height:21px;font-size:11px;box-shadow:0 0 0 2px var(--bg);pointer-events:none}
+.aw-admin{align-items:center;margin-top:var(--s3)}
+.aw-give{margin-top:6px}
+.aw-dlg{z-index:66}
+.aw-card{max-width:440px}
+.aw-prev{display:flex;align-items:center;gap:14px;margin:14px 0 4px;padding:12px 14px;border-radius:var(--r-md);background:var(--bg);border:1px solid var(--line)}
+.aw-prev b{display:block;font-size:var(--fs-md);line-height:1.3;word-break:break-word}
+.aw-prev small{display:block;margin-top:2px;font-size:var(--fs-xs);color:var(--muted);word-break:break-word}
+.aw-cap{margin:14px 0 6px;font-size:var(--fs-xs);font-weight:700;color:var(--muted)}
+.aw-emoji{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px}
+.aw-e{height:40px;padding:0;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-size:20px;line-height:1;cursor:pointer}
+.aw-e.on{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 1px var(--accent) inset}
+.aw-own-e{grid-column:1 / -1;display:flex;align-items:center;gap:8px;margin-top:2px;font-size:var(--fs-xs);color:var(--muted)}
+.aw-own-e input{width:78px;height:40px;border-radius:10px;border:1px solid var(--line-strong);background:var(--bg);color:var(--ink);font-size:20px;text-align:center}
+.aw-colors{display:flex;flex-wrap:wrap;gap:10px}
+.aw-col{width:36px;height:36px;padding:0;border:0;border-radius:50%;background:linear-gradient(135deg, var(--aw1), var(--aw2));cursor:pointer;box-shadow:0 0 0 2px var(--surface)}
+.aw-col.on{box-shadow:0 0 0 2px var(--surface), 0 0 0 4px var(--ink)}
+.aw-field{display:flex;flex-direction:column;margin-top:12px}
+.aw-err{color:#B91C1C}
+.aw-lu .lu-cap{margin-top:18px}
+.aw-lu-note{margin:6px 0 0;font-size:var(--fs-sm);line-height:1.45;color:rgba(255,255,255,.85)}
 </style>
 </head>
 <body>
@@ -1268,6 +1399,7 @@ article[id^="card-"].today{box-shadow:0 16px 36px -18px rgba(18,58,107,.55), 0 0
     <button type="button" class="syncpill" id="syncPill" data-syncpill data-act="sync-pill" aria-label="Состояние сохранения" hidden></button>
     <button type="button" class="accbtn" id="accBtn" data-act="acc" aria-label="Войти в аккаунт" aria-pressed="false"></button>
   </header>
+  <div id="syncBanner" class="sbanner" role="status" hidden></div>
 
   <div class="tabs" role="tablist" aria-label="Программы">
     <span class="tabs-ind" id="tabInd" aria-hidden="true"></span>
@@ -1284,6 +1416,7 @@ article[id^="card-"].today{box-shadow:0 16px 36px -18px rgba(18,58,107,.55), 0 0
 
   <section id="panel-profile" role="region" aria-label="Профиль" hidden>
     <section class="panel" id="profileBox"></section>
+    <div id="levelSlot"></div>
     <div id="weekSlot"></div>
     <div id="medalsSlot"></div>
     <div id="friendsBox"></div>
@@ -1348,6 +1481,42 @@ create policy "friends add" on public.friends
   for insert to authenticated with check (auth.uid() = user_id);
 create policy "friends drop" on public.friends
   for delete to authenticated using (auth.uid() = user_id);</code></pre>
+        <p class="hint">Для именных значков, которые выдаёт только админ, — третий запрос. В последней строке впиши почту админа:</p>
+        <pre><code>create table if not exists public.badge_admins (
+  user_id uuid primary key references auth.users on delete cascade
+);
+alter table public.badge_admins enable row level security;
+drop policy if exists "badge admins read" on public.badge_admins;
+create policy "badge admins read" on public.badge_admins
+  for select to authenticated using (true);
+
+create table if not exists public.awards (
+  id bigint generated always as identity primary key,
+  user_id uuid not null references auth.users on delete cascade,
+  emoji text not null check (char_length(emoji) between 1 and 16),
+  title text not null check (char_length(title) between 1 and 40),
+  note text check (char_length(note) &lt;= 140),
+  color text check (char_length(color) &lt;= 16),
+  given_by uuid not null default auth.uid() references auth.users,
+  created_at timestamptz not null default now()
+);
+alter table public.awards enable row level security;
+drop policy if exists "awards read" on public.awards;
+drop policy if exists "awards give" on public.awards;
+drop policy if exists "awards take" on public.awards;
+create policy "awards read" on public.awards
+  for select to authenticated using (true);
+create policy "awards give" on public.awards
+  for insert to authenticated with check (
+    given_by = auth.uid()
+    and exists (select 1 from public.badge_admins a where a.user_id = auth.uid()));
+create policy "awards take" on public.awards
+  for delete to authenticated using (
+    exists (select 1 from public.badge_admins a where a.user_id = auth.uid()));
+
+insert into public.badge_admins (user_id)
+  select id from auth.users where email = 'почта@админа'
+  on conflict do nothing;</code></pre>
         <p class="hint">Ключ anon публичный по задумке: сами данные закрыты правилами выше, их видит только владелец строки.</p>
         </details>
       </div>
@@ -1806,6 +1975,9 @@ create policy "friends drop" on public.friends
 
 <div id="onb" class="warm" role="dialog" aria-modal="true" hidden></div>
 <div id="imp" class="warm" role="dialog" aria-modal="true" aria-labelledby="impTitle" hidden></div>
+<div id="lvlUp" class="lvlup" data-act="lvl-close" hidden></div>
+<div id="awDlg" class="warm aw-dlg" role="dialog" aria-modal="true" aria-label="Выдать значок" hidden></div>
+<div id="restDlg" class="warm rest-dlg" role="dialog" aria-modal="true" aria-label="Время отдыха" hidden></div>
 <div id="wnDlg" class="warm wn-dlg" role="dialog" aria-modal="true" aria-label="Что нового" hidden></div>
 <div id="weekDlg" class="warm wk-dlg" role="dialog" aria-modal="true" aria-label="Итоги недели" hidden></div>
 <div id="shareDlg" class="warm sc-dlg" role="dialog" aria-modal="true" aria-label="Картинка результата" hidden></div>
@@ -2067,9 +2239,10 @@ create policy "friends drop" on public.friends
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzd3FsYmpsa3Bncm55a2dnY3pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwNDIyNDUsImV4cCI6MjEwNjYxODI0NX0.KQMAqfGyNr1NeLMKu3iRuufLaZ5DEMRj2sc1ulkK5QY"
   ]};
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 1, APP_BUILD_N = 27;
+  var APP_MAJOR = 1, APP_BUILD_N = 31;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
+  var LSW = null;   // что эта вкладка последней записала в хранилище: если там другое — писала соседняя вкладка
   var theme = "light";
   try { var th = localStorage.getItem(THKEY); if(th === "dark" || th === "light" || th === "auto") theme = th; } catch(e){}
   function applyTheme(){
@@ -2118,6 +2291,11 @@ create policy "friends drop" on public.friends
     if(s.flags && typeof s.flags === "object" && !Array.isArray(s.flags))
       Object.keys(s.flags).forEach(function(k){ if(typeof s.flags[k] === "number") f.flags[k] = s.flags[k]; });
     if(typeof s.wkSeen === "number" && s.wkSeen > 0) f.wkSeen = s.wkSeen;
+    if(typeof s.lvl === "number" && s.lvl > 0) f.lvl = Math.min(99, Math.floor(s.lvl));
+    if(s.devs && typeof s.devs === "object" && !Array.isArray(s.devs)){
+      f.devs = {};
+      Object.keys(s.devs).forEach(function(k){ var d = s.devs[k]; if(d && typeof d === "object" && typeof d.at === "number") f.devs[k] = {n: String(d.n || ""), s: String(d.s || ""), at: d.at}; });
+    }
     f.feed = Array.isArray(s.feed) ? s.feed.filter(function(e){ return e && typeof e === "object" && typeof e.ts === "number" && typeof e.k === "string"; }).slice(-30) : [];
     f.onb = {done: !!(s.onb && s.onb.done)};
     f.lastEvent = (s.lastEvent && typeof s.lastEvent === "object" && typeof s.lastEvent.title === "string") ? s.lastEvent : null;
@@ -2695,7 +2873,10 @@ create policy "friends drop" on public.friends
     var left = (t.due - Date.now()) / 1000, due = left <= 0;
     bar.hidden = false; document.body.classList.add("has-timer");
     bar.classList.toggle("due", due);
-    bar.innerHTML = '<div class="tb-main"><button type="button" class="tb-text" data-act="timer-go"><strong>' + (due ? dueTitle(t.key) : "Следующий подход через " + fmt(left)) + '</strong><span><span class="syncmini lead" data-syncpill data-mini hidden></span>' + esc(nextText(t)) + '</span></button>' +
+    bar.innerHTML = '<div class="tb-main"><div class="tb-text">' +
+      (due ? '<button type="button" class="tb-line" data-act="timer-go"><strong>' + dueTitle(t.key) + '</strong></button>'
+           : '<button type="button" class="tb-line tb-set" data-act="timer-set" aria-label="Изменить время отдыха"><strong><span class="tb-time">' + fmt(left) + '</span> отдых</strong>' + PEN_IC + '</button>') +
+      '<button type="button" class="tb-line tb-sub" data-act="timer-go"><span><span class="syncmini lead" data-syncpill data-mini hidden></span>' + esc(nextText(t)) + '</span></button></div>' +
       '<div class="tb-actions">' +
       (due ? '' : '<span class="tb-adj"><button type="button" class="tb-icon" data-act="timer-minus" aria-label="Минус минута">−1</button>' +
         '<button type="button" class="tb-icon" data-act="timer-plus" aria-label="Плюс минута">+1</button></span>') +
@@ -2718,14 +2899,14 @@ create policy "friends drop" on public.friends
   }
   function tick(){
     var t = state.timer; if(!t) return;
-    var el = document.querySelector("#timerbar .tb-text strong"), left = (t.due - Date.now()) / 1000;
+    var el = document.querySelector("#timerbar .tb-time"), left = (t.due - Date.now()) / 1000;
     // в режиме тренировки отдых показан своим счётчиком и кольцом — их тоже обновляем каждую секунду
     var inFocus = focusKey && t.key === focusKey && !FH && !FC;
     var fr = inFocus ? document.querySelector("#focus .fc-state:not(.due) b") : null;
     var barDue = el && document.getElementById("timerbar").classList.contains("due");
     if(inFocus && left > 0) coachTick(t, left);
     if(left > 0 && (el || fr) && !barDue){
-      if(el) el.textContent = "Следующий подход через " + fmt(left);
+      if(el) el.textContent = fmt(left);
       if(fr){ fr.textContent = fmt(Math.ceil(left)); setRing(1 - left * 1000 / (t.len || Math.max(60000, t.due - Date.now()))); }
       document.title = fmt(left) + " до подхода";
     } else renderTimer();
@@ -4568,6 +4749,13 @@ create policy "friends drop" on public.friends
       Object.keys(old[f2]).forEach(function(k){ if(!out[f2][k] || old[f2][k] < out[f2][k]) out[f2][k] = old[f2][k]; });
     });
     if(old.wkSeen || out.wkSeen) out.wkSeen = Math.max(old.wkSeen || 0, out.wkSeen || 0);
+    if(old.lvl || out.lvl) out.lvl = Math.max(old.lvl || 0, out.lvl || 0);
+    if(old.devs){
+      if(!out.devs) out.devs = {};
+      Object.keys(old.devs).forEach(function(k){ if(!out.devs[k] || old.devs[k].at > out.devs[k].at) out.devs[k] = old.devs[k]; });
+      var dk = Object.keys(out.devs).sort(function(x, y){ return out.devs[y].at - out.devs[x].at; });
+      dk.slice(12).forEach(function(k){ delete out.devs[k]; });
+    }
     if((old.feed && old.feed.length) || (out.feed && out.feed.length)){
       var fseen = {};
       out.feed = (out.feed || []).concat(old.feed || []).filter(function(e){ var id = e.k + ":" + e.ts; if(fseen[id]) return false; fseen[id] = 1; return true; })
@@ -4589,7 +4777,7 @@ create policy "friends drop" on public.friends
         var before = JSON.stringify(state);
         if(remote){
           var merged = mergeStates(state, remote);
-          if(JSON.stringify(merged) !== before){ state = merged; persistLocal(); render(); }
+          if(JSON.stringify(merged) !== before){ state = merged; XPB = null; persistLocal(); render(); }
         }
         var body = {files: {}};
         r0 = REV.r;
@@ -4667,6 +4855,10 @@ create policy "friends drop" on public.friends
   function sbBase(){ return (SB.url || "").replace(/\/+$/, ""); }
   function sbReq(path, opts, auth){
     opts = opts || {};
+    if(auth !== false && SB.tok){
+      var stx = storedTok();
+      if(stx && stx.access_token && stx.access_token !== SB.tok.access_token && tokExp(stx) > tokExp(SB.tok)) SB.tok = stx;
+    }
     var h = {apikey: SB.key, "Content-Type": "application/json"};
     if(opts.headers) for(var k in opts.headers) h[k] = opts.headers[k];
     if(auth !== false && SB.tok) h.Authorization = "Bearer " + SB.tok.access_token;
@@ -4690,9 +4882,25 @@ create policy "friends drop" on public.friends
         });
       });
   }
+  var SBR = null;
   function sbRefresh(){
-    return sbReq("/auth/v1/token?grant_type=refresh_token", {method: "POST", body: JSON.stringify({refresh_token: SB.tok.refresh_token})}, false)
-      .then(function(t){ if(!t || !t.access_token) throw new Error("сессия истекла"); sbSaveTok(t); return t; });
+    if(SBR) return SBR;
+    var st0 = storedTok();
+    // другая вкладка уже обновила вход — берём её токен, а не тратим свой старый
+    if(st0 && st0.refresh_token && SB.tok && st0.refresh_token !== SB.tok.refresh_token){
+      SB.tok = st0;
+      if(tokExp(st0) > Date.now() + 30000) return Promise.resolve(st0);
+    }
+    var used = SB.tok.refresh_token;
+    SBR = sbReq("/auth/v1/token?grant_type=refresh_token", {method: "POST", body: JSON.stringify({refresh_token: used})}, false)
+      .then(function(t){ if(!t || !t.access_token) throw new Error("сессия истекла"); sbSaveTok(t); return t; })
+      .catch(function(e){
+        var again = storedTok();
+        if(again && again.refresh_token && again.refresh_token !== used && tokExp(again) > Date.now()){ SB.tok = again; return again; }
+        throw e;
+      })
+      .then(function(t){ SBR = null; return t; }, function(e){ SBR = null; throw e; });
+    return SBR;
   }
   function sbAuth(mode){
     var em = (document.getElementById("pfMail") || document.getElementById("sbMail") || {}).value,
@@ -4733,9 +4941,10 @@ create policy "friends drop" on public.friends
         var remote = (rows && rows[0] && rows[0].data) ? normalize(rows[0].data) : null;
         if(remote){
           var merged = mergeStates(state, remote);
-          if(JSON.stringify(merged) !== JSON.stringify(state)){ state = merged; persistLocal(); render(); }
+          if(JSON.stringify(merged) !== JSON.stringify(state)){ state = merged; XPB = null; persistLocal(); render(); }
         }
         r0 = REV.r;
+        devStamp(); persistLocal();
         var body = JSON.stringify([{user_id: uid, data: JSON.parse(JSON.stringify(state)), updated_at: new Date().toISOString()}]);
         return sbReq("/rest/v1/progress", {
           method: "POST",
@@ -4751,7 +4960,7 @@ create policy "friends drop" on public.friends
   function sbSchedule(){
     if(!sbOn()) return;
     clearTimeout(SB.timer);
-    SB.timer = setTimeout(function(){ sbSync(true); }, 2500);
+    SB.timer = setTimeout(function(){ sbSync(true); }, 1200);
   }
   function sbErr(e){
     var m = (e && e.message) || "ошибка";
@@ -4883,6 +5092,7 @@ create policy "friends drop" on public.friends
   }
   function hhmm(t){ return new Date(t).toLocaleTimeString("ru-RU", {hour: "2-digit", minute: "2-digit"}); }
   function renderPill(){
+    renderBanner();
     var els = document.querySelectorAll("[data-syncpill]");
     if(!els.length) return;
     var v = syncView(), p = PILL[v.k] || PILL.none;
@@ -5832,6 +6042,20 @@ create policy "friends drop" on public.friends
     b.innerHTML = on
       ? avatarHtml("")
       : '<span class="ava guest" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.8 20c.9-3.6 3.8-5.6 7.2-5.6s6.3 2 7.2 5.6" stroke-linecap="round"/></svg></span>';
+    var myAw = on && AW.ok ? awFor(sbUser()) : [];
+    if(myAw.length){
+      var la = myAw[myAw.length - 1], lc = AW_COLORS[awColor(la)], awe = document.createElement("span");
+      awe.className = "awb acc-aw"; awe.setAttribute("aria-hidden", "true");
+      awe.style.setProperty("--aw1", lc[0]); awe.style.setProperty("--aw2", lc[1]);
+      awe.innerHTML = "<span></span>"; awe.firstChild.textContent = la.emoji;
+      b.appendChild(awe);
+    }
+    if(typeof state.lvl === "number"){
+      var lvb = document.createElement("span");
+      lvb.className = "acc-lv"; lvb.textContent = levelOf(XPB != null ? XPB : xpCalc().xp); lvb.setAttribute("aria-hidden", "true");
+      b.appendChild(lvb);
+      b.setAttribute("aria-label", b.getAttribute("aria-label") + ", уровень " + lvb.textContent);
+    }
   }
   function profileStats(){
     var rows = [
@@ -5857,7 +6081,8 @@ create policy "friends drop" on public.friends
     return {
       pull: PULL.total(), push: PUSH.total() + BOARD.total(), squat: SQUAT.total(),
       dumb: DUMB.total(), stretch: tMinutes(), ts: Date.now(), last: state.lastEvent || null, reacts: state.reacts || {},
-      wk: {id: weekId(), reps: weekReps()}, feed: (state.feed || []).slice(-15)
+      wk: {id: weekId(), reps: weekReps()}, feed: (state.feed || []).slice(-15),
+      lv: (function(){ var xx = xpCalc().xp; return {n: levelOf(xx), xp: xx}; })()
     };
   }
   function sbPutProfile(){
@@ -5895,6 +6120,7 @@ create policy "friends drop" on public.friends
         FR.loading = false; FR.loaded = Date.now();
         renderProfile();
         feedAfterLoad();
+        awLoad();
       })
       .catch(function(e){ FR.loading = false; FR.loaded = Date.now(); FR.err = sbErr(e); renderProfile(); });
   }
@@ -5963,10 +6189,12 @@ create policy "friends drop" on public.friends
       ? rows.map(function(r){ return r.v + " " + plural(r.v, r.u) + (r.tail || ""); }).join(", ")
       : "пока без отметок";
     return '<div class="frcard">' + ava +
-      '<div class="frmain"><div class="frtop"><strong>' + esc(name) + '</strong>' +
+      '<div class="frmain"><div class="frtop"><strong>' + esc(name) + '</strong>' + awRow(p.user_id, 4) +
       (FR.mutual[p.user_id] ? '<span class="badge ok">взаимно</span>' : '<span class="badge quiet">в одну сторону</span>') + '</div>' +
+      (st.lv && st.lv.n ? '<p class="fr-lv"><span class="fr-lvn">' + (+st.lv.n) + '</span>' + esc(rankOf(+st.lv.n)[1]) + ' ' + rankOf(+st.lv.n)[2] + ' · ' + numSp(+st.lv.xp || 0) + ' опыта</p>' : '') +
       '<p class="hint">' + esc(line) + '</p>' + duelHtml(st, name) +
-      '<p class="hint">Последняя отметка: ' + frWhen(st.ts) + ', код ' + esc(p.code || "") + (theirReact(p) ? " · тебе поставили " + theirReact(p) : "") + '</p></div>' +
+      '<p class="hint">Последняя отметка: ' + frWhen(st.ts) + ', код ' + esc(p.code || "") + (theirReact(p) ? " · тебе поставили " + theirReact(p) : "") + '</p>' +
+      (AW.admin ? '<button type="button" class="linkbtn alt aw-give" data-act="aw-give" data-id="' + esc(p.user_id) + '" data-name="' + esc(name) + '">🎖 Выдать значок</button>' : '') + '</div>' +
 
       '<button type="button" class="linkbtn alt" data-act="fr-drop" data-id="' + esc(p.user_id) + '">Убрать</button></div>';
   }
@@ -6957,6 +7185,18 @@ create policy "friends drop" on public.friends
   // ---------- что нового ----------
   var WN_KEY = "pullups-seen-ver", WN = null;
   var NEWS = [
+    {v: 31, items: [
+      {e: "🎖️", t: "Именные значки", d: "Рядом с аватаркой теперь бывают особые значки. Их выдаёт создатель приложения — за что-то по-настоящему заслуженное. Нажми на значок, чтобы узнать, за что он."}
+    ]},
+    {v: 30, items: [
+      {e: "⭐", t: "Уровни и опыт", d: "Каждое повторение, тренировка и медаль дают опыт. Копи его, повышай уровень и получай звания — от «Новичка» до «Мифа». Твой уровень — на кнопке профиля, а друзья видят его в своих карточках.", go: "level-open", btn: "Мой уровень"}
+    ]},
+    {v: 29, items: [
+      {e: "⏱️", t: "Своё время отдыха", d: "Нажми на цифры таймера — внизу экрана или в режиме тренировки — и выбери, сколько отдыхать: готовый вариант или своё время в минутах и секундах. Кнопки «−1» и «+1» остались на месте."}
+    ]},
+    {v: 28, items: [
+      {e: "☁️", t: "Отметки не теряются между устройствами", d: "Если отметки с этого устройства не дошли до облака — нет связи или устарел вход, — сверху появится предупреждение с кнопкой. Несколько открытых вкладок больше не мешают друг другу, а в профиле видно, когда каждое устройство последний раз синхронизировалось."}
+    ]},
     {v: 27, items: [
       {e: "📰", t: "Лента друзей", d: "Тренировки, рекорды и медали — твои и друзей — в одной ленте. Под чужими событиями можно поставить 🔥, 💪 или 👏, а кто поддержал тебя — видно под твоими.", go: "feed-open", btn: "Открыть ленту"}
     ]},
@@ -6983,7 +7223,9 @@ create policy "friends drop" on public.friends
     var hasData = Object.keys(state.logs || {}).length > 0 || Object.keys(state.fin || {}).length > 0;
     if(!hasData || onbNeeded()){ wnMark(); return false; }
     if(ONB || IMP || focusKey || SC || WK) return false;
-    WN = {from: Math.max(seen, APP_BUILD_N - 3)};
+    var from = Math.max(seen, APP_BUILD_N - 3);
+    if(!NEWS.some(function(g){ return g.v > from && g.v <= APP_BUILD_N; })){ wnMark(); return false; }
+    WN = {from: from};
     renderWn();
     return true;
   }
@@ -6996,7 +7238,7 @@ create policy "friends drop" on public.friends
   function wnGo(go){
     WN = null; wnMark(); renderWn();
     if(go === "wk-open") weekOpen(weekStart());
-    else if(go === "medals-open" || go === "feed-open") goProfile(go === "medals-open" ? "medalsBox" : "feedBox");
+    else if(go === "medals-open" || go === "feed-open" || go === "level-open") goProfile(go === "medals-open" ? "medalsBox" : go === "level-open" ? "levelBox" : "feedBox");
   }
   function renderWn(){
     var box = document.getElementById("wnDlg");
@@ -7071,6 +7313,7 @@ create policy "friends drop" on public.friends
       var who = {id: p.user_id, name: p.nick || "Друг", photo: p.photo};
       friendEvents(p).forEach(function(ev){ if(ev.ts > cutoff) out.push({who: who, ev: ev, mine: false}); });
     });
+    awardEvents().forEach(function(x){ if(x.ev.ts > cutoff) out.push(x); });
     out.sort(function(a, b){ return b.ev.ts - a.ev.ts; });
     return out;
   }
@@ -7128,11 +7371,15 @@ create policy "friends drop" on public.friends
     var t = String(ev.t || "тренировка");
     if(ev.k === "pr") return "Рекорд: " + t + " — " + ev.n + (ev.sec ? " с" : " за подход");
     if(ev.k === "medal") return "Медаль «" + t + "»";
+    if(ev.k === "lvl") return "Новый уровень: " + ev.n + " — " + t;
+    if(ev.k === "award") return "Значок «" + t + "»";
     return "Тренировка «" + t + "»";
   }
   function evSub(ev){
     if(ev.k === "pr") return ev.was ? "было " + ev.was + (ev.sec ? " с" : "") : "";
     if(ev.k === "medal") return ev.d || "";
+    if(ev.k === "lvl") return "";
+    if(ev.k === "award") return ev.d || "";
     var bits = [];
     if(ev.p) bits.push(ev.p);
     if(ev.n) bits.push(ev.n + " " + plural(ev.n, ["повторение","повторения","повторений"]));
@@ -7140,7 +7387,7 @@ create policy "friends drop" on public.friends
     if(!ev.n && !ev.h && ev.s) bits.push(ev.s + " " + plural(ev.s, SETS));
     return bits.join(" · ");
   }
-  function evIcon(ev){ return ev.k === "pr" ? "🏆" : ev.k === "medal" ? (ev.e || "🏅") : "🏁"; }
+  function evIcon(ev){ return ev.k === "pr" ? "🏆" : ev.k === "medal" ? (ev.e || "🏅") : ev.k === "lvl" ? (ev.e || "⭐") : ev.k === "award" ? (ev.e || "🎖️") : "🏁"; }
   function fdDay(ts){
     var dn = dayNum(ts), today = dayNum(Date.now());
     if(dn === today) return "Сегодня";
@@ -7178,7 +7425,7 @@ create policy "friends drop" on public.friends
       var isNew = !x.mine && ev.ts > FDH, sub = evSub(ev);
       h += '<li class="fd-item fd-' + esc(ev.k) + (isNew ? " new" : "") + '">' +
         '<span class="fd-ava">' + fdAva(x.who) + '<span class="fd-ic" aria-hidden="true">' + evIcon(ev) + '</span></span>' +
-        '<div class="fd-main"><div class="fd-top"><b>' + esc(x.mine ? "Ты" : x.who.name) + '</b>' + (isNew ? '<span class="fd-dot">новое</span>' : '') +
+        '<div class="fd-main"><div class="fd-top"><b>' + esc(x.mine ? "Ты" : x.who.name) + '</b>' + awRow(x.who.id, 2, "fd") + (isNew ? '<span class="fd-dot">новое</span>' : '') +
         '<time datetime="' + new Date(ev.ts).toISOString() + '">' + fdWhen(ev.ts) + '</time></div>' +
         '<p class="fd-h">' + esc(evTitle(ev)) + '</p>' + (sub ? '<p class="fd-sub">' + esc(sub) + '</p>' : '');
       if(x.mine){
@@ -7222,6 +7469,500 @@ create policy "friends drop" on public.friends
     if(ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) return;
     if(Date.now() - (FR.loaded || 0) > (TAB === "profile" ? 90000 : 300000)) sbFriends();
   }, 30000);
+
+  // ---------- надёжная синхронизация: вкладки, устройства, предупреждение ----------
+  // у каждого браузера свой номер, чтобы в профиле было видно, кто и когда последний раз отдал отметки в облако
+  var DEV_ID = (function(){
+    var id = "";
+    try { id = localStorage.getItem("pullups-dev") || ""; } catch(e){}
+    if(!/^[a-z0-9]{8}$/.test(id)){
+      id = Math.random().toString(36).slice(2, 10);
+      while(id.length < 8) id += "0";
+      try { localStorage.setItem("pullups-dev", id); } catch(e){}
+    }
+    return id;
+  })();
+  function devName(){
+    var ua = (navigator.userAgent || ""), os = "", br = "";
+    if(/iPhone/.test(ua)) os = "iPhone"; else if(/iPad/.test(ua)) os = "iPad"; else if(/Android/.test(ua)) os = "Android";
+    else if(/Windows/.test(ua)) os = "Windows"; else if(/Mac OS X|Macintosh/.test(ua)) os = "Mac"; else if(/Linux/.test(ua)) os = "Linux";
+    if(/YaBrowser/.test(ua)) br = "Яндекс Браузер"; else if(/Edg\//.test(ua)) br = "Edge"; else if(/OPR\//.test(ua)) br = "Opera";
+    else if(/Firefox|FxiOS/.test(ua)) br = "Firefox"; else if(/CriOS|Chrome\//.test(ua)) br = "Chrome"; else if(/Safari\//.test(ua)) br = "Safari";
+    return [os, br].filter(Boolean).join(" · ") || "Браузер";
+  }
+  function siteName(){
+    var h = location.host || "";
+    if(/github\.io$/.test(h)) return "GitHub";
+    if(/workers\.dev$/.test(h)) return "Cloudflare";
+    if(hostApi() || /claude|anthropic/.test(h)) return "Claude";
+    return h || "файл";
+  }
+  function devStamp(){
+    if(!state.devs || typeof state.devs !== "object") state.devs = {};
+    state.devs[DEV_ID] = {n: devName(), s: siteName(), at: Date.now()};
+  }
+  function devsHtml(){
+    var d = state.devs || {}, ids = Object.keys(d).filter(function(k){ return d[k] && d[k].at; });
+    if(!ids.length) return "";
+    ids.sort(function(a, b){ return d[b].at - d[a].at; });
+    var h = '<div class="devs"><h3 class="camset-label">Устройства</h3><ul class="dev-list">';
+    ids.slice(0, 6).forEach(function(id){
+      var x = d[id], me = id === DEV_ID, t = new Date(x.at), dn = dayNum(x.at), today = dayNum(Date.now());
+      var when = dn === today ? "сегодня в " + hhmm(x.at) : dn === today - 1 ? "вчера в " + hhmm(x.at) : t.toLocaleDateString("ru-RU", {day: "numeric", month: "long"}) + " в " + hhmm(x.at);
+      h += '<li' + (me ? ' class="me"' : '') + '><span class="dev-n">' + esc(x.n || "Браузер") + (x.s ? ' <small>' + esc(x.s) + '</small>' : '') +
+        (me ? ' <em>это устройство</em>' : '') + '</span><span class="dev-t">' + when + '</span></li>';
+    });
+    return h + '</ul><p class="hint">Время — когда устройство последний раз отдало отметки в облако. Если здесь давно не было рабочего компьютера, его отметки ещё лежат на нём: открой там приложение, и они придут.</p></div>';
+  }
+  // вкладки одного браузера видят изменения друг друга, а не затирают их
+  window.addEventListener("storage", function(ev){
+    if(ev.key === KEY && ev.newValue && ev.newValue !== LSW){
+      try {
+        var merged = mergeStates(state, normalize(JSON.parse(ev.newValue)));
+        LSW = ev.newValue;
+        if(JSON.stringify(merged) !== JSON.stringify(state)){ state = merged; XPB = null; render(); if(focusKey) renderFocus(); }
+      } catch(e){}
+    }
+    if(ev.key === SB.tkey){
+      var t = null;
+      try { t = JSON.parse(ev.newValue || "null"); } catch(e){}
+      if(t && t.access_token){
+        SB.tok = t; sbUser();
+        if(NET.kind === "auth"){ NET.kind = ""; NET.err = ""; NET.fails = 0; syncNow(true); }
+        renderPill(); renderAcc();
+      } else if(!t && SB.tok){ SB.tok = null; SB.mail = null; render(); }
+    }
+  });
+  // предупреждение: отметки с этого устройства не дошли до облака
+  var SBN = {since: 0}, GKEY = "pullups-guest-hint";
+  function hasMarksToday(){
+    var today = dayNum(Date.now());
+    return Object.keys(state.times || {}).some(function(k){ return state.times[k] && dayNum(state.times[k]) === today; });
+  }
+  function renderBanner(){
+    var box = document.getElementById("syncBanner");
+    if(!box) return;
+    var v = syncView(), pend = netOn() && REV.r > REV.n, now = Date.now(), h = "";
+    if(pend){ if(!SBN.since) SBN.since = now; } else SBN.since = 0;
+    var long = pend && now - SBN.since > 120000;
+    if(v.k === "auth"){
+      h = '<b>Вход устарел — отметки отсюда не уходят в облако.</b> На этом устройстве они целы. Войди заново, и они сложатся с остальными.' +
+        '<button type="button" class="primary" data-act="sync-login">Войти</button>';
+    } else if(v.k === "err" || ((v.k === "wait" || v.k === "saving") && long)){
+      h = '<b>Отметки ещё не в облаке' + (SBN.since ? " с " + hhmm(SBN.since) : "") + '.</b> ' +
+        (v.k === "wait" ? "Похоже, нет связи с сервером — например, его закрывает рабочая сеть. " : "") +
+        'На другом устройстве их пока не видно. Не очищай данные браузера.' +
+        '<button type="button" class="linkbtn" data-act="sync-retry">Повторить</button>';
+    } else if(v.k === "local" && hasMarksToday() && Object.keys(state.logs || {}).length){
+      var dis = 0;
+      try { dis = +localStorage.getItem(GKEY) || 0; } catch(e){}
+      if(now - dis > 30 * 864e5)
+        h = '<b>Ты не вошёл в аккаунт на этом сайте.</b> Отметки сохраняются только в этом браузере, на другом устройстве их не будет.' +
+          '<button type="button" class="primary" data-act="sync-login">Войти</button>' +
+          '<button type="button" class="linkbtn alt" data-act="guest-ok">Понятно</button>';
+    }
+    if(!h){ if(!box.hidden){ box.hidden = true; box.innerHTML = ""; } return; }
+    if(box.getAttribute("data-h") !== h){ box.innerHTML = '<span class="sbn-ic" aria-hidden="true">' + pillIcon(v.k === "local" ? "dev" : v.k === "wait" ? "off" : "alert") + '</span><div class="sbn-txt">' + h + '</div>'; box.setAttribute("data-h", h); }
+    box.hidden = false;
+  }
+  setInterval(renderBanner, 15000);
+  // закрываешь вкладку, а отметки ещё не ушли — браузер переспросит
+  window.addEventListener("beforeunload", function(ev){
+    if(netOn() && REV.r > REV.n && NET.kind !== "auth"){
+      syncFlushNow();
+      ev.preventDefault();
+      ev.returnValue = "";
+      return "";
+    }
+  });
+  function tokExp(t){
+    try {
+      var p = t.access_token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+      return (JSON.parse(atob(p + "===".slice((p.length + 3) % 4))).exp || 0) * 1000;
+    } catch(e){ return 0; }
+  }
+  function storedTok(){ try { return JSON.parse(localStorage.getItem(SB.tkey) || "null"); } catch(e){ return null; } }
+
+  // ---------- своё время отдыха ----------
+  var RS = null;
+  function rsPresets(t){
+    var len = Math.round((t.len || Math.max(60000, t.due - Date.now())) / 1000);
+    if(len <= 300) return [30, 45, 60, 90, 120, 180];
+    if(len <= 1200) return [180, 300, 420, 600, 900, 1200];
+    return [900, 1800, 2700, 3600, 5400, 7200];
+  }
+  function rsLabel(sec){
+    if(sec < 60) return sec + " с";
+    if(sec % 60) return Math.floor(sec / 60) + ":" + pad(sec % 60);
+    var m = sec / 60;
+    if(m >= 60 && m % 60 === 0) return (m / 60) + " ч";
+    if(m >= 90 && m % 30 === 0) return String(m / 60).replace(".", ",") + " ч";
+    return m + " мин";
+  }
+  function rsOpen(){
+    var t = state.timer;
+    if(!t) return;
+    RS = {key: t.key};
+    renderRs();
+  }
+  function rsClose(){ RS = null; renderRs(); }
+  function renderRs(){
+    var box = document.getElementById("restDlg");
+    if(!box) return;
+    var t = state.timer;
+    if(!RS || !t){
+      RS = null;
+      box.hidden = true; box.innerHTML = "";
+      if(!focusKey && !ONB && !IMP && !SC && !WK && !WN) document.body.classList.remove("modal-open");
+      return;
+    }
+    box.hidden = false; document.body.classList.add("modal-open");
+    var left = Math.max(0, Math.ceil((t.due - Date.now()) / 1000)), mm = Math.floor(left / 60), ss = left % 60;
+    box.innerHTML = '<div class="warm-card rs-card" role="document"><div class="warm-top"><span>Отдых до следующего подхода</span>' +
+      '<button type="button" class="tb-icon" data-act="rs-close" aria-label="Закрыть">✕</button></div>' +
+      '<p class="rs-now">' + (left > 0 ? 'Сейчас осталось <b>' + fmt(left) + '</b>. Выбери, сколько отдыхать с этой минуты.' : 'Отдых закончился. Можно взять ещё немного.') + '</p>' +
+      '<div class="rs-presets" role="group" aria-label="Быстрый выбор">' + rsPresets(t).map(function(s){
+        return '<button type="button" class="rs-p" data-act="rs-set" data-s="' + s + '">' + rsLabel(s) + '</button>';
+      }).join("") + '</div>' +
+      '<div class="rs-own"><span class="rs-cap">Или своё время</span><div class="rs-fields">' +
+      '<label class="rs-f"><input type="number" id="rsMin" inputmode="numeric" min="0" max="360" step="1" value="' + mm + '" aria-label="Минуты"><span>мин</span></label>' +
+      '<span class="rs-colon" aria-hidden="true">:</span>' +
+      '<label class="rs-f"><input type="number" id="rsSec" inputmode="numeric" min="0" max="59" step="1" value="' + pad(ss) + '" aria-label="Секунды"><span>сек</span></label></div></div>' +
+      '<div class="warm-actions"><button type="button" class="primary" data-act="rs-apply">Поставить</button>' +
+      '<button type="button" class="linkbtn alt" data-act="rs-close">Отмена</button></div></div>';
+    var fine = false;
+    try { fine = window.matchMedia && window.matchMedia("(pointer: fine)").matches; } catch(e){}
+    if(fine){ var mi = document.getElementById("rsMin"); if(mi) try { mi.focus({preventScroll: true}); mi.select(); } catch(e){} }
+  }
+  function rsFromFields(){
+    var mi = document.getElementById("rsMin"), se = document.getElementById("rsSec");
+    var m = Math.max(0, Math.floor(+((mi && mi.value) || 0) || 0)), s = Math.max(0, Math.floor(+((se && se.value) || 0) || 0));
+    return Math.min(6 * 3600, m * 60 + s);
+  }
+  function restSet(sec){
+    var t = state.timer;
+    RS = null;
+    if(!t){ renderRs(); return; }
+    sec = Math.round(sec);
+    if(sec < 5){
+      t.due = Date.now() - 1; alerted = t.due;
+      save(); renderRs(); renderTimer();
+      if(t.key === focusKey && coachActive()) coachDue();
+      flash("Отдых пропущен — можно на подход");
+      return;
+    }
+    sec = Math.min(6 * 3600, sec);
+    t.due = Date.now() + sec * 1000;
+    t.len = sec * 1000;
+    alerted = null;
+    save(); renderRs(); renderTimer();
+    flash("Отдых: " + spokenDur(sec));
+  }
+
+  // ---------- уровни и опыт ----------
+  // опыт считается из того, что уже отмечено: ничего лишнего не храним, кроме последнего отпразднованного уровня
+  var XP_RULES = [
+    ["подтягивание", 3], ["отжимание, приседание, повтор с гантелями", 1], ["3 секунды удержания или растяжки", 1],
+    ["завершённая тренировка", 25], ["день с тренировкой", 10], ["медаль", 50]
+  ];
+  var RANKS = [[1, "Новичок", "🌱"], [3, "Любитель", "🏃"], [5, "Атлет", "💪"], [8, "Боец", "🥊"], [12, "Ветеран", "🎖️"],
+    [16, "Мастер", "🥋"], [20, "Чемпион", "🏆"], [25, "Титан", "🗿"], [30, "Легенда", "🌊"], [40, "Миф", "⚡"]];
+  function xpMult(key, it, g){
+    if(/^u[dq]\d+$/.test(key)) return 3;
+    if(/подтяг/.test(String((it && it.lab) || (g && g.title) || "").toLowerCase())) return 3;
+    return 1;
+  }
+  function xpCalc(){
+    var b = {reps: 0, secs: 0, fins: 0, days: 0, medals: 0}, days = {};
+    Object.keys(state.logs || {}).forEach(function(k){
+      var w = dayOfKey(k);
+      if(!w || w.test) return;
+      var log = state.logs[k] || [];
+      w.groups.forEach(function(g){ g.rows.forEach(function(r){ r.forEach(function(it){
+        var v = log[it.idx];
+        if(v == null || !(v > 0)) return;
+        if(isSec(it.kind)) b.secs += v; else b.reps += v * xpMult(k, it, g);
+      }); }); });
+    });
+    b.fins = Object.keys(state.fin || {}).length;
+    Object.keys(state.times || {}).forEach(function(k){ if(state.times[k]) days[dayNum(state.times[k])] = 1; });
+    Object.keys(state.fin || {}).forEach(function(k){ if(state.fin[k]) days[dayNum(state.fin[k])] = 1; });
+    b.days = Object.keys(days).length;
+    b.medals = Object.keys(state.medals || {}).length;
+    b.parts = [b.reps, Math.floor(b.secs / 3), b.fins * 25, b.days * 10, b.medals * 50];
+    b.xp = b.parts.reduce(function(s, x){ return s + x; }, 0);
+    return b;
+  }
+  function xpFor(n){ n = n - 1; return 60 * n * n + 40 * n; }
+  function levelOf(xp){ var n = 1; while(n < 99 && xpFor(n + 1) <= xp) n++; return n; }
+  function rankOf(n){ var r = RANKS[0]; RANKS.forEach(function(x){ if(n >= x[0]) r = x; }); return r; }
+  function nextRank(n){ for(var i = 0; i < RANKS.length; i++) if(RANKS[i][0] > n) return RANKS[i]; return null; }
+  function lvInfo(xp){
+    var n = levelOf(xp), a = xpFor(n), z = xpFor(n + 1);
+    return {n: n, xp: xp, from: a, to: z, f: Math.max(0, Math.min(1, (xp - a) / (z - a))), rank: rankOf(n), next: nextRank(n)};
+  }
+  function lvRing(f, n){
+    var R = 30, C = 2 * Math.PI * R;
+    return '<svg viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="' + R + '" class="lv-track"/>' +
+      '<circle cx="36" cy="36" r="' + R + '" class="lv-arc" stroke-dasharray="' + (Math.max(0.02, f) * C).toFixed(1) + ' ' + C.toFixed(1) + '" transform="rotate(-90 36 36)"/></svg>' +
+      '<span class="lv-n">' + n + '</span>';
+  }
+  function levelPanelHtml(){
+    var b = xpCalc(), L = lvInfo(b.xp), nx = L.next;
+    var h = '<section class="panel lvlp" id="levelBox"><div class="lv-row"><div class="lv-badge">' + lvRing(L.f, L.n) + '</div>' +
+      '<div class="lv-main"><p class="lv-cap">Уровень ' + L.n + '</p><p class="lv-title">' + esc(L.rank[1]) + ' <span aria-hidden="true">' + L.rank[2] + '</span></p>' +
+      '<div class="lv-bar" role="img" aria-label="До уровня ' + (L.n + 1) + ' осталось ' + (L.to - L.xp) + ' опыта"><i style="width:' + Math.round(L.f * 100) + '%"></i></div>' +
+      '<p class="lv-sub"><b>' + numSp(L.xp) + '</b> опыта · до ' + (L.n + 1) + ' уровня ещё ' + numSp(L.to - L.xp) + '</p></div></div>';
+    if(nx) h += '<p class="hint lv-next">Следующее звание — «' + esc(nx[1]) + '» ' + nx[2] + ' на ' + nx[0] + ' уровне.</p>';
+    h += '<details class="subdet lv-how"><summary>Как копится опыт</summary><ul class="lv-rules">' +
+      XP_RULES.map(function(r){ return '<li><span>' + esc(r[0]) + '</span><b>+' + r[1] + '</b></li>'; }).join("") + '</ul>' +
+      '<p class="hint">Сейчас: повторения ' + numSp(b.parts[0]) + ', удержания ' + numSp(b.parts[1]) + ', тренировки ' + numSp(b.parts[2]) +
+      ', дни ' + numSp(b.parts[3]) + ', медали ' + numSp(b.parts[4]) + '.</p>' +
+      '<div class="lv-ladder">' + RANKS.map(function(r){
+        return '<span class="' + (L.n >= r[0] ? "on" : "") + (L.rank === r ? " cur" : "") + '"><i aria-hidden="true">' + r[2] + '</i>' + esc(r[1]) + '<small>' + r[0] + '</small></span>';
+      }).join("") + '</div></details></section>';
+    return h;
+  }
+  // всплывающее «+12» там, где нажал
+  var LP = null, XPB = null, xpT = null;
+  document.addEventListener("pointerdown", function(e){ LP = {x: e.clientX, y: e.clientY, t: Date.now()}; }, true);
+  function xpFloat(n){
+    if(REDUCED || n <= 0) return;
+    var x, y;
+    if(LP && Date.now() - LP.t < 1500){ x = LP.x; y = LP.y; }
+    else if(focusKey){ var bb = document.querySelector("#focus .fc-big"); if(!bb) return; var r = bb.getBoundingClientRect(); x = r.left + r.width / 2; y = r.top + 20; }
+    else return;
+    var el = document.createElement("div");
+    el.className = "xpf"; el.textContent = "+" + n; el.setAttribute("aria-hidden", "true");
+    el.style.left = x + "px"; el.style.top = y + "px";
+    document.body.appendChild(el);
+    if(el.animate){
+      var an = el.animate([{transform: "translate(-50%,-50%) scale(.8)", opacity: 0}, {transform: "translate(-50%,-110%) scale(1.05)", opacity: 1, offset: .25},
+        {transform: "translate(-50%,-260%) scale(1)", opacity: 0}], {duration: 1100, easing: "cubic-bezier(.2,.7,.3,1)"});
+      an.onfinish = function(){ el.remove(); };
+    } else setTimeout(function(){ el.remove(); }, 1100);
+  }
+  function xpSchedule(){ clearTimeout(xpT); xpT = setTimeout(xpCheck, 120); }
+  function xpCheck(){
+    var b = xpCalc(), was = XPB, lv = levelOf(b.xp);
+    XPB = b.xp;
+    if(typeof state.lvl !== "number"){ state.lvl = lv; save(); renderAcc(); return; }
+    if(was != null && b.xp > was) xpFloat(b.xp - was);
+    if(lv > state.lvl && was == null){ state.lvl = lv; save(); }   // догнали то, что пришло с другого устройства, — без праздника
+    else if(lv > state.lvl){
+      state.lvl = lv;
+      var rk = rankOf(lv);
+      feedPush({k: "lvl", n: lv, t: rk[1], e: rk[2]});
+      save();
+      setTimeout(function(){ lvlUpShow(lv); }, 650);   // сначала видно «+N», потом праздник
+    }
+    renderAcc();
+    var ls = document.getElementById("levelSlot");
+    if(ls && TAB === "profile") ls.innerHTML = levelPanelHtml();
+  }
+  var LVT = null;
+  function lvlUpShow(n){
+    var box = document.getElementById("lvlUp");
+    if(!box) return;
+    var rk = rankOf(n), newRank = rk[0] === n;
+    box.innerHTML = '<div class="lu-card" role="status"><div class="lu-badge">' + lvRing(1, n) + '</div>' +
+      '<p class="lu-cap">Новый уровень!</p><p class="lu-title">' + (newRank ? "Звание «" + esc(rk[1]) + "» " + rk[2] : "Уровень " + n + " · " + esc(rk[1]) + " " + rk[2]) + '</p>' +
+      '<p class="lu-sub">Нажми, чтобы продолжить</p></div>';
+    box.hidden = false;
+    var card = box.querySelector(".lu-card");
+    if(card && card.animate && !REDUCED) card.animate([{transform: "scale(.6)", opacity: 0}, {transform: "scale(1.06)", opacity: 1, offset: .6}, {transform: "scale(1)", opacity: 1}], {duration: 520, easing: "cubic-bezier(.2,.8,.3,1)"});
+    setTimeout(function(){ confetti(box.querySelector(".lu-badge") || box); }, 120);
+    setTimeout(function(){ confetti(box.querySelector(".lu-badge") || box); }, 520);
+    buzz([40, 60, 40, 60, 120]);
+    if(focusKey && coachActive()) setTimeout(function(){ say("Новый уровень! " + n + "!"); }, 900);
+    clearTimeout(LVT); LVT = setTimeout(lvlUpHide, 4200);
+  }
+  function lvlUpHide(){ var box = document.getElementById("lvlUp"); if(box){ box.hidden = true; box.innerHTML = ""; } clearTimeout(LVT); }
+
+  // ---------- именные значки: выдаёт только админ ----------
+  // право выдавать проверяет сама база (таблица badge_admins и правила доступа), приложение лишь прячет лишние кнопки
+  var AW = {list: [], admin: false, ok: null, loaded: 0, pending: null, give: null, err: ""};
+  var AW_COLORS = {
+    ocean: ["#2E7CC0", "#123A6B", "Океан"], gold: ["#F6C453", "#B7791F", "Золото"], rose: ["#F472B6", "#BE185D", "Роза"],
+    violet: ["#A78BFA", "#5B21B6", "Фиалка"], forest: ["#34D399", "#047857", "Лес"], ember: ["#FB923C", "#C2410C", "Огонь"]
+  };
+  var AW_EMOJI = ["🦾", "🔥", "👑", "🐐", "🦁", "🐺", "🦅", "🐻", "⚡", "💎", "🏅", "🎯", "🚀", "🌊", "🥷", "🧠", "❤️", "🫡", "🦍", "🐉", "🍀", "⭐", "🛡️", "🗿"];
+  function awSeenList(){ try { var a = JSON.parse(localStorage.getItem("pullups-aw-seen") || "[]"); return Array.isArray(a) ? a : []; } catch(e){ return []; } }
+  function awSeenAdd(ids){ try { localStorage.setItem("pullups-aw-seen", JSON.stringify(awSeenList().concat(ids).slice(-200))); } catch(e){} }
+  function awLoad(){
+    if(!sbOn()) return Promise.resolve();
+    var uid = sbUser();
+    if(!uid) return Promise.resolve();
+    var ids = [uid].concat(FR.list.map(function(p){ return p.user_id; }));
+    return Promise.all([
+      sbReq("/rest/v1/awards?select=id,user_id,emoji,title,note,color,given_by,created_at&order=created_at.asc&user_id=in.(" + ids.join(",") + ")"),
+      sbReq("/rest/v1/badge_admins?select=user_id&user_id=eq." + uid)
+    ]).then(function(r){
+      AW.list = (r[0] || []).filter(function(a){ return a && a.id && a.user_id && a.emoji && a.title; });
+      AW.admin = !!(r[1] && r[1].length);
+      AW.ok = true; AW.loaded = Date.now();
+      renderProfile(); awAfterLoad();
+    }).catch(function(e){
+      if(/schema cache|does not exist|relation|could not find/i.test((e && e.message) || "")) AW.ok = false;
+    });
+  }
+  function awFor(uid){ return AW.list.filter(function(a){ return a.user_id === uid; }); }
+  function awColor(a){ return AW_COLORS[a.color] ? a.color : "ocean"; }
+  function awFrom(a){
+    var me = sbUser();
+    if(a.given_by && a.given_by === me) return "ты";
+    for(var i = 0; i < FR.list.length; i++) if(FR.list[i].user_id === a.given_by) return FR.list[i].nick || "друга";
+    return "создателя приложения";
+  }
+  function awChip(a, cls){
+    var c = AW_COLORS[awColor(a)];
+    return '<button type="button" class="awb' + (cls ? " " + cls : "") + '" data-act="aw-info" data-id="' + a.id + '" style="--aw1:' + c[0] + ';--aw2:' + c[1] + '" aria-label="Значок «' + esc(a.title) + '»" title="' + esc(a.title) + '"><span>' + esc(a.emoji) + '</span></button>';
+  }
+  function awRow(uid, max, cls){
+    var l = awFor(uid);
+    if(!l.length) return "";
+    var show = l.slice(-(max || 4)).reverse();
+    return '<span class="aw-row' + (cls ? " " + cls : "") + '">' + show.map(function(a){ return awChip(a); }).join("") +
+      (l.length > show.length ? '<span class="aw-more">+' + (l.length - show.length) + '</span>' : '') + '</span>';
+  }
+  // в своём профиле — значки с названиями
+  function awProfileHtml(){
+    var uid = sbUser();
+    if(!uid || !AW.admin) return "";
+    return '<div class="test aw-admin"><span class="badge ok">ты выдаёшь значки</span>' +
+      '<button type="button" class="linkbtn alt" data-act="aw-give" data-id="' + esc(uid) + '" data-name="' + esc(profName() || "себя") + '">🎖 Выдать себе</button></div>';
+  }
+  setInterval(function(){ if(AW.ok) awAfterLoad(); }, 20000);
+  document.addEventListener("input", function(ev){
+    var id = ev.target && ev.target.id;
+    if(!AW.give || (id !== "awTitle" && id !== "awNote" && id !== "awEmoji")) return;
+    awReadFields();
+    var g = AW.give, t = document.getElementById("awPrevT"), n = document.getElementById("awPrevN"), e = document.getElementById("awPrevE");
+    if(t) t.textContent = g.title || "Название значка";
+    if(n) n.textContent = g.note || "за что — по желанию";
+    if(id === "awEmoji"){
+      if(!ev.target.value.trim()) g.emoji = AW_EMOJI[0];
+      if(e) e.textContent = g.emoji;
+      [].forEach.call(document.querySelectorAll("#awDlg .aw-e"), function(x){ var on = x.getAttribute("data-e") === g.emoji; x.classList.toggle("on", on); x.setAttribute("aria-pressed", on); });
+    }
+  });
+  function awById(id){ for(var i = 0; i < AW.list.length; i++) if(String(AW.list[i].id) === String(id)) return AW.list[i]; return null; }
+  function awInfo(id){
+    var a = awById(id);
+    if(!a) return;
+    var when = a.created_at ? new Date(a.created_at).toLocaleDateString("ru-RU", {day: "numeric", month: "long"}) : "";
+    AW.pending = a.id;
+    var fr = awFrom(a);
+    flash(a.emoji + " «" + a.title + "»" + (a.note ? " — " + a.note : "") + " · " + (fr === "ты" ? "выдал ты" : "выдал: " + fr) + (when ? ", " + when : ""),
+      AW.admin ? {label: "Забрать", act: "aw-take"} : null);
+  }
+  // выдача: маленькое окно с выбором значка
+  function awGiveOpen(uid, name){
+    AW.give = {uid: uid, name: name || "друга", emoji: AW_EMOJI[0], color: "ocean", title: "", note: "", busy: false};
+    AW.err = "";
+    renderAwDlg();
+  }
+  function awGiveClose(){ AW.give = null; renderAwDlg(); }
+  function renderAwDlg(){
+    var box = document.getElementById("awDlg");
+    if(!box) return;
+    var g = AW.give;
+    if(!g){ box.hidden = true; box.innerHTML = ""; if(!focusKey && !ONB && !IMP && !SC && !WK && !WN && !RS) document.body.classList.remove("modal-open"); return; }
+    box.hidden = false; document.body.classList.add("modal-open");
+    var c = AW_COLORS[g.color];
+    var h = '<div class="warm-card aw-card" role="document"><div class="warm-top"><span>Выдать значок · ' + esc(g.name) + '</span>' +
+      '<button type="button" class="tb-icon" data-act="aw-close" aria-label="Закрыть">✕</button></div>' +
+      '<div class="aw-prev"><span class="awb lg" style="--aw1:' + c[0] + ';--aw2:' + c[1] + '"><span id="awPrevE">' + esc(g.emoji) + '</span></span>' +
+      '<div><b id="awPrevT">' + esc(g.title || "Название значка") + '</b><small id="awPrevN">' + esc(g.note || "за что — по желанию") + '</small></div></div>' +
+      '<p class="aw-cap">Значок</p><div class="aw-emoji" role="group" aria-label="Выбери значок">' + AW_EMOJI.map(function(e){
+        return '<button type="button" class="aw-e' + (e === g.emoji ? " on" : "") + '" data-act="aw-emoji" data-e="' + e + '" aria-pressed="' + (e === g.emoji) + '">' + e + '</button>';
+      }).join("") + '<label class="aw-own-e"><span>свой</span><input type="text" id="awEmoji" maxlength="8" autocomplete="off" value="' + (AW_EMOJI.indexOf(g.emoji) < 0 ? esc(g.emoji) : "") + '" aria-label="Свой эмодзи"></label></div>' +
+      '<p class="aw-cap">Цвет</p><div class="aw-colors" role="group" aria-label="Цвет значка">' + Object.keys(AW_COLORS).map(function(k){
+        var cc = AW_COLORS[k];
+        return '<button type="button" class="aw-col' + (k === g.color ? " on" : "") + '" data-act="aw-color" data-c="' + k + '" style="--aw1:' + cc[0] + ';--aw2:' + cc[1] + '" aria-label="' + cc[2] + '" aria-pressed="' + (k === g.color) + '"></button>';
+      }).join("") + '</div>' +
+      '<label class="field aw-field" for="awTitle">Название<input type="text" id="awTitle" maxlength="40" placeholder="например, Железный папа" value="' + esc(g.title) + '"></label>' +
+      '<label class="field aw-field" for="awNote">За что<input type="text" id="awNote" maxlength="140" placeholder="например, 11 кругов без пропусков" value="' + esc(g.note) + '"></label>' +
+      (AW.err ? '<p class="hint aw-err" role="alert">' + esc(AW.err) + '</p>' : '') +
+      '<div class="warm-actions"><button type="button" class="primary" data-act="aw-send"' + (g.busy ? " disabled" : "") + '>' + (g.busy ? "Выдаю…" : "Выдать значок") + '</button>' +
+      '<button type="button" class="linkbtn alt" data-act="aw-close">Отмена</button></div></div>';
+    box.innerHTML = h;
+  }
+  function awReadFields(){
+    var g = AW.give; if(!g) return;
+    var t = document.getElementById("awTitle"), n = document.getElementById("awNote"), e = document.getElementById("awEmoji");
+    if(t) g.title = t.value.slice(0, 40);
+    if(n) g.note = n.value.slice(0, 140);
+    if(e && e.value.trim()) g.emoji = e.value.trim().slice(0, 8);
+  }
+  function awSend(){
+    var g = AW.give;
+    if(!g || g.busy) return;
+    awReadFields();
+    if(!g.title.trim()){ AW.err = "Придумай название значку."; renderAwDlg(); var ti = document.getElementById("awTitle"); if(ti) ti.focus(); return; }
+    g.busy = true; AW.err = ""; renderAwDlg();
+    sbReq("/rest/v1/awards?select=id,user_id,emoji,title,note,color,given_by,created_at", {method: "POST", headers: {Prefer: "return=representation"},
+      body: JSON.stringify([{user_id: g.uid, emoji: g.emoji, title: g.title.trim(), note: g.note.trim() || null, color: g.color}])})
+      .then(function(rows){
+        var a = rows && rows[0];
+        if(a) AW.list.push(a);
+        AW.give = null; renderAwDlg(); renderProfile();
+        flash("Значок выдан: " + (a ? a.emoji + " «" + a.title + "»" : ""));
+        if(a && a.user_id === sbUser()) awAfterLoad();
+        else { var t0 = document.getElementById("toast"); if(t0) setTimeout(function(){ confetti(t0); }, 60); }
+      })
+      .catch(function(e){
+        g.busy = false;
+        var m = (e && e.message) || "";
+        AW.err = /row-level security|permission denied/i.test(m) ? "База не разрешила: выдавать значки может только админ. Проверь, что выполнен SQL для значков."
+          : /schema cache|does not exist|relation|could not find/i.test(m) ? "В базе ещё нет таблиц для значков — выполни SQL для значков в Supabase."
+          : "Не получилось: " + (m || "ошибка сети");
+        renderAwDlg();
+      });
+  }
+  function awTake(){
+    var a = awById(AW.pending);
+    if(!a || !AW.admin) return;
+    sbReq("/rest/v1/awards?id=eq." + encodeURIComponent(a.id), {method: "DELETE"})
+      .then(function(){ AW.list = AW.list.filter(function(x){ return x !== a; }); renderProfile(); flash("Значок «" + a.title + "» забран"); })
+      .catch(function(e){ flash("Не получилось забрать: " + ((e && e.message) || "ошибка")); });
+  }
+  // новый значок у тебя — праздник, один раз
+  function awAfterLoad(){
+    var uid = sbUser();
+    if(!uid) return;
+    var seen = awSeenList(), fresh = awFor(uid).filter(function(a){ return seen.indexOf(String(a.id)) < 0; });
+    if(!fresh.length) return;
+    if(focusKey || WN || WK || SC || RS || ONB) return;   // покажем, когда освободится экран
+    awSeenAdd(fresh.map(function(a){ return String(a.id); }));
+    var a = fresh[fresh.length - 1], c = AW_COLORS[awColor(a)];
+    var box = document.getElementById("lvlUp");
+    if(!box) return;
+    box.innerHTML = '<div class="lu-card aw-lu" role="status"><span class="awb xl" style="--aw1:' + c[0] + ';--aw2:' + c[1] + '"><span>' + esc(a.emoji) + '</span></span>' +
+      '<p class="lu-cap">Тебе выдали значок!</p><p class="lu-title">«' + esc(a.title) + '»</p>' +
+      (a.note ? '<p class="aw-lu-note">' + esc(a.note) + '</p>' : '') +
+      '<p class="lu-sub">выдал: ' + esc(awFrom(a)) + (fresh.length > 1 ? " · и ещё " + (fresh.length - 1) : "") + ' · нажми, чтобы продолжить</p></div>';
+    box.hidden = false;
+    var card = box.querySelector(".lu-card");
+    if(card && card.animate && !REDUCED) card.animate([{transform: "scale(.6) rotate(-4deg)", opacity: 0}, {transform: "scale(1.06) rotate(1deg)", opacity: 1, offset: .6}, {transform: "none", opacity: 1}], {duration: 560, easing: "cubic-bezier(.2,.8,.3,1)"});
+    setTimeout(function(){ confetti(box.querySelector(".awb") || box); }, 150);
+    setTimeout(function(){ confetti(box.querySelector(".awb") || box); }, 600);
+    buzz([40, 60, 40, 60, 120]);
+    clearTimeout(LVT); LVT = setTimeout(lvlUpHide, 6000);
+  }
+  // в ленте: значки твои и друзей
+  function awardEvents(){
+    var out = [], uid = sbUser();
+    AW.list.forEach(function(a){
+      var ts = Date.parse(a.created_at || "");
+      if(!ts) return;
+      var who = null, mine = a.user_id === uid;
+      if(mine) who = {id: uid, name: profName() || "Ты", photo: profPhoto(), me: true};
+      else FR.list.forEach(function(p){ if(p.user_id === a.user_id) who = {id: p.user_id, name: p.nick || "Друг", photo: p.photo}; });
+      if(who) out.push({who: who, ev: {k: "award", t: a.title, e: a.emoji, d: a.note || "", ts: ts}, mine: mine});
+    });
+    return out;
+  }
 
   // ---------- график тестов ----------
   function testChart(C){
@@ -7620,7 +8361,7 @@ create policy "friends drop" on public.friends
         '<div class="fc-ringwrap ' + ringCls + '">' + focusRing(ringF, 120) +
         '<button type="button" class="fc-big' + (FH ? " holding" : "") + '" data-act="focus-mark"><b>' + (FH ? Math.max(1, Math.ceil((FH.end - Date.now()) / 1000)) : val) + '</b><span>' + bigLab + '</span></button></div>' +
         '<button type="button" class="fc-step" data-act="focus-more" aria-label="Больше"' + (FH ? " disabled" : "") + '>+</button></div>';
-      if(ri && !ri.due && !FH) h += '<p class="fc-state"><b>' + fmt(Math.ceil(ri.left)) + '</b> отдых</p>';
+      if(ri && !ri.due && !FH) h += '<button type="button" class="fc-state fc-set" data-act="timer-set" aria-label="Изменить время отдыха"><b>' + fmt(Math.ceil(ri.left)) + '</b> отдых' + PEN_IC + '</button>';
       else if(ri && ri.due && !FH) h += '<p class="fc-state due" role="status"><b>Пора</b> отдых закончился, делай подход</p>';
       var tools = (camMode && !FH ? '<button type="button" class="fc-tool" data-act="focus-cam">' + CAM_IC + 'Считать камерой</button>' : '') + coachBtn();
       if(tools) h += '<div class="fc-tools">' + tools + '</div>';
@@ -7713,16 +8454,23 @@ create policy "friends drop" on public.friends
     if(mslot) mslot.innerHTML = medalsHtml();
     var wslot = document.getElementById("weekSlot");
     if(wslot) wslot.innerHTML = weekPanelHtml();
+    var lslot = document.getElementById("levelSlot");
+    if(lslot) lslot.innerHTML = levelPanelHtml();
     var h = "";
     if(loggedIn()){
       sbUser();
-      h += '<div class="pf-head">' + avatarHtml("big") + '<div><h2>' + esc(profName() || SB.mail || "Аккаунт") + '</h2>' +
+      h += '<div class="pf-head">' + avatarHtml("big") + '<div><h2>' + esc(profName() || SB.mail || "Аккаунт") + '</h2>' + awRow(sbUser(), 6, "pf") +
         '<p class="hint">' + (profName() ? esc(SB.mail || "") + ", " : "") + (SB.last ? "синхронизировано в " + new Date(SB.last).toLocaleTimeString("ru-RU", {hour: "2-digit", minute: "2-digit"}) : "ждём первой синхронизации") + '</p></div></div>';
+      if(NET.kind === "auth") h += '<div class="relogin"><p><b>Вход устарел.</b> Введи пароль ещё раз — отметки с этого устройства сложатся с теми, что в аккаунте.</p><div class="test">' +
+        '<input type="email" id="pfMail" value="' + esc(SB.mail || "") + '" hidden autocomplete="username">' +
+        '<label class="field" for="pfPass">Пароль' + (SB.mail ? ' для ' + esc(SB.mail) : '') + '<input type="password" id="pfPass" autocomplete="current-password"></label>' +
+        '<button type="button" class="primary" data-act="sb-in">Войти</button></div></div>';
       h += '<div class="test pf-edit">' +
         '<label class="field" for="pfName">Никнейм<input type="text" id="pfName" maxlength="40" placeholder="как тебя называть" value="' + esc(profName()) + '"></label>' +
         '<button type="button" class="linkbtn" data-act="pf-photo">' + (profPhoto() ? "Сменить фото" : "Загрузить фото") + '</button>' +
         (profPhoto() ? '<button type="button" class="linkbtn alt" data-act="pf-nophoto">Убрать фото</button>' : "") +
         '<input type="file" id="pfPhotoFile" accept="image/*" hidden></div>';
+      h += awProfileHtml();
       h += profileStats();
       h += recordsHtml();
       h += '<p class="hint">Прогресс хранится в твоём аккаунте: открой страницу на другом устройстве, войди теми же почтой и паролем, и отметки будут общими.</p>';
@@ -7734,6 +8482,7 @@ create policy "friends drop" on public.friends
       h += '<div class="test"><button type="button" class="primary" data-act="sb-sync">Синхронизировать сейчас</button>' +
         (pwMode ? "" : '<button type="button" class="linkbtn" data-act="pw-mode">Сменить пароль</button>') +
         '<button type="button" class="linkbtn" data-act="sb-out">Выйти</button></div>';
+      h += devsHtml();
       h += '<details class="subdet journal"><summary>Журнал и серия</summary>' + journalHtml() + '</details>';
       box.innerHTML = h;
       var fb = document.getElementById("friendsBox");
@@ -7997,7 +8746,17 @@ create policy "friends drop" on public.friends
     var el = document.getElementById("status"), old = el.textContent;
     el.textContent = t; setTimeout(function(){ el.textContent = old; }, 4000);
   }
-  function persistLocal(){ try { localStorage.setItem(KEY, JSON.stringify(state)); localBad = false; } catch(e){ localBad = true; } }
+  function persistLocal(){
+    try {
+      var raw = localStorage.getItem(KEY);
+      if(raw && LSW != null && raw !== LSW){
+        // соседняя вкладка успела записать своё — складываем, чтобы ничего не потерять
+        try { state = mergeStates(state, normalize(JSON.parse(raw))); XPB = null; } catch(e){}
+      }
+      LSW = JSON.stringify(state);
+      localStorage.setItem(KEY, LSW); localBad = false;
+    } catch(e){ localBad = true; }
+  }
   function save(){
     // время правки только растёт: если часы на устройствах расходятся, свежая правка всё равно считается свежей
     state.updatedAt = Math.max(Date.now(), (state.updatedAt || 0) + 1);
@@ -8008,6 +8767,7 @@ create policy "friends drop" on public.friends
     renderPill();
     medalSchedule();
     prSchedule();
+    xpSchedule();
   }
   function flush(){
     if(!db) return;
@@ -8076,6 +8836,7 @@ create policy "friends drop" on public.friends
     }
     if(act === "undo"){ undoDo(); return; }
     if(act === "sync-pill"){ pillTap(); return; }
+    if(act === "guest-ok"){ try { localStorage.setItem(GKEY, String(Date.now())); } catch(e){} renderBanner(); return; }
     if(act === "medals-open"){
       var mt0 = document.getElementById("toast"); if(mt0) mt0.hidden = true;
       if(focusKey) focusClose();
@@ -8546,6 +9307,18 @@ create policy "friends drop" on public.friends
       return;
     }
     if(act === "timer-close"){ state.timer = null; save(); renderTimer(); return; }
+    if(act === "timer-set"){ rsOpen(); return; }
+    if(act === "lvl-close"){ lvlUpHide(); return; }
+    if(act === "aw-info"){ awInfo(b.getAttribute("data-id")); return; }
+    if(act === "aw-take"){ awTake(); return; }
+    if(act === "aw-give"){ awGiveOpen(b.getAttribute("data-id"), b.getAttribute("data-name")); return; }
+    if(act === "aw-close"){ awGiveClose(); return; }
+    if(act === "aw-send"){ awSend(); return; }
+    if(act === "aw-emoji"){ if(AW.give){ awReadFields(); AW.give.emoji = b.getAttribute("data-e"); var ae0 = document.getElementById("awEmoji"); if(ae0) ae0.value = ""; renderAwDlg(); } return; }
+    if(act === "aw-color"){ if(AW.give){ awReadFields(); AW.give.color = b.getAttribute("data-c"); renderAwDlg(); } return; }
+    if(act === "rs-close"){ rsClose(); return; }
+    if(act === "rs-set"){ restSet(+b.getAttribute("data-s") || 0); return; }
+    if(act === "rs-apply"){ restSet(rsFromFields()); return; }
     if(act === "timer-go"){ var tk = state.timer && state.timer.key; if(tk) goToCard(tk); return; }
     if(act === "sound"){ soundOn = !soundOn; try { localStorage.setItem(SKEY, soundOn ? "1" : "0"); } catch(e){} if(soundOn) beep(1); renderTimer(); return; }
     if(act === "sync-mode"){
@@ -8591,6 +9364,11 @@ create policy "friends drop" on public.friends
   });
 
   document.addEventListener("keydown", function(ev){
+    if(ev.key === "Escape" && LVT && !document.getElementById("lvlUp").hidden){ lvlUpHide(); return; }
+    if(ev.key === "Escape" && AW.give){ awGiveClose(); return; }
+    if(ev.key === "Escape" && RS){ rsClose(); return; }
+    if(ev.key === "Enter" && RS && ev.target && (ev.target.id === "rsMin" || ev.target.id === "rsSec")){ ev.preventDefault(); restSet(rsFromFields()); return; }
+    if(RS || AW.give) return;
     if(ev.key === "Escape" && SC){ SC = null; renderShareDlg(); return; }
     if(ev.key === "Escape" && WK){ weekClose(); return; }
     if(ev.key === "Escape" && WN){ wnClose(); return; }
@@ -8740,6 +9518,7 @@ create policy "friends drop" on public.friends
   if(!impFromHash() && onbNeeded()) onbStart();
   medalSchedule();
   prSchedule();
+  xpSchedule();
   setTimeout(function(){ if(!wnCheck()) weekCheck(); }, 1500);
   setTimeout(function(){ if(loggedIn() && !FR.loaded && !FR.loading) sbFriends(); }, 3000);
   window.addEventListener("hashchange", function(){ if(/prog=/.test(location.hash || "")){ if(ONB){ ONB = null; renderOnb(); } impFromHash(); } });
@@ -8753,7 +9532,7 @@ create policy "friends drop" on public.friends
         if(snap.exists){
           var remote = normalize(JSON.parse(JSON.stringify(snap.data())));
           var merged = mergeStates(state, remote);
-          state = merged;
+          state = merged; XPB = null;
           persistLocal();
           // в облаке нет того, что накопилось здесь, — дошлём
           if(JSON.stringify(merged) !== JSON.stringify(mergeStates(remote, remote))){ if(REV.d >= REV.r){ REV.r++; revSave(); } flush(); }
