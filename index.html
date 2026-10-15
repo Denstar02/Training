@@ -1451,6 +1451,66 @@ button.fd-ava{appearance:none;-webkit-appearance:none;padding:0;margin:0;border:
 .fp-feed .fd-top b,.fp-feed .aw-row{display:none}
 .fp-feed .fd-ava .ava{display:none}
 .fp-feed .fd-ic{position:static;width:40px;height:40px;font-size:19px;box-shadow:none;background:color-mix(in srgb, var(--tide-strong) 10%, var(--surface))}
+
+/* ===== v2.01: карточка профиля по мотивам profile-card (21st.dev) ===== */
+.pc{position:relative;margin:4px 0 calc(40px + var(--s5))}
+.pc.noglow{margin-bottom:var(--s5)}
+.pc.in{animation:pcIn .4s ease-out both}
+@keyframes pcIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.pc-glow{position:absolute;left:0;right:0;top:72%;bottom:-40px;z-index:0;border-radius:28px;pointer-events:none;background:rgba(94,234,212,.9);box-shadow:0 40px 80px -16px rgba(94,234,212,.75)}
+.pc-glowtxt{position:absolute;left:0;right:0;bottom:-40px;z-index:0;height:40px;margin:0;padding:0 16px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:600;color:#06332e;text-align:center}
+.pc-glowtxt svg{width:16px;height:16px;flex:0 0 auto}
+.pc-glowtxt span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc-card{position:relative;z-index:1;border-radius:28px;padding:24px;color:#fff;background:radial-gradient(120% 120% at 30% 10%, #1a1a1a 0%, #0f0f10 60%, #0b0b0c 100%);box-shadow:0 25px 50px -12px rgba(0,0,0,.35)}
+.pc-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:24px;font-size:14px;color:#d4d4d4}
+.pc-st{display:flex;align-items:center;gap:8px;min-width:0}
+.pc-st > span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;user-select:none}
+.pc-dot{flex:0 0 auto;width:10px;height:10px;border-radius:50%;animation:pcPulse 2s cubic-bezier(.4,0,.6,1) infinite}
+.pc-dot.ok{background:#84cc16}
+.pc-dot.rest{background:#f59e0b}
+.pc-dot.idle{background:#737373;animation:none}
+@keyframes pcPulse{50%{opacity:.5}}
+.pc-clock{display:flex;align-items:center;gap:8px;opacity:.8;flex:0 0 auto}
+.pc-clock svg{width:16px;height:16px}
+.pc-clock b{font-weight:500;font-variant-numeric:tabular-nums}
+.pc-x{flex:0 0 auto;width:36px;height:36px;border:0;border-radius:50%;background:rgba(255,255,255,.1);color:#fff;font-size:16px;cursor:pointer}
+.pc-x:hover{background:rgba(255,255,255,.16)}
+.pc-who{display:flex;flex-wrap:wrap;align-items:center;gap:20px}
+.pc-ava{position:relative;flex:0 0 auto;width:56px;height:56px;border-radius:50%;overflow:hidden;box-shadow:0 0 0 2px rgba(255,255,255,.1)}
+.pc-ava .ava{width:56px;height:56px;font-size:22px;box-shadow:none;background-size:cover;background-position:center}
+.pc-ava .ava.guest{background:#262626;color:#a3a3a3;border:0;font-size:24px;display:grid;place-items:center}
+.pc-names{min-width:0;flex:1 1 180px}
+.pc-name{margin:0;font-size:20px;font-weight:600;line-height:1.25;letter-spacing:-.01em;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc-role{margin:2px 0 0;font-size:14px;color:#a3a3a3}
+.pc-sub{margin:6px 0 0;font-size:12px;color:#737373;overflow:hidden;text-overflow:ellipsis}
+.aw-row.pc{display:flex;flex-wrap:wrap;margin:8px 0 0;gap:6px}
+.aw-row.pc .awb{width:26px;height:26px;font-size:14px;box-shadow:0 0 0 2px #121212}
+.aw-row.pc .aw-more{color:#a3a3a3}
+.pc-btns{display:grid;grid-template-columns:1fr;gap:12px;margin-top:24px}
+.pc-btn{display:flex;align-items:center;justify-content:flex-start;gap:12px;height:48px;padding:0 16px;border:0;border-radius:16px;background:rgba(255,255,255,.1);color:#fff;font:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:background-color .15s;min-width:0}
+.pc-btn span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc-btn svg{flex:0 0 auto;width:16px;height:16px}
+.pc-btn:hover{background:rgba(255,255,255,.15)}
+.pc-btn:active{transform:translateY(1px)}
+.pc-btn:focus-visible,.pc-x:focus-visible{outline:2px solid var(--tide);outline-offset:2px}
+@media (min-width:640px){
+  .pc-card{padding:32px}
+  .pc-name{font-size:24px}
+  .pc-btns{grid-template-columns:1fr 1fr;gap:16px}
+}
+/* шапка профиля друга в окне */
+.fp-pcwrap{padding:12px 12px 0}
+.fp-pc{margin-bottom:calc(40px + 14px)}
+.fp-pc .pc-card{padding:20px}
+.fp-pc .pc-top{margin-bottom:18px}
+.fp-pc .pc-btns{margin-top:18px}
+@media (prefers-reduced-motion: reduce){.pc.in{animation:none}.pc-dot{animation:none}}
+
+.panel .pc-name{display:block}
+.panel .pc-name::before{content:none;display:none}
+
+.pc .pc-name,.panel .pc-name{font-family:"Onest",system-ui,sans-serif;font-size:20px;font-weight:600;letter-spacing:-.01em;line-height:1.25}
+@media (min-width:640px){.pc .pc-name,.panel .pc-name{font-size:24px}}
 </style>
 </head>
 <body>
@@ -2067,8 +2127,9 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzd3FsYmpsa3Bncm55a2dnY3pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwNDIyNDUsImV4cCI6MjEwNjYxODI0NX0.KQMAqfGyNr1NeLMKu3iRuufLaZ5DEMRj2sc1ulkK5QY"
   ]};
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 1, APP_BUILD_N = 35;
+  var APP_MAJOR = 2, APP_BUILD_N = 1;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
+  var APP_BUILD = APP_MAJOR * 100 + APP_BUILD_N;   // 1.35 → 135, 2.01 → 201
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
   var LSW = null;   // что эта вкладка последней записала в хранилище: если там другое — писала соседняя вкладка
   var theme = "light";
@@ -5894,7 +5955,7 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
     b.classList.toggle("on", on);
     b.setAttribute("aria-label", on ? "Профиль: " + (SB.mail || "аккаунт") : "Войти в аккаунт");
     b.setAttribute("aria-pressed", TAB === "profile");
-    if(TAB !== "profile") FDH = null;
+    if(TAB !== "profile"){ FDH = null; PC_SHOWN = false; }
     var fnews = TAB !== "profile" && loggedIn() && FR.loaded ? feedNews() : 0;
     b.classList.toggle("news", fnews > 0);
     if(fnews) b.setAttribute("aria-label", b.getAttribute("aria-label") + ", в ленте новое");
@@ -7049,46 +7110,54 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
   // ---------- что нового ----------
   var WN_KEY = "pullups-seen-ver", WN = null;
   var NEWS = [
-    {v: 31, items: [
+    {v: 201, items: [
+      {e: "🪪", t: "Новая карточка профиля", d: "Тёмная карточка с живым статусом — «Сегодня в деле» или «Серия ждёт» — часами, уровнем и значками, а снизу светится твоя серия или итог недели. Такая же шапка теперь у профиля друга, с кнопкой «Поддержать».", go: "level-open", btn: "Посмотреть"},
+      {e: "⚡", t: "Страница открывается быстрее", d: "Движок камеры подгружается, только когда включаешь подсчёт, — остальное открывается в разы быстрее."}
+    ]},
+    {v: 131, items: [
       {e: "🎖️", t: "Именные значки", d: "Рядом с аватаркой теперь бывают особые значки. Их выдаёт создатель приложения — за что-то по-настоящему заслуженное. Нажми на значок, чтобы узнать, за что он."}
     ]},
-    {v: 30, items: [
+    {v: 130, items: [
       {e: "⭐", t: "Уровни и опыт", d: "Каждое повторение, тренировка и медаль дают опыт. Копи его, повышай уровень и получай звания — от «Новичка» до «Мифа». Твой уровень — на кнопке профиля, а друзья видят его в своих карточках.", go: "level-open", btn: "Мой уровень"}
     ]},
-    {v: 29, items: [
+    {v: 129, items: [
       {e: "⏱️", t: "Своё время отдыха", d: "Нажми на цифры таймера — внизу экрана или в режиме тренировки — и выбери, сколько отдыхать: готовый вариант или своё время в минутах и секундах. Кнопки «−1» и «+1» остались на месте."}
     ]},
-    {v: 28, items: [
+    {v: 128, items: [
       {e: "☁️", t: "Отметки не теряются между устройствами", d: "Если отметки с этого устройства не дошли до облака — нет связи или устарел вход, — сверху появится предупреждение с кнопкой. Несколько открытых вкладок больше не мешают друг другу, а в профиле видно, когда каждое устройство последний раз синхронизировалось."}
     ]},
-    {v: 27, items: [
+    {v: 127, items: [
       {e: "📰", t: "Лента друзей", d: "Тренировки, рекорды и медали — твои и друзей — в одной ленте. Под чужими событиями можно поставить 🔥, 💪 или 👏, а кто поддержал тебя — видно под твоими.", go: "feed-open", btn: "Открыть ленту"}
     ]},
-    {v: 26, items: [
+    {v: 126, items: [
       {e: "🗣️", t: "Голосовой тренер", d: "В режиме тренировки нажми «Голосовой тренер»: он называет подход, отсчитывает «три, два, один» в конце отдыха и говорит «Поехали!». Можно не смотреть на экран."},
       {e: "🏆", t: "Рекорд в моменте", d: "Сделал больше, чем когда-либо за подход, — салют и поздравление прямо во время тренировки."},
       {e: "📊", t: "Итоги недели", d: "В начале недели — сводка прошлой: график по дням, лучший день, рекорды и картинка, чтобы поделиться.", go: "wk-open", btn: "Моя неделя"}
     ]},
-    {v: 25, items: [
+    {v: 125, items: [
       {e: "🏅", t: "Медали", d: "Награды за повторения, серии дней и маленькие подвиги вроде тренировки в 6 утра.", go: "medals-open", btn: "Мои медали"},
       {e: "🖼️", t: "Картинка результата", d: "После тренировки — красивая картинка с итогом, чтобы отправить в мессенджер."},
       {e: "⚔️", t: "Соревнование недели", d: "В карточке друга видно, кто больше сделал с понедельника. У лидера — корона."}
     ]},
-    {v: 24, items: [
+    {v: 124, items: [
       {e: "🎯", t: "Новый режим тренировки", d: "Большая кнопка, кольцо отдыха, «Пропустить отдых» и подсчёт камерой для отжиманий и приседаний."}
     ]}
   ];
-  function wnSeen(){ try { return +localStorage.getItem(WN_KEY) || 0; } catch(e){ return 0; } }
-  function wnMark(){ try { localStorage.setItem(WN_KEY, String(APP_BUILD_N)); } catch(e){} }
+  function wnSeen(){
+    var v = 0;
+    try { v = +localStorage.getItem(WN_KEY) || 0; } catch(e){}
+    return v > 0 && v < 100 ? 100 + v : v;   // до 2.0 запоминали только сотые: 35 значит 1.35
+  }
+  function wnMark(){ try { localStorage.setItem(WN_KEY, String(APP_BUILD)); } catch(e){} }
   // после обновления: один раз показываем, что появилось; новичку — ничего, он и так всё увидит впервые
   function wnCheck(){
     var seen = wnSeen();
-    if(seen >= APP_BUILD_N) return false;
+    if(seen >= APP_BUILD) return false;
     var hasData = Object.keys(state.logs || {}).length > 0 || Object.keys(state.fin || {}).length > 0;
     if(!hasData || onbNeeded()){ wnMark(); return false; }
     if(ONB || IMP || focusKey || SC || WK) return false;
     // показываем то, что вышло после последнего просмотра, но не больше трёх обновлений с новостями
-    if(!NEWS.some(function(g){ return g.v > seen && g.v <= APP_BUILD_N; })){ wnMark(); return false; }
+    if(!NEWS.some(function(g){ return g.v > seen && g.v <= APP_BUILD; })){ wnMark(); return false; }
     WN = {from: seen, limit: 3};
     renderWn();
     return true;
@@ -7115,10 +7184,10 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
       '<p class="wn-sub">' + (WN.manual ? "Последние обновления, самые свежие сверху." : "Пока тебя не было, приложение подросло. Вот главное.") + '</p></div><div class="wn-body">';
     var shown = 0;
     NEWS.forEach(function(g){
-      if(g.v <= WN.from || g.v > APP_BUILD_N) return;
+      if(g.v <= WN.from || g.v > APP_BUILD) return;
       if(WN.limit && shown >= WN.limit) return;
       shown++;
-      h += '<p class="wn-ver">' + (g.v === APP_BUILD_N ? "Сейчас" : "Версия " + (APP_MAJOR + g.v / 100).toFixed(2)) + '</p>';
+      h += '<p class="wn-ver">' + (g.v === APP_BUILD ? "Сейчас" : "Версия " + (g.v / 100).toFixed(2)) + '</p>';
       g.items.forEach(function(it){
         h += '<div class="wn-item"><span class="wn-e" aria-hidden="true">' + it.e + '</span><div><b>' + esc(it.t) + '</b><p>' + esc(it.d) + '</p>' +
           (it.go ? '<button type="button" class="linkbtn alt wn-go" data-act="wn-go" data-go="' + it.go + '">' + esc(it.btn) + ' →</button>' : '') + '</div></div>';
@@ -7908,13 +7977,7 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
     var keep = fresh ? 0 : ((box.querySelector(".fp-card") || {}).scrollTop || 0);
     box.hidden = false; document.body.classList.add("modal-open");
     var st = p.stats || {}, name = p.nick || "Друг", lv = st.lv && st.lv.n ? +st.lv.n : 0;
-    var h = '<div class="warm-card fp-card" role="document"><div class="wk-hero fp-hero">' +
-      '<div class="wk-top"><span>' + (FR.mutual[p.user_id] ? "Взаимные друзья" : "Ты его добавил, он тебя — пока нет") + '</span>' +
-      '<button type="button" class="tb-icon" data-act="fr-close" aria-label="Закрыть">✕</button></div>' +
-      '<div class="fp-head"><div class="fp-face">' + frAvaBig(p) + (lv ? '<span class="acc-pill fp-lv"><b>' + lv + '</b></span>' : '') + '</div>' +
-      '<div class="fp-who"><p class="fp-name">' + esc(name) + '</p>' + awRow(p.user_id, 6, "fp") +
-      (lv ? '<p class="fp-rank">' + esc(rankOf(lv)[1]) + ' ' + rankOf(lv)[2] + ' · ' + numSp(+st.lv.xp || 0) + ' опыта</p>' : '') +
-      '<p class="fp-seen">Последняя отметка: ' + frWhen(st.ts) + '</p></div></div></div><div class="fp-body">';
+    var h = '<div class="warm-card fp-card" role="document"><div class="fp-pcwrap">' + friendProfileCard(p) + '</div><div class="fp-body">';
     // всего
     var tiles = [
       {v: st.pull || 0, u: ["подтягивание","подтягивания","подтягиваний"]},
@@ -7960,6 +8023,98 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
     box.innerHTML = h;
     var card = box.querySelector(".fp-card");
     if(card && keep) card.scrollTop = keep;
+  }
+
+  // ---------- карточка профиля (по мотивам profile-card с 21st.dev): тёмная карточка, статус с пульсом, часы, свечение снизу ----------
+  var LU = function(p){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + p + '</svg>'; };
+  var IC_CLOCK = LU('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>');
+  var IC_PLUS = LU('<path d="M5 12h14"/><path d="M12 5v14"/>');
+  var IC_COPY = LU('<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>');
+  var IC_ZAP = LU('<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>');
+  var IC_FLAME = LU('<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>');
+  var IC_AWARD = LU('<circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>');
+  var IC_LOGIN = LU('<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/>');
+  var IC_CHECK = LU('<path d="M20 6 9 17l-5-5"/>');
+  var PC_SHOWN = false;
+  function pcClock(){ var d = new Date(); return pad(d.getHours()) + ":" + pad(d.getMinutes()); }
+  setInterval(function(){
+    var t = pcClock();
+    [].forEach.call(document.querySelectorAll(".pc-clock b"), function(b){ if(b.textContent !== t) b.textContent = t; });
+  }, 15000);
+  function pcCard(o){
+    return '<div class="pc' + (o.anim && !REDUCED ? " in" : "") + (o.cls ? " " + o.cls : "") + (o.glow ? "" : " noglow") + '">' +
+      (o.glow ? '<div class="pc-glow" aria-hidden="true"></div><p class="pc-glowtxt">' + IC_ZAP + '<span>' + esc(o.glow) + '</span></p>' : '') +
+      '<div class="pc-card"><div class="pc-top"><span class="pc-st"><i class="pc-dot ' + o.dot + '" aria-hidden="true"></i><span>' + esc(o.status) + '</span></span>' + (o.right || "") + '</div>' +
+      '<div class="pc-who"><span class="pc-ava">' + o.ava + '</span><div class="pc-names"><h2 class="pc-name">' + esc(o.name) + '</h2>' +
+      (o.role ? '<p class="pc-role">' + o.role + '</p>' : '') + (o.aw || '') + (o.sub ? '<p class="pc-sub">' + esc(o.sub) + '</p>' : '') + '</div></div>' +
+      (o.btns && o.btns.length ? '<div class="pc-btns">' + o.btns.map(function(b){
+        return '<button type="button" class="pc-btn" data-act="' + b.act + '"' + (b.attrs || '') + '>' + (b.ic || '') + '<span>' + esc(b.label) + '</span></button>';
+      }).join("") + '</div>' : '') + '</div></div>';
+  }
+  function pcClockHtml(){ return '<span class="pc-clock" title="Время на этом устройстве">' + IC_CLOCK + '<b>' + pcClock() + '</b></span>'; }
+  function pcAva(photo, letter){
+    return photo ? '<span class="ava photo" style="background-image:url(' + esc(photo) + ')"></span>' : '<span class="ava">' + esc(letter || "?") + '</span>';
+  }
+  // своя карточка в профиле
+  function myProfileCard(){
+    var on = loggedIn(), am = activityMap(), streak = streakDays(am), today = !!am[dayKeyOf(new Date())];
+    var b = xpCalc(), L = lvInfo(b.xp), wr = weekReps();
+    var anim = TAB === "profile" && !PC_SHOWN;
+    if(TAB === "profile") PC_SHOWN = true;
+    var dot = today ? "ok" : streak ? "rest" : "idle";
+    var status = today ? "Сегодня в деле" : streak ? "Серия ждёт сегодняшней тренировки" : on ? "Сегодня пока без тренировки" : "Без аккаунта";
+    var glow = streak >= 2 ? "Серия: " + streak + " " + plural(streak, ["день подряд","дня подряд","дней подряд"])
+      : wr > 0 ? "На этой неделе: " + numSp(wr) + " " + plural(wr, ["повторение","повторения","повторений"])
+      : "До " + (L.n + 1) + " уровня — " + numSp(L.to - L.xp) + " опыта";
+    if(!on) return pcCard({anim: anim, dot: "idle", status: "Без аккаунта", right: pcClockHtml(), ava: '<span class="ava guest">?</span>',
+      name: "Гость", role: esc(L.rank[1]) + " " + L.rank[2] + " · уровень " + L.n, sub: "Отметки хранятся только в этом браузере",
+      btns: [{act: "pc-mail", label: "Создать аккаунт", ic: IC_PLUS}, {act: "pc-mail", label: "Войти", ic: IC_LOGIN}],
+      glow: "Войди, чтобы прогресс не потерялся"});
+    var sync = SB.last ? "синхронизировано в " + new Date(SB.last).toLocaleTimeString("ru-RU", {hour: "2-digit", minute: "2-digit"}) : "ждём первой синхронизации";
+    return pcCard({anim: anim, dot: dot, status: status, right: pcClockHtml(), ava: pcAva(profPhoto(), avatarLetter()),
+      name: profName() || SB.mail || "Аккаунт", role: esc(L.rank[1]) + " " + L.rank[2] + " · уровень " + L.n,
+      aw: awRow(sbUser(), 6, "pc"), sub: (profName() && SB.mail ? SB.mail + " · " : "") + sync,
+      btns: [{act: "pc-addfriend", label: "Добавить друга", ic: IC_PLUS}, {act: "pc-copy", label: "Мой код · " + myCode(), ic: IC_COPY}],
+      glow: glow});
+  }
+  // карточка друга — шапка его профиля
+  function friendProfileCard(p){
+    var st = p.stats || {}, name = p.nick || "Друг", lv = st.lv && st.lv.n ? +st.lv.n : 0;
+    var dn = st.ts ? dayNum(st.ts) : -1e9, td = dayNum(Date.now());
+    var dot = dn === td ? "ok" : dn === td - 1 ? "rest" : "idle";
+    var status = dn === td ? "Сегодня в деле" : dn === td - 1 ? "Вчера была тренировка" : "Последняя отметка — " + frWhen(st.ts);
+    var wk = st.wk && st.wk.id === weekId() ? +st.wk.reps || 0 : 0;
+    var last = latestEvent(p), cheered = last && myReactTo(p.user_id, last.ts) === "🔥";
+    var btns = [{act: "fp-cheer", label: cheered ? "Поддержано" : "Поддержать", ic: cheered ? IC_CHECK : IC_FLAME, attrs: ' data-id="' + esc(p.user_id) + '"'}];
+    btns.push(AW.admin ? {act: "aw-give", label: "Выдать значок", ic: IC_AWARD, attrs: ' data-id="' + esc(p.user_id) + '" data-name="' + esc(name) + '"'}
+      : {act: "fp-code", label: "Код · " + (p.code || ""), ic: IC_COPY, attrs: ' data-code="' + esc(p.code || "") + '"'});
+    return pcCard({anim: false, cls: "fp-pc", dot: dot, status: status,
+      right: '<button type="button" class="pc-x" data-act="fr-close" aria-label="Закрыть">✕</button>',
+      ava: pcAva(p.photo, name.charAt(0).toUpperCase()), name: name,
+      role: lv ? esc(rankOf(lv)[1]) + " " + rankOf(lv)[2] + " · уровень " + lv : "",
+      aw: awRow(p.user_id, 6, "pc"), sub: FR.mutual[p.user_id] ? "Взаимные друзья" : "Пока не добавил тебя в ответ",
+      btns: btns,
+      glow: wk ? "На этой неделе: " + numSp(wk) + " " + plural(wk, ["повторение","повторения","повторений"]) : lv ? numSp(+st.lv.xp || 0) + " опыта" : ""});
+  }
+  function latestEvent(p){
+    var l = friendEvents(p).slice().sort(function(a, b){ return b.ts - a.ts; });
+    return l[0] || null;
+  }
+  function pcCopied(btn, text){
+    if(!btn) return;
+    var sp = btn.querySelector("span"), ic = btn.querySelector("svg");
+    if(!sp) return;
+    var was = sp.textContent, wasIc = ic ? ic.outerHTML : "";
+    sp.textContent = text;
+    if(ic) ic.outerHTML = IC_CHECK;
+    setTimeout(function(){ if(!btn.isConnected) return; sp.textContent = was; var ic2 = btn.querySelector("svg"); if(ic2 && wasIc) ic2.outerHTML = wasIc; }, 1500);
+  }
+  function copyCode(code, btn){
+    var ok = function(){ pcCopied(btn, "Скопировано"); };
+    try {
+      if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(code).then(ok, function(){ flash("Код: " + code); });
+      else flash("Код: " + code);
+    } catch(e){ flash("Код: " + code); }
   }
 
   // ---------- график тестов ----------
@@ -8459,8 +8614,7 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
     var h = "";
     if(loggedIn()){
       sbUser();
-      h += '<div class="pf-head">' + avatarHtml("big") + '<div><h2>' + esc(profName() || SB.mail || "Аккаунт") + '</h2>' + awRow(sbUser(), 6, "pf") +
-        '<p class="hint">' + (profName() ? esc(SB.mail || "") + ", " : "") + (SB.last ? "синхронизировано в " + new Date(SB.last).toLocaleTimeString("ru-RU", {hour: "2-digit", minute: "2-digit"}) : "ждём первой синхронизации") + '</p></div></div>';
+      h += myProfileCard();
       if(NET.kind === "auth") h += '<div class="relogin"><p><b>Вход устарел.</b> Введи пароль ещё раз — отметки с этого устройства сложатся с теми, что в аккаунте.</p><div class="test">' +
         '<input type="email" id="pfMail" value="' + esc(SB.mail || "") + '" hidden autocomplete="username">' +
         '<label class="field" for="pfPass">Пароль' + (SB.mail ? ' для ' + esc(SB.mail) : '') + '<input type="password" id="pfPass" autocomplete="current-password"></label>' +
@@ -8490,8 +8644,7 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
       if(!FR.loaded && !FR.loading) sbFriends();
       return;
     } else {
-      h += '<div class="pf-head"><span class="ava big guest" aria-hidden="true">?</span><div><h2>Гость</h2>' +
-        '<p class="hint">Отметки сохраняются только в этом браузере.</p></div></div>';
+      h += myProfileCard();
       h += '<p class="hint">Заведи аккаунт, чтобы прогресс не потерялся и совпадал на телефоне и компьютере. Почта нужна только для входа, писем не будет.</p>';
       h += '<div class="test">' +
         '<label class="field" for="pfMail">Почта<input type="email" id="pfMail" placeholder="you@mail.com" autocomplete="username"></label>' +
@@ -9312,6 +9465,16 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
     if(act === "lvl-close"){ lvlUpHide(); return; }
     if(act === "aw-info"){ awInfo(b.getAttribute("data-id")); return; }
     if(act === "fr-open"){ frOpen(b.getAttribute("data-id")); return; }
+    if(act === "pc-copy"){ copyCode(myCode(), b); return; }
+    if(act === "fp-code"){ copyCode(b.getAttribute("data-code") || "", b); return; }
+    if(act === "pc-addfriend"){ var fc0 = document.getElementById("frCode"); if(fc0){ scrollTo(fc0.closest(".panel") || fc0); setTimeout(function(){ try { fc0.focus({preventScroll: true}); } catch(e){} }, 300); } return; }
+    if(act === "pc-mail"){ var pm0 = document.getElementById("pfMail"); if(pm0){ scrollTo(pm0.closest(".test") || pm0); setTimeout(function(){ try { pm0.focus({preventScroll: true}); } catch(e){} }, 300); } return; }
+    if(act === "fp-cheer"){
+      var fpp = frById(b.getAttribute("data-id")), lev = fpp ? latestEvent(fpp) : null;
+      if(!lev){ flash("Пока нечего поддержать — у друга нет отметок"); return; }
+      reactSet(fpp.user_id, lev.ts, "🔥");
+      return;
+    }
     if(act === "fr-close"){ frClose(); return; }
     if(act === "fp-medal"){ var fm = null; MEDALS.forEach(function(m){ if(m.id === b.getAttribute("data-id")) fm = m; }); if(fm) flash(fm.e + " " + fm.n + ": " + fm.d.charAt(0).toLowerCase() + fm.d.slice(1)); return; }
     if(act === "aw-take"){ awTake(); return; }
