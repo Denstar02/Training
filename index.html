@@ -19,21 +19,21 @@
 :root{
   --bg:#E8ECF0; --surface:#FFFFFF; --ink:#15202B; --muted:#586676; --line:#C5CEd8;
   --accent:#2A52D6; --accent-ink:#FFFFFF; --accent-soft:#DCE4FB;
-  --done:#0E7A5E; --done-ink:#FFFFFF; --part:#B26A0B; --steel:#8A96A3;
+  --done:#15803D; --done-ink:#FFFFFF; --part:#B26A0B; --steel:#8A96A3;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#10151B; --surface:#19212A; --ink:#E4EAF0; --muted:#92A0AF; --line:#2E3946;
-    --accent:#7F9CFF; --accent-ink:#0A0F1F; --accent-soft:#232F4D;
-    --done:#3CC199; --done-ink:#06231A; --part:#EBA640; --steel:#56626F;
+    --bg:#0D1828; --surface:#14233A; --ink:#E6EEF7; --muted:#97A9BE; --line:#283B54;
+    --accent:#7F9CFF; --accent-ink:#0A0F1F; --accent-soft:#1F3158;
+    --done:#4ADE80; --done-ink:#06231A; --part:#EBA640; --steel:#57687D;
     color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#10151B; --surface:#19212A; --ink:#E4EAF0; --muted:#92A0AF; --line:#2E3946;
-  --accent:#7F9CFF; --accent-ink:#0A0F1F; --accent-soft:#232F4D;
-  --done:#3CC199; --done-ink:#06231A; --part:#EBA640; --steel:#56626F;
+  --bg:#0D1828; --surface:#14233A; --ink:#E6EEF7; --muted:#97A9BE; --line:#283B54;
+  --accent:#7F9CFF; --accent-ink:#0A0F1F; --accent-soft:#1F3158;
+  --done:#4ADE80; --done-ink:#06231A; --part:#EBA640; --steel:#57687D;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -279,14 +279,14 @@ body.has-timer .wrap{padding-bottom:130px}
   --accent-ghost:rgba(42,82,214,.08);
 }
 :root[data-theme="dark"]{
-  --line-strong:#3E4C5C;
+  --line-strong:#3A5070;
   --shadow-1:0 1px 0 rgba(255,255,255,.03);
   --shadow-2:0 14px 34px rgba(0,0,0,.5);
   --accent-ghost:rgba(127,156,255,.12);
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --line-strong:#3E4C5C;
+    --line-strong:#3A5070;
     --shadow-1:0 1px 0 rgba(255,255,255,.03);
     --shadow-2:0 14px 34px rgba(0,0,0,.5);
     --accent-ghost:rgba(127,156,255,.12);
@@ -338,7 +338,7 @@ h1{letter-spacing:-.02em;line-height:1.05}
 /* кружки отметок */
 .chip{border-color:var(--line-strong);font-size:17px;transition:transform .12s ease, background .15s, border-color .15s, color .15s}
 .chip:active{transform:scale(.93)}
-.chip.done{box-shadow:0 3px 10px rgba(14,122,94,.25)}
+.chip.done{box-shadow:0 3px 10px rgba(21,128,61,.25)}
 .chip.sel{box-shadow:0 0 0 3px var(--accent-soft)}
 .cell{border-color:var(--line-strong)}
 .num{border-color:var(--line-strong)}
@@ -632,9 +632,9 @@ body.has-hold .wrap{padding-bottom:140px}
 
 
 /* аватар с кольцом и отметкой */
-:root{--ring-ok:#0D9488}
-:root[data-theme="dark"]{--ring-ok:#2DD4BF}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ring-ok:#2DD4BF}}
+:root{--ring-ok:#0284C7}
+:root[data-theme="dark"]{--ring-ok:#38BDF8}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ring-ok:#38BDF8}}
 
 /* стекло поверх фона */
 @supports (backdrop-filter: blur(10px)) and (background: color-mix(in srgb, white 50%, transparent)){
@@ -951,7 +951,7 @@ body{
 /* ===== v1.21: океан и кольцо — два элемента с 21st.dev, развёрнутые по приложению ===== */
 :root{
   --ocean-deep:#123A6B; --ocean-mid:#2E7CC0; --ocean-foam:#7FC6E6; --ocean-spray:#EAF7FB;
-  --tide:#5EEAD4; --tide-strong:#14B8A6;
+  --tide:#7DD3FC; --tide-strong:#0284C7;
   --ocean-hero:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.215'/></svg>"),
     radial-gradient(120% 150% at 100% 0%, rgba(127,198,230,.55) 0%, rgba(127,198,230,0) 52%),
     radial-gradient(80% 140% at 0% 0%, rgba(46,124,192,.6) 0%, rgba(46,124,192,0) 60%),
@@ -1152,7 +1152,7 @@ article[id^="card-"].today{box-shadow:0 16px 36px -18px rgba(18,58,107,.55), 0 0
 .duel-note{margin-top:6px;font-size:var(--fs-xs);color:var(--muted)}
 
 /* ===== v1.26: голосовой тренер, рекорды, итоги недели ===== */
-.fc-voice.on{background:rgba(94,234,212,.2);border-color:rgba(94,234,212,.65)}
+.fc-voice.on{background:rgba(125,211,252,.2);border-color:rgba(125,211,252,.65)}
 .fc-pr{margin:0;font-size:var(--fs-sm);font-weight:700;color:#FCD34D;text-align:center}
 .wk-dlg{z-index:62}
 .wk-card{padding:0;max-width:440px}
@@ -1452,185 +1452,216 @@ button.fd-ava{appearance:none;-webkit-appearance:none;padding:0;margin:0;border:
 .fp-feed .fd-ava .ava{display:none}
 .fp-feed .fd-ic{position:static;width:40px;height:40px;font-size:19px;box-shadow:none;background:color-mix(in srgb, var(--tide-strong) 10%, var(--surface))}
 
-/* ===== v2.01: карточка профиля по мотивам profile-card (21st.dev) ===== */
+/* ===== v2.01–2.03: карточка профиля, шапки окон, таблица недели, карточки друзей, интервалы — в голубой теме ===== */
+:root{--card-solid:var(--surface);--q-ok:#16A34A;--q-rest:#D97706;--q-idle:#94A3B8;--glow-a:#B4E1F6;--glow-b:#7FC6E6;--glow-ink:#0E2F58;--glow-shadow:rgba(46,124,192,.5);--hero-line:rgba(255,255,255,0);--hero-shadow:0 22px 44px -22px rgba(14,47,88,.65);--on-ocean:rgba(234,247,251,.86);--on-ocean-2:rgba(234,247,251,.72);--on-ocean-3:rgba(234,247,251,.58)}
+:root[data-theme="dark"]{--card-solid:#1A2C45;--q-ok:#4ADE80;--q-rest:#FBBF24;--q-idle:#64748B;--tide-strong:#38BDF8;--ring-ok:#38BDF8;--glow-shadow:rgba(127,198,230,.32);--hero-line:rgba(127,198,230,.22);--hero-shadow:0 22px 44px -22px rgba(0,0,0,.6)}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--card-solid:#1A2C45;--q-ok:#4ADE80;--q-rest:#FBBF24;--q-idle:#64748B;--tide-strong:#38BDF8;--ring-ok:#38BDF8;--glow-shadow:rgba(127,198,230,.32);--hero-line:rgba(127,198,230,.22);--hero-shadow:0 22px 44px -22px rgba(0,0,0,.6)}
+}
+/* герой: океанская карточка, под ней — голубая полоса со свечением */
 .pc{position:relative;margin:4px 0 calc(40px + var(--s5))}
 .pc.noglow{margin-bottom:var(--s5)}
 .pc.in{animation:pcIn .4s ease-out both}
 @keyframes pcIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.pc-glow{position:absolute;left:0;right:0;top:72%;bottom:-40px;z-index:0;border-radius:28px;pointer-events:none;background:rgba(94,234,212,.9);box-shadow:0 40px 80px -16px rgba(94,234,212,.75)}
-.pc-glowtxt{position:absolute;left:0;right:0;bottom:-40px;z-index:0;height:40px;margin:0;padding:0 16px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:600;color:#06332e;text-align:center}
-.pc-glowtxt svg{width:16px;height:16px;flex:0 0 auto}
-.pc-glowtxt span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pc-card{position:relative;z-index:1;border-radius:28px;padding:24px;color:#fff;background:radial-gradient(120% 120% at 30% 10%, #1a1a1a 0%, #0f0f10 60%, #0b0b0c 100%);box-shadow:0 25px 50px -12px rgba(0,0,0,.35)}
-.pc-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:24px;font-size:14px;color:#d4d4d4}
+.pc-glow,.gw-glow{position:absolute;left:0;right:0;bottom:-40px;z-index:0;pointer-events:none;background:linear-gradient(180deg,var(--glow-a) 0%,var(--glow-b) 100%);box-shadow:0 26px 50px -20px var(--glow-shadow)}
+.pc-glow{top:72%;border-radius:28px}
+.gw-glow{top:55%;border-radius:24px}
+.pc-glowtxt,.gw-txt{position:absolute;left:0;right:0;bottom:-40px;z-index:0;height:40px;margin:0;padding:0 16px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:600;color:var(--glow-ink);text-align:center}
+.pc-glowtxt svg,.gw-txt svg{width:16px;height:16px;flex:0 0 auto}
+.pc-glowtxt span,.gw-txt span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc-card,.wk-hero.dk{color:#fff;background-color:var(--ocean-deep);background-image:var(--ocean-hero);background-size:120px 120px, auto, auto, auto;background-blend-mode:overlay, normal, normal, normal;box-shadow:inset 0 0 0 1px var(--hero-line), var(--hero-shadow)}
+.pc-card{position:relative;z-index:1;border-radius:28px;padding:24px}
+.pc-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:24px;font-size:14px;color:var(--on-ocean)}
 .pc-st{display:flex;align-items:center;gap:8px;min-width:0}
 .pc-st > span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;user-select:none}
 .pc-dot{flex:0 0 auto;width:10px;height:10px;border-radius:50%;animation:pcPulse 2s cubic-bezier(.4,0,.6,1) infinite}
-.pc-dot.ok{background:#84cc16}
-.pc-dot.rest{background:#f59e0b}
-.pc-dot.idle{background:#737373;animation:none}
+.pc-dot.ok{background:var(--q-ok)}
+.pc-dot.rest{background:var(--q-rest)}
+.pc-dot.idle{background:var(--q-idle);animation:none}
+.pc-card .pc-dot.ok{background:#4ADE80}
+.pc-card .pc-dot.rest{background:#FBBF24}
+.pc-card .pc-dot.idle{background:var(--on-ocean-3)}
+.pc-dot.live,.pc-card .pc-dot.live{background:#22C55E;animation:pcLive 1.4s ease-out infinite}
 @keyframes pcPulse{50%{opacity:.5}}
-.pc-clock{display:flex;align-items:center;gap:8px;opacity:.8;flex:0 0 auto}
+@keyframes pcLive{0%{box-shadow:0 0 0 0 rgba(34,197,94,.6)}70%{box-shadow:0 0 0 8px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+.pc-clock{display:flex;align-items:center;gap:8px;flex:0 0 auto;color:var(--on-ocean)}
 .pc-clock svg{width:16px;height:16px}
 .pc-clock b{font-weight:500;font-variant-numeric:tabular-nums}
-.pc-x{flex:0 0 auto;width:36px;height:36px;border:0;border-radius:50%;background:rgba(255,255,255,.1);color:#fff;font-size:16px;cursor:pointer}
-.pc-x:hover{background:rgba(255,255,255,.16)}
+.pc-x{flex:0 0 auto;width:36px;height:36px;border:0;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;font-size:16px;cursor:pointer}
+.pc-x:hover{background:rgba(255,255,255,.22)}
 .pc-who{display:flex;flex-wrap:wrap;align-items:center;gap:20px}
-.pc-ava{position:relative;flex:0 0 auto;width:56px;height:56px;border-radius:50%;overflow:hidden;box-shadow:0 0 0 2px rgba(255,255,255,.1)}
+.pc-ava{position:relative;flex:0 0 auto;width:56px;height:56px;border-radius:50%;overflow:hidden;box-shadow:0 0 0 2px rgba(255,255,255,.3)}
 .pc-ava .ava{width:56px;height:56px;font-size:22px;box-shadow:none;background-size:cover;background-position:center}
-.pc-ava .ava.guest{background:#262626;color:#a3a3a3;border:0;font-size:24px;display:grid;place-items:center}
+.pc-ava .ava.guest{background:rgba(255,255,255,.16);color:#EAF7FB;border:0;font-size:24px;display:grid;place-items:center}
 .pc-names{min-width:0;flex:1 1 180px}
 .pc-name{margin:0;font-size:20px;font-weight:600;line-height:1.25;letter-spacing:-.01em;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pc-role{margin:2px 0 0;font-size:14px;color:#a3a3a3}
-.pc-sub{margin:6px 0 0;font-size:12px;color:#737373;overflow:hidden;text-overflow:ellipsis}
+.pc-role{margin:2px 0 0;font-size:14px;color:var(--on-ocean-2)}
+.pc-sub{margin:6px 0 0;font-size:12px;color:var(--on-ocean-3);overflow:hidden;text-overflow:ellipsis}
 .aw-row.pc{display:flex;flex-wrap:wrap;margin:8px 0 0;gap:6px}
-.aw-row.pc .awb{width:26px;height:26px;font-size:14px;box-shadow:0 0 0 2px #121212}
-.aw-row.pc .aw-more{color:#a3a3a3}
+.aw-row.pc .awb{width:26px;height:26px;font-size:14px;box-shadow:0 0 0 2px rgba(255,255,255,.35)}
+.aw-row.pc .aw-more{color:var(--on-ocean-2)}
 .pc-btns{display:grid;grid-template-columns:1fr;gap:12px;margin-top:24px}
-.pc-btn{display:flex;align-items:center;justify-content:flex-start;gap:12px;height:48px;padding:0 16px;border:0;border-radius:16px;background:rgba(255,255,255,.1);color:#fff;font:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:background-color .15s;min-width:0}
+.pc-btn{display:flex;align-items:center;justify-content:flex-start;gap:12px;height:48px;padding:0 16px;border:0;border-radius:16px;background:rgba(255,255,255,.14);color:#fff;font:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:background-color .15s;min-width:0}
 .pc-btn span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pc-btn svg{flex:0 0 auto;width:16px;height:16px}
-.pc-btn:hover{background:rgba(255,255,255,.15)}
+.pc-btn:hover{background:rgba(255,255,255,.22)}
 .pc-btn:active{transform:translateY(1px)}
-.pc-btn:focus-visible,.pc-x:focus-visible{outline:2px solid var(--tide);outline-offset:2px}
+.pc-btn.hot{background:#fff;color:var(--ocean-deep);font-weight:600}
+.pc-btn.hot:hover{background:var(--ocean-spray)}
+.pc-btn:focus-visible,.pc-x:focus-visible{outline:2px solid #fff;outline-offset:2px}
 @media (min-width:640px){
   .pc-card{padding:32px}
   .pc-name{font-size:24px}
   .pc-btns{grid-template-columns:1fr 1fr;gap:16px}
 }
-/* шапка профиля друга в окне */
 .fp-pcwrap{padding:12px 12px 0}
 .fp-pc{margin-bottom:calc(40px + 14px)}
 .fp-pc .pc-card{padding:20px}
 .fp-pc .pc-top{margin-bottom:18px}
 .fp-pc .pc-btns{margin-top:18px}
-@media (prefers-reduced-motion: reduce){.pc.in{animation:none}.pc-dot{animation:none}}
-
 .panel .pc-name{display:block}
 .panel .pc-name::before{content:none;display:none}
-
 .pc .pc-name,.panel .pc-name{font-family:"Onest",system-ui,sans-serif;font-size:20px;font-weight:600;letter-spacing:-.01em;line-height:1.25}
 @media (min-width:640px){.pc .pc-name,.panel .pc-name{font-size:24px}}
-
-/* ===== v2.02: единый тёмный стиль, «сейчас тренируется», таблица недели, интервалы ===== */
-.pc-dot.live{background:#22c55e;animation:pcLive 1.4s ease-out infinite}
-@keyframes pcLive{0%{box-shadow:0 0 0 0 rgba(34,197,94,.65)}70%{box-shadow:0 0 0 8px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
-/* тёмная шапка со свечением в окнах */
+/* шапки окон: итоги недели, что нового, интервалы */
 .gwrap{position:relative;margin:12px 12px 54px}
-.gw-glow{position:absolute;left:0;right:0;top:55%;bottom:-40px;z-index:0;border-radius:24px;pointer-events:none;background:rgba(94,234,212,.9);box-shadow:0 30px 60px -16px rgba(94,234,212,.7)}
-.gw-txt{position:absolute;left:0;right:0;bottom:-40px;z-index:0;height:40px;margin:0;padding:0 14px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:600;color:#06332e;text-align:center}
-.gw-txt svg{width:16px;height:16px;flex:0 0 auto}
-.gw-txt span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wk-hero.dk{position:relative;z-index:1;border-radius:24px;background:radial-gradient(120% 120% at 30% 10%, #1a1a1a 0%, #0f0f10 60%, #0b0b0c 100%);box-shadow:0 25px 50px -12px rgba(0,0,0,.35)}
+.wk-hero.dk{position:relative;z-index:1;border-radius:24px}
 .wk-card,.wn-card,.iv-card{padding:0}
-.wk-hero.dk .tb-icon{background:rgba(255,255,255,.1);border-color:transparent}
-/* таблица недели */
-.board .pc-card{padding:20px}
-.board .pc-top{margin-bottom:12px}
-.bd-left{flex:0 0 auto;font-size:13px;color:#a3a3a3}
+/* таблица недели — светлая карточка с голубой полосой */
+.board .pc-card{padding:20px;color:var(--ink);background:var(--surface);background-image:none;box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--line) 80%, transparent), var(--shadow-1)}
+.board .pc-top{margin-bottom:12px;color:var(--muted)}
+.board .pc-card .pc-dot.ok{background:var(--accent);animation:none}
+.bd-left{flex:0 0 auto;font-size:13px;color:var(--muted)}
 .bd-list{list-style:none;margin:0;padding:0;display:grid;gap:4px}
-.bd-in{display:grid;grid-template-columns:26px 36px minmax(0,1fr) auto;align-items:center;gap:10px;width:100%;padding:8px 10px;border:0;border-radius:14px;background:transparent;color:#fff;font:inherit;text-align:left}
+.bd-in{display:grid;grid-template-columns:26px 36px minmax(0,1fr) auto;align-items:center;gap:10px;width:100%;padding:8px 10px;border:0;border-radius:14px;background:transparent;color:var(--ink);font:inherit;text-align:left}
 button.bd-in{cursor:pointer}
-button.bd-in:hover{background:rgba(255,255,255,.06)}
-button.bd-in:focus-visible{outline:2px solid var(--tide);outline-offset:1px}
-.bd-row.me .bd-in{background:rgba(255,255,255,.09)}
-.bd-pl{font-size:16px;font-weight:700;text-align:center;color:#a3a3a3}
+button.bd-in:hover{background:var(--accent-ghost)}
+button.bd-in:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.bd-row.me .bd-in{background:var(--accent-soft)}
+.bd-pl{font-size:16px;font-weight:700;text-align:center;color:var(--muted)}
 .bd-ava{position:relative;width:36px;height:36px}
 .bd-ava .ava{width:36px;height:36px;font-size:15px;background-size:cover;background-position:center}
-.bd-live{position:absolute;right:-2px;bottom:-2px;width:11px;height:11px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 2px #111;animation:pcLive 1.4s ease-out infinite}
+.bd-live{position:absolute;right:-2px;bottom:-2px;width:11px;height:11px;border-radius:50%;background:#22C55E;box-shadow:0 0 0 2px var(--surface);animation:pcLive 1.4s ease-out infinite}
 .bd-main{display:flex;flex-direction:column;gap:6px;min-width:0}
 .bd-nm{display:flex;align-items:center;gap:6px;min-width:0;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.bd-nm em{flex:0 0 auto;font-style:normal;font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:999px;background:rgba(255,255,255,.12);color:#d4d4d4}
-.bd-bar{height:6px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}
-.bd-bar i{display:block;height:100%;border-radius:3px;background:var(--tide)}
-.bd-row.me .bd-bar i{background:#fff}
+.bd-nm em{flex:0 0 auto;font-style:normal;font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.bd-row.me .bd-nm em{background:var(--surface)}
+.bd-bar{height:6px;border-radius:3px;background:color-mix(in srgb, var(--line) 60%, transparent);overflow:hidden}
+.bd-bar i{display:block;height:100%;border-radius:3px;background:var(--tide-strong)}
+.bd-row.me .bd-bar i{background:var(--accent)}
 .bd-n{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums}
-/* карточка друга */
-.frcard.fc2{display:block;position:relative;margin-top:12px;padding:18px;border:0;border-radius:24px;color:#fff;background:radial-gradient(120% 120% at 30% 10%, #1a1a1a 0%, #0f0f10 60%, #0b0b0c 100%);box-shadow:0 18px 40px -18px rgba(0,0,0,.45);backdrop-filter:none;-webkit-backdrop-filter:none}
-.fc2 .pc-top{margin-bottom:14px;font-size:13.5px}
-.fc2-lv{flex:0 0 auto;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.1);color:#e5e5e5}
+/* карточка друга — светлая, кнопки в акцентном цвете */
+.frcard.fc2{display:block;position:relative;margin-top:12px;padding:18px;border:0;border-radius:20px;color:var(--ink);background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--line) 80%, transparent), var(--shadow-1);backdrop-filter:none;-webkit-backdrop-filter:none}
+.fc2 .pc-top{margin-bottom:14px;font-size:13.5px;color:var(--muted)}
+.fc2-lv{flex:0 0 auto;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
 .fc2-who{display:flex;align-items:center;gap:14px}
-.fc2 .pc-ava{width:48px;height:48px;padding:0;border:0;cursor:pointer}
+.fc2 .pc-ava{width:48px;height:48px;padding:0;border:0;cursor:pointer;box-shadow:0 0 0 2px var(--accent-soft)}
 .fc2 .pc-ava .ava{width:48px;height:48px;font-size:19px}
+.fc2 .pc-ava:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .fc2-names{min-width:0;flex:1}
 .fc2 .frtop{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
-.fc2 .fr-nm{color:#fff;font-size:17px;font-weight:600;max-width:100%}
+.fc2 .fr-nm{color:var(--ink);font-size:17px;font-weight:600;max-width:100%}
 .fc2 .aw-row.pc{margin:0;gap:4px}
-.fc2 .aw-row.pc .awb{width:22px;height:22px;font-size:12px}
-.fc2-sub{margin:4px 0 0;font-size:13px;line-height:1.4;color:#a3a3a3}
-.fc2 .duel{margin:14px 0 0;background:rgba(255,255,255,.06);color:#fff}
-.fc2 .duel-cap,.fc2 .duel-top small,.fc2 .duel-note,.fc2 .duel-none{color:#a3a3a3}
-.fc2 .duel-me b{color:#93c5fd}
-.fc2 .duel-bar i{border-right-color:#111}
-.fc2 .hint{color:#a3a3a3}
-.fc2-note{margin:10px 0 0;font-size:13px;color:#d4d4d4}
+.fc2 .aw-row.pc .awb{width:22px;height:22px;font-size:12px;box-shadow:0 0 0 2px var(--surface)}
+.fc2 .aw-row.pc .aw-more{color:var(--muted)}
+.fc2-sub{margin:4px 0 0;font-size:13px;line-height:1.4;color:var(--muted)}
+.fc2 .duel{margin:14px 0 0}
+.fc2-note{margin:10px 0 0;font-size:13px;color:var(--ink)}
 .fc2-btns{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:14px}
-.fc2-btns .pc-btn{height:42px;padding:0 12px;gap:8px;border-radius:14px;font-size:13.5px}
-.fc2-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;font-size:12px;color:#737373}
-.fc2-foot span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.fc2-drop{flex:0 0 auto;padding:4px 0;border:0;background:none;color:#a3a3a3;font:inherit;font-size:12px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.fc2 .pc-btn{height:42px;padding:0 12px;gap:8px;border-radius:14px;font-size:13.5px;font-weight:600;background:var(--accent-ghost);color:var(--accent)}
+.fc2 .pc-btn:hover{background:color-mix(in srgb, var(--accent) 15%, transparent)}
+.fc2 .pc-btn.hot{background:var(--accent);color:var(--accent-ink)}
+.fc2 .pc-btn.hot:hover{background:color-mix(in srgb, var(--accent) 88%, #000)}
+.fc2 .pc-btn:focus-visible{outline-color:var(--accent)}
+.fc2-foot{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:12px;font-size:12px;color:var(--muted)}
+.fc2-foot > span:first-child{min-width:0;line-height:1.4}
+.fc2-links{display:flex;align-items:center;gap:16px;flex:0 0 auto}
+.fc2-drop{flex:0 0 auto;padding:4px 0;border:0;background:none;color:var(--muted);font:inherit;font-size:12px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.fc2-aw{display:inline-flex;align-items:center;gap:5px;color:var(--accent);text-decoration:none;font-weight:600}
+.fc2-aw svg{width:14px;height:14px}
+.vh{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 /* интервалы: настройка */
 .iv-dlg{z-index:67}
 .iv-card{max-width:440px}
-.iv-seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:14px;padding:4px;border-radius:14px;background:rgba(255,255,255,.08)}
-.iv-seg button{height:40px;border:0;border-radius:10px;background:transparent;color:#d4d4d4;font:inherit;font-weight:600;cursor:pointer}
-.iv-seg button.on{background:#fff;color:#0b0b0c}
-.iv-hint{margin:12px 0 2px;font-size:13.5px;line-height:1.45;color:#a3a3a3}
+.iv-seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:14px;padding:4px;border-radius:14px;background:rgba(9,28,54,.32)}
+.iv-seg button{height:40px;border:0;border-radius:10px;background:transparent;color:var(--on-ocean);font:inherit;font-weight:600;cursor:pointer}
+.iv-seg button.on{background:#fff;color:var(--ocean-deep)}
+.iv-seg button:focus-visible{outline:2px solid #fff;outline-offset:1px}
+.iv-hint{margin:12px 0 2px;font-size:13.5px;line-height:1.45;color:var(--on-ocean-2)}
 .iv-body{padding:0 18px 18px}
 .iv-f{display:grid;grid-template-columns:minmax(0,1fr) auto 50px;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
 .iv-f:first-child{border-top:0}
 .iv-f > span:first-child{font-weight:600}
 .iv-in{display:flex;align-items:center;gap:6px}
 .iv-in input{width:74px;height:46px;border-radius:12px;border:1px solid var(--line-strong);background:var(--bg);color:var(--ink);text-align:center;font:700 20px/1 "Unbounded","Onest",system-ui,sans-serif;-moz-appearance:textfield}
+.iv-in input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .iv-in input::-webkit-outer-spin-button,.iv-in input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
-.iv-step{width:40px;height:46px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:20px;line-height:1;cursor:pointer}
+.iv-step{width:40px;height:46px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--accent);font-size:20px;line-height:1;cursor:pointer}
+.iv-step:hover{background:var(--accent-ghost)}
 .iv-f small{font-size:12px;color:var(--muted)}
 .iv-voice{margin-top:10px}
 .iv-go{display:inline-flex;align-items:center;justify-content:center;gap:8px}
 .iv-go svg{width:18px;height:18px}
-/* интервалы: идёт отсчёт */
-.ivrun{position:fixed;inset:0;z-index:46;display:flex;flex-direction:column;gap:12px;overflow-y:auto;color:#fff;background:radial-gradient(120% 120% at 30% 10%, #1a1a1a 0%, #0f0f10 60%, #0b0b0c 100%);padding:calc(14px + env(safe-area-inset-top,0px)) 16px calc(18px + env(safe-area-inset-bottom,0px))}
+/* интервалы: идёт отсчёт — как режим тренировки */
+.ivrun{position:fixed;inset:0;z-index:46;display:flex;flex-direction:column;gap:12px;overflow-y:auto;color:#fff;background-color:var(--ocean-deep);background-image:var(--ocean-full);background-size:120px 120px, auto, auto, auto, auto;background-blend-mode:overlay, normal, normal, normal, normal;padding:calc(14px + env(safe-area-inset-top,0px)) 16px calc(18px + env(safe-area-inset-bottom,0px))}
 .ivrun[hidden]{display:none}
-.iv-top{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:15px;font-weight:600;color:#d4d4d4}
+.iv-top{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:15px;font-weight:600;color:var(--on-ocean)}
 .iv-topbtns{display:flex;gap:8px}
 .ivrun .pc-x{display:grid;place-items:center}
 .ivrun .pc-x svg{width:18px;height:18px}
 .iv-mid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center}
 .iv-phase{margin:0;font:700 34px/1.1 "Unbounded","Onest",system-ui,sans-serif;letter-spacing:-.01em}
-.iv-phase.ph-work{color:#a3e635}
-.iv-phase.ph-rest{color:#fbbf24}
+.iv-phase.ph-work{color:#86EFAC}
+.iv-phase.ph-rest{color:#FCD34D}
 .iv-phase.ph-emom{color:var(--tide)}
-.iv-sub{margin:0;font-size:15px;color:#a3a3a3}
+.iv-sub{margin:0;font-size:15px;color:var(--on-ocean-2)}
 .iv-ring{position:relative;width:min(300px,76vw);height:min(300px,76vw);display:grid;place-items:center;margin:6px 0}
 .iv-ring .fc-ring{position:absolute;inset:0;width:100%;height:100%}
-.iv-ring .fr-track{stroke:rgba(255,255,255,.1);stroke-width:7}
+.iv-ring .fr-track{stroke:rgba(255,255,255,.16);stroke-width:7}
 .iv-ring .fr-bar{stroke-width:7;transition:none}
-.iv-ring.ph-work .fr-bar{stroke:#a3e635}
-.iv-ring.ph-rest .fr-bar{stroke:#fbbf24}
+.iv-ring.ph-work .fr-bar{stroke:#86EFAC}
+.iv-ring.ph-rest .fr-bar{stroke:#FCD34D}
 .iv-ring.ph-prep .fr-bar{stroke:#fff}
 .iv-ring.ph-emom .fr-bar,.iv-ring.done .fr-bar{stroke:var(--tide)}
-.iv-num{width:74%;height:74%;border-radius:50%;border:0;background:rgba(255,255,255,.06);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font:inherit;cursor:pointer}
+.iv-num{width:74%;height:74%;border-radius:50%;border:0;background:rgba(9,28,54,.28);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font:inherit;cursor:pointer}
 .iv-num b{font:700 76px/1 "Unbounded","Onest",system-ui,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
-.iv-num span{font-size:12.5px;color:#a3a3a3;max-width:16ch}
-.iv-num:focus-visible{outline:2px solid var(--tide);outline-offset:4px}
-.iv-next{margin:0;font-size:15px;color:#d4d4d4}
-.iv-left{margin:0;font-size:13px;color:#737373;font-variant-numeric:tabular-nums}
+.iv-num span{font-size:12.5px;color:var(--on-ocean-2);max-width:16ch}
+.iv-num:focus-visible{outline:2px solid #fff;outline-offset:4px}
+.iv-next{margin:0;font-size:15px;color:var(--on-ocean)}
+.iv-left{margin:0;font-size:13px;color:var(--on-ocean-3);font-variant-numeric:tabular-nums}
 .iv-bot,.iv-btns{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:min(460px,100%);margin:0 auto}
 .iv-btns{margin-top:12px}
-.iv-pz{width:16px;text-align:center;font-size:13px}
-@media (max-height:700px){.iv-ring{width:min(230px,66vw);height:min(230px,66vw)}.iv-num b{font-size:58px}.iv-phase{font-size:28px}}
-@media (prefers-reduced-motion: reduce){.pc-dot.live,.bd-live{animation:none}}
-
-.vh{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
-.fc2-btns.adm{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 42px}
-.fc2-btns .pc-btn.aw-give{padding:0;justify-content:center}
 .iv-bot .pc-btn svg,.iv-btns .pc-btn svg{width:18px;height:18px}
-
-.fc2-foot{align-items:flex-end}
-.fc2-foot > span:first-child{white-space:normal;overflow:visible;line-height:1.4}
-.fc2-links{display:flex;align-items:center;gap:16px;flex:0 0 auto}
-.fc2-aw{display:inline-flex;align-items:center;gap:5px;color:#e5e5e5;text-decoration:none}
-.fc2-aw svg{width:14px;height:14px}
+.fc-disc{background:#0284C7}
+@media (max-height:700px){.iv-ring{width:min(230px,66vw);height:min(230px,66vw)}.iv-num b{font-size:58px}.iv-phase{font-size:28px}}
+@media (prefers-reduced-motion: reduce){.pc.in{animation:none}.pc-dot,.pc-dot.live,.pc-card .pc-dot.live,.bd-live{animation:none}}
+/* светлые карточки в тёмной теме — в тон стеклянным панелям, а не чёрные */
+.board .pc-card,.frcard.fc2{background:var(--card-solid)}
+.bd-live{box-shadow:0 0 0 2px var(--card-solid)}
+.fc2 .aw-row.pc .awb{box-shadow:0 0 0 2px var(--card-solid)}
+/* профиль: поле ника, плитки итогов, плашка админа */
+.field input[type="text"],.field input[type="email"],.field input[type="search"]{min-height:var(--ctl-h);padding:0 12px;border-radius:var(--r-sm);border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);font:inherit;font-size:var(--fs-md)}
+.field input[type="text"]:focus-visible,.field input[type="email"]:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+.nums div{background:color-mix(in srgb, var(--tide-strong) 9%, var(--surface));border-radius:var(--r-sm)}
+#profileBox .nums + .camset-label,#profileBox .camset-label{margin-top:20px}
+.aw-admin .badge.ok{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.field input[type="password"]{min-height:var(--ctl-h);padding:0 12px;border-radius:var(--r-sm);border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);font:inherit;font-size:var(--fs-md)}
+.field input[type="password"]:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+.pf-edit{align-items:flex-end}
+/* добавить друга: код, почта или ник */
+.fr-addrow .field{flex:1 1 260px}
+.fr-found{margin:2px 0 14px;padding:12px;border-radius:var(--r-md);background:var(--accent-ghost)}
+.fr-found > .hint{margin:0 2px 10px}
+.ff-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.ff-row{display:grid;grid-template-columns:40px minmax(0,1fr) auto;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--r-sm);background:var(--card-solid);box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--line) 70%, transparent)}
+.ff-ava{width:40px;height:40px}
+.ff-ava .ava{width:40px;height:40px;font-size:16px;background-size:cover;background-position:center}
+.ff-main{display:flex;flex-direction:column;gap:2px;min-width:0}
+.ff-main b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ff-main small{font-size:12.5px;line-height:1.35;color:var(--muted)}
+.ff-add{min-height:38px;padding:0 14px}
+.ff-have{font-size:12.5px;color:var(--muted);white-space:nowrap}
+.ff-x{margin-top:6px}
 </style>
 </head>
 <body>
@@ -1768,6 +1799,19 @@ insert into public.badge_admins (user_id)
 -- проверка: кто есть в базе и кто из них админ
 select u.email, (a.user_id is not null) as admin
 from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></pre>
+        <p class="hint">Чтобы друзей можно было добавлять по почте, — запрос для поиска друзей по почте. Он находит только по точному адресу и не показывает чужие почты:</p>
+        <pre><code>create or replace function public.find_friend(q text)
+returns table (user_id uuid, code text, nick text, photo text, stats jsonb)
+language sql stable security definer set search_path = public as $$
+  select p.user_id, p.code, p.nick, p.photo, p.stats
+  from public.profiles p
+  join auth.users u on u.id = p.user_id
+  where auth.uid() is not null
+    and lower(u.email) = lower(trim(q))
+  limit 1;
+$$;
+revoke all on function public.find_friend(text) from public, anon;
+grant execute on function public.find_friend(text) to authenticated;</code></pre>
         <p class="hint">Ключ anon публичный по задумке: сами данные закрыты правилами выше, их видит только владелец строки.</p>
         </details>
       </div>
@@ -2249,7 +2293,7 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzd3FsYmpsa3Bncm55a2dnY3pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwNDIyNDUsImV4cCI6MjEwNjYxODI0NX0.KQMAqfGyNr1NeLMKu3iRuufLaZ5DEMRj2sc1ulkK5QY"
   ]};
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 2, APP_BUILD_N = 2;
+  var APP_MAJOR = 2, APP_BUILD_N = 4;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var APP_BUILD = APP_MAJOR * 100 + APP_BUILD_N;   // 1.35 → 135, 2.01 → 201
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
@@ -2991,7 +3035,7 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
   function confetti(el){
     if(REDUCED || !el || !el.animate) return;
     var r = el.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
-    var colors = ["#2A52D6", "#0E7A5E", "#E9A53C", "#7FC6E6", "#B23B2B"];
+    var colors = ["#2A52D6", "#16A34A", "#E9A53C", "#7FC6E6", "#38BDF8"];
     for(var i = 0; i < 26; i++){
       var p = document.createElement("i");
       p.className = "conf";
@@ -6173,26 +6217,78 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
       })
       .catch(function(e){ FR.loading = false; FR.loaded = Date.now(); FR.err = sbErr(e); renderProfile(); });
   }
-  function frAdd(){
-    var el = document.getElementById("frCode"), code = ((el && el.value) || "").trim().toUpperCase().replace(/[^0-9A-F]/g, "");
-    if(code.length !== 8){ FR.err = "Код состоит из восьми знаков, например 7F3A91C0."; renderProfile(); return; }
-    if(code === myCode()){ FR.err = "Это твой собственный код."; renderProfile(); return; }
-    FR.err = "";
-    sbReq("/rest/v1/profiles?select=user_id,nick&code=eq." + code)
+  // ---------- добавить друга: код, почта (логин) или ник ----------
+  FR.q = ""; FR.found = null; FR.busy = false;
+  function frKind(t){
+    if(/^[0-9a-f]{8}$/i.test(t)) return "code";
+    if(t.indexOf("@") > 0) return "mail";
+    return "nick";
+  }
+  // ник ищем точным совпадением без учёта регистра: экранируем знаки шаблона
+  function frLike(t){ return t.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_").replace(/\*/g, ""); }
+  function frAddId(p){
+    var name = p.nick || "Друг";
+    if(p.user_id === sbUser()){ FR.found = null; FR.err = "Это твой собственный аккаунт 🙂"; renderProfile(); return Promise.resolve(); }
+    if(frById(p.user_id)){ FR.found = null; FR.q = ""; FR.err = ""; renderProfile(); flash(name + " уже у тебя в друзьях"); return Promise.resolve(); }
+    return sbReq("/rest/v1/friends", {
+      method: "POST",
+      headers: {Prefer: "resolution=merge-duplicates,return=minimal"},
+      body: JSON.stringify([{user_id: sbUser(), friend_id: p.user_id}])
+    }).then(function(){
+      FR.q = ""; FR.found = null; FR.err = "";
+      flash("Добавлен: " + name);
+      return sbFriends();
+    });
+  }
+  function frByNick(t, fromCode){
+    return sbReq("/rest/v1/profiles?select=user_id,code,nick,photo,stats,updated_at&nick=ilike." + encodeURIComponent(frLike(t)) + "&order=updated_at.desc&limit=6")
       .then(function(rows){
-        if(!rows || !rows.length) throw new Error("Человек с таким кодом не найден. Попроси его зайти в профиль — код появляется после первого входа.");
-        var fid = rows[0].user_id;
-        return sbReq("/rest/v1/friends", {
-          method: "POST",
-          headers: {Prefer: "resolution=merge-duplicates,return=minimal"},
-          body: JSON.stringify([{user_id: sbUser(), friend_id: fid}])
-        }).then(function(){
-          if(el) el.value = "";
-          flash("Добавлен: " + (rows[0].nick || "друг"));
-          return sbFriends();
-        });
-      })
-      .catch(function(e){ FR.err = sbErr(e); renderProfile(); });
+        rows = (rows || []).filter(function(x){ return x.user_id !== sbUser(); });
+        if(!rows.length) throw new Error(fromCode
+          ? "Человек с таким кодом не найден. Попроси друга зайти в профиль — код появляется после первого входа."
+          : "Никого с ником «" + t + "» не нашлось. Ник нужно вписать целиком, как у друга в профиле, — или добавь его по коду или почте.");
+        FR.found = rows;
+      });
+  }
+  function frErr(e, kind){
+    var m = (e && e.message) || "";
+    if(kind === "mail" && /find_friend|could not find the function|function/i.test(m))
+      return "Поиск по почте ещё не включён в базе: нужно один раз выполнить запрос «для поиска друзей по почте» из блока «Подключение базы». Пока добавь друга по коду или нику.";
+    return sbErr(e);
+  }
+  function frAdd(){
+    var el = document.getElementById("frCode"), t = ((el && el.value) || "").trim();
+    FR.q = t; FR.found = null; FR.err = "";
+    if(FR.busy) return;
+    if(!t){ FR.err = "Впиши код друга, его почту или ник."; renderProfile(); return; }
+    var kind = frKind(t);
+    if(kind === "code" && t.toUpperCase() === myCode()){ FR.err = "Это твой собственный код — впиши код друга."; renderProfile(); return; }
+    if(kind === "mail" && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(t)){ FR.err = "В почте опечатка — нужен адрес вида papa@mail.ru."; renderProfile(); return; }
+    if(kind === "mail" && SB.mail && t.toLowerCase() === String(SB.mail).toLowerCase()){ FR.err = "Это твоя почта 🙂 Впиши почту друга."; renderProfile(); return; }
+    if(kind === "nick" && t.length < 2){ FR.err = "Ник слишком короткий — впиши его целиком."; renderProfile(); return; }
+    FR.busy = true; renderProfile();
+    var job;
+    if(kind === "code") job = sbReq("/rest/v1/profiles?select=user_id,code,nick,photo,stats&code=eq." + t.toUpperCase())
+      .then(function(rows){ return rows && rows.length ? frAddId(rows[0]) : frByNick(t, true); });
+    else if(kind === "mail") job = sbReq("/rest/v1/rpc/find_friend", {method: "POST", body: JSON.stringify({q: t})})
+      .then(function(rows){
+        if(!rows || !rows.length) throw new Error("Аккаунт с почтой " + t + " не найден. Проверь адрес — это должна быть почта, с которой друг входит в приложение.");
+        return frAddId(rows[0]);
+      });
+    else job = frByNick(t, false);
+    job.then(function(){ FR.busy = false; renderProfile(); }, function(e){ FR.busy = false; FR.err = frErr(e, kind); renderProfile(); });
+  }
+  function frFoundHtml(){
+    if(!FR.found || !FR.found.length) return "";
+    var many = FR.found.length > 1;
+    return '<div class="fr-found" aria-live="polite"><p class="hint">' + (many ? "Нашлось несколько человек с таким ником — выбери нужного:" : "Нашёл — это он?") + '</p><ul class="ff-list">' +
+      FR.found.map(function(p){
+        var st = p.stats || {}, lv = st.lv && st.lv.n ? +st.lv.n : 0, name = p.nick || "Без имени", have = !!frById(p.user_id);
+        var sub = [lv ? rankOf(lv)[2] + " уровень " + lv : "", st.ts ? "отметка " + frWhen(st.ts) : "", "код " + (p.code || "")].filter(Boolean).join(" · ");
+        return '<li class="ff-row"><span class="ff-ava">' + pcAva(p.photo, name.charAt(0).toUpperCase()) + '</span>' +
+          '<span class="ff-main"><b>' + esc(name) + '</b><small>' + esc(sub) + '</small></span>' +
+          (have ? '<span class="ff-have">уже в друзьях</span>' : '<button type="button" class="primary ff-add" data-act="fr-pick" data-id="' + esc(p.user_id) + '">Добавить</button>') + '</li>';
+      }).join("") + '</ul><button type="button" class="linkbtn alt ff-x" data-act="fr-found-x">Отмена</button></div>';
   }
   function frDrop(fid){
     sbReq("/rest/v1/friends?user_id=eq." + sbUser() + "&friend_id=eq." + fid, {method: "DELETE", headers: {Prefer: "return=minimal"}})
@@ -6224,15 +6320,16 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
   }
   function friendsHtml(){
     var h = '<section class="panel friends"><h2>Друзья</h2>';
-    h += '<p class="hint">Твой код: <strong class="code">' + esc(myCode()) + '</strong> — дай его другу, чтобы он тебя добавил. ' +
-      '<button type="button" class="linkbtn alt" data-act="fr-copy">Скопировать</button></p>';
-    h += '<div class="test"><label class="field" for="frCode">Код друга<input type="text" id="frCode" maxlength="8" placeholder="например 7F3A91C0" autocomplete="off" spellcheck="false"></label>' +
-      '<button type="button" class="primary" data-act="fr-add">Добавить друга</button>' +
+    h += '<p class="hint">Друг найдёт тебя по коду <strong class="code">' + esc(myCode()) + '</strong>, по почте, с которой ты входишь, или по нику' +
+      (profName() ? ' «' + esc(profName()) + '»' : ', если задашь его выше') + '. <button type="button" class="linkbtn alt" data-act="fr-copy">Скопировать код</button></p>';
+    h += '<div class="test fr-addrow"><label class="field" for="frCode">Код, почта или ник друга<input type="text" id="frCode" maxlength="80" value="' + esc(FR.q || "") + '" placeholder="7F3A91C0, papa@mail.ru или Папа" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"></label>' +
+      '<button type="button" class="primary" data-act="fr-add"' + (FR.busy ? ' disabled' : '') + '>' + (FR.busy ? "Ищу…" : "Добавить друга") + '</button>' +
       '<button type="button" class="linkbtn" data-act="fr-reload">Обновить</button></div>';
+    h += frFoundHtml();
     if(FR.err) h += '<p class="hint">' + esc(FR.err) + '</p>';
     if(FR.loading) h += '<div class="skelcard"><span class="skel sk-ava"></span><span class="skel sk-l1"></span><span class="skel sk-l2"></span></div>' +
       '<div class="skelcard"><span class="skel sk-ava"></span><span class="skel sk-l1"></span><span class="skel sk-l2"></span></div>';
-    else if(!FR.list.length) h += '<p class="hint">Друзей пока нет. Обменяйтесь кодами — и увидите цифры друг друга: сколько подтягиваний, отжиманий, приседаний и минут растяжки набрано и когда была последняя отметка.</p>';
+    else if(!FR.list.length) h += '<p class="hint">Друзей пока нет. Добавь друга по коду, почте или нику — и увидите цифры друг друга: сколько подтягиваний, отжиманий, приседаний и минут растяжки набрано и когда была последняя отметка.</p>';
     else FR.list.forEach(function(p){ h += frCard(p); });
     return boardHtml() + feedSectionHtml() + h + '</section>';
   }
@@ -6720,7 +6817,7 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
     x.strokeStyle = "rgba(255,255,255,.16)"; x.lineWidth = 30;
     x.beginPath(); x.arc(cx, cy, R, 0, Math.PI * 2); x.stroke();
     var f = d.total ? d.sets / d.total : 1;
-    x.strokeStyle = "#5EEAD4"; x.lineWidth = 30;
+    x.strokeStyle = "#7DD3FC"; x.lineWidth = 30;
     x.beginPath(); x.arc(cx, cy, R, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.max(0.02, Math.min(1, f))); x.stroke();
     var big = d.reps ? String(d.reps) : d.secs >= 120 ? String(Math.round(d.secs / 60)) : String(d.secs);
     var lab = d.reps ? plural(d.reps, ["повторение","повторения","повторений"]) : d.secs >= 120 ? "минут удержаний" : "секунд удержаний";
@@ -6732,7 +6829,7 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
     if(f >= 1){
       var bx = cx + R * 0.7, by = cy + R * 0.7;
       x.fillStyle = "#0E2F58"; x.beginPath(); x.arc(bx, by, 52, 0, Math.PI * 2); x.fill();
-      x.fillStyle = "#14B8A6"; x.beginPath(); x.arc(bx, by, 44, 0, Math.PI * 2); x.fill();
+      x.fillStyle = "#0EA5E9"; x.beginPath(); x.arc(bx, by, 44, 0, Math.PI * 2); x.fill();
       x.strokeStyle = "#fff"; x.lineWidth = 11; x.lineJoin = "round";
       x.beginPath(); x.moveTo(bx - 19, by + 2); x.lineTo(bx - 5, by + 16); x.lineTo(bx + 20, by - 12); x.stroke();
     }
@@ -7162,13 +7259,13 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
     x.font = "500 46px " + B; x.fillStyle = "rgba(255,255,255,.82)";
     x.fillText(plural(d.reps, ["повторение","повторения","повторений"]), P, 500);
     var cmp = weekCmp(d, false);
-    if(cmp){ x.font = "600 38px " + B; x.fillStyle = /▲/.test(cmp) ? "#5EEAD4" : "rgba(255,255,255,.7)"; x.fillText(cmp, P, 572); }
+    if(cmp){ x.font = "600 38px " + B; x.fillStyle = /▲/.test(cmp) ? "#7DD3FC" : "rgba(255,255,255,.7)"; x.fillText(cmp, P, 572); }
     // столбики по дням
     var top = 660, bot = 1000, bw = 92, gap = (W - P * 2 - bw * 7) / 6, mx = 0;
     d.days.forEach(function(v){ if(v > mx) mx = v; });
     d.days.forEach(function(v, i){
       var bx = P + i * (bw + gap), hgt = mx && v ? Math.max(14, (bot - top) * v / mx) : 8;
-      x.fillStyle = i === d.best && v ? "#5EEAD4" : v ? "rgba(255,255,255,.42)" : d.act[i] ? "rgba(255,255,255,.3)" : "rgba(255,255,255,.12)";
+      x.fillStyle = i === d.best && v ? "#7DD3FC" : v ? "rgba(255,255,255,.42)" : d.act[i] ? "rgba(255,255,255,.3)" : "rgba(255,255,255,.12)";
       var r = Math.min(18, hgt / 2), y0 = bot - hgt;
       x.beginPath();
       x.moveTo(bx, bot); x.lineTo(bx, y0 + r); x.quadraticCurveTo(bx, y0, bx + r, y0);
@@ -7210,14 +7307,20 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
   // ---------- что нового ----------
   var WN_KEY = "pullups-seen-ver", WN = null;
   var NEWS = [
+    {v: 204, items: [
+      {e: "🔎", t: "Друзья по почте или нику", d: "В поле «Добавить друга» теперь можно вписать не только код, но и почту, с которой друг входит в приложение, или его ник. Если с таким ником несколько человек, покажу всех — с аватаркой и уровнем, чтобы выбрать нужного.", go: "fr-find", btn: "Добавить друга"}
+    ]},
+    {v: 203, items: [
+      {e: "💙", t: "Голубая тема", d: "Карточка профиля, шапки окон и интервальный таймер — в синих тонах приложения, как режим тренировки. Карточки друзей и таблица недели — светлые, акценты голубые вместо бирюзовых, а тёмная тема стала тёмно-синей вместо серо-чёрной."}
+    ]},
     {v: 202, items: [
       {e: "🟢", t: "«Сейчас тренируется»", d: "Пока ты в режиме тренировки, друзья видят зелёный статус и номер подхода — и могут подбодрить. Их 🔥 прилетит тебе прямо на экран, а голосовой тренер скажет, кто тебя поддержал."},
       {e: "🏆", t: "Таблица недели", d: "Все друзья и ты — по повторениям с понедельника, с медалями за первые три места. Сверху в разделе друзей."},
       {e: "⏱️", t: "Интервальный таймер", d: "EMOM, табата или свой интервал — с кольцом, паузой и голосом. Кнопка «Интервалы» — под каждой тренировкой и в режиме тренировки.", go: "iv-open", btn: "Открыть таймер"},
-      {e: "🖤", t: "Единый стиль", d: "Карточки друзей, итоги недели и это окно — в одном тёмном стиле со свечением, как карточка профиля."}
+      {e: "🪟", t: "Единый стиль", d: "Карточки друзей, итоги недели и это окно — в одном стиле с карточкой профиля, со светящейся полосой снизу."}
     ]},
     {v: 201, items: [
-      {e: "🪪", t: "Новая карточка профиля", d: "Тёмная карточка с живым статусом — «Сегодня в деле» или «Серия ждёт» — часами, уровнем и значками, а снизу светится твоя серия или итог недели. Такая же шапка теперь у профиля друга, с кнопкой «Поддержать».", go: "level-open", btn: "Посмотреть"},
+      {e: "🪪", t: "Новая карточка профиля", d: "Карточка с живым статусом — «Сегодня в деле» или «Серия ждёт» — часами, уровнем и значками, а снизу светится твоя серия или итог недели. Такая же шапка теперь у профиля друга, с кнопкой «Поддержать».", go: "level-open", btn: "Посмотреть"},
       {e: "⚡", t: "Страница открывается быстрее", d: "Движок камеры подгружается, только когда включаешь подсчёт, — остальное открывается в разы быстрее."}
     ]},
     {v: 131, items: [
@@ -7278,6 +7381,7 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
     WN = null; wnMark(); renderWn();
     if(go === "wk-open") weekOpen(weekStart());
     else if(go === "iv-open") ivOpen();
+    else if(go === "fr-find"){ goProfile("frCode"); setTimeout(function(){ var fq = document.getElementById("frCode"); if(fq) try { fq.focus({preventScroll: true}); } catch(e){} }, 350); }
     else if(go === "medals-open" || go === "feed-open" || go === "level-open") goProfile(go === "medals-open" ? "medalsBox" : go === "level-open" ? "levelBox" : "feedBox");
   }
   function renderWn(){
@@ -7461,7 +7565,7 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
     }
     if(!list.length){
       return h + '<p class="hint">Здесь появятся завершённые тренировки, рекорды и медали — твои и друзей.' +
-        (FR.list.length ? "" : " Добавь друга по коду ниже, чтобы видеть и его.") + '</p></section>';
+        (FR.list.length ? "" : " Добавь друга ниже — по коду, почте или нику, — чтобы видеть и его.") + '</p></section>';
     }
     if(FDH == null) FDH = lsNum(FDK);
     var show = FD_ALL ? list : list.slice(0, 12), lastDay = "";
@@ -8160,7 +8264,7 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
       '<div class="pc-who"><span class="pc-ava">' + o.ava + '</span><div class="pc-names"><h2 class="pc-name">' + esc(o.name) + '</h2>' +
       (o.role ? '<p class="pc-role">' + o.role + '</p>' : '') + (o.aw || '') + (o.sub ? '<p class="pc-sub">' + esc(o.sub) + '</p>' : '') + '</div></div>' +
       (o.btns && o.btns.length ? '<div class="pc-btns">' + o.btns.map(function(b){
-        return '<button type="button" class="pc-btn" data-act="' + b.act + '"' + (b.attrs || '') + '>' + (b.ic || '') + '<span>' + esc(b.label) + '</span></button>';
+        return '<button type="button" class="pc-btn' + (b.cls ? " " + b.cls : "") + '" data-act="' + b.act + '"' + (b.attrs || '') + '>' + (b.ic || '') + '<span>' + esc(b.label) + '</span></button>';
       }).join("") + '</div>' : '') + '</div></div>';
   }
   function gwGlow(text){ return '<div class="gw-glow" aria-hidden="true"></div><p class="gw-txt">' + IC_ZAP + '<span>' + esc(text) + '</span></p>'; }
@@ -8199,7 +8303,7 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
     var status = lv0 ? liveText(lv0) : dn === td ? "Сегодня в деле" : dn === td - 1 ? "Вчера была тренировка" : "Последняя отметка — " + frWhen(st.ts);
     var wk = st.wk && st.wk.id === weekId() ? +st.wk.reps || 0 : 0;
     var last = latestEvent(p), cheered = last && myReactTo(p.user_id, last.ts) === "🔥";
-    var btns = [lv0 ? {act: "live-cheer-id", label: "Подбодрить", ic: IC_FLAME, attrs: ' data-id="' + esc(p.user_id) + '"'}
+    var btns = [lv0 ? {act: "live-cheer-id", cls: "hot", label: "Подбодрить", ic: IC_FLAME, attrs: ' data-id="' + esc(p.user_id) + '"'}
       : {act: "fp-cheer", label: cheered ? "Поддержано" : "Поддержать", ic: cheered ? IC_CHECK : IC_FLAME, attrs: ' data-id="' + esc(p.user_id) + '"'}];
     btns.push(AW.admin ? {act: "aw-give", label: "Выдать значок", ic: IC_AWARD, attrs: ' data-id="' + esc(p.user_id) + '" data-name="' + esc(name) + '"'}
       : {act: "fp-code", label: "Код · " + (p.code || ""), ic: IC_COPY, attrs: ' data-code="' + esc(p.code || "") + '"'});
@@ -8565,7 +8669,7 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
       duelHtml(st, name) +
       (theirReact(p) ? '<p class="fc2-note">Тебе поставили ' + theirReact(p) + '</p>' : '') +
       '<div class="fc2-btns"><button type="button" class="pc-btn" data-act="fr-open" data-id="' + esc(p.user_id) + '">' + IC_LOGIN + '<span>Профиль</span></button>' +
-      (l ? '<button type="button" class="pc-btn" data-act="live-cheer-id" data-id="' + esc(p.user_id) + '">' + IC_FLAME + '<span>Подбодрить</span></button>'
+      (l ? '<button type="button" class="pc-btn hot" data-act="live-cheer-id" data-id="' + esc(p.user_id) + '">' + IC_FLAME + '<span>Подбодрить</span></button>'
          : '<button type="button" class="pc-btn" data-act="fp-cheer" data-id="' + esc(p.user_id) + '">' + (cheered ? IC_CHECK : IC_FLAME) + '<span>' + (cheered ? "Поддержано" : "Поддержать") + '</span></button>') +
         '</div>' +
       '<div class="fc2-foot"><span>' + (FR.mutual[p.user_id] ? "Взаимные друзья" : "Пока не добавил тебя в ответ") + ' · код ' + esc(p.code || "") + '</span><span class="fc2-links">' +
@@ -9063,6 +9167,8 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
   function renderProfile(){
     var box = document.getElementById("profileBox");
     if(!box) return;
+    var ka = document.activeElement, kid = ka && /^(frCode|pfName)$/.test(ka.id || "") ? ka.id : "", ks = null;
+    if(kid){ try { ks = [ka.selectionStart, ka.selectionEnd]; } catch(e){} }
     var mslot = document.getElementById("medalsSlot");
     if(mslot) mslot.innerHTML = medalsHtml();
     var wslot = document.getElementById("weekSlot");
@@ -9101,6 +9207,10 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
       box.innerHTML = h;
       var fb = document.getElementById("friendsBox");
       if(fb) fb.innerHTML = friendsHtml();
+      if(kid){
+        var kn = document.getElementById(kid);
+        if(kn && kn !== ka){ try { kn.focus({preventScroll: true}); if(ks) kn.setSelectionRange(ks[0], ks[1]); } catch(e){} }
+      }
       if(!FR.loaded && !FR.loading) sbFriends();
       return;
     } else {
@@ -9646,6 +9756,12 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
     if(act === "pw-cancel"){ pwMode = false; renderProfile(); return; }
     if(act === "pw-save"){ sbSetPassword(); return; }
     if(act === "fr-add"){ frAdd(); return; }
+    if(act === "fr-pick"){
+      var fpk = (FR.found || []).filter(function(x){ return x.user_id === b.getAttribute("data-id"); })[0];
+      if(fpk && !FR.busy){ FR.busy = true; renderProfile(); frAddId(fpk).then(function(){ FR.busy = false; renderProfile(); }, function(e){ FR.busy = false; FR.err = sbErr(e); renderProfile(); }); }
+      return;
+    }
+    if(act === "fr-found-x"){ FR.found = null; FR.err = ""; renderProfile(); var fx0 = document.getElementById("frCode"); if(fx0) try { fx0.focus({preventScroll: true}); } catch(e){} return; }
     if(act === "fr-drop"){ frDrop(b.getAttribute("data-id")); return; }
     if(act === "fr-reload"){ FR.loaded = 0; sbFriends(); flash("Обновляю"); return; }
     if(act === "fr-copy"){
@@ -10013,6 +10129,7 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
 
   document.addEventListener("keydown", function(ev){
     if(ev.key === "Escape" && LVT && !document.getElementById("lvlUp").hidden){ lvlUpHide(); return; }
+    if(ev.key === "Enter" && ev.target && ev.target.id === "frCode"){ ev.preventDefault(); frAdd(); return; }
     if(ev.key === "Escape" && IV){ ivClose(); return; }
     if(ev.key === "Escape" && IVR){ if(IVR.state === "done") ivStop(); else if(IVR.state === "run") ivPause(); return; }
     if((ev.key === " " || ev.code === "Space") && IVR && IVR.state !== "done" && !(ev.target && /INPUT|TEXTAREA/.test(ev.target.tagName))){ ev.preventDefault(); ivPause(); return; }
@@ -10090,6 +10207,7 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
     }
     if(t2.getAttribute && t2.getAttribute("data-f")){ custEdit(t2); save(); return; }
     if(t2.id === "pfName"){ state.profile.name = String(t2.value || "").slice(0, 40); save(); renderAcc(); return; }
+    if(t2.id === "frCode"){ FR.q = t2.value; if(FR.found || FR.err){ FR.found = null; FR.err = ""; var ffb = document.querySelector(".fr-found"); if(ffb) ffb.remove(); } return; }
     if(t2.getAttribute && t2.getAttribute("data-note")){
       if(!state.notes) state.notes = {};
       var nk2 = t2.getAttribute("data-note"), nv2 = String(t2.value || "").slice(0, 140);
