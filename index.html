@@ -1511,6 +1511,126 @@ button.fd-ava{appearance:none;-webkit-appearance:none;padding:0;margin:0;border:
 
 .pc .pc-name,.panel .pc-name{font-family:"Onest",system-ui,sans-serif;font-size:20px;font-weight:600;letter-spacing:-.01em;line-height:1.25}
 @media (min-width:640px){.pc .pc-name,.panel .pc-name{font-size:24px}}
+
+/* ===== v2.02: единый тёмный стиль, «сейчас тренируется», таблица недели, интервалы ===== */
+.pc-dot.live{background:#22c55e;animation:pcLive 1.4s ease-out infinite}
+@keyframes pcLive{0%{box-shadow:0 0 0 0 rgba(34,197,94,.65)}70%{box-shadow:0 0 0 8px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+/* тёмная шапка со свечением в окнах */
+.gwrap{position:relative;margin:12px 12px 54px}
+.gw-glow{position:absolute;left:0;right:0;top:55%;bottom:-40px;z-index:0;border-radius:24px;pointer-events:none;background:rgba(94,234,212,.9);box-shadow:0 30px 60px -16px rgba(94,234,212,.7)}
+.gw-txt{position:absolute;left:0;right:0;bottom:-40px;z-index:0;height:40px;margin:0;padding:0 14px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:600;color:#06332e;text-align:center}
+.gw-txt svg{width:16px;height:16px;flex:0 0 auto}
+.gw-txt span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wk-hero.dk{position:relative;z-index:1;border-radius:24px;background:radial-gradient(120% 120% at 30% 10%, #1a1a1a 0%, #0f0f10 60%, #0b0b0c 100%);box-shadow:0 25px 50px -12px rgba(0,0,0,.35)}
+.wk-card,.wn-card,.iv-card{padding:0}
+.wk-hero.dk .tb-icon{background:rgba(255,255,255,.1);border-color:transparent}
+/* таблица недели */
+.board .pc-card{padding:20px}
+.board .pc-top{margin-bottom:12px}
+.bd-left{flex:0 0 auto;font-size:13px;color:#a3a3a3}
+.bd-list{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.bd-in{display:grid;grid-template-columns:26px 36px minmax(0,1fr) auto;align-items:center;gap:10px;width:100%;padding:8px 10px;border:0;border-radius:14px;background:transparent;color:#fff;font:inherit;text-align:left}
+button.bd-in{cursor:pointer}
+button.bd-in:hover{background:rgba(255,255,255,.06)}
+button.bd-in:focus-visible{outline:2px solid var(--tide);outline-offset:1px}
+.bd-row.me .bd-in{background:rgba(255,255,255,.09)}
+.bd-pl{font-size:16px;font-weight:700;text-align:center;color:#a3a3a3}
+.bd-ava{position:relative;width:36px;height:36px}
+.bd-ava .ava{width:36px;height:36px;font-size:15px;background-size:cover;background-position:center}
+.bd-live{position:absolute;right:-2px;bottom:-2px;width:11px;height:11px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 2px #111;animation:pcLive 1.4s ease-out infinite}
+.bd-main{display:flex;flex-direction:column;gap:6px;min-width:0}
+.bd-nm{display:flex;align-items:center;gap:6px;min-width:0;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bd-nm em{flex:0 0 auto;font-style:normal;font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:999px;background:rgba(255,255,255,.12);color:#d4d4d4}
+.bd-bar{height:6px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}
+.bd-bar i{display:block;height:100%;border-radius:3px;background:var(--tide)}
+.bd-row.me .bd-bar i{background:#fff}
+.bd-n{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums}
+/* карточка друга */
+.frcard.fc2{display:block;position:relative;margin-top:12px;padding:18px;border:0;border-radius:24px;color:#fff;background:radial-gradient(120% 120% at 30% 10%, #1a1a1a 0%, #0f0f10 60%, #0b0b0c 100%);box-shadow:0 18px 40px -18px rgba(0,0,0,.45);backdrop-filter:none;-webkit-backdrop-filter:none}
+.fc2 .pc-top{margin-bottom:14px;font-size:13.5px}
+.fc2-lv{flex:0 0 auto;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.1);color:#e5e5e5}
+.fc2-who{display:flex;align-items:center;gap:14px}
+.fc2 .pc-ava{width:48px;height:48px;padding:0;border:0;cursor:pointer}
+.fc2 .pc-ava .ava{width:48px;height:48px;font-size:19px}
+.fc2-names{min-width:0;flex:1}
+.fc2 .frtop{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+.fc2 .fr-nm{color:#fff;font-size:17px;font-weight:600;max-width:100%}
+.fc2 .aw-row.pc{margin:0;gap:4px}
+.fc2 .aw-row.pc .awb{width:22px;height:22px;font-size:12px}
+.fc2-sub{margin:4px 0 0;font-size:13px;line-height:1.4;color:#a3a3a3}
+.fc2 .duel{margin:14px 0 0;background:rgba(255,255,255,.06);color:#fff}
+.fc2 .duel-cap,.fc2 .duel-top small,.fc2 .duel-note,.fc2 .duel-none{color:#a3a3a3}
+.fc2 .duel-me b{color:#93c5fd}
+.fc2 .duel-bar i{border-right-color:#111}
+.fc2 .hint{color:#a3a3a3}
+.fc2-note{margin:10px 0 0;font-size:13px;color:#d4d4d4}
+.fc2-btns{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:14px}
+.fc2-btns .pc-btn{height:42px;padding:0 12px;gap:8px;border-radius:14px;font-size:13.5px}
+.fc2-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;font-size:12px;color:#737373}
+.fc2-foot span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fc2-drop{flex:0 0 auto;padding:4px 0;border:0;background:none;color:#a3a3a3;font:inherit;font-size:12px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+/* интервалы: настройка */
+.iv-dlg{z-index:67}
+.iv-card{max-width:440px}
+.iv-seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:14px;padding:4px;border-radius:14px;background:rgba(255,255,255,.08)}
+.iv-seg button{height:40px;border:0;border-radius:10px;background:transparent;color:#d4d4d4;font:inherit;font-weight:600;cursor:pointer}
+.iv-seg button.on{background:#fff;color:#0b0b0c}
+.iv-hint{margin:12px 0 2px;font-size:13.5px;line-height:1.45;color:#a3a3a3}
+.iv-body{padding:0 18px 18px}
+.iv-f{display:grid;grid-template-columns:minmax(0,1fr) auto 50px;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.iv-f:first-child{border-top:0}
+.iv-f > span:first-child{font-weight:600}
+.iv-in{display:flex;align-items:center;gap:6px}
+.iv-in input{width:74px;height:46px;border-radius:12px;border:1px solid var(--line-strong);background:var(--bg);color:var(--ink);text-align:center;font:700 20px/1 "Unbounded","Onest",system-ui,sans-serif;-moz-appearance:textfield}
+.iv-in input::-webkit-outer-spin-button,.iv-in input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.iv-step{width:40px;height:46px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:20px;line-height:1;cursor:pointer}
+.iv-f small{font-size:12px;color:var(--muted)}
+.iv-voice{margin-top:10px}
+.iv-go{display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.iv-go svg{width:18px;height:18px}
+/* интервалы: идёт отсчёт */
+.ivrun{position:fixed;inset:0;z-index:46;display:flex;flex-direction:column;gap:12px;overflow-y:auto;color:#fff;background:radial-gradient(120% 120% at 30% 10%, #1a1a1a 0%, #0f0f10 60%, #0b0b0c 100%);padding:calc(14px + env(safe-area-inset-top,0px)) 16px calc(18px + env(safe-area-inset-bottom,0px))}
+.ivrun[hidden]{display:none}
+.iv-top{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:15px;font-weight:600;color:#d4d4d4}
+.iv-topbtns{display:flex;gap:8px}
+.ivrun .pc-x{display:grid;place-items:center}
+.ivrun .pc-x svg{width:18px;height:18px}
+.iv-mid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center}
+.iv-phase{margin:0;font:700 34px/1.1 "Unbounded","Onest",system-ui,sans-serif;letter-spacing:-.01em}
+.iv-phase.ph-work{color:#a3e635}
+.iv-phase.ph-rest{color:#fbbf24}
+.iv-phase.ph-emom{color:var(--tide)}
+.iv-sub{margin:0;font-size:15px;color:#a3a3a3}
+.iv-ring{position:relative;width:min(300px,76vw);height:min(300px,76vw);display:grid;place-items:center;margin:6px 0}
+.iv-ring .fc-ring{position:absolute;inset:0;width:100%;height:100%}
+.iv-ring .fr-track{stroke:rgba(255,255,255,.1);stroke-width:7}
+.iv-ring .fr-bar{stroke-width:7;transition:none}
+.iv-ring.ph-work .fr-bar{stroke:#a3e635}
+.iv-ring.ph-rest .fr-bar{stroke:#fbbf24}
+.iv-ring.ph-prep .fr-bar{stroke:#fff}
+.iv-ring.ph-emom .fr-bar,.iv-ring.done .fr-bar{stroke:var(--tide)}
+.iv-num{width:74%;height:74%;border-radius:50%;border:0;background:rgba(255,255,255,.06);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font:inherit;cursor:pointer}
+.iv-num b{font:700 76px/1 "Unbounded","Onest",system-ui,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.iv-num span{font-size:12.5px;color:#a3a3a3;max-width:16ch}
+.iv-num:focus-visible{outline:2px solid var(--tide);outline-offset:4px}
+.iv-next{margin:0;font-size:15px;color:#d4d4d4}
+.iv-left{margin:0;font-size:13px;color:#737373;font-variant-numeric:tabular-nums}
+.iv-bot,.iv-btns{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:min(460px,100%);margin:0 auto}
+.iv-btns{margin-top:12px}
+.iv-pz{width:16px;text-align:center;font-size:13px}
+@media (max-height:700px){.iv-ring{width:min(230px,66vw);height:min(230px,66vw)}.iv-num b{font-size:58px}.iv-phase{font-size:28px}}
+@media (prefers-reduced-motion: reduce){.pc-dot.live,.bd-live{animation:none}}
+
+.vh{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.fc2-btns.adm{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 42px}
+.fc2-btns .pc-btn.aw-give{padding:0;justify-content:center}
+.iv-bot .pc-btn svg,.iv-btns .pc-btn svg{width:18px;height:18px}
+
+.fc2-foot{align-items:flex-end}
+.fc2-foot > span:first-child{white-space:normal;overflow:visible;line-height:1.4}
+.fc2-links{display:flex;align-items:center;gap:16px;flex:0 0 auto}
+.fc2-aw{display:inline-flex;align-items:center;gap:5px;color:#e5e5e5;text-decoration:none}
+.fc2-aw svg{width:14px;height:14px}
 </style>
 </head>
 <body>
@@ -2107,6 +2227,8 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
 <div id="onb" class="warm" role="dialog" aria-modal="true" hidden></div>
 <div id="imp" class="warm" role="dialog" aria-modal="true" aria-labelledby="impTitle" hidden></div>
 <div id="lvlUp" class="lvlup" data-act="lvl-close" hidden></div>
+<div id="ivDlg" class="warm iv-dlg" role="dialog" aria-modal="true" aria-label="Интервальный таймер" hidden></div>
+<div id="ivRun" class="ivrun" role="dialog" aria-modal="true" aria-label="Интервальный таймер идёт" hidden></div>
 <div id="frDlg" class="warm fp-dlg" role="dialog" aria-modal="true" aria-label="Профиль друга" hidden></div>
 <div id="awDlg" class="warm aw-dlg" role="dialog" aria-modal="true" aria-label="Выдать значок" hidden></div>
 <div id="restDlg" class="warm rest-dlg" role="dialog" aria-modal="true" aria-label="Время отдыха" hidden></div>
@@ -2127,7 +2249,7 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzd3FsYmpsa3Bncm55a2dnY3pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwNDIyNDUsImV4cCI6MjEwNjYxODI0NX0.KQMAqfGyNr1NeLMKu3iRuufLaZ5DEMRj2sc1ulkK5QY"
   ]};
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 2, APP_BUILD_N = 1;
+  var APP_MAJOR = 2, APP_BUILD_N = 2;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var APP_BUILD = APP_MAJOR * 100 + APP_BUILD_N;   // 1.35 → 135, 2.01 → 201
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
@@ -2670,7 +2792,8 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
     var h = '<div class="cardfoot"><div class="cf-btns">' +
       '<button type="button" class="linkbtn cf-focus" data-act="focus-open" data-key="' + key + '">' + PLAY_IC + 'Режим тренировки</button>' +
       (open ? "" : '<button type="button" class="linkbtn alt cf-note" data-act="note-open" data-key="' + key + '">' + PEN_IC + 'Заметка</button>') +
-      (canCard ? '<button type="button" class="linkbtn alt cf-note" data-act="share-card" data-key="' + key + '">' + PIC_IC + 'Картинка</button>' : '') + '</div>';
+      (canCard ? '<button type="button" class="linkbtn alt cf-note" data-act="share-card" data-key="' + key + '">' + PIC_IC + 'Картинка</button>' : '') +
+      '<button type="button" class="linkbtn alt cf-note" data-act="iv-open">' + IC_CLOCK + 'Интервалы</button></div>';
     if(open) h += '<label class="cf-noterow" for="note-' + key + '"><span class="vh">Заметка к тренировке</span>' + PEN_IC +
       '<input type="text" id="note-' + key + '" data-note="' + key + '" maxlength="140" placeholder="Заметка: резина, вес, самочувствие" value="' + esc(note) + '"></label>';
     if(meta.length) h += '<p class="cf-meta">' + esc(meta.join(" ")) + '</p>';
@@ -6002,7 +6125,7 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
       dumb: DUMB.total(), stretch: tMinutes(), ts: Date.now(), last: state.lastEvent || null, reacts: state.reacts || {},
       wk: {id: weekId(), reps: weekReps()}, feed: (state.feed || []).slice(-15),
       lv: (function(){ var xx = xpCalc().xp; return {n: levelOf(xx), xp: xx}; })(),
-      md: Object.keys(state.medals || {}),
+      md: Object.keys(state.medals || {}), live: liveInfo(),
       rec: (function(){
         var r = records(), m = prScan(), b = 0, bk = "", h = 0;
         Object.keys(m).forEach(function(id){ var e = m[id]; if(e.sec){ if(e.best > h) h = e.best; } else if(e.best > b){ b = e.best; bk = e.name; } });
@@ -6045,6 +6168,7 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
         FR.loading = false; FR.loaded = Date.now();
         renderProfile();
         feedAfterLoad();
+        liveAfterLoad();
         awLoad();
       })
       .catch(function(e){ FR.loading = false; FR.loaded = Date.now(); FR.err = sbErr(e); renderProfile(); });
@@ -6098,31 +6222,6 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
       '<div class="duel-bar"><i style="width:' + pm + '%"></i></div>' +
       '<div class="duel-note">' + esc(cap) + '</div></div>';
   }
-  function frCard(p){
-    var st = p.stats || {}, name = p.nick || "Без имени";
-    var ava = p.photo
-      ? '<span class="ava photo" style="background-image:url(' + esc(p.photo) + ')"></span>'
-      : '<span class="ava">' + esc(name.charAt(0).toUpperCase()) + '</span>';
-    var rows = [
-      {v: st.pull || 0, u: ["подтягивание","подтягивания","подтягиваний"]},
-      {v: st.push || 0, u: ["отжимание","отжимания","отжиманий"]},
-      {v: st.squat || 0, u: ["приседание","приседания","приседаний"]},
-      {v: st.dumb || 0, u: ["повторение","повторения","повторений"], tail: " с гантелями"},
-      {v: st.stretch || 0, u: ["минута","минуты","минут"], tail: " растяжки"}
-    ].filter(function(r){ return r.v > 0; });
-    var line = rows.length
-      ? rows.map(function(r){ return r.v + " " + plural(r.v, r.u) + (r.tail || ""); }).join(", ")
-      : "пока без отметок";
-    return '<div class="frcard"><button type="button" class="fr-open" data-act="fr-open" data-id="' + esc(p.user_id) + '" aria-label="Профиль: ' + esc(name) + '">' + ava + '</button>' +
-      '<div class="frmain"><div class="frtop"><button type="button" class="fd-name fr-nm" data-act="fr-open" data-id="' + esc(p.user_id) + '">' + esc(name) + '</button>' + awRow(p.user_id, 4) +
-      (FR.mutual[p.user_id] ? '<span class="badge ok">взаимно</span>' : '<span class="badge quiet">в одну сторону</span>') + '</div>' +
-      (st.lv && st.lv.n ? '<p class="fr-lv"><span class="fr-lvn">' + (+st.lv.n) + '</span>' + esc(rankOf(+st.lv.n)[1]) + ' ' + rankOf(+st.lv.n)[2] + ' · ' + numSp(+st.lv.xp || 0) + ' опыта</p>' : '') +
-      '<p class="hint">' + esc(line) + '</p>' + duelHtml(st, name) +
-      '<p class="hint">Последняя отметка: ' + frWhen(st.ts) + ', код ' + esc(p.code || "") + (theirReact(p) ? " · тебе поставили " + theirReact(p) : "") + '</p>' +
-      (AW.admin ? '<button type="button" class="linkbtn alt aw-give" data-act="aw-give" data-id="' + esc(p.user_id) + '" data-name="' + esc(name) + '">🎖 Выдать значок</button>' : '') + '</div>' +
-
-      '<button type="button" class="linkbtn alt" data-act="fr-drop" data-id="' + esc(p.user_id) + '">Убрать</button></div>';
-  }
   function friendsHtml(){
     var h = '<section class="panel friends"><h2>Друзья</h2>';
     h += '<p class="hint">Твой код: <strong class="code">' + esc(myCode()) + '</strong> — дай его другу, чтобы он тебя добавил. ' +
@@ -6135,7 +6234,7 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
       '<div class="skelcard"><span class="skel sk-ava"></span><span class="skel sk-l1"></span><span class="skel sk-l2"></span></div>';
     else if(!FR.list.length) h += '<p class="hint">Друзей пока нет. Обменяйтесь кодами — и увидите цифры друг друга: сколько подтягиваний, отжиманий, приседаний и минут растяжки набрано и когда была последняя отметка.</p>';
     else FR.list.forEach(function(p){ h += frCard(p); });
-    return feedSectionHtml() + h + '</section>';
+    return boardHtml() + feedSectionHtml() + h + '</section>';
   }
 
   // ---------- напоминания ----------
@@ -6871,6 +6970,7 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
       flash("Голос выключен");
     }
     renderFocus();
+    if(IVR) renderIvRun();
   }
   var VOICE_IC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
   var MUTE_IC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M22 9l-6 6"/><path d="M16 9l6 6"/></svg>';
@@ -6984,22 +7084,22 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
     if(!WK){ box.hidden = true; box.innerHTML = ""; if(!focusKey && !ONB && !IMP && !SC && !WN) document.body.classList.remove("modal-open"); return; }
     box.hidden = false; document.body.classList.add("modal-open");
     var cws = weekStart(), cur = WK.ws >= cws, d = weekData(WK.ws);
-    var h = '<div class="warm-card wk-card" role="document"><div class="wk-hero">' +
+    var h = '<div class="warm-card wk-card" role="document"><div class="gwrap">%%GLOW%%<div class="wk-hero dk">' +
       '<div class="wk-top"><span>' + (cur ? "Эта неделя" : "Итоги недели") + '</span>' +
       '<button type="button" class="tb-icon" data-act="wk-close" aria-label="Закрыть">✕</button></div>' +
       '<div class="wk-nav"><button type="button" class="tb-icon" data-act="wk-prev" aria-label="Неделя раньше">‹</button>' +
       '<span class="wk-range">' + weekRange(WK.ws) + '</span>' +
       '<button type="button" class="tb-icon" data-act="wk-next" aria-label="Неделя позже"' + (cur ? " disabled" : "") + '>›</button></div>';
     if(!d.sets){
-      h += '<p class="wk-big"><b>0</b></p><p class="wk-cmp">' + (cur ? "На этой неделе пока пусто — самое время начать." : "На этой неделе тренировок не было.") + '</p>' + weekBars(d, cur) + '</div>';
+      h += '<p class="wk-big"><b>0</b></p>' + weekBars(d, cur) + '</div></div>';
       h += '<div class="wk-body"><div class="warm-actions"><button type="button" class="primary" data-act="wk-close">Закрыть</button></div></div></div>';
-      box.innerHTML = h;
+      box.innerHTML = h.replace("%%GLOW%%", gwGlow(cur ? "Пока пусто — самое время начать" : "На этой неделе тренировок не было"));
       return;
     }
     var cmp = weekCmp(d, cur);
     h += '<p class="wk-big"><b>' + numSp(d.reps) + '</b> ' + plural(d.reps, ["повторение","повторения","повторений"]) + (cur ? " пока" : "") + '</p>' +
-      (cmp ? '<p class="wk-cmp' + (/▲/.test(cmp) ? " up" : "") + '">' + cmp + '</p>' : '') +
-      weekBars(d, cur) + '</div><div class="wk-body">';
+      weekBars(d, cur) + '</div></div><div class="wk-body">';
+    h = h.replace("%%GLOW%%", gwGlow(cmp ? cmp.replace(/^[▲▼]\s*/, "").replace(/^./, function(c){ return c.toUpperCase(); }) : d.best >= 0 ? "Лучший день — " + WD_FULL[d.best] : "Неделя в деле"));
     h += '<div class="wk-stats"><div><b>' + d.trains + '</b><span>' + plural(d.trains, ["тренировка","тренировки","тренировок"]) + '</span></div>' +
       '<div><b>' + d.actDays + '<small> из 7</small></b><span>дней в деле</span></div>' +
       '<div><b>' + d.sets + '</b><span>' + plural(d.sets, SETS) + '</span></div></div>';
@@ -7110,6 +7210,12 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
   // ---------- что нового ----------
   var WN_KEY = "pullups-seen-ver", WN = null;
   var NEWS = [
+    {v: 202, items: [
+      {e: "🟢", t: "«Сейчас тренируется»", d: "Пока ты в режиме тренировки, друзья видят зелёный статус и номер подхода — и могут подбодрить. Их 🔥 прилетит тебе прямо на экран, а голосовой тренер скажет, кто тебя поддержал."},
+      {e: "🏆", t: "Таблица недели", d: "Все друзья и ты — по повторениям с понедельника, с медалями за первые три места. Сверху в разделе друзей."},
+      {e: "⏱️", t: "Интервальный таймер", d: "EMOM, табата или свой интервал — с кольцом, паузой и голосом. Кнопка «Интервалы» — под каждой тренировкой и в режиме тренировки.", go: "iv-open", btn: "Открыть таймер"},
+      {e: "🖤", t: "Единый стиль", d: "Карточки друзей, итоги недели и это окно — в одном тёмном стиле со свечением, как карточка профиля."}
+    ]},
     {v: 201, items: [
       {e: "🪪", t: "Новая карточка профиля", d: "Тёмная карточка с живым статусом — «Сегодня в деле» или «Серия ждёт» — часами, уровнем и значками, а снизу светится твоя серия или итог недели. Такая же шапка теперь у профиля друга, с кнопкой «Поддержать».", go: "level-open", btn: "Посмотреть"},
       {e: "⚡", t: "Страница открывается быстрее", d: "Движок камеры подгружается, только когда включаешь подсчёт, — остальное открывается в разы быстрее."}
@@ -7171,6 +7277,7 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
   function wnGo(go){
     WN = null; wnMark(); renderWn();
     if(go === "wk-open") weekOpen(weekStart());
+    else if(go === "iv-open") ivOpen();
     else if(go === "medals-open" || go === "feed-open" || go === "level-open") goProfile(go === "medals-open" ? "medalsBox" : go === "level-open" ? "levelBox" : "feedBox");
   }
   function renderWn(){
@@ -7178,10 +7285,12 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
     if(!box) return;
     if(!WN){ box.hidden = true; box.innerHTML = ""; if(!focusKey && !ONB && !IMP && !SC && !WK) document.body.classList.remove("modal-open"); return; }
     box.hidden = false; document.body.classList.add("modal-open");
-    var h = '<div class="warm-card wn-card" role="document"><div class="wk-hero wn-hero">' +
+    var nNew = 0;
+    NEWS.forEach(function(g){ if(g.v > WN.from && g.v <= APP_BUILD) nNew += g.items.length; });
+    var h = '<div class="warm-card wn-card" role="document"><div class="gwrap">' + gwGlow(WN.manual ? "Версия " + APP_VERSION : "Версия " + APP_VERSION + " · " + Math.min(nNew, 99) + " " + plural(nNew, ["новинка","новинки","новинок"])) + '<div class="wk-hero wn-hero dk">' +
       '<div class="wk-top"><span>Версия ' + APP_VERSION + '</span><button type="button" class="tb-icon" data-act="wn-close" aria-label="Закрыть">✕</button></div>' +
       '<p class="wn-title">' + (WN.manual ? "Что появилось" : "Что нового") + '</p>' +
-      '<p class="wn-sub">' + (WN.manual ? "Последние обновления, самые свежие сверху." : "Пока тебя не было, приложение подросло. Вот главное.") + '</p></div><div class="wn-body">';
+      '<p class="wn-sub">' + (WN.manual ? "Последние обновления, самые свежие сверху." : "Пока тебя не было, приложение подросло. Вот главное.") + '</p></div></div><div class="wn-body">';
     var shown = 0;
     NEWS.forEach(function(g){
       if(g.v <= WN.from || g.v > APP_BUILD) return;
@@ -7309,6 +7418,7 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
     if(ev.k === "medal") return "Медаль «" + t + "»";
     if(ev.k === "lvl") return "Новый уровень: " + ev.n + " — " + t;
     if(ev.k === "award") return "Значок «" + t + "»";
+    if(ev.k === "iv") return "Интервалы «" + t + "»";
     return "Тренировка «" + t + "»";
   }
   function evSub(ev){
@@ -7316,6 +7426,7 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
     if(ev.k === "medal") return ev.d || "";
     if(ev.k === "lvl") return "";
     if(ev.k === "award") return ev.d || "";
+    if(ev.k === "iv") return (ev.n ? ev.n + " " + plural(ev.n, ["раунд","раунда","раундов"]) : "") + (ev.s ? " · " + Math.max(1, Math.round(ev.s / 60)) + " мин" : "");
     var bits = [];
     if(ev.p) bits.push(ev.p);
     if(ev.n) bits.push(ev.n + " " + plural(ev.n, ["повторение","повторения","повторений"]));
@@ -7323,7 +7434,7 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
     if(!ev.n && !ev.h && ev.s) bits.push(ev.s + " " + plural(ev.s, SETS));
     return bits.join(" · ");
   }
-  function evIcon(ev){ return ev.k === "pr" ? "🏆" : ev.k === "medal" ? (ev.e || "🏅") : ev.k === "lvl" ? (ev.e || "⭐") : ev.k === "award" ? (ev.e || "🎖️") : "🏁"; }
+  function evIcon(ev){ return ev.k === "pr" ? "🏆" : ev.k === "medal" ? (ev.e || "🏅") : ev.k === "lvl" ? (ev.e || "⭐") : ev.k === "award" ? (ev.e || "🎖️") : ev.k === "iv" ? "⏱️" : "🏁"; }
   function fdDay(ts){
     var dn = dayNum(ts), today = dayNum(Date.now());
     if(dn === today) return "Сегодня";
@@ -7409,7 +7520,7 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
     if(!loggedIn() || document.hidden || FR.loading) return;
     var ae = document.activeElement;
     if(ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) return;
-    if(Date.now() - (FR.loaded || 0) > (TAB === "profile" ? 90000 : 300000)) sbFriends();
+    if(Date.now() - (FR.loaded || 0) > ((focusKey || (IVR && IVR.state !== "done")) ? 60000 : TAB === "profile" ? 90000 : 300000)) sbFriends();
   }, 30000);
 
   // ---------- надёжная синхронизация: вкладки, устройства, предупреждение ----------
@@ -7794,6 +7905,7 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
   setInterval(function(){ if(AW.ok) awAfterLoad(); }, 20000);
   document.addEventListener("input", function(ev){
     var id = ev.target && ev.target.id;
+    if(IV && /^iv-(work|rest|rounds)$/.test(id || "")){ ivRead(); return; }
     if(!AW.give || (id !== "awTitle" && id !== "awNote" && id !== "awEmoji")) return;
     awReadFields();
     var g = AW.give, t = document.getElementById("awPrevT"), n = document.getElementById("awPrevN"), e = document.getElementById("awPrevE");
@@ -8051,6 +8163,7 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
         return '<button type="button" class="pc-btn" data-act="' + b.act + '"' + (b.attrs || '') + '>' + (b.ic || '') + '<span>' + esc(b.label) + '</span></button>';
       }).join("") + '</div>' : '') + '</div></div>';
   }
+  function gwGlow(text){ return '<div class="gw-glow" aria-hidden="true"></div><p class="gw-txt">' + IC_ZAP + '<span>' + esc(text) + '</span></p>'; }
   function pcClockHtml(){ return '<span class="pc-clock" title="Время на этом устройстве">' + IC_CLOCK + '<b>' + pcClock() + '</b></span>'; }
   function pcAva(photo, letter){
     return photo ? '<span class="ava photo" style="background-image:url(' + esc(photo) + ')"></span>' : '<span class="ava">' + esc(letter || "?") + '</span>';
@@ -8081,18 +8194,20 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
   function friendProfileCard(p){
     var st = p.stats || {}, name = p.nick || "Друг", lv = st.lv && st.lv.n ? +st.lv.n : 0;
     var dn = st.ts ? dayNum(st.ts) : -1e9, td = dayNum(Date.now());
-    var dot = dn === td ? "ok" : dn === td - 1 ? "rest" : "idle";
-    var status = dn === td ? "Сегодня в деле" : dn === td - 1 ? "Вчера была тренировка" : "Последняя отметка — " + frWhen(st.ts);
+    var lv0 = liveOf(st);
+    var dot = lv0 ? "live" : dn === td ? "ok" : dn === td - 1 ? "rest" : "idle";
+    var status = lv0 ? liveText(lv0) : dn === td ? "Сегодня в деле" : dn === td - 1 ? "Вчера была тренировка" : "Последняя отметка — " + frWhen(st.ts);
     var wk = st.wk && st.wk.id === weekId() ? +st.wk.reps || 0 : 0;
     var last = latestEvent(p), cheered = last && myReactTo(p.user_id, last.ts) === "🔥";
-    var btns = [{act: "fp-cheer", label: cheered ? "Поддержано" : "Поддержать", ic: cheered ? IC_CHECK : IC_FLAME, attrs: ' data-id="' + esc(p.user_id) + '"'}];
+    var btns = [lv0 ? {act: "live-cheer-id", label: "Подбодрить", ic: IC_FLAME, attrs: ' data-id="' + esc(p.user_id) + '"'}
+      : {act: "fp-cheer", label: cheered ? "Поддержано" : "Поддержать", ic: cheered ? IC_CHECK : IC_FLAME, attrs: ' data-id="' + esc(p.user_id) + '"'}];
     btns.push(AW.admin ? {act: "aw-give", label: "Выдать значок", ic: IC_AWARD, attrs: ' data-id="' + esc(p.user_id) + '" data-name="' + esc(name) + '"'}
       : {act: "fp-code", label: "Код · " + (p.code || ""), ic: IC_COPY, attrs: ' data-code="' + esc(p.code || "") + '"'});
     return pcCard({anim: false, cls: "fp-pc", dot: dot, status: status,
       right: '<button type="button" class="pc-x" data-act="fr-close" aria-label="Закрыть">✕</button>',
       ava: pcAva(p.photo, name.charAt(0).toUpperCase()), name: name,
       role: lv ? esc(rankOf(lv)[1]) + " " + rankOf(lv)[2] + " · уровень " + lv : "",
-      aw: awRow(p.user_id, 6, "pc"), sub: FR.mutual[p.user_id] ? "Взаимные друзья" : "Пока не добавил тебя в ответ",
+      aw: awRow(p.user_id, 6, "pc"), sub: lv0 && lv0.t ? "«" + lv0.t + "»" + (lv0.p ? " · " + lv0.p : "") : FR.mutual[p.user_id] ? "Взаимные друзья" : "Пока не добавил тебя в ответ",
       btns: btns,
       glow: wk ? "На этой неделе: " + numSp(wk) + " " + plural(wk, ["повторение","повторения","повторений"]) : lv ? numSp(+st.lv.xp || 0) + " опыта" : ""});
   }
@@ -8115,6 +8230,347 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
       if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(code).then(ok, function(){ flash("Код: " + code); });
       else flash("Код: " + code);
     } catch(e){ flash("Код: " + code); }
+  }
+
+  // ---------- «сейчас тренируется»: пока открыт режим тренировки или интервальный таймер, в профиле живёт статус ----------
+  var LIVE = null, liveT = null, liveHb = null, LIVE_PEND = null;
+  function liveInfo(){
+    if(IVR && IVR.state !== "done") return {ts: Date.now(), start: IVR.start, iv: 1, t: IVR.name, n: IVR.round, tot: IVR.rounds};
+    if(!focusKey || !LIVE) return null;
+    var info = itemInfo(focusKey), w = dayOfKey(focusKey);
+    var x = {ts: Date.now(), start: LIVE.start, t: (w && w.title) || "Тренировка", p: keyProgTitle(focusKey)};
+    if(info){ x.n = info.done ? info.total : info.n - 1; x.tot = info.total; }
+    return x;
+  }
+  function livePush(delay){
+    if(!loggedIn()) return;
+    clearTimeout(liveT);
+    liveT = setTimeout(function(){ sbPutProfile(); }, delay == null ? 1500 : delay);
+  }
+  function liveBeat(){
+    clearInterval(liveHb);
+    liveHb = setInterval(function(){ if((focusKey || (IVR && IVR.state !== "done")) && !document.hidden) livePush(0); else clearInterval(liveHb); }, 180000);
+  }
+  function liveStart(){
+    if(!LIVE || LIVE.key !== focusKey) LIVE = {start: Date.now(), key: focusKey, cheered: {}};
+    livePush(800); liveBeat();
+  }
+  function liveStop(){
+    if(!LIVE) return;
+    LIVE = null;
+    if(!IVR) clearInterval(liveHb);
+    livePush(300);
+  }
+  function liveOf(st){ var l = st && st.live; return l && l.ts && Date.now() - l.ts < 7 * 60000 ? l : null; }
+  function liveText(l){
+    if(!l) return "";
+    if(l.iv) return "Интервалы" + (l.tot ? " · раунд " + Math.max(1, l.n || 1) + " из " + l.tot : "");
+    return l.tot ? "Тренируется · подход " + Math.min(l.tot, (l.n || 0) + 1) + " из " + l.tot : "Сейчас тренируется";
+  }
+  // негромкий тост: ждёт, пока уйдёт другой, и не лезет поверх тренировки
+  function flashSoft(t, opt, tries){
+    tries = tries || 0;
+    setTimeout(function(){
+      var el = document.getElementById("toast");
+      if(el && !el.hidden && tries < 8) return flashSoft(t, opt, tries + 1);
+      if(focusKey || IVR || WN || WK || SC) return;
+      flash(t, opt);
+    }, tries ? 2000 : 1200);
+  }
+  function liveSeenList(){ try { var a = JSON.parse(localStorage.getItem("pullups-live-seen") || "[]"); return Array.isArray(a) ? a : []; } catch(e){ return []; } }
+  // после загрузки друзей: кто начал тренировку и кто подбодрил тебя прямо сейчас
+  function liveAfterLoad(){
+    var me = sbUser(), seen = liveSeenList(), fresh = null;
+    FR.list.forEach(function(p){
+      var l = liveOf(p.stats);
+      if(!l || fresh) return;
+      var id = p.user_id + ":" + l.start;
+      if(seen.indexOf(id) < 0) fresh = {p: p, l: l, id: id};
+    });
+    if(fresh && !focusKey && !IVR && !WN && !WK && !SC){
+      try { localStorage.setItem("pullups-live-seen", JSON.stringify(seen.concat(fresh.id).slice(-60))); } catch(e){}
+      LIVE_PEND = {fid: fresh.p.user_id, start: fresh.l.start};
+      flashSoft("🟢 " + (fresh.p.nick || "Друг") + " сейчас тренируется" + (fresh.l.t ? " — «" + fresh.l.t + "»" : ""), {label: "Подбодрить", act: "live-cheer"});
+    }
+    var cur = LIVE ? LIVE.start : IVR ? IVR.start : 0;
+    if(!cur || !me) return;
+    var bag = LIVE || IVR;
+    if(!bag.cheered) bag.cheered = {};
+    FR.list.forEach(function(p){
+      var r = p.stats && p.stats.reacts && p.stats.reacts[me];
+      var e = r && r.all && r.all[cur];
+      if(!e || bag.cheered[p.user_id]) return;
+      bag.cheered[p.user_id] = 1;
+      var nm = p.nick || "Друг";
+      flash(e + " " + nm + " подбадривает тебя!");
+      var anchor = document.querySelector("#focus .fc-ringwrap, #ivRun .iv-ring");
+      setTimeout(function(){ confetti(anchor || document.getElementById("toast")); }, 60);
+      buzz([30, 40, 30]);
+      if(canSpeak() && COACH) setTimeout(function(){ say(nm + " тебя подбадривает!"); }, 300);
+    });
+  }
+
+  // ---------- таблица недели: все друзья и ты — по повторениям с понедельника ----------
+  function weekBoard(){
+    var wid = weekId(), me = sbUser();
+    var rows = [{id: me, name: profName() || "Ты", photo: profPhoto(), me: true, reps: weekReps(), lv: levelOf(XPB != null ? XPB : xpCalc().xp), live: LIVE || IVR ? 1 : 0}];
+    FR.list.forEach(function(p){
+      var st = p.stats || {};
+      rows.push({id: p.user_id, name: p.nick || "Друг", photo: p.photo, reps: st.wk && st.wk.id === wid ? +st.wk.reps || 0 : 0,
+        lv: st.lv && st.lv.n ? +st.lv.n : 0, live: liveOf(st) ? 1 : 0});
+    });
+    rows.sort(function(a, b){ return b.reps - a.reps || (a.me ? -1 : b.me ? 1 : 0); });
+    return rows;
+  }
+  function boardHtml(){
+    if(!loggedIn() || !FR.list.length) return "";
+    var rows = weekBoard(), top = rows[0].reps || 0, myPos = 0;
+    rows.forEach(function(r, i){ if(r.me) myPos = i; });
+    var mine = rows[myPos].reps, left = 7 - ((new Date().getDay() + 6) % 7) - 1;
+    var glow = !top ? "Неделя только началась — первый подход будет твоим"
+      : myPos === 0 ? (rows.length > 1 && rows[1].reps === top ? "Делите первое место — нужен ещё один подход" : "Ты лидер недели 👑")
+      : "До первого места — " + numSp(top - mine) + " " + plural(top - mine, ["повторение","повторения","повторений"]);
+    var h = '<div class="pc board"><div class="pc-glow" aria-hidden="true"></div><p class="pc-glowtxt">' + IC_ZAP + '<span>' + esc(glow) + '</span></p>' +
+      '<div class="pc-card"><div class="pc-top"><span class="pc-st"><i class="pc-dot ok" aria-hidden="true"></i><span>Таблица недели</span></span>' +
+      '<span class="bd-left">' + (left > 0 ? "ещё " + left + " " + plural(left, ["день","дня","дней"]) : "последний день") + '</span></div><ol class="bd-list">';
+    rows.forEach(function(r, i){
+      var place = i < 3 && r.reps ? ["🥇", "🥈", "🥉"][i] : String(i + 1);
+      var pct = top ? Math.max(r.reps ? 4 : 0, Math.round(r.reps / top * 100)) : 0;
+      var inner = '<span class="bd-pl">' + place + '</span><span class="bd-ava">' + pcAva(r.photo, (r.me ? avatarLetter() : r.name.charAt(0).toUpperCase())) +
+        (r.live ? '<i class="bd-live" title="Сейчас тренируется"></i>' : '') + '</span>' +
+        '<span class="bd-main"><span class="bd-nm">' + esc(r.me ? "Ты" : r.name) + (r.lv ? '<em>' + r.lv + '</em>' : '') + '</span>' +
+        '<span class="bd-bar"><i style="width:' + pct + '%"></i></span></span><b class="bd-n">' + numSp(r.reps) + '</b>';
+      h += '<li class="bd-row' + (r.me ? " me" : "") + '">' + (r.me ? '<div class="bd-in">' + inner + '</div>'
+        : '<button type="button" class="bd-in" data-act="fr-open" data-id="' + esc(r.id) + '" aria-label="' + esc(r.name) + ': ' + r.reps + ' повторений за неделю">' + inner + '</button>') + '</li>';
+    });
+    return h + '</ol></div></div>';
+  }
+
+  // ---------- интервальный таймер: EMOM, табата, свой ----------
+  var IV_KEY = "pullups-iv", IV = null, IVR = null, ivTick = null, ivWake = null;
+  var IV_PRESETS = {
+    emom: {name: "EMOM", hint: "В начале каждого интервала — подход, остаток — отдых. Удобно для круговой: например, круг каждые 2 минуты.", fields: ["work", "rounds"], work: 60, rest: 0, rounds: 10},
+    tabata: {name: "Табата", hint: "20 секунд работы, 10 секунд отдыха, 8 раундов — 4 минуты на пределе.", fields: ["work", "rest", "rounds"], work: 20, rest: 10, rounds: 8},
+    custom: {name: "Свой", hint: "Сам задаёшь работу, отдых и число раундов.", fields: ["work", "rest", "rounds"], work: 40, rest: 20, rounds: 6}
+  };
+  function ivLoad(){ try { var o = JSON.parse(localStorage.getItem(IV_KEY) || "null"); return o && typeof o === "object" ? o : {}; } catch(e){ return {}; } }
+  function ivSave(){ try { localStorage.setItem(IV_KEY, JSON.stringify(IV.saved)); } catch(e){} }
+  function ivOpen(){
+    var saved = ivLoad(), kind = IV_PRESETS[saved.kind] ? saved.kind : "tabata";
+    IV = {kind: kind, saved: saved};
+    ivUse(kind);
+    renderIv();
+  }
+  function ivUse(kind){
+    var pr = IV_PRESETS[kind], sv = (IV.saved[kind] || {});
+    IV.kind = kind;
+    IV.work = clampInt(sv.work, 5, 1800, pr.work);
+    IV.rest = clampInt(sv.rest, 0, 1800, pr.rest);
+    IV.rounds = clampInt(sv.rounds, 1, 99, pr.rounds);
+  }
+  function ivTotal(){ return 10 + IV.rounds * IV.work + (IV.kind === "emom" ? 0 : Math.max(0, IV.rounds - 1) * IV.rest); }
+  function ivDur(sec){ var m = Math.floor(sec / 60), s = sec % 60; return m ? m + ":" + pad(s) : s + " с"; }
+  function ivClose(){ IV = null; renderIv(); }
+  function renderIv(){
+    var box = document.getElementById("ivDlg");
+    if(!box) return;
+    if(!IV){ box.hidden = true; box.innerHTML = ""; if(!focusKey && !ONB && !IMP && !SC && !WK && !WN && !RS && !FP && !IVR) document.body.classList.remove("modal-open"); return; }
+    box.hidden = false; document.body.classList.add("modal-open");
+    var pr = IV_PRESETS[IV.kind];
+    var fld = function(id, lab, val, unit, min, max){
+      return '<label class="iv-f"><span>' + lab + '</span><span class="iv-in"><button type="button" class="iv-step" data-act="iv-step" data-f="' + id + '" data-d="-1" aria-label="Меньше">−</button>' +
+        '<input type="number" inputmode="numeric" id="iv-' + id + '" min="' + min + '" max="' + max + '" value="' + val + '">' +
+        '<button type="button" class="iv-step" data-act="iv-step" data-f="' + id + '" data-d="1" aria-label="Больше">+</button></span><small>' + unit + '</small></label>';
+    };
+    var h = '<div class="warm-card iv-card" role="document"><div class="gwrap"><div class="gw-glow" aria-hidden="true"></div><p class="gw-txt">' + IC_ZAP + '<span id="ivTotal">Всего ' + ivDur(ivTotal()) + ' вместе с подготовкой</span></p>' +
+      '<div class="wk-hero dk"><div class="wk-top"><span>Интервальный таймер</span><button type="button" class="tb-icon" data-act="iv-close" aria-label="Закрыть">✕</button></div>' +
+      '<div class="iv-seg" role="radiogroup" aria-label="Тип">' + Object.keys(IV_PRESETS).map(function(k){
+        return '<button type="button" role="radio" aria-checked="' + (k === IV.kind) + '" class="' + (k === IV.kind ? "on" : "") + '" data-act="iv-kind" data-k="' + k + '">' + IV_PRESETS[k].name + '</button>';
+      }).join("") + '</div><p class="iv-hint">' + esc(pr.hint) + '</p></div></div><div class="iv-body">';
+    h += fld("work", IV.kind === "emom" ? "Интервал" : "Работа", IV.work, "секунд", 5, 1800);
+    if(IV.kind !== "emom") h += fld("rest", "Отдых", IV.rest, "секунд", 0, 1800);
+    h += fld("rounds", "Раунды", IV.rounds, "раз", 1, 99);
+    h += '<p class="hint iv-voice">' + (canSpeak() ? (COACH ? "Голос включён: таймер скажет «Работа», «Отдых» и посчитает «три, два, один»." : "Голос выключен — будут сигналы. Включить голос можно в режиме тренировки или на экране таймера.") : "Будут звуковые сигналы.") + '</p>' +
+      '<div class="warm-actions"><button type="button" class="primary iv-go" data-act="iv-start">' + IC_ZAP + 'Старт</button><button type="button" class="linkbtn alt" data-act="iv-close">Отмена</button></div></div></div>';
+    box.innerHTML = h;
+  }
+  function ivRead(){
+    if(!IV) return;
+    ["work", "rest", "rounds"].forEach(function(f){
+      var el = document.getElementById("iv-" + f);
+      if(!el) return;
+      var lim = f === "rounds" ? [1, 99] : f === "rest" ? [0, 1800] : [5, 1800];
+      IV[f] = clampInt(el.value, lim[0], lim[1], IV[f]);
+    });
+    IV.saved.kind = IV.kind;
+    IV.saved[IV.kind] = {work: IV.work, rest: IV.rest, rounds: IV.rounds};
+    ivSave();
+    var t = document.getElementById("ivTotal");
+    if(t) t.textContent = "Всего " + ivDur(ivTotal()) + " вместе с подготовкой";
+  }
+  // запуск
+  function ivStart(){
+    ivRead();
+    var ph = [{k: "prep", d: 10}], i;
+    for(i = 1; i <= IV.rounds; i++){
+      ph.push({k: IV.kind === "emom" ? "emom" : "work", d: IV.work, r: i});
+      if(IV.kind !== "emom" && IV.rest > 0 && i < IV.rounds) ph.push({k: "rest", d: IV.rest, r: i});
+    }
+    IVR = {name: IV_PRESETS[IV.kind].name, kind: IV.kind, ph: ph, i: 0, end: 0, left: 0, state: "run", rounds: IV.rounds, round: 0, start: Date.now(), said: {}, total: ivTotal(), cheered: {}};
+    IV = null; renderIv();
+    unlockAudio();
+    document.body.classList.add("modal-open");
+    ivWakeOn();
+    ivPhase(0);
+    clearInterval(ivTick); ivTick = setInterval(ivStep, 200);
+    livePush(800); liveBeat();
+  }
+  function ivPhase(i){
+    var p = IVR.ph[i];
+    IVR.i = i; IVR.end = Date.now() + p.d * 1000; IVR.said = {};
+    if(p.r) IVR.round = p.r;
+    var nx = IVR.ph[i + 1];
+    if(p.k === "prep") ivSay("Приготовься. " + IVR.name + ", " + IVR.rounds + " " + plural(IVR.rounds, ["раунд","раунда","раундов"]) + ".", "start");
+    else if(p.k === "work") ivSay(p.r === IVR.rounds ? "Последний раунд! Работа!" : "Раунд " + p.r + ". Работа!", "start");
+    else if(p.k === "emom") ivSay(p.r === IVR.rounds ? "Последний раунд! Поехали!" : "Раунд " + p.r + ". Поехали!", "start");
+    else if(p.k === "rest") ivSay("Отдых" + (nx ? ", дальше раунд " + nx.r : "") + ".", "done");
+    renderIvRun();
+    if(i > 0) livePush(1500);
+  }
+  function ivSay(text, sig){
+    if(COACH && canSpeak()) say(text);
+    else if(soundOn) playSig("custom", sig || "start");
+    try { if(navigator.vibrate) navigator.vibrate(sig === "done" ? [60, 60, 60] : 120); } catch(e){}
+  }
+  function ivStep(){
+    if(!IVR || IVR.state !== "run") return;
+    var left = (IVR.end - Date.now()) / 1000, n = Math.ceil(left), p = IVR.ph[IVR.i];
+    if(left <= 0){
+      if(IVR.i + 1 < IVR.ph.length) ivPhase(IVR.i + 1);
+      else ivDone();
+      return;
+    }
+    if(n <= 3 && !IVR.said[n]){
+      IVR.said[n] = 1;
+      if(COACH && canSpeak()) say(["", "Один", "Два", "Три"][n]); else if(soundOn) playSig("custom", "tick");
+    } else if(n === 10 && p.d >= 30 && !IVR.said[10]){
+      IVR.said[10] = 1;
+      if(COACH && canSpeak()) say("Десять секунд");
+    }
+    ivPaint(left);
+  }
+  function ivPaint(left){
+    var p = IVR.ph[IVR.i], f = Math.max(0, Math.min(1, 1 - left / p.d));
+    var num = document.getElementById("ivNum"), bar = document.querySelector("#ivRun .iv-arc"), tot = document.getElementById("ivLeft");
+    if(num) num.textContent = left >= 60 ? ivDur(Math.ceil(left)) : String(Math.ceil(left));
+    if(bar){ var R = +bar.getAttribute("r"), C = 2 * Math.PI * R; bar.setAttribute("stroke-dasharray", (f * C).toFixed(1) + " " + C.toFixed(1)); }
+    if(tot){
+      var rest = left; for(var j = IVR.i + 1; j < IVR.ph.length; j++) rest += IVR.ph[j].d;
+      tot.textContent = "до конца " + ivDur(Math.ceil(rest));
+    }
+  }
+  var IV_LAB = {prep: "Приготовься", work: "Работа", rest: "Отдых", emom: "Подход"};
+  var IC_PAUSE = LU('<rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/>');
+  var IC_SKIP = LU('<polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19"/>');
+  function renderIvRun(){
+    var box = document.getElementById("ivRun");
+    if(!box) return;
+    if(!IVR){ box.hidden = true; box.innerHTML = ""; return; }
+    box.hidden = false;
+    if(IVR.state === "done"){
+      var mins = Math.max(1, Math.round((Date.now() - IVR.start) / 60000));
+      box.innerHTML = '<div class="iv-top"><span>' + esc(IVR.name) + '</span><button type="button" class="pc-x" data-act="iv-stop" aria-label="Закрыть">✕</button></div>' +
+        '<div class="iv-mid"><div class="iv-ring done">' + focusRing(1, 120) + '<span class="fc-disc">' + CHECK_SVG + '</span></div>' +
+        '<p class="iv-phase">Готово!</p><p class="iv-sub">' + IVR.rounds + ' ' + plural(IVR.rounds, ["раунд","раунда","раундов"]) + ' · ' + mins + ' ' + plural(mins, ["минута","минуты","минут"]) + '</p>' +
+        '<div class="iv-btns"><button type="button" class="pc-btn" data-act="iv-again">' + IC_ZAP + '<span>Ещё раз</span></button>' +
+        '<button type="button" class="pc-btn" data-act="iv-stop">' + IC_CHECK + '<span>Закрыть</span></button></div></div>';
+      return;
+    }
+    var p = IVR.ph[IVR.i], nx = IVR.ph[IVR.i + 1], left = Math.max(0, IVR.state === "pause" ? IVR.left : (IVR.end - Date.now()) / 1000);
+    var nxt = nx ? (nx.k === "rest" ? "Дальше: отдых " + ivDur(nx.d) : "Дальше: раунд " + nx.r + (nx.k === "work" ? " — работа " + ivDur(nx.d) : "")) : "Последний отрезок";
+    box.innerHTML = '<div class="iv-top"><span>' + esc(IVR.name) + '</span><span class="iv-topbtns">' + (canSpeak() ? '<button type="button" class="pc-x" data-act="coach" aria-pressed="' + COACH + '" aria-label="' + (COACH ? "Выключить голос" : "Включить голос") + '">' + (COACH ? VOICE_IC : MUTE_IC) + '</button>' : '') +
+      '<button type="button" class="pc-x" data-act="iv-stop" aria-label="Остановить таймер">✕</button></span></div>' +
+      '<div class="iv-mid"><p class="iv-phase ph-' + p.k + '">' + IV_LAB[p.k] + '</p>' +
+      '<p class="iv-sub">' + (p.r ? "Раунд " + p.r + " из " + IVR.rounds : "Скоро начнём") + '</p>' +
+      '<div class="iv-ring ph-' + p.k + '">' + focusRing(0, 120).replace('class="fr-bar"', 'class="fr-bar iv-arc"') +
+      '<button type="button" class="iv-num" data-act="iv-pause" aria-label="' + (IVR.state === "pause" ? "Продолжить" : "Пауза") + '"><b id="ivNum">' + (left >= 60 ? ivDur(Math.ceil(left)) : Math.ceil(left)) + '</b><span>' + (IVR.state === "pause" ? "пауза · нажми, чтобы продолжить" : "нажми — пауза") + '</span></button></div>' +
+      '<p class="iv-next">' + esc(nxt) + '</p><p class="iv-left" id="ivLeft"></p></div>' +
+      '<div class="iv-bot"><button type="button" class="pc-btn" data-act="iv-pause">' + (IVR.state === "pause" ? IC_ZAP + '<span>Продолжить</span>' : IC_PAUSE + '<span>Пауза</span>') + '</button>' +
+      '<button type="button" class="pc-btn" data-act="iv-skip">' + IC_SKIP + '<span>Пропустить</span></button></div>';
+    ivPaint(left);
+  }
+  function ivPause(){
+    if(!IVR || IVR.state === "done") return;
+    if(IVR.state === "run"){ IVR.left = Math.max(0, (IVR.end - Date.now()) / 1000); IVR.state = "pause"; hush(); }
+    else { IVR.end = Date.now() + IVR.left * 1000; IVR.state = "run"; }
+    renderIvRun();
+  }
+  function ivSkip(){
+    if(!IVR || IVR.state === "done") return;
+    IVR.state = "run";
+    if(IVR.i + 1 < IVR.ph.length) ivPhase(IVR.i + 1); else ivDone();
+  }
+  function ivDone(){
+    clearInterval(ivTick);
+    IVR.state = "done";
+    ivSay("Готово! Отличная работа!", "done");
+    feedPush({k: "iv", t: IVR.name, n: IVR.rounds, s: Math.round((Date.now() - IVR.start) / 1000)});
+    save();
+    renderIvRun();
+    var ring = document.querySelector("#ivRun .iv-ring");
+    setTimeout(function(){ confetti(ring || document.body); }, 80);
+    buzz([60, 60, 60, 60, 160]);
+    ivWakeOff();
+    livePush(300);
+  }
+  function ivStop(){
+    clearInterval(ivTick);
+    if(IVR && IVR.state !== "done"){ hush(); }
+    IVR = null;
+    renderIvRun();
+    ivWakeOff();
+    if(!focusKey && !LIVE) clearInterval(liveHb);
+    livePush(300);
+    if(!focusKey && !IV && !FP && !WK && !WN && !SC && !RS) document.body.classList.remove("modal-open");
+  }
+  function ivWakeOn(){
+    try {
+      if(!navigator.wakeLock || !navigator.wakeLock.request || ivWake) return;
+      navigator.wakeLock.request("screen").then(function(l){ if(!IVR){ try { l.release(); } catch(e){} return; } ivWake = l; }).catch(function(){});
+    } catch(e){}
+  }
+  function ivWakeOff(){ try { if(ivWake) ivWake.release(); } catch(e){} ivWake = null; }
+  document.addEventListener("visibilitychange", function(){ if(!document.hidden && IVR && IVR.state !== "done"){ ivWake = null; ivWakeOn(); } });
+
+  // ---------- карточка друга в списке — в том же тёмном стиле ----------
+  function frCard(p){
+    var st = p.stats || {}, name = p.nick || "Без имени", lv = st.lv && st.lv.n ? +st.lv.n : 0, l = liveOf(st);
+    var dn = st.ts ? dayNum(st.ts) : -1e9, td = dayNum(Date.now());
+    var dot = l ? "live" : dn === td ? "ok" : dn === td - 1 ? "rest" : "idle";
+    var status = l ? liveText(l) : dn === td ? "Сегодня в деле" : dn === td - 1 ? "Вчера была тренировка" : "Последняя отметка — " + frWhen(st.ts);
+    var rows = [
+      {v: st.pull || 0, u: ["подтягивание","подтягивания","подтягиваний"]},
+      {v: st.push || 0, u: ["отжимание","отжимания","отжиманий"]},
+      {v: st.squat || 0, u: ["приседание","приседания","приседаний"]},
+      {v: st.dumb || 0, u: ["повтор с гантелями","повтора с гантелями","повторов с гантелями"]},
+      {v: st.stretch || 0, u: ["минута растяжки","минуты растяжки","минут растяжки"]}
+    ].filter(function(r){ return r.v > 0; });
+    var line = rows.length ? rows.map(function(r){ return numSp(r.v) + " " + plural(r.v, r.u); }).join(" · ") : "пока без отметок";
+    var last = latestEvent(p), cheered = last && myReactTo(p.user_id, last.ts) === "🔥";
+    return '<div class="frcard fc2"><div class="pc-top"><span class="pc-st"><i class="pc-dot ' + dot + '" aria-hidden="true"></i><span>' + esc(status) + '</span></span>' +
+      (lv ? '<span class="fc2-lv" title="' + esc(rankOf(lv)[1]) + '">' + rankOf(lv)[2] + ' ' + lv + '</span>' : '') + '</div>' +
+      '<div class="fc2-who"><button type="button" class="fr-open pc-ava" data-act="fr-open" data-id="' + esc(p.user_id) + '" aria-label="Профиль: ' + esc(name) + '">' + pcAva(p.photo, name.charAt(0).toUpperCase()) + '</button>' +
+      '<div class="fc2-names"><div class="frtop"><button type="button" class="fd-name fr-nm" data-act="fr-open" data-id="' + esc(p.user_id) + '">' + esc(name) + '</button>' + awRow(p.user_id, 4, "pc") + '</div>' +
+      '<p class="fc2-sub">' + esc(line) + '</p></div></div>' +
+      duelHtml(st, name) +
+      (theirReact(p) ? '<p class="fc2-note">Тебе поставили ' + theirReact(p) + '</p>' : '') +
+      '<div class="fc2-btns"><button type="button" class="pc-btn" data-act="fr-open" data-id="' + esc(p.user_id) + '">' + IC_LOGIN + '<span>Профиль</span></button>' +
+      (l ? '<button type="button" class="pc-btn" data-act="live-cheer-id" data-id="' + esc(p.user_id) + '">' + IC_FLAME + '<span>Подбодрить</span></button>'
+         : '<button type="button" class="pc-btn" data-act="fp-cheer" data-id="' + esc(p.user_id) + '">' + (cheered ? IC_CHECK : IC_FLAME) + '<span>' + (cheered ? "Поддержано" : "Поддержать") + '</span></button>') +
+        '</div>' +
+      '<div class="fc2-foot"><span>' + (FR.mutual[p.user_id] ? "Взаимные друзья" : "Пока не добавил тебя в ответ") + ' · код ' + esc(p.code || "") + '</span><span class="fc2-links">' +
+      (AW.admin ? '<button type="button" class="fc2-drop fc2-aw" data-act="aw-give" data-id="' + esc(p.user_id) + '" data-name="' + esc(name) + '" title="Выдать значок">' + IC_AWARD + 'Значок</button>' : '') +
+      '<button type="button" class="fc2-drop" data-act="fr-drop" data-id="' + esc(p.user_id) + '">Убрать</button></span></div></div>';
   }
 
   // ---------- график тестов ----------
@@ -8267,6 +8723,7 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
     wakeOn();
     renderFocus();
     coachIntro();
+    liveStart();
   }
   // всё, что живёт только пока открыт режим тренировки
   function focusTeardown(){
@@ -8279,6 +8736,7 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
     wakeOff();
   }
   function focusClose(){
+    liveStop();
     focusTeardown();
     focusKey = null; focusVal = null;
     document.body.classList.remove("modal-open");
@@ -8305,6 +8763,7 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
     try { if(navigator.vibrate) navigator.vibrate(30); } catch(e){}
     coachAfterMark(coachPrefix);
     coachPrefix = "";
+    livePush(2500);
   }
   // главная кнопка: для секунд — старт и стоп удержания, для повторов — отметка
   function focusPrimary(){
@@ -8516,7 +8975,8 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
         '<button type="button" class="fc-step" data-act="focus-more" aria-label="Больше"' + (FH ? " disabled" : "") + '>+</button></div>';
       if(ri && !ri.due && !FH) h += '<button type="button" class="fc-state fc-set" data-act="timer-set" aria-label="Изменить время отдыха"><b>' + fmt(Math.ceil(ri.left)) + '</b> отдых' + PEN_IC + '</button>';
       else if(ri && ri.due && !FH) h += '<p class="fc-state due" role="status"><b>Пора</b> отдых закончился, делай подход</p>';
-      var tools = (camMode && !FH ? '<button type="button" class="fc-tool" data-act="focus-cam">' + CAM_IC + 'Считать камерой</button>' : '') + coachBtn();
+      var tools = (camMode && !FH ? '<button type="button" class="fc-tool" data-act="focus-cam">' + CAM_IC + 'Считать камерой</button>' : '') + coachBtn() +
+        (!FH ? '<button type="button" class="fc-tool" data-act="iv-open">' + IC_CLOCK + 'Интервалы</button>' : '');
       if(tools) h += '<div class="fc-tools">' + tools + '</div>';
       if(next) h += '<p class="fc-next">Дальше: ' + esc(next) + '</p>';
       h += '<p class="vh">Отмечено ' + (info.n - 1) + ' из ' + info.total + '</p></div>';
@@ -9465,6 +9925,27 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
     if(act === "lvl-close"){ lvlUpHide(); return; }
     if(act === "aw-info"){ awInfo(b.getAttribute("data-id")); return; }
     if(act === "fr-open"){ frOpen(b.getAttribute("data-id")); return; }
+    if(act === "live-cheer"){ if(LIVE_PEND){ reactSet(LIVE_PEND.fid, LIVE_PEND.start, "🔥"); flash("Отправил 🔥 — увидит прямо на тренировке"); LIVE_PEND = null; } return; }
+    if(act === "live-cheer-id"){
+      var lcp = frById(b.getAttribute("data-id")), lcl = lcp ? liveOf(lcp.stats) : null;
+      if(!lcl){ flash("Тренировка уже закончилась"); return; }
+      if(myReactTo(lcp.user_id, lcl.start) === "🔥"){ flash("Ты уже подбодрил — 🔥 у него на экране"); return; }
+      reactSet(lcp.user_id, lcl.start, "🔥"); flash("Отправил 🔥 — увидит прямо на тренировке");
+      return;
+    }
+    if(act === "iv-open"){ ivOpen(); return; }
+    if(act === "iv-close"){ ivClose(); return; }
+    if(act === "iv-kind"){ ivRead(); ivUse(b.getAttribute("data-k")); renderIv(); return; }
+    if(act === "iv-step"){
+      var isf = b.getAttribute("data-f"), iel = document.getElementById("iv-" + isf), d0 = +b.getAttribute("data-d");
+      if(iel){ var st0 = isf === "rounds" ? 1 : (+iel.value >= 120 ? 15 : 5); iel.value = Math.max(isf === "rest" ? 0 : isf === "rounds" ? 1 : 5, (+iel.value || 0) + d0 * st0); ivRead(); }
+      return;
+    }
+    if(act === "iv-start"){ ivStart(); return; }
+    if(act === "iv-pause"){ ivPause(); return; }
+    if(act === "iv-skip"){ ivSkip(); return; }
+    if(act === "iv-stop"){ ivStop(); return; }
+    if(act === "iv-again"){ var ag = IVR ? IVR.kind : null; ivStop(); ivOpen(); if(ag && IV){ ivUse(ag); renderIv(); } return; }
     if(act === "pc-copy"){ copyCode(myCode(), b); return; }
     if(act === "fp-code"){ copyCode(b.getAttribute("data-code") || "", b); return; }
     if(act === "pc-addfriend"){ var fc0 = document.getElementById("frCode"); if(fc0){ scrollTo(fc0.closest(".panel") || fc0); setTimeout(function(){ try { fc0.focus({preventScroll: true}); } catch(e){} }, 300); } return; }
@@ -9532,11 +10013,14 @@ from auth.users u left join public.badge_admins a on a.user_id = u.id;</code></p
 
   document.addEventListener("keydown", function(ev){
     if(ev.key === "Escape" && LVT && !document.getElementById("lvlUp").hidden){ lvlUpHide(); return; }
+    if(ev.key === "Escape" && IV){ ivClose(); return; }
+    if(ev.key === "Escape" && IVR){ if(IVR.state === "done") ivStop(); else if(IVR.state === "run") ivPause(); return; }
+    if((ev.key === " " || ev.code === "Space") && IVR && IVR.state !== "done" && !(ev.target && /INPUT|TEXTAREA/.test(ev.target.tagName))){ ev.preventDefault(); ivPause(); return; }
     if(ev.key === "Escape" && AW.give){ awGiveClose(); return; }
     if(ev.key === "Escape" && FP){ frClose(); return; }
     if(ev.key === "Escape" && RS){ rsClose(); return; }
     if(ev.key === "Enter" && RS && ev.target && (ev.target.id === "rsMin" || ev.target.id === "rsSec")){ ev.preventDefault(); restSet(rsFromFields()); return; }
-    if(RS || AW.give || FP) return;
+    if(RS || AW.give || FP || IV || IVR) return;
     if(ev.key === "Escape" && SC){ SC = null; renderShareDlg(); return; }
     if(ev.key === "Escape" && WK){ weekClose(); return; }
     if(ev.key === "Escape" && WN){ wnClose(); return; }
