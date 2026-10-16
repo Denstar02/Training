@@ -1662,6 +1662,48 @@ button.bd-in:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .ff-add{min-height:38px;padding:0 14px}
 .ff-have{font-size:12.5px;color:var(--muted);white-space:nowrap}
 .ff-x{margin-top:6px}
+/* открытый доступ: документы, согласие, удаление аккаунта, заявки, модерация */
+#docDlg{z-index:85}
+#cnsDlg,#delDlg{z-index:70}
+.doc-card{max-width:640px;display:flex;flex-direction:column;max-height:calc(100% - 24px)}
+.doc-card .warm-top h2,.cns-card .warm-top h2,.del-card .warm-top h2{margin:0;font-size:18px;line-height:1.3}
+.doc-body{overflow:auto;padding-right:4px;font-size:15px;line-height:1.55}
+.doc-body h3{margin:18px 0 6px;font-size:15.5px}
+.doc-body p,.doc-body ul{margin:0 0 8px}
+.doc-body ul{padding-left:20px}
+.doc-body li{margin:3px 0}
+.doc-meta{color:var(--muted);font-size:13.5px}
+mark.todo{background:color-mix(in srgb, var(--danger) 16%, transparent);color:var(--danger);border-radius:4px;padding:0 4px}
+.doc-nav{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.doc-nav .primary{margin-left:auto}
+.legal{display:flex;flex-wrap:wrap;justify-content:center;gap:2px 18px;margin:2px 0 28px}
+.legal .linkbtn{min-height:36px;padding:0;font-size:13px;font-weight:500;color:var(--muted);text-decoration:none}
+.legal .linkbtn:hover{color:var(--accent)}
+.agree-box{display:grid;gap:10px;margin:6px 0 12px}
+.agree{display:flex;align-items:flex-start;gap:10px;font-size:14.5px;line-height:1.4;cursor:pointer}
+.agree input{flex:0 0 auto;width:20px;height:20px;margin:1px 0 0;accent-color:var(--accent)}
+.linkbtn.inl{display:inline;min-height:0;padding:0;border:0;background:none;color:var(--accent);font:inherit;font-weight:600;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.agree-box .hint{margin:0}
+.hint.err{color:var(--danger)}
+.del-link{color:var(--danger)}
+.del-card .field{margin:12px 0 6px}
+.danger[disabled]{opacity:.5;cursor:not-allowed}
+.fr-reqs{margin:4px 0 14px;padding:12px;border-radius:var(--r-md);background:var(--accent-ghost)}
+.fr-reqs.out{background:transparent;padding:4px 0 0}
+.fr-reqs .camset-label{margin:0 2px 10px}
+.fr-reqs > .hint{margin:8px 2px 0}
+.ff-btns{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.ff-no{min-height:38px}
+.ff-mod{grid-column:2 / -1;display:flex;gap:14px}
+.ff-mod .linkbtn,.fp-mod .linkbtn{min-height:28px;padding:0;font-size:12.5px;color:var(--danger)}
+.fp-mod,.fp-drop{margin:8px 0 0}
+.fp-mod .ff-mod{display:inline-flex}
+.ban-note{padding:10px 12px;border-radius:var(--r-sm);background:color-mix(in srgb, var(--part) 14%, transparent);color:var(--ink)}
+.onb-health{margin-top:12px;font-size:13.5px}
+a.inl{color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.doc-card .warm-top h2,.cns-card .warm-top h2,.del-card .warm-top h2{color:var(--ink)}
+@media (max-width:420px){#frReqs .ff-btns{grid-column:2 / -1;justify-content:flex-start}.fr-reqs.out .ff-btns{grid-column:auto;justify-content:flex-end}}
+.linkbtn.alt.del-link{color:var(--danger)}
 </style>
 </head>
 <body>
@@ -1696,7 +1738,7 @@ button.bd-in:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
     <div id="medalsSlot"></div>
     <div id="friendsBox"></div>
 
-    <details class="panel">
+    <details class="panel" id="setupBox" hidden>
       <summary>Подключение базы: для тех, кто разворачивает страницу у себя</summary>
       <p class="hint">Нужно только тем, кто разворачивает эту страницу у себя: здесь подключается своя база.</p>
       <p class="hint aw-status" id="awStatus" hidden></p>
@@ -1812,6 +1854,150 @@ language sql stable security definer set search_path = public as $$
 $$;
 revoke all on function public.find_friend(text) from public, anon;
 grant execute on function public.find_friend(text) to authenticated;</code></pre>
+        <p class="hint"><b>Для открытого доступа</b> — запрос, после которого профиль видят только взаимные друзья, дружба идёт через заявки, а ещё работают поиск, удаление аккаунта и скрытие ника или фото админом. Выполни его после остальных; повторный запуск ничего не сломает:</p>
+        <pre><code>-- Открытый доступ: профиль видят только взаимные друзья, заявки в друзья,
+-- поиск по коду, почте и нику, удаление аккаунта, скрытие ника и фото админом.
+-- Запрос можно выполнять повторно.
+
+-- 1. Профиль видят только сам владелец и взаимные друзья
+drop policy if exists "profiles read" on public.profiles;
+drop policy if exists "profiles read friends" on public.profiles;
+create policy "profiles read friends" on public.profiles
+  for select to authenticated using (
+    user_id = auth.uid()
+    or (exists (select 1 from public.friends f where f.user_id = auth.uid() and f.friend_id = profiles.user_id)
+        and exists (select 1 from public.friends f where f.user_id = profiles.user_id and f.friend_id = auth.uid())));
+
+-- 2. Заявку можно отклонить, дружбу — убрать с обеих сторон; себя в друзья не добавить
+drop policy if exists "friends drop" on public.friends;
+create policy "friends drop" on public.friends
+  for delete to authenticated using (auth.uid() = user_id or auth.uid() = friend_id);
+drop policy if exists "friends add" on public.friends;
+create policy "friends add" on public.friends
+  for insert to authenticated with check (auth.uid() = user_id and friend_id &lt;&gt; auth.uid());
+
+-- 3. Значки видят владелец, тот, кто выдал, и взаимные друзья
+do $$ begin
+  if to_regclass('public.awards') is not null then
+    execute 'drop policy if exists "awards read" on public.awards';
+    execute $p$create policy "awards read" on public.awards
+      for select to authenticated using (
+        user_id = auth.uid() or given_by = auth.uid()
+        or (exists (select 1 from public.friends f where f.user_id = auth.uid() and f.friend_id = awards.user_id)
+            and exists (select 1 from public.friends f where f.user_id = awards.user_id and f.friend_id = auth.uid())))$p$;
+  end if;
+end $$;
+
+-- 4. Поиск и заявки: наружу только ник, фото, уровень и код
+create or replace function public.find_people(q text)
+returns table (user_id uuid, code text, nick text, photo text, lv int)
+language sql stable security definer set search_path = public as $$
+  select p.user_id, p.code, p.nick, p.photo,
+         case when p.stats-&gt;'lv'-&gt;&gt;'n' ~ '^[0-9]{1,4}$' then (p.stats-&gt;'lv'-&gt;&gt;'n')::int else 0 end
+  from public.profiles p
+  join auth.users u on u.id = p.user_id
+  where auth.uid() is not null and p.user_id &lt;&gt; auth.uid()
+    and char_length(trim(q)) between 2 and 80
+    and (p.code = upper(trim(q))
+         or lower(u.email) = lower(trim(q))
+         or lower(trim(p.nick)) = lower(trim(q)))
+  order by p.updated_at desc
+  limit 6;
+$$;
+
+create or replace function public.my_people()
+returns table (user_id uuid, code text, nick text, photo text, lv int)
+language sql stable security definer set search_path = public as $$
+  select p.user_id, p.code, p.nick, p.photo,
+         case when p.stats-&gt;'lv'-&gt;&gt;'n' ~ '^[0-9]{1,4}$' then (p.stats-&gt;'lv'-&gt;&gt;'n')::int else 0 end
+  from public.profiles p
+  where auth.uid() is not null and p.user_id &lt;&gt; auth.uid()
+    and exists (select 1 from public.friends f
+                where (f.user_id = auth.uid() and f.friend_id = p.user_id)
+                   or (f.user_id = p.user_id and f.friend_id = auth.uid()));
+$$;
+
+-- 5. Удалить свой аккаунт со всеми данными
+create or replace function public.delete_me()
+returns void language plpgsql security definer set search_path = public as $$
+declare me uuid := auth.uid();
+begin
+  if me is null then raise exception 'not signed in'; end if;
+  if to_regclass('public.awards') is not null then
+    execute 'delete from public.awards where given_by = $1' using me;
+  end if;
+  delete from auth.users where id = me;
+end;
+$$;
+
+-- 6. Модерация: админ скрывает ник или фото; тот же ник или то же фото снова не появятся
+create table if not exists public.badge_admins (
+  user_id uuid primary key references auth.users on delete cascade
+);
+alter table public.badge_admins enable row level security;
+create table if not exists public.profile_bans (
+  user_id uuid primary key references auth.users on delete cascade,
+  nick text,
+  photo_md5 text,
+  by_admin uuid references auth.users on delete set null,
+  created_at timestamptz not null default now()
+);
+alter table public.profile_bans enable row level security;
+grant select on public.profile_bans to authenticated;
+drop policy if exists "bans read" on public.profile_bans;
+create policy "bans read" on public.profile_bans
+  for select to authenticated using (
+    user_id = auth.uid()
+    or exists (select 1 from public.badge_admins a where a.user_id = auth.uid()));
+
+create or replace function public.profiles_apply_bans() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare b public.profile_bans%rowtype;
+begin
+  select * into b from public.profile_bans where user_id = new.user_id;
+  if found then
+    if b.nick is not null and lower(trim(coalesce(new.nick, ''))) = lower(trim(b.nick)) then new.nick := null; end if;
+    if b.photo_md5 is not null and new.photo is not null and md5(new.photo) = b.photo_md5 then new.photo := null; end if;
+  end if;
+  return new;
+end;
+$$;
+drop trigger if exists profiles_apply_bans on public.profiles;
+create trigger profiles_apply_bans before insert or update on public.profiles
+  for each row execute function public.profiles_apply_bans();
+
+create or replace function public.admin_hide(target uuid, what text)
+returns void language plpgsql security definer set search_path = public as $$
+declare p public.profiles%rowtype;
+begin
+  if not exists (select 1 from public.badge_admins a where a.user_id = auth.uid()) then
+    raise exception 'only admin';
+  end if;
+  select * into p from public.profiles where user_id = target;
+  if not found then raise exception 'no profile'; end if;
+  insert into public.profile_bans (user_id, by_admin) values (target, auth.uid())
+    on conflict (user_id) do update set by_admin = excluded.by_admin, created_at = now();
+  if what = 'nick' then
+    update public.profile_bans set nick = p.nick where user_id = target;
+    update public.profiles set nick = null where user_id = target;
+  elsif what = 'photo' then
+    update public.profile_bans set photo_md5 = md5(p.photo) where user_id = target;
+    update public.profiles set photo = null where user_id = target;
+  else
+    raise exception 'what: nick or photo';
+  end if;
+end;
+$$;
+
+-- 7. Функции вызывают только вошедшие пользователи
+revoke all on function public.find_people(text) from public, anon;
+revoke all on function public.my_people() from public, anon;
+revoke all on function public.delete_me() from public, anon;
+revoke all on function public.admin_hide(uuid, text) from public, anon;
+grant execute on function public.find_people(text) to authenticated;
+grant execute on function public.my_people() to authenticated;
+grant execute on function public.delete_me() to authenticated;
+grant execute on function public.admin_hide(uuid, text) to authenticated;</code></pre>
         <p class="hint">Ключ anon публичный по задумке: сами данные закрыты правилами выше, их видит только владелец строки.</p>
         </details>
       </div>
@@ -2266,11 +2452,15 @@ grant execute on function public.find_friend(text) to authenticated;</code></pre
   </details>
 
   <p class="ver" id="appVer"></p>
+  <nav class="legal" id="legalNav" aria-label="Документы"></nav>
 </div>
 
 <div id="onb" class="warm" role="dialog" aria-modal="true" hidden></div>
 <div id="imp" class="warm" role="dialog" aria-modal="true" aria-labelledby="impTitle" hidden></div>
 <div id="lvlUp" class="lvlup" data-act="lvl-close" hidden></div>
+<div id="docDlg" class="warm doc-dlg" role="dialog" aria-modal="true" aria-label="Документ" hidden></div>
+<div id="cnsDlg" class="warm cns-dlg" role="dialog" aria-modal="true" aria-label="Согласие на обработку данных" hidden></div>
+<div id="delDlg" class="warm del-dlg" role="dialog" aria-modal="true" aria-label="Удаление аккаунта" hidden></div>
 <div id="ivDlg" class="warm iv-dlg" role="dialog" aria-modal="true" aria-label="Интервальный таймер" hidden></div>
 <div id="ivRun" class="ivrun" role="dialog" aria-modal="true" aria-label="Интервальный таймер идёт" hidden></div>
 <div id="frDlg" class="warm fp-dlg" role="dialog" aria-modal="true" aria-label="Профиль друга" hidden></div>
@@ -2292,8 +2482,13 @@ grant execute on function public.find_friend(text) to authenticated;</code></pre
     "sb_publishable_xiMxPtjCJx8o7oMtUEBuew_J51Gty0A",
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzd3FsYmpsa3Bncm55a2dnY3pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwNDIyNDUsImV4cCI6MjEwNjYxODI0NX0.KQMAqfGyNr1NeLMKu3iRuufLaZ5DEMRj2sc1ulkK5QY"
   ]};
+  // ===== для открытого доступа: впиши свои данные — они попадут в политику конфиденциальности и согласие =====
+  // owner — ФИО оператора, ownerTo — оно же в дательном падеже (кому: даю согласие …); email и telegram — куда писать с вопросами о данных; storage — где стоит сервер базы;
+  // abroad — true, если сервер за пределами России (тогда в согласии появится пункт о трансграничной передаче)
+  var LEGAL = {owner: "Тарасов Денис Алексеевич", ownerTo: "Тарасову Денису Алексеевичу", email: "denstar02@gmail.com", telegram: "@denstar02", storage: "Облачная база Supabase (Supabase Inc.), серверы Amazon Web Services во Франкфурте-на-Майне, Германия (регион eu-central-1)", abroad: true, updated: "16 октября 2026"};
+  var CONSENT_V = "2026-10-16";   // поменяй дату, если существенно изменишь согласие, — все подтвердят заново
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 2, APP_BUILD_N = 4;
+  var APP_MAJOR = 2, APP_BUILD_N = 5;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var APP_BUILD = APP_MAJOR * 100 + APP_BUILD_N;   // 1.35 → 135, 2.01 → 201
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
@@ -4964,15 +5159,20 @@ grant execute on function public.find_friend(text) to authenticated;</code></pre
     em = (em || "").trim();
     if(!sbSetup()){ syncStatus("Сначала сохрани адрес проекта и ключ."); return; }
     if(!em || !pw || pw.length < 6){ syncStatus("Нужны почта и пароль не короче 6 символов."); return; }
+    var agA = document.getElementById("pfAgree"), agP = document.getElementById("pfPolicy");
+    if(mode === "up" && agA && (!agA.checked || !agP || !agP.checked)){ syncStatus("Чтобы создать аккаунт, поставь обе галочки: согласие на обработку данных и политика конфиденциальности."); return; }
     syncStatus(mode === "up" ? "Создаю аккаунт…" : "Вхожу…");
     var path = mode === "up" ? "/auth/v1/signup" : "/auth/v1/token?grant_type=password";
-    sbReq(path, {method: "POST", body: JSON.stringify({email: em, password: pw})}, false)
+    var authBody = {email: em, password: pw};
+    if(mode === "up") authBody.data = consentData();
+    sbReq(path, {method: "POST", body: JSON.stringify(authBody)}, false)
       .then(function(t){
         if(!t || !t.access_token){
           syncStatus("Аккаунт создан. Подтверди письмо на почте и войди, либо отключи подтверждение почты в настройках проекта.");
           return;
         }
-        sbSaveTok(t); sbUser();
+        sbSaveTok(t); var nu = sbUser();
+        if(mode === "up" && nu) consentMark(nu);
         var pwEl = document.getElementById("pfPass") || document.getElementById("sbPass"); if(pwEl) pwEl.value = "";
         return sbSync();
       })
@@ -6123,7 +6323,7 @@ grant execute on function public.find_friend(text) to authenticated;</code></pre
     b.setAttribute("aria-label", on ? "Профиль: " + (SB.mail || "аккаунт") : "Войти в аккаунт");
     b.setAttribute("aria-pressed", TAB === "profile");
     if(TAB !== "profile"){ FDH = null; PC_SHOWN = false; }
-    var fnews = TAB !== "profile" && loggedIn() && FR.loaded ? feedNews() : 0;
+    var fnews = TAB !== "profile" && loggedIn() && FR.loaded ? feedNews() + (FR.inc ? FR.inc.length : 0) : 0;
     b.classList.toggle("news", fnews > 0);
     if(fnews) b.setAttribute("aria-label", b.getAttribute("aria-label") + ", в ленте новое");
     // одно кольцо — прогресс уровня, одна плашка снизу — уровень и последний значок; статус синхронизации — в плашке слева
@@ -6193,27 +6393,45 @@ grant execute on function public.find_friend(text) to authenticated;</code></pre
     var uid = sbUser();
     if(!uid) return Promise.resolve();
     FR.loading = true; FR.err = "";
-    var ids = [];
-    return sbReq("/rest/v1/friends?select=friend_id&user_id=eq." + uid)
+    var outR = [], inR = [], mutual = [];
+    return sbReq("/rest/v1/friends?select=friend_id,created_at&user_id=eq." + uid)
       .then(function(rows){
-        ids = (rows || []).map(function(r){ return r.friend_id; });
-        return sbReq("/rest/v1/friends?select=user_id&friend_id=eq." + uid);
+        outR = rows || [];
+        return sbReq("/rest/v1/friends?select=user_id,created_at&friend_id=eq." + uid);
       })
       .then(function(back){
-        FR.mutual = {};
-        (back || []).forEach(function(r){ FR.mutual[r.user_id] = true; });
-        if(!ids.length){ FR.list = []; return null; }
-        return sbReq("/rest/v1/profiles?select=user_id,code,nick,photo,stats,updated_at&user_id=in.(" + ids.join(",") + ")");
+        inR = back || [];
+        var outIds = outR.map(function(r){ return r.friend_id; }), inIds = inR.map(function(r){ return r.user_id; });
+        FR.mutual = {}; FR.since = {};
+        inIds.forEach(function(id){ FR.mutual[id] = true; });
+        mutual = outIds.filter(function(id){ return inIds.indexOf(id) >= 0; });
+        mutual.forEach(function(id){
+          var a = (outR.filter(function(r){ return r.friend_id === id; })[0] || {}).created_at, b = (inR.filter(function(r){ return r.user_id === id; })[0] || {}).created_at;
+          FR.since[id] = a && b ? (a > b ? a : b) : (a || b || "");
+        });
+        var pend = outIds.concat(inIds).filter(function(id){ return mutual.indexOf(id) < 0; });
+        return Promise.all([
+          mutual.length ? sbReq("/rest/v1/profiles?select=user_id,code,nick,photo,stats,updated_at&user_id=in.(" + mutual.join(",") + ")") : [],
+          frPeople(pend)
+        ]).then(function(r){
+          var cards = {};
+          (r[1] || []).forEach(function(c){ cards[c.user_id] = c; });
+          FR.inc = inIds.filter(function(id){ return mutual.indexOf(id) < 0; }).map(function(id){ return cards[id] || {user_id: id}; });
+          FR.out = outIds.filter(function(id){ return mutual.indexOf(id) < 0; }).map(function(id){ return cards[id] || {user_id: id}; });
+          return r[0];
+        });
       })
       .then(function(profs){
         FR.list = (profs || []).slice().sort(function(a, b){
           return ((b.stats && b.stats.ts) || 0) - ((a.stats && a.stats.ts) || 0);
         });
         FR.loading = false; FR.loaded = Date.now();
-        renderProfile();
+        renderProfile(); renderAcc();
         feedAfterLoad();
         liveAfterLoad();
+        reqAfterLoad();
         awLoad();
+        banCheck();
       })
       .catch(function(e){ FR.loading = false; FR.loaded = Date.now(); FR.err = sbErr(e); renderProfile(); });
   }
@@ -6227,16 +6445,17 @@ grant execute on function public.find_friend(text) to authenticated;</code></pre
   // ник ищем точным совпадением без учёта регистра: экранируем знаки шаблона
   function frLike(t){ return t.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_").replace(/\*/g, ""); }
   function frAddId(p){
-    var name = p.nick || "Друг";
+    var name = p.nick || "Друг", st = inOut(p.user_id);
     if(p.user_id === sbUser()){ FR.found = null; FR.err = "Это твой собственный аккаунт 🙂"; renderProfile(); return Promise.resolve(); }
-    if(frById(p.user_id)){ FR.found = null; FR.q = ""; FR.err = ""; renderProfile(); flash(name + " уже у тебя в друзьях"); return Promise.resolve(); }
+    if(st === "friend"){ FR.found = null; FR.q = ""; FR.err = ""; renderProfile(); flash(name + " уже у тебя в друзьях"); return Promise.resolve(); }
+    if(st === "out"){ FR.found = null; FR.q = ""; FR.err = ""; renderProfile(); flash("Заявка уже отправлена — ждём, когда " + name + " её примет"); return Promise.resolve(); }
     return sbReq("/rest/v1/friends", {
       method: "POST",
       headers: {Prefer: "resolution=merge-duplicates,return=minimal"},
       body: JSON.stringify([{user_id: sbUser(), friend_id: p.user_id}])
     }).then(function(){
       FR.q = ""; FR.found = null; FR.err = "";
-      flash("Добавлен: " + name);
+      flash(st === "inc" ? "Готово, вы друзья: " + name + " 🤝" : "Заявка отправлена — " + name + " увидит её у себя");
       return sbFriends();
     });
   }
@@ -6267,32 +6486,47 @@ grant execute on function public.find_friend(text) to authenticated;</code></pre
     if(kind === "mail" && SB.mail && t.toLowerCase() === String(SB.mail).toLowerCase()){ FR.err = "Это твоя почта 🙂 Впиши почту друга."; renderProfile(); return; }
     if(kind === "nick" && t.length < 2){ FR.err = "Ник слишком короткий — впиши его целиком."; renderProfile(); return; }
     FR.busy = true; renderProfile();
-    var job;
-    if(kind === "code") job = sbReq("/rest/v1/profiles?select=user_id,code,nick,photo,stats&code=eq." + t.toUpperCase())
+    sbReq("/rest/v1/rpc/find_people", {method: "POST", body: JSON.stringify({q: t})})
+      .then(function(rows){
+        rows = (rows || []).filter(function(x){ return x.user_id !== sbUser(); });
+        if(!rows.length) throw new Error(kind === "mail" ? "Аккаунт с почтой " + t + " не найден. Проверь адрес — это должна быть почта, с которой друг входит в приложение."
+          : kind === "code" ? "Никого с кодом " + t.toUpperCase() + " не нашлось. Код виден у друга в профиле, в разделе «Друзья»."
+          : "Никого с ником «" + t + "» не нашлось. Ник нужно вписать целиком, как у друга в профиле, — или добавь его по коду или почте.");
+        if(kind !== "nick" && rows.length === 1) return frAddId(rows[0]);
+        FR.found = rows;
+      }, function(e){
+        // в базе ещё нет функции поиска — ищем по-старому
+        if(/find_people|could not find the function/i.test((e && e.message) || "")) return frAddOld(t, kind);
+        throw e;
+      })
+      .then(function(){ FR.busy = false; renderProfile(); }, function(e){ FR.busy = false; FR.err = frErr(e, kind); renderProfile(); });
+  }
+  function frAddOld(t, kind){
+    if(kind === "code") return sbReq("/rest/v1/profiles?select=user_id,code,nick,photo,stats&code=eq." + t.toUpperCase())
       .then(function(rows){ return rows && rows.length ? frAddId(rows[0]) : frByNick(t, true); });
-    else if(kind === "mail") job = sbReq("/rest/v1/rpc/find_friend", {method: "POST", body: JSON.stringify({q: t})})
+    if(kind === "mail") return sbReq("/rest/v1/rpc/find_friend", {method: "POST", body: JSON.stringify({q: t})})
       .then(function(rows){
         if(!rows || !rows.length) throw new Error("Аккаунт с почтой " + t + " не найден. Проверь адрес — это должна быть почта, с которой друг входит в приложение.");
         return frAddId(rows[0]);
       });
-    else job = frByNick(t, false);
-    job.then(function(){ FR.busy = false; renderProfile(); }, function(e){ FR.busy = false; FR.err = frErr(e, kind); renderProfile(); });
+    return frByNick(t, false);
   }
   function frFoundHtml(){
     if(!FR.found || !FR.found.length) return "";
     var many = FR.found.length > 1;
-    return '<div class="fr-found" aria-live="polite"><p class="hint">' + (many ? "Нашлось несколько человек с таким ником — выбери нужного:" : "Нашёл — это он?") + '</p><ul class="ff-list">' +
+    return '<div class="fr-found" aria-live="polite"><p class="hint">' + (many ? "Нашлось несколько человек — выбери нужного:" : "Нашёл — это он?") + '</p><ul class="ff-list">' +
       FR.found.map(function(p){
-        var st = p.stats || {}, lv = st.lv && st.lv.n ? +st.lv.n : 0, name = p.nick || "Без имени", have = !!frById(p.user_id);
-        var sub = [lv ? rankOf(lv)[2] + " уровень " + lv : "", st.ts ? "отметка " + frWhen(st.ts) : "", "код " + (p.code || "")].filter(Boolean).join(" · ");
-        return '<li class="ff-row"><span class="ff-ava">' + pcAva(p.photo, name.charAt(0).toUpperCase()) + '</span>' +
-          '<span class="ff-main"><b>' + esc(name) + '</b><small>' + esc(sub) + '</small></span>' +
-          (have ? '<span class="ff-have">уже в друзьях</span>' : '<button type="button" class="primary ff-add" data-act="fr-pick" data-id="' + esc(p.user_id) + '">Добавить</button>') + '</li>';
+        var st = inOut(p.user_id);
+        var btn = st === "friend" ? '<span class="ff-have">уже в друзьях</span>'
+          : st === "out" ? '<span class="ff-have">заявка отправлена</span>'
+          : '<button type="button" class="primary ff-add" data-act="fr-pick" data-id="' + esc(p.user_id) + '">' + (st === "inc" ? "Принять" : "Добавить") + '</button>';
+        return frRow(p, btn, modLinks(p));
       }).join("") + '</ul><button type="button" class="linkbtn alt ff-x" data-act="fr-found-x">Отмена</button></div>';
   }
   function frDrop(fid){
-    sbReq("/rest/v1/friends?user_id=eq." + sbUser() + "&friend_id=eq." + fid, {method: "DELETE", headers: {Prefer: "return=minimal"}})
-      .then(function(){ flash("Убрал из друзей"); return sbFriends(); })
+    var me = sbUser();
+    sbReq("/rest/v1/friends?or=(and(user_id.eq." + me + ",friend_id.eq." + fid + "),and(user_id.eq." + fid + ",friend_id.eq." + me + "))", {method: "DELETE", headers: {Prefer: "return=minimal"}})
+      .then(function(){ if(FP && FP.id === fid) frClose(); flash("Убрал из друзей"); return sbFriends(); })
       .catch(function(e){ FR.err = sbErr(e); renderProfile(); });
   }
   function frWhen(ts){
@@ -6320,6 +6554,7 @@ grant execute on function public.find_friend(text) to authenticated;</code></pre
   }
   function friendsHtml(){
     var h = '<section class="panel friends"><h2>Друзья</h2>';
+    h += frReqsInHtml();
     h += '<p class="hint">Друг найдёт тебя по коду <strong class="code">' + esc(myCode()) + '</strong>, по почте, с которой ты входишь, или по нику' +
       (profName() ? ' «' + esc(profName()) + '»' : ', если задашь его выше') + '. <button type="button" class="linkbtn alt" data-act="fr-copy">Скопировать код</button></p>';
     h += '<div class="test fr-addrow"><label class="field" for="frCode">Код, почта или ник друга<input type="text" id="frCode" maxlength="80" value="' + esc(FR.q || "") + '" placeholder="7F3A91C0, papa@mail.ru или Папа" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"></label>' +
@@ -6327,9 +6562,10 @@ grant execute on function public.find_friend(text) to authenticated;</code></pre
       '<button type="button" class="linkbtn" data-act="fr-reload">Обновить</button></div>';
     h += frFoundHtml();
     if(FR.err) h += '<p class="hint">' + esc(FR.err) + '</p>';
+    h += frReqsOutHtml();
     if(FR.loading) h += '<div class="skelcard"><span class="skel sk-ava"></span><span class="skel sk-l1"></span><span class="skel sk-l2"></span></div>' +
       '<div class="skelcard"><span class="skel sk-ava"></span><span class="skel sk-l1"></span><span class="skel sk-l2"></span></div>';
-    else if(!FR.list.length) h += '<p class="hint">Друзей пока нет. Добавь друга по коду, почте или нику — и увидите цифры друг друга: сколько подтягиваний, отжиманий, приседаний и минут растяжки набрано и когда была последняя отметка.</p>';
+    else if(!FR.list.length) h += '<p class="hint">' + (FR.out && FR.out.length ? "Друзей пока нет — ждём, когда примут заявки." : "Друзей пока нет. Добавь друга по коду, почте или нику — когда он примет заявку, вы увидите цифры друг друга: сколько подтягиваний, отжиманий, приседаний и минут растяжки набрано и когда была последняя отметка.") + '</p>';
     else FR.list.forEach(function(p){ h += frCard(p); });
     return boardHtml() + feedSectionHtml() + h + '</section>';
   }
@@ -6498,10 +6734,11 @@ grant execute on function public.find_friend(text) to authenticated;</code></pre
       '<button type="button" class="tb-icon" data-act="onb-skip" aria-label="Пропустить">✕</button></div>';
     if(ONB.step === 0){
       h += '<h2>Что есть дома?</h2><p class="hint">Можно выбрать несколько. От этого зависит, с какого раздела начнём.</p><div class="onb-list">';
+      var onbHealth = '<p class="hint onb-health">Программы — общие тренировки, не медицинский совет. Если есть болезни сердца, давления или суставов, сначала посоветуйся с врачом. <a class="inl" href="#health" data-act="doc" data-doc="health">Подробнее</a></p>';
       ONB_GEAR.forEach(function(g){
         h += '<button type="button" class="blockbtn" data-act="onb" data-k="gear" data-v="' + g.k + '" aria-pressed="' + (!!ONB.gear[g.k]) + '">' + g.n + '</button>';
       });
-      h += '</div>';
+      h += '</div>' + onbHealth;
     } else if(ONB.step === 1){
       h += '<h2>Как удобнее заниматься?</h2><p class="hint">Это можно поменять в любой момент переключателем «Темп».</p><div class="onb-list">' +
         '<button type="button" class="blockbtn" data-act="onb" data-k="mode" data-v="short" aria-pressed="' + (ONB.mode === "short") + '">Подряд, 20–30 минут</button>' +
@@ -7307,6 +7544,11 @@ grant execute on function public.find_friend(text) to authenticated;</code></pre
   // ---------- что нового ----------
   var WN_KEY = "pullups-seen-ver", WN = null;
   var NEWS = [
+    {v: 205, items: [
+      {e: "🔐", t: "Цифры видят только друзья", d: "Дружба теперь взаимная: заявку нужно принять, и только тогда вы видите цифры друг друга. Кто найдёт тебя по коду, почте или нику, увидит лишь ник, фото и уровень."},
+      {e: "🗑️", t: "Удаление аккаунта", d: "Внизу профиля — «Удалить аккаунт»: стирает из облака всё, что с тобой связано."},
+      {e: "📄", t: "Документы и памятка о здоровье", d: "Внизу приложения — политика конфиденциальности, согласие на обработку данных и памятка «Здоровье и безопасность».", go: "doc-health", btn: "Открыть памятку"}
+    ]},
     {v: 204, items: [
       {e: "🔎", t: "Друзья по почте или нику", d: "В поле «Добавить друга» теперь можно вписать не только код, но и почту, с которой друг входит в приложение, или его ник. Если с таким ником несколько человек, покажу всех — с аватаркой и уровнем, чтобы выбрать нужного.", go: "fr-find", btn: "Добавить друга"}
     ]},
@@ -7381,6 +7623,7 @@ grant execute on function public.find_friend(text) to authenticated;</code></pre
     WN = null; wnMark(); renderWn();
     if(go === "wk-open") weekOpen(weekStart());
     else if(go === "iv-open") ivOpen();
+    else if(go === "doc-health") docOpen("health");
     else if(go === "fr-find"){ goProfile("frCode"); setTimeout(function(){ var fq = document.getElementById("frCode"); if(fq) try { fq.focus({preventScroll: true}); } catch(e){} }, 350); }
     else if(go === "medals-open" || go === "feed-open" || go === "level-open") goProfile(go === "medals-open" ? "medalsBox" : go === "level-open" ? "levelBox" : "feedBox");
   }
@@ -7968,6 +8211,7 @@ grant execute on function public.find_friend(text) to authenticated;</code></pre
   }
   // состояние значков — в блоке «Подключение базы», чтобы админ понял, что не так
   function renderAwStatus(){
+    setupShow();
     var el = document.getElementById("awStatus");
     if(!el) return;
     var t;
@@ -8235,7 +8479,9 @@ grant execute on function public.find_friend(text) to authenticated;</code></pre
     if(!st.rec && !st.md) h += '<p class="hint fp-old">Медали и рекорды появятся здесь, когда ' + esc(name) + ' обновит приложение.</p>';
     h += '<div class="warm-actions">' +
       (AW.admin ? '<button type="button" class="primary" data-act="aw-give" data-id="' + esc(p.user_id) + '" data-name="' + esc(name) + '">🎖 Выдать значок</button>' : '') +
-      '<button type="button" class="linkbtn alt" data-act="fr-close">Закрыть</button></div></div></div>';
+      '<button type="button" class="linkbtn alt" data-act="fr-close">Закрыть</button></div>' +
+      (AW.admin ? '<p class="hint fp-mod">Модерация: ' + modLinks(p) + '</p>' : '') +
+      '<p class="hint fp-drop"><button type="button" class="linkbtn alt" data-act="fr-drop" data-id="' + esc(p.user_id) + '">Убрать из друзей</button></p></div></div>';
     box.innerHTML = h;
     var card = box.querySelector(".fp-card");
     if(card && keep) card.scrollTop = keep;
@@ -8311,7 +8557,7 @@ grant execute on function public.find_friend(text) to authenticated;</code></pre
       right: '<button type="button" class="pc-x" data-act="fr-close" aria-label="Закрыть">✕</button>',
       ava: pcAva(p.photo, name.charAt(0).toUpperCase()), name: name,
       role: lv ? esc(rankOf(lv)[1]) + " " + rankOf(lv)[2] + " · уровень " + lv : "",
-      aw: awRow(p.user_id, 6, "pc"), sub: lv0 && lv0.t ? "«" + lv0.t + "»" + (lv0.p ? " · " + lv0.p : "") : FR.mutual[p.user_id] ? "Взаимные друзья" : "Пока не добавил тебя в ответ",
+      aw: awRow(p.user_id, 6, "pc"), sub: lv0 && lv0.t ? "«" + lv0.t + "»" + (lv0.p ? " · " + lv0.p : "") : frSinceText(p.user_id),
       btns: btns,
       glow: wk ? "На этой неделе: " + numSp(wk) + " " + plural(wk, ["повторение","повторения","повторений"]) : lv ? numSp(+st.lv.xp || 0) + " опыта" : ""});
   }
@@ -8672,9 +8918,348 @@ grant execute on function public.find_friend(text) to authenticated;</code></pre
       (l ? '<button type="button" class="pc-btn hot" data-act="live-cheer-id" data-id="' + esc(p.user_id) + '">' + IC_FLAME + '<span>Подбодрить</span></button>'
          : '<button type="button" class="pc-btn" data-act="fp-cheer" data-id="' + esc(p.user_id) + '">' + (cheered ? IC_CHECK : IC_FLAME) + '<span>' + (cheered ? "Поддержано" : "Поддержать") + '</span></button>') +
         '</div>' +
-      '<div class="fc2-foot"><span>' + (FR.mutual[p.user_id] ? "Взаимные друзья" : "Пока не добавил тебя в ответ") + ' · код ' + esc(p.code || "") + '</span><span class="fc2-links">' +
+      '<div class="fc2-foot"><span>' + frSinceText(p.user_id) + ' · код ' + esc(p.code || "") + '</span><span class="fc2-links">' +
       (AW.admin ? '<button type="button" class="fc2-drop fc2-aw" data-act="aw-give" data-id="' + esc(p.user_id) + '" data-name="' + esc(name) + '" title="Выдать значок">' + IC_AWARD + 'Значок</button>' : '') +
       '<button type="button" class="fc2-drop" data-act="fr-drop" data-id="' + esc(p.user_id) + '">Убрать</button></span></div></div>';
+  }
+
+  // ---------- открытый доступ: документы, согласие, удаление аккаунта, заявки в друзья, модерация ----------
+  var DOC = null, CNS = null, CNS_LATER = false, DEL = null, BAN = {nick: "", photo: false};
+  var MODALS = ["onb", "imp", "focus", "shareDlg", "weekDlg", "wnDlg", "restDlg", "frDlg", "awDlg", "ivDlg", "ivRun", "docDlg", "cnsDlg", "delDlg"];
+  function modalSync(){
+    var any = MODALS.some(function(id){ var el = document.getElementById(id); return el && !el.hidden; });
+    document.body.classList.toggle("modal-open", any);
+  }
+  function todo(t){ return '<mark class="todo">' + esc(t) + '</mark>'; }
+  function legalVal(k, ph){ return LEGAL[k] ? esc(LEGAL[k]) : todo(ph); }
+  function tgHref(){ var t = String(LEGAL.telegram || "").trim().replace(/^@/, ""); return /^[A-Za-z0-9_]{3,}$/.test(t) ? "https://t.me/" + t : ""; }
+  function mailHref(){ var m = String(LEGAL.email || "").trim(); return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m) ? "mailto:" + m : ""; }
+  function contactHref(){ return tgHref() || mailHref(); }
+  function contactHtml(){
+    var parts = [];
+    if(mailHref()) parts.push('почта <a href="' + esc(mailHref()) + '">' + esc(LEGAL.email) + '</a>');
+    if(tgHref()) parts.push('Telegram <a href="' + esc(tgHref()) + '" target="_blank" rel="noopener">@' + esc(String(LEGAL.telegram).replace(/^@/, "")) + '</a>');
+    return parts.length ? parts.join(", ") : todo("почта или Telegram для обращений");
+  }
+  function storageHtml(){
+    return LEGAL.storage ? esc(LEGAL.storage) : todo("где стоит сервер базы, например: «облако Supabase, серверы в Германии»");
+  }
+  var DOCS = {
+    privacy: {t: "Политика конфиденциальности", body: function(){
+      return '<p class="doc-meta">Политика обработки персональных данных приложения «Тренировки». Редакция от ' + esc(LEGAL.updated) + '. Оператор: ' + legalVal("owner", "фамилия, имя и отчество оператора") + '. Связь: ' + contactHtml() + '.</p>' +
+        '<h3>Коротко</h3><ul>' +
+        '<li>Без аккаунта приложение ничего никуда не отправляет: отметки хранятся только в этом браузере.</li>' +
+        '<li>С аккаунтом прогресс хранится в облачной базе, чтобы совпадать на всех твоих устройствах.</li>' +
+        '<li>Твои цифры видят только взаимные друзья — те, кого добавил ты и кто добавил тебя.</li>' +
+        '<li>Видео с камеры обрабатывается только на твоём устройстве и никуда не уходит.</li>' +
+        '<li>Удалить аккаунт со всеми данными можно в профиле в любой момент.</li></ul>' +
+        '<h3>Какие данные обрабатываются</h3><ul>' +
+        '<li>адрес электронной почты и пароль — пароль хранится только в виде хеша, его не видит никто, включая оператора;</li>' +
+        '<li>ник и фото профиля, если ты их укажешь;</li>' +
+        '<li>отметки тренировок, программы, заметки, рекорды, уровень, медали и лента событий;</li>' +
+        '<li>список друзей и заявок, реакции и значки;</li>' +
+        '<li>статус «сейчас тренируется» — пока открыт режим тренировки или интервальный таймер;</li>' +
+        '<li>название браузера и устройства, с которых ты входил, — чтобы показать, где была последняя синхронизация;</li>' +
+        '<li>дата и версия твоего согласия;</li>' +
+        '<li>технические журналы хостинга: IP-адрес и время запросов.</li></ul>' +
+        '<h3>Зачем</h3><ul>' +
+        '<li>создать аккаунт и пускать тебя в него;</li>' +
+        '<li>хранить прогресс и синхронизировать его между устройствами;</li>' +
+        '<li>показывать твои результаты взаимным друзьям, вести ленту и таблицу недели;</li>' +
+        '<li>помогать друзьям найти тебя по коду, точной почте или точному нику;</li>' +
+        '<li>защищать сервис от злоупотреблений и скрывать недопустимые ники и фото.</li></ul>' +
+        '<p>Основание — твоё согласие на обработку персональных данных (п. 1 ч. 1 ст. 6 Федерального закона № 152-ФЗ «О персональных данных»).</p>' +
+        '<h3>Кто что видит</h3><ul>' +
+        '<li><b>Взаимные друзья</b> — ник, фото, уровень, значки, медали, рекорды, суммы повторений, ленту, таблицу недели и статус «сейчас тренируется».</li>' +
+        '<li><b>Вошедший пользователь, который знает твой код, точную почту или точный ник,</b> — только ник, фото, уровень и код, чтобы отправить тебе заявку. Саму почту другим не показываем.</li>' +
+        '<li><b>Оператор</b> технически имеет доступ к базе и использует его только для поддержки и модерации.</li></ul>' +
+        '<h3>Где хранятся данные</h3><p>' + storageHtml() + '. Данные передаются по шифрованному соединению (HTTPS). Доступ ограничен правилами базы: каждый пользователь читает только свои записи и записи взаимных друзей.</p>' +
+        '<h3>Сколько хранятся</h3><p>Пока у тебя есть аккаунт. После удаления аккаунта данные стираются из базы сразу; в резервных копиях хостинга они могут оставаться до их плановой перезаписи.</p>' +
+        '<h3>Твои права</h3><ul>' +
+        '<li>узнать, какие данные о тебе есть, и исправить их — ник и фото меняются в профиле;</li>' +
+        '<li>удалить аккаунт со всеми данными — кнопка «Удалить аккаунт» внизу профиля;</li>' +
+        '<li>отозвать согласие — удалением аккаунта или сообщением на ' + contactHtml() + ';</li>' +
+        '<li>пожаловаться в Роскомнадзор, если считаешь, что твои права нарушены.</li></ul>' +
+        '<p>На обращения оператор отвечает в течение 10 рабочих дней.</p>' +
+        '<h3>Cookie и память браузера</h3><p>Приложение не использует рекламные и аналитические cookie. В памяти браузера хранятся отметки, настройки и данные для входа — без них приложение не работает.</p>' +
+        '<h3>Если тебе нет 18 лет</h3><p>Создавай аккаунт вместе с родителем: согласие на обработку данных даёт он.</p>' +
+        '<h3>Изменения</h3><p>Актуальная редакция всегда открывается по ссылке «Политика конфиденциальности» внизу приложения. Если изменения существенные, приложение попросит подтвердить согласие заново.</p>';
+    }},
+    consent: {t: "Согласие на обработку персональных данных", body: function(){
+      return '<p class="doc-meta">Версия ' + esc(CONSENT_V) + '</p>' +
+        '<p>Отмечая в приложении «Тренировки» галочку «Даю согласие на обработку персональных данных», я свободно, своей волей и в своём интересе даю согласие ' + (LEGAL.ownerTo ? esc(LEGAL.ownerTo) : legalVal("owner", "фамилия, имя и отчество оператора в дательном падеже")) + ' (далее — оператор; связь: ' + contactHtml() + ') на обработку моих персональных данных на условиях ниже.</p>' +
+        '<h3>Какие данные</h3><p>Адрес электронной почты; ник и фотография профиля, если я их укажу; сведения о моих тренировках, результатах, программах и заметках; список друзей, заявок, реакций и значков; сведения о браузерах и устройствах, с которых я вхожу; IP-адрес и время обращений к сервису.</p>' +
+        '<h3>Для чего</h3><p>Регистрация и вход в аккаунт; хранение и синхронизация прогресса между устройствами; показ моих результатов взаимным друзьям в приложении; поиск меня другими пользователями по коду, точному адресу почты или точному нику; поддержка пользователей, безопасность и модерация.</p>' +
+        '<h3>Что с ними можно делать</h3><p>Сбор, запись, систематизация, накопление, хранение, уточнение (обновление, изменение), извлечение, использование, предоставление доступа взаимным друзьям в приложении (ник, фото, уровень, значки, медали, рекорды, суммы повторений, лента, статус тренировки), блокирование, удаление и уничтожение — с использованием средств автоматизации.</p>' +
+        '<h3>Где</h3><p>' + storageHtml() + '.' + (LEGAL.abroad ? ' Сервер находится за пределами России, и я даю согласие на трансграничную передачу моих данных в эту страну.' : '') + '</p>' +
+        '<h3>Срок и отзыв</h3><p>Согласие действует до удаления аккаунта или до его отзыва. Отозвать согласие можно, удалив аккаунт в профиле или написав оператору на ' + contactHtml() + '. После отзыва оператор прекращает обработку и уничтожает данные в течение 30 дней, если хранить их дольше не требует закон.</p>' +
+        '<p>Дата и версия согласия сохраняются в моём аккаунте.</p>';
+    }},
+    health: {t: "Здоровье и безопасность", body: function(){
+      return '<p>Программы в приложении — общие тренировки с собственным весом и гантелями для здоровых людей. Это не медицинская рекомендация и не замена врачу или тренеру.</p>' +
+        '<h3>Сначала посоветуйся с врачом, если</h3><ul>' +
+        '<li>есть болезни сердца или сосудов, повышенное давление, диабет;</li>' +
+        '<li>болят суставы или спина, были травмы или операции;</li>' +
+        '<li>ты беременна или недавно родила;</li>' +
+        '<li>давно не занимался спортом и не уверен, какая нагрузка тебе подходит.</li></ul>' +
+        '<h3>Сразу остановись, если</h3><ul>' +
+        '<li>появились боль или давление в груди, сильная одышка, головокружение, тошнота;</li>' +
+        '<li>резкая боль в суставе или мышце;</li>' +
+        '<li>онемение или «мушки» перед глазами.</li></ul>' +
+        '<p>Если боль в груди не проходит за несколько минут, вызывай скорую: 103 или 112.</p>' +
+        '<h3>Чтобы не травмироваться</h3><ul>' +
+        '<li>разминайся 5–10 минут перед тренировкой;</li>' +
+        '<li>добавляй нагрузку постепенно — программы так и построены, не перепрыгивай уровни;</li>' +
+        '<li>давай мышцам день-два на восстановление;</li>' +
+        '<li>счётчик по камере может ошибаться — ориентируйся на самочувствие, а не на цифру;</li>' +
+        '<li>дети занимаются под присмотром взрослых.</li></ul>';
+    }}
+  };
+  function docOpen(k){ if(!DOCS[k]) return; DOC = {k: k}; renderDoc(); var c = document.querySelector("#docDlg .doc-body"); if(c) c.scrollTop = 0; }
+  function docClose(){ DOC = null; renderDoc(); if(/^#(privacy|consent|health)$/.test(location.hash)) try { history.replaceState(null, "", location.pathname + location.search); } catch(e){} }
+  function renderDoc(){
+    var box = document.getElementById("docDlg");
+    if(!box) return;
+    if(!DOC){ box.hidden = true; box.innerHTML = ""; modalSync(); return; }
+    var d = DOCS[DOC.k];
+    box.hidden = false; modalSync();
+    box.innerHTML = '<div class="warm-card doc-card" role="document"><div class="warm-top"><h2 id="docTitle">' + esc(d.t) + '</h2>' +
+      '<button type="button" class="tb-icon" data-act="doc-close" aria-label="Закрыть">✕</button></div><div class="doc-body">' + d.body() + '</div>' +
+      '<div class="doc-nav">' + Object.keys(DOCS).filter(function(k){ return k !== DOC.k; }).map(function(k){
+        return '<button type="button" class="linkbtn alt" data-act="doc" data-doc="' + k + '">' + esc(DOCS[k].t) + '</button>';
+      }).join("") + '<button type="button" class="primary" data-act="doc-close">Понятно</button></div></div>';
+    box.setAttribute("aria-labelledby", "docTitle");
+  }
+  function renderLegalNav(){
+    var nav = document.getElementById("legalNav");
+    if(!nav) return;
+    var hr = contactHref();
+    nav.innerHTML = '<button type="button" class="linkbtn alt" data-act="doc" data-doc="privacy">Политика конфиденциальности</button>' +
+      '<button type="button" class="linkbtn alt" data-act="doc" data-doc="consent">Согласие на обработку данных</button>' +
+      '<button type="button" class="linkbtn alt" data-act="doc" data-doc="health">Здоровье и безопасность</button>' +
+      (hr ? '<a class="linkbtn alt" href="' + esc(hr) + '" target="_blank" rel="noopener">Написать автору' + (tgHref() ? ' в Telegram' : '') + '</a>' : '');
+  }
+  function docFromHash(){ var m = /^#(privacy|consent|health)$/.exec(location.hash || ""); if(m) docOpen(m[1]); }
+  window.addEventListener("hashchange", docFromHash);
+
+  // согласие: при регистрации — галочки, у тех, кто зарегистрировался раньше, — разовое окно
+  function tokPayload(){
+    try {
+      var p = SB.tok.access_token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+      return JSON.parse(decodeURIComponent(escape(atob(p + "===".slice((p.length + 3) % 4)))));
+    } catch(e){ return null; }
+  }
+  function consentLocal(){ try { var o = JSON.parse(localStorage.getItem("pullups-consent") || "{}"); return o && typeof o === "object" ? o : {}; } catch(e){ return {}; } }
+  function consentHave(){
+    var uid = sbUser();
+    if(!uid) return true;
+    var pl = tokPayload(), mv = pl && pl.user_metadata && pl.user_metadata.consent_v;
+    if(mv && String(mv) >= CONSENT_V) return true;
+    var lv = consentLocal()[uid];
+    return !!(lv && String(lv) >= CONSENT_V);
+  }
+  function consentMark(uid){ var o = consentLocal(); o[uid] = CONSENT_V; try { localStorage.setItem("pullups-consent", JSON.stringify(o)); } catch(e){} }
+  function consentData(){ return {consent_v: CONSENT_V, consent_at: new Date().toISOString()}; }
+  function consentChecksHtml(pre){
+    return '<label class="agree"><input type="checkbox" id="' + pre + 'Agree"><span>Даю <a class="inl" href="#consent" data-act="doc" data-doc="consent">согласие на обработку персональных данных</a></span></label>' +
+      '<label class="agree"><input type="checkbox" id="' + pre + 'Policy"><span>Прочитал <a class="inl" href="#privacy" data-act="doc" data-doc="privacy">политику конфиденциальности</a></span></label>';
+  }
+  function consentCheck(){
+    if(CNS || CNS_LATER || !loggedIn() || consentHave()) return;
+    if(MODALS.some(function(id){ var el = document.getElementById(id); return el && !el.hidden; })) return;
+    CNS = {err: ""}; renderCns();
+  }
+  setInterval(consentCheck, 2500);
+  function renderCns(){
+    var box = document.getElementById("cnsDlg");
+    if(!box) return;
+    if(!CNS){ box.hidden = true; box.innerHTML = ""; modalSync(); return; }
+    box.hidden = false; modalSync();
+    box.innerHTML = '<div class="warm-card cns-card" role="document"><div class="warm-top"><h2 id="cnsTitle">Нужно твоё согласие</h2>' +
+      '<button type="button" class="tb-icon" data-act="cns-later" aria-label="Позже">✕</button></div>' +
+      '<p>Приложение открывается для всех, поэтому теперь у каждого аккаунта должно быть явное согласие на обработку данных. Это займёт секунду.</p>' +
+      '<p class="hint">Что хранится и кто что видит — в документах по ссылкам. Коротко: твои цифры видят только взаимные друзья, почту — никто.</p>' +
+      '<div class="agree-box">' + consentChecksHtml("cns") + '</div>' +
+      (CNS.err ? '<p class="hint err" role="alert">' + esc(CNS.err) + '</p>' : '') +
+      '<div class="warm-actions"><button type="button" class="primary" data-act="cns-ok"' + (CNS.busy ? ' disabled' : '') + '>' + (CNS.busy ? "Сохраняю…" : "Подтвердить") + '</button>' +
+      '<button type="button" class="linkbtn alt" data-act="cns-no">Не согласен — выйти из аккаунта</button></div>' +
+      '<p class="hint">Если выйдешь, отметки останутся на этом устройстве, просто не будут синхронизироваться.</p></div>';
+    box.setAttribute("aria-labelledby", "cnsTitle");
+  }
+  function cnsOk(){
+    var a = document.getElementById("cnsAgree"), p = document.getElementById("cnsPolicy");
+    if(!a || !a.checked || !p || !p.checked){ CNS.err = "Поставь обе галочки — без согласия аккаунт работать не может."; renderCns(); return; }
+    CNS.busy = true; CNS.err = ""; renderCns();
+    var uid = sbUser();
+    sbReq("/auth/v1/user", {method: "PUT", body: JSON.stringify({data: consentData()})})
+      .then(function(){ consentMark(uid); CNS = null; renderCns(); flash("Спасибо! Согласие сохранено"); })
+      .catch(function(e){ CNS.busy = false; CNS.err = "Не получилось сохранить: " + sbErr(e) + ". Проверь интернет и попробуй ещё раз."; renderCns(); });
+  }
+  function cnsNo(){ CNS = null; renderCns(); sbOut(); flash("Вышел из аккаунта. Отметки остались на этом устройстве"); }
+
+  // удаление аккаунта
+  function delOpen(){ DEL = {err: "", busy: false}; renderDel(); setTimeout(function(){ var i = document.getElementById("delWord"); if(i) try { i.focus(); } catch(e){} }, 60); }
+  function delClose(){ DEL = null; renderDel(); }
+  function renderDel(){
+    var box = document.getElementById("delDlg");
+    if(!box) return;
+    if(!DEL){ box.hidden = true; box.innerHTML = ""; modalSync(); return; }
+    box.hidden = false; modalSync();
+    var word = DEL.word || "";
+    box.innerHTML = '<div class="warm-card del-card" role="document"><div class="warm-top"><h2 id="delTitle">Удалить аккаунт?</h2>' +
+      '<button type="button" class="tb-icon" data-act="del-close" aria-label="Закрыть">✕</button></div>' +
+      '<p>Из облака сотрутся все твои данные: отметки, программы, профиль, друзья и заявки, значки. Друзья перестанут тебя видеть. Вернуть их не получится.</p>' +
+      '<label class="agree"><input type="checkbox" id="delWipe"' + (DEL.keep ? '' : ' checked') + '><span>Стереть отметки и на этом устройстве</span></label>' +
+      '<label class="field" for="delWord">Чтобы подтвердить, впиши слово «удалить»<input type="text" id="delWord" autocomplete="off" autocapitalize="off" spellcheck="false" value="' + esc(word) + '"></label>' +
+      (DEL.err ? '<p class="hint err" role="alert">' + DEL.err + '</p>' : '') +
+      '<div class="warm-actions"><button type="button" class="danger" data-act="del-go"' + (DEL.busy || word.trim().toLowerCase() !== "удалить" ? ' disabled' : '') + '>' + (DEL.busy ? "Удаляю…" : "Удалить навсегда") + '</button>' +
+      '<button type="button" class="linkbtn alt" data-act="del-close">Отмена</button></div></div>';
+    box.setAttribute("aria-labelledby", "delTitle");
+  }
+  function delGo(){
+    if(!DEL || DEL.busy) return;
+    var w = document.getElementById("delWipe"), wipe = !w || w.checked;
+    DEL.keep = !wipe; DEL.busy = true; DEL.err = ""; renderDel();
+    sbReq("/rest/v1/rpc/delete_me", {method: "POST", body: "{}"})
+      .then(function(){
+        var uid = sbUser();
+        DEL = null; renderDel();
+        var o = consentLocal(); if(uid && o[uid]){ delete o[uid]; try { localStorage.setItem("pullups-consent", JSON.stringify(o)); } catch(e){} }
+        FR.list = []; FR.inc = []; FR.out = []; FR.found = null; FR.loaded = 0; AW.list = []; AW.admin = false;
+        sbSaveTok(null); SB.mail = null; SB.last = 0;
+        if(wipe){ state = fresh(); week = 0; sel = null; save(); }
+        render();
+        flash("Аккаунт удалён" + (wipe ? " вместе с отметками на этом устройстве" : ". Отметки на этом устройстве остались"));
+      })
+      .catch(function(e){
+        var m = (e && e.message) || "";
+        DEL.busy = false;
+        DEL.err = /delete_me|could not find the function/i.test(m)
+          ? "Сервер пока не умеет удалять аккаунты сам. Напиши автору — " + contactHtml() + " — и он удалит аккаунт вручную."
+          : esc("Не получилось: " + sbErr(e) + ". Проверь интернет и попробуй ещё раз.");
+        renderDel();
+      });
+  }
+
+  // заявки в друзья
+  function frPeople(ids){
+    if(!ids.length) return Promise.resolve([]);
+    return sbReq("/rest/v1/rpc/my_people", {method: "POST", body: "{}"})
+      .then(function(rows){ return rows || []; }, function(){
+        // в базе ещё нет функции — пока профили открыты всем, читаем их напрямую
+        return sbReq("/rest/v1/profiles?select=user_id,code,nick,photo,stats&user_id=in.(" + ids.join(",") + ")")
+          .then(function(rows){ return (rows || []).map(function(p){ return {user_id: p.user_id, code: p.code, nick: p.nick, photo: p.photo, lv: p.stats && p.stats.lv ? +p.stats.lv.n || 0 : 0}; }); }, function(){ return []; });
+      });
+  }
+  function frLv(p){ return +(p.lv || (p.stats && p.stats.lv && p.stats.lv.n) || 0) || 0; }
+  function frRow(p, btns, extra){
+    var name = p.nick || "Без имени", lv = frLv(p);
+    var sub = [lv ? rankOf(lv)[2] + " уровень " + lv : "", p.stats && p.stats.ts ? "отметка " + frWhen(p.stats.ts) : "", p.code ? "код " + p.code : ""].filter(Boolean).join(" · ");
+    return '<li class="ff-row"><span class="ff-ava">' + pcAva(p.photo, name.charAt(0).toUpperCase()) + '</span>' +
+      '<span class="ff-main"><b>' + esc(name) + '</b>' + (sub ? '<small>' + esc(sub) + '</small>' : '') + '</span>' +
+      '<span class="ff-btns">' + btns + '</span>' + (extra || "") + '</li>';
+  }
+  function modLinks(p){
+    if(!AW.admin || !p || !p.user_id) return "";
+    return '<span class="ff-mod">' + (p.nick ? '<button type="button" class="linkbtn alt" data-act="mod-hide" data-what="nick" data-id="' + esc(p.user_id) + '">Скрыть ник</button>' : '') +
+      (p.photo ? '<button type="button" class="linkbtn alt" data-act="mod-hide" data-what="photo" data-id="' + esc(p.user_id) + '">Скрыть фото</button>' : '') + '</span>';
+  }
+  function inOut(id){
+    if(frById(id)) return "friend";
+    if((FR.inc || []).some(function(x){ return x.user_id === id; })) return "inc";
+    if((FR.out || []).some(function(x){ return x.user_id === id; })) return "out";
+    return "";
+  }
+  function frReqsInHtml(){
+    if(!FR.inc || !FR.inc.length) return "";
+    return '<div class="fr-reqs" id="frReqs"><h3 class="camset-label">Хотят дружить · ' + FR.inc.length + '</h3><ul class="ff-list">' + FR.inc.map(function(p){
+      return frRow(p, '<button type="button" class="primary ff-add" data-act="fr-accept" data-id="' + esc(p.user_id) + '">Принять</button>' +
+        '<button type="button" class="linkbtn alt ff-no" data-act="fr-decline" data-id="' + esc(p.user_id) + '" aria-label="Отклонить заявку: ' + esc(p.nick || "без имени") + '">Отклонить</button>', modLinks(p));
+    }).join("") + '</ul><p class="hint">Когда примешь заявку, вы начнёте видеть цифры друг друга.</p></div>';
+  }
+  function frReqsOutHtml(){
+    if(!FR.out || !FR.out.length) return "";
+    return '<div class="fr-reqs out"><h3 class="camset-label">Ждут ответа · ' + FR.out.length + '</h3><ul class="ff-list">' + FR.out.map(function(p){
+      return frRow(p, '<button type="button" class="linkbtn alt ff-no" data-act="fr-cancel" data-id="' + esc(p.user_id) + '">Отменить</button>');
+    }).join("") + '</ul><p class="hint">Цифры друга появятся, когда он примет заявку.</p></div>';
+  }
+  function frDel(path, okText){
+    return sbReq(path, {method: "DELETE", headers: {Prefer: "return=representation"}})
+      .then(function(rows){
+        if(Array.isArray(rows) && !rows.length) throw new Error("сервер не дал удалить запись — похоже, база ещё не обновлена");
+        flash(okText); return sbFriends();
+      })
+      .catch(function(e){ FR.err = "Не вышло: " + sbErr(e) + "."; renderProfile(); });
+  }
+  function reqAfterLoad(){
+    var seen = [];
+    try { seen = JSON.parse(localStorage.getItem("pullups-req-seen") || "[]"); if(!Array.isArray(seen)) seen = []; } catch(e){}
+    var fresh0 = (FR.inc || []).filter(function(p){ return seen.indexOf(p.user_id) < 0; });
+    if(!fresh0.length) return;
+    try { localStorage.setItem("pullups-req-seen", JSON.stringify(seen.concat(fresh0.map(function(p){ return p.user_id; })).slice(-200))); } catch(e){}
+    if(TAB === "profile" && document.getElementById("frReqs")) return;
+    flashSoft(fresh0.length === 1 ? "🤝 " + (fresh0[0].nick || "Кто-то") + " хочет добавить тебя в друзья" : "🤝 Новых заявок в друзья: " + fresh0.length, {label: "Ответить", act: "fr-reqs"});
+  }
+  function frSinceText(id){
+    var s = FR.since && FR.since[id];
+    if(!s) return "Друзья";
+    var d = new Date(s);
+    if(isNaN(d)) return "Друзья";
+    var o = {day: "numeric", month: "long"};
+    if(d.getFullYear() !== new Date().getFullYear()) o.year = "numeric";
+    return "Друзья с " + d.toLocaleDateString("ru-RU", o);
+  }
+
+  // модерация
+  function modHide(id, what, b){
+    if(!armed(b, what === "nick" ? "Точно скрыть ник?" : "Точно скрыть фото?")) return;
+    sbReq("/rest/v1/rpc/admin_hide", {method: "POST", body: JSON.stringify({target: id, what: what})})
+      .then(function(){
+        flash(what === "nick" ? "Ник скрыт: этот ник у него больше не появится" : "Фото скрыто");
+        (FR.found || []).concat(FR.inc || [], FR.out || []).forEach(function(p){ if(p.user_id === id){ if(what === "nick") p.nick = null; else p.photo = null; } });
+        FR.loaded = 0; return sbFriends();
+      })
+      .catch(function(e){
+        var m = (e && e.message) || "";
+        flash(/admin_hide|could not find the function/i.test(m) ? "Модерация заработает после запроса для открытого доступа в «Подключение базы»" : "Не вышло: " + sbErr(e));
+      });
+  }
+  function banCheck(){
+    var uid = sbUser();
+    if(!uid) return;
+    sbReq("/rest/v1/profile_bans?select=nick,photo_md5&user_id=eq." + uid)
+      .then(function(rows){
+        var b = rows && rows[0];
+        var nick = !!(b && b.nick && profName() && b.nick.trim().toLowerCase() === profName().trim().toLowerCase());
+        if(!(b && b.photo_md5 && profPhoto())){ banSet(nick ? b.nick : "", false); return; }
+        return sbReq("/rest/v1/profiles?select=photo&user_id=eq." + uid).then(function(r){ banSet(nick ? b.nick : "", !!(r && r[0] && !r[0].photo)); });
+      })
+      .catch(function(){});
+  }
+  function banSet(nick, photo){
+    if(BAN.nick === nick && BAN.photo === photo) return;
+    BAN = {nick: nick, photo: photo}; renderProfile();
+  }
+  function banHtml(){
+    if(!BAN.nick && !BAN.photo) return "";
+    return '<p class="hint ban-note" role="status">' + (BAN.nick ? 'Модератор скрыл ник «' + esc(BAN.nick.trim()) + '»: друзья видят «Без имени». Выбери другой ник. ' : '') +
+      (BAN.photo ? 'Модератор скрыл твоё фото: друзья его не видят. Можно загрузить другое.' : '') + '</p>';
+  }
+  function armed(b, txt){
+    if(!b) return true;
+    if(b.classList.contains("armed")){ b.classList.remove("armed"); return true; }
+    var was = b.innerHTML;
+    b.classList.add("armed"); b.textContent = txt;
+    setTimeout(function(){ if(b.isConnected && b.classList.contains("armed")){ b.classList.remove("armed"); b.innerHTML = was; } }, 4000);
+    return false;
+  }
+  // блок «Подключение базы» — только для админа, своего проекта или по адресу #setup
+  function setupShow(){
+    var el = document.getElementById("setupBox");
+    if(!el) return;
+    var on = AW.admin || sbOwnProject() || location.hash === "#setup";
+    try { if(location.hash === "#setup") localStorage.setItem("pullups-setup", "1"); if(localStorage.getItem("pullups-setup") === "1") on = true; } catch(e){}
+    el.hidden = !on;
   }
 
   // ---------- график тестов ----------
@@ -9185,6 +9770,7 @@ grant execute on function public.find_friend(text) to authenticated;</code></pre
         '<input type="email" id="pfMail" value="' + esc(SB.mail || "") + '" hidden autocomplete="username">' +
         '<label class="field" for="pfPass">Пароль' + (SB.mail ? ' для ' + esc(SB.mail) : '') + '<input type="password" id="pfPass" autocomplete="current-password"></label>' +
         '<button type="button" class="primary" data-act="sb-in">Войти</button></div></div>';
+      h += banHtml();
       h += '<div class="test pf-edit">' +
         '<label class="field" for="pfName">Никнейм<input type="text" id="pfName" maxlength="40" placeholder="как тебя называть" value="' + esc(profName()) + '"></label>' +
         '<button type="button" class="linkbtn" data-act="pf-photo">' + (profPhoto() ? "Сменить фото" : "Загрузить фото") + '</button>' +
@@ -9201,7 +9787,8 @@ grant execute on function public.find_friend(text) to authenticated;</code></pre
       }
       h += '<div class="test"><button type="button" class="primary" data-act="sb-sync">Синхронизировать сейчас</button>' +
         (pwMode ? "" : '<button type="button" class="linkbtn" data-act="pw-mode">Сменить пароль</button>') +
-        '<button type="button" class="linkbtn" data-act="sb-out">Выйти</button></div>';
+        '<button type="button" class="linkbtn" data-act="sb-out">Выйти</button>' +
+        '<button type="button" class="linkbtn alt del-link" data-act="del-open">Удалить аккаунт</button></div>';
       h += devsHtml();
       h += '<details class="subdet journal"><summary>Журнал и серия</summary>' + journalHtml() + '</details>';
       box.innerHTML = h;
@@ -9219,6 +9806,7 @@ grant execute on function public.find_friend(text) to authenticated;</code></pre
       h += '<div class="test">' +
         '<label class="field" for="pfMail">Почта<input type="email" id="pfMail" placeholder="you@mail.com" autocomplete="username"></label>' +
         '<label class="field" for="pfPass">Пароль<input type="password" id="pfPass" placeholder="не короче 6 символов" autocomplete="current-password"></label></div>';
+      h += '<div class="agree-box">' + consentChecksHtml("pf") + '<p class="hint">Галочки нужны, только когда создаёшь аккаунт.</p></div>';
       h += '<div class="test"><button type="button" class="primary" data-act="sb-up">Создать аккаунт</button>' +
         '<button type="button" class="linkbtn" data-act="sb-in">Войти</button>' +
         '<button type="button" class="linkbtn alt" data-act="pw-forgot">Забыл пароль</button></div>';
@@ -9762,7 +10350,20 @@ grant execute on function public.find_friend(text) to authenticated;</code></pre
       return;
     }
     if(act === "fr-found-x"){ FR.found = null; FR.err = ""; renderProfile(); var fx0 = document.getElementById("frCode"); if(fx0) try { fx0.focus({preventScroll: true}); } catch(e){} return; }
-    if(act === "fr-drop"){ frDrop(b.getAttribute("data-id")); return; }
+    if(act === "fr-drop"){ if(armed(b, "Точно убрать?")) frDrop(b.getAttribute("data-id")); return; }
+    if(act === "fr-accept"){ var fac = (FR.inc || []).filter(function(x){ return x.user_id === b.getAttribute("data-id"); })[0]; if(fac) frAddId(fac).catch(function(e){ FR.err = sbErr(e); renderProfile(); }); return; }
+    if(act === "fr-decline"){ frDel("/rest/v1/friends?user_id=eq." + b.getAttribute("data-id") + "&friend_id=eq." + sbUser(), "Заявка отклонена"); return; }
+    if(act === "fr-cancel"){ frDel("/rest/v1/friends?user_id=eq." + sbUser() + "&friend_id=eq." + b.getAttribute("data-id"), "Заявка отменена"); return; }
+    if(act === "fr-reqs"){ goProfile(document.getElementById("frReqs") ? "frReqs" : "friendsBox"); return; }
+    if(act === "mod-hide"){ modHide(b.getAttribute("data-id"), b.getAttribute("data-what"), b); return; }
+    if(act === "doc"){ docOpen(b.getAttribute("data-doc")); return; }
+    if(act === "doc-close"){ docClose(); return; }
+    if(act === "cns-ok"){ cnsOk(); return; }
+    if(act === "cns-no"){ cnsNo(); return; }
+    if(act === "cns-later"){ CNS = null; CNS_LATER = true; renderCns(); return; }
+    if(act === "del-open"){ delOpen(); return; }
+    if(act === "del-close"){ delClose(); return; }
+    if(act === "del-go"){ delGo(); return; }
     if(act === "fr-reload"){ FR.loaded = 0; sbFriends(); flash("Обновляю"); return; }
     if(act === "fr-copy"){
       var code = myCode();
@@ -10130,6 +10731,11 @@ grant execute on function public.find_friend(text) to authenticated;</code></pre
   document.addEventListener("keydown", function(ev){
     if(ev.key === "Escape" && LVT && !document.getElementById("lvlUp").hidden){ lvlUpHide(); return; }
     if(ev.key === "Enter" && ev.target && ev.target.id === "frCode"){ ev.preventDefault(); frAdd(); return; }
+    if(ev.key === "Escape" && DOC){ docClose(); return; }
+    if(ev.key === "Escape" && DEL){ delClose(); return; }
+    if(ev.key === "Escape" && CNS){ CNS = null; CNS_LATER = true; renderCns(); return; }
+    if(ev.key === "Enter" && DEL && ev.target && ev.target.id === "delWord"){ ev.preventDefault(); delGo(); return; }
+    if(DOC || DEL || CNS) return;
     if(ev.key === "Escape" && IV){ ivClose(); return; }
     if(ev.key === "Escape" && IVR){ if(IVR.state === "done") ivStop(); else if(IVR.state === "run") ivPause(); return; }
     if((ev.key === " " || ev.code === "Space") && IVR && IVR.state !== "done" && !(ev.target && /INPUT|TEXTAREA/.test(ev.target.tagName))){ ev.preventDefault(); ivPause(); return; }
@@ -10207,6 +10813,7 @@ grant execute on function public.find_friend(text) to authenticated;</code></pre
     }
     if(t2.getAttribute && t2.getAttribute("data-f")){ custEdit(t2); save(); return; }
     if(t2.id === "pfName"){ state.profile.name = String(t2.value || "").slice(0, 40); save(); renderAcc(); return; }
+    if(t2.id === "delWord" && DEL){ DEL.word = t2.value; var dgo = document.querySelector('#delDlg [data-act="del-go"]'); if(dgo) dgo.disabled = DEL.busy || t2.value.trim().toLowerCase() !== "удалить"; return; }
     if(t2.id === "frCode"){ FR.q = t2.value; if(FR.found || FR.err){ FR.found = null; FR.err = ""; var ffb = document.querySelector(".fr-found"); if(ffb) ffb.remove(); } return; }
     if(t2.getAttribute && t2.getAttribute("data-note")){
       if(!state.notes) state.notes = {};
@@ -10291,6 +10898,7 @@ grant execute on function public.find_friend(text) to authenticated;</code></pre
   xpSchedule();
   setTimeout(function(){ if(!wnCheck()) weekCheck(); }, 1500);
   setTimeout(function(){ if(loggedIn() && !FR.loaded && !FR.loading) sbFriends(); }, 3000);
+  renderLegalNav(); setupShow(); setTimeout(docFromHash, 300);
   window.addEventListener("hashchange", function(){ if(/prog=/.test(location.hash || "")){ if(ONB){ ONB = null; renderOnb(); } impFromHash(); } });
   syncNow(true);
 
