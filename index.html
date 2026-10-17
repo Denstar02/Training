@@ -1679,6 +1679,8 @@ mark.todo{background:color-mix(in srgb, var(--danger) 16%, transparent);color:va
 .legal{display:flex;flex-wrap:wrap;justify-content:center;gap:2px 18px;margin:2px 0 28px}
 .legal .linkbtn{min-height:36px;padding:0;font-size:13px;font-weight:500;color:var(--muted);text-decoration:none}
 .legal .linkbtn:hover{color:var(--accent)}
+.legal .linkbtn.donate{color:var(--accent);font-weight:600}
+.legal .linkbtn.donate{gap:5px}
 .agree-box{display:grid;gap:10px;margin:6px 0 12px}
 .agree{display:flex;align-items:flex-start;gap:10px;font-size:14.5px;line-height:1.4;cursor:pointer}
 .agree input{flex:0 0 auto;width:20px;height:20px;margin:1px 0 0;accent-color:var(--accent)}
@@ -2493,9 +2495,11 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   // owner — ФИО оператора, ownerTo — оно же в дательном падеже (кому: даю согласие …); email и telegram — куда писать с вопросами о данных; storage — где стоит сервер базы;
   // abroad — true, если сервер за пределами России (тогда в согласии появится пункт о трансграничной передаче)
   var LEGAL = {owner: "Тарасов Денис Алексеевич", ownerTo: "Тарасову Денису Алексеевичу", email: "denstar02@gmail.com", telegram: "@denstar02", storage: SELF_API ? "Собственный сервер приложения в дата-центре в Москве (хостинг IHOR), Россия" : "Облачная база Supabase (Supabase Inc.), серверы Amazon Web Services во Франкфурте-на-Майне, Германия (регион eu-central-1)", abroad: !SELF_API, updated: "16 октября 2026"};
+  // ссылка «Поддержать проект» внизу приложения; пустая строка — кнопки нет
+  var DONATE = "https://www.donationalerts.com/r/werewolf_023";
   var CONSENT_V = "2026-10-16";   // поменяй дату, если существенно изменишь согласие, — все подтвердят заново
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 2, APP_BUILD_N = 7;
+  var APP_MAJOR = 2, APP_BUILD_N = 8;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var APP_BUILD = APP_MAJOR * 100 + APP_BUILD_N;   // 1.35 → 135, 2.01 → 201
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
@@ -8981,7 +8985,6 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   function legalVal(k, ph){ return LEGAL[k] ? esc(LEGAL[k]) : todo(ph); }
   function tgHref(){ var t = String(LEGAL.telegram || "").trim().replace(/^@/, ""); return /^[A-Za-z0-9_]{3,}$/.test(t) ? "https://t.me/" + t : ""; }
   function mailHref(){ var m = String(LEGAL.email || "").trim(); return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m) ? "mailto:" + m : ""; }
-  function contactHref(){ return tgHref() || mailHref(); }
   function contactHtml(){
     var parts = [];
     if(mailHref()) parts.push('почта <a href="' + esc(mailHref()) + '">' + esc(LEGAL.email) + '</a>');
@@ -9080,11 +9083,12 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   function renderLegalNav(){
     var nav = document.getElementById("legalNav");
     if(!nav) return;
-    var hr = contactHref();
+    var mh = mailHref(), dh = /^https:\/\//.test(DONATE || "") ? DONATE : "";
     nav.innerHTML = '<button type="button" class="linkbtn alt" data-act="doc" data-doc="privacy">Политика конфиденциальности</button>' +
       '<button type="button" class="linkbtn alt" data-act="doc" data-doc="consent">Согласие на обработку данных</button>' +
       '<button type="button" class="linkbtn alt" data-act="doc" data-doc="health">Здоровье и безопасность</button>' +
-      (hr ? '<a class="linkbtn alt" href="' + esc(hr) + '" target="_blank" rel="noopener">Написать автору' + (tgHref() ? ' в Telegram' : '') + '</a>' : '');
+      (mh ? '<a class="linkbtn alt" href="' + esc(mh) + '">Написать на почту</a>' : '') +
+      (dh ? '<a class="linkbtn alt donate" href="' + esc(dh) + '" target="_blank" rel="noopener"><span aria-hidden="true">♥</span> Поддержать проект</a>' : '');
   }
   function docFromHash(){ var m = /^#(privacy|consent|health)$/.exec(location.hash || ""); if(m) docOpen(m[1]); }
   window.addEventListener("hashchange", docFromHash);
