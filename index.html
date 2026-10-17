@@ -1681,6 +1681,13 @@ mark.todo{background:color-mix(in srgb, var(--danger) 16%, transparent);color:va
 .legal .linkbtn:hover{color:var(--accent)}
 .legal .linkbtn.donate{color:var(--accent);font-weight:600}
 .legal .linkbtn.donate{gap:5px}
+/* 2.09: ряды без дыр — вкладки растягиваются на всю полосу, плитки цифр встают ровными рядами по центру при любом их числе */
+.tabs button{flex:1 0 auto}
+.nums,.fp-tiles{--k:var(--n,4);display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.fp-tiles{--k:min(var(--n,3),3)}
+.nums > div,.fp-tiles > div{flex:0 0 calc((100% - 8px * (var(--k) - 1)) / var(--k));min-width:0;box-sizing:border-box}
+@media (max-width:680px){.nums{--k:min(var(--n,4),3)}}
+@media (max-width:520px){.nums,.fp-tiles{--k:min(var(--n,4),2)}}
 .agree-box{display:grid;gap:10px;margin:6px 0 12px}
 .agree{display:flex;align-items:flex-start;gap:10px;font-size:14.5px;line-height:1.4;cursor:pointer}
 .agree input{flex:0 0 auto;width:20px;height:20px;margin:1px 0 0;accent-color:var(--accent)}
@@ -2499,7 +2506,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   var DONATE = "https://www.donationalerts.com/r/werewolf_023";
   var CONSENT_V = "2026-10-16";   // поменяй дату, если существенно изменишь согласие, — все подтвердят заново
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 2, APP_BUILD_N = 8;
+  var APP_MAJOR = 2, APP_BUILD_N = 9;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var APP_BUILD = APP_MAJOR * 100 + APP_BUILD_N;   // 1.35 → 135, 2.01 → 201
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
@@ -6398,7 +6405,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       {v: DUMB.total(), u: ["повторение","повторения","повторений"], tail: " с гантелями"},
       {v: tMinutes(), u: ["минута","минуты","минут"], tail: " растяжки"}
     ];
-    var h = '<div class="nums">';
+    var h = '<div class="nums" style="--n:' + rows.length + '">';
     rows.forEach(function(r){
       h += '<div><strong data-num="pf-' + r.u[2] + '">' + r.v + '</strong><span>' + plural(r.v, r.u) + r.tail + '</span></div>';
     });
@@ -6857,11 +6864,11 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   function recordsHtml(){
     var r = records();
     if(!r.best && !r.hold) return "";
-    var h = '<h3 class="camset-label">Личные рекорды</h3><div class="nums">';
-    if(r.best) h += '<div><strong>' + r.best + '</strong><span>лучший подход, ' + keyName(r.bestKey) + '</span></div>';
-    if(r.day) h += '<div><strong>' + r.day + '</strong><span>повторений за тренировку</span></div>';
-    if(r.hold) h += '<div><strong>' + r.hold + '</strong><span>секунд удержания</span></div>';
-    return h + '</div>';
+    var t = [];
+    if(r.best) t.push('<div><strong>' + r.best + '</strong><span>лучший подход, ' + keyName(r.bestKey) + '</span></div>');
+    if(r.day) t.push('<div><strong>' + r.day + '</strong><span>повторений за тренировку</span></div>');
+    if(r.hold) t.push('<div><strong>' + r.hold + '</strong><span>секунд удержания</span></div>');
+    return '<h3 class="camset-label">Личные рекорды</h3><div class="nums" style="--n:' + t.length + '">' + t.join("") + '</div>';
   }
 
 
@@ -8497,7 +8504,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       {v: st.dumb || 0, u: ["повтор с гантелями","повтора с гантелями","повторов с гантелями"]},
       {v: st.stretch || 0, u: ["минута растяжки","минуты растяжки","минут растяжки"]}
     ].filter(function(t){ return t.v > 0; });
-    if(tiles.length) h += '<div class="fp-tiles">' + tiles.map(function(t){ return '<div><b>' + numSp(t.v) + '</b><span>' + plural(t.v, t.u) + '</span></div>'; }).join("") + '</div>';
+    if(tiles.length) h += '<div class="fp-tiles" style="--n:' + tiles.length + '">' + tiles.map(function(t){ return '<div><b>' + numSp(t.v) + '</b><span>' + plural(t.v, t.u) + '</span></div>'; }).join("") + '</div>';
     else h += '<p class="hint">Пока без отметок.</p>';
     h += duelHtml(st, name);
     // рекорды
