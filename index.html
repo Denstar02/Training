@@ -1704,6 +1704,21 @@ mark.todo{background:color-mix(in srgb, var(--danger) 16%, transparent);color:va
 .us-empty{padding:8px 0}
 .us-foot{align-items:center}
 .us-foot .hint{margin:0;flex:1 1 220px}
+.us-ops{margin:0 0 12px;padding:10px 12px;border-radius:var(--r-sm);background:var(--accent-ghost);line-height:1.45}
+.us-ops code{font-size:12.5px;padding:1px 5px;border-radius:5px;background:var(--surface)}
+.us-bad{color:#B42318}
+:root[data-theme="dark"] .us-bad{color:#FDA29B}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .us-bad{color:#FDA29B}}
+/* 2.12: push-уведомления */
+.ps-list{display:grid;gap:4px;margin:4px 0 10px}
+.ps-row{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border-radius:var(--r-sm);background:var(--card-solid);box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--line) 70%, transparent);font-size:14.5px;line-height:1.4;cursor:pointer}
+.ps-row input[type="checkbox"]{flex:0 0 auto;width:20px;height:20px;margin:1px 0 0;accent-color:var(--accent)}
+.ps-row small{color:var(--muted);font-size:12.5px}
+.ps-rem{flex-wrap:wrap;align-items:center;cursor:default}
+.ps-rem label{display:flex;align-items:flex-start;gap:10px;flex:1 1 240px;cursor:pointer}
+.ps-rem input[type="time"]{min-height:38px;padding:0 10px;border-radius:10px;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);font:inherit;font-variant-numeric:tabular-nums}
+.ps-rem input[type="time"]:disabled{opacity:.5}
+.ps-err{color:#B42318}
 .agree-box{display:grid;gap:10px;margin:6px 0 12px}
 .agree{display:flex;align-items:flex-start;gap:10px;font-size:14.5px;line-height:1.4;cursor:pointer}
 .agree input{flex:0 0 auto;width:20px;height:20px;margin:1px 0 0;accent-color:var(--accent)}
@@ -2517,12 +2532,12 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   // ===== для открытого доступа: впиши свои данные — они попадут в политику конфиденциальности и согласие =====
   // owner — ФИО оператора, ownerTo — оно же в дательном падеже (кому: даю согласие …); email и telegram — куда писать с вопросами о данных; storage — где стоит сервер базы;
   // abroad — true, если сервер за пределами России (тогда в согласии появится пункт о трансграничной передаче)
-  var LEGAL = {owner: "Тарасов Денис Алексеевич", ownerTo: "Тарасову Денису Алексеевичу", email: "denstar02@gmail.com", telegram: "@denstar02", storage: SELF_API ? "Собственный сервер приложения в дата-центре в Москве (хостинг IHOR), Россия" : "Облачная база Supabase (Supabase Inc.), серверы Amazon Web Services во Франкфурте-на-Майне, Германия (регион eu-central-1)", abroad: !SELF_API, updated: "16 октября 2026"};
+  var LEGAL = {owner: "Тарасов Денис Алексеевич", ownerTo: "Тарасову Денису Алексеевичу", email: "denstar02@gmail.com", telegram: "@denstar02", storage: SELF_API ? "Собственный сервер приложения в дата-центре в Москве (хостинг IHOR), Россия; резервные копии базы — на этом же сервере и в облачном хранилище Яндекс Диск (ООО «Яндекс», Россия)" : "Облачная база Supabase (Supabase Inc.), серверы Amazon Web Services во Франкфурте-на-Майне, Германия (регион eu-central-1)", abroad: !SELF_API, updated: "17 октября 2026"};
   // ссылка «Поддержать проект» внизу приложения; пустая строка — кнопки нет
   var DONATE = "https://www.donationalerts.com/r/denstar02";
-  var CONSENT_V = "2026-10-16";   // поменяй дату, если существенно изменишь согласие, — все подтвердят заново
+  var CONSENT_V = "2026-10-17";   // поменяй дату, если существенно изменишь согласие, — все подтвердят заново
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 2, APP_BUILD_N = 11;
+  var APP_MAJOR = 2, APP_BUILD_N = 12;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var APP_BUILD = APP_MAJOR * 100 + APP_BUILD_N;   // 1.35 → 135, 2.01 → 201
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
@@ -5250,6 +5265,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       .catch(function(e){ syncStatus("Не вышло: " + sbErr(e)); });
   }
   function sbOut(){
+    if(PS.on) psOff(true);
     sbSaveTok(null); SB.mail = null; SB.last = 0;
     render();
     syncStatus("Вышел. Прогресс остался в этом браузере, а в аккаунте сохранён.");
@@ -6433,10 +6449,15 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     var uid = sbUser();
     return uid ? uid.replace(/-/g, "").slice(0, 8).toUpperCase() : "";
   }
+  function lastMarkTs(){
+    var m = 0;
+    [state.times || {}, state.fin || {}].forEach(function(o){ Object.keys(o).forEach(function(k){ var t = +o[k] || 0; if(t > m && t <= Date.now() + 864e5) m = t; }); });
+    return m;
+  }
   function myStats(){
     return {
       pull: PULL.total(), push: PUSH.total() + BOARD.total(), squat: SQUAT.total(),
-      dumb: DUMB.total(), stretch: tMinutes(), ts: Date.now(), last: state.lastEvent || null, reacts: state.reacts || {},
+      dumb: DUMB.total(), stretch: tMinutes(), ts: Date.now(), at: lastMarkTs() || null, last: state.lastEvent || null, reacts: state.reacts || {},
       wk: {id: weekId(), reps: weekReps()}, feed: (state.feed || []).slice(-15),
       lv: (function(){ var xx = xpCalc().xp; return {n: levelOf(xx), xp: xx}; })(),
       md: Object.keys(state.medals || {}), live: liveInfo(),
@@ -7614,6 +7635,9 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   // ---------- что нового ----------
   var WN_KEY = "pullups-seen-ver", WN = null;
   var NEWS = [
+    {v: 212, items: [
+      {e: "🔔", t: "Push-уведомления", d: "Заявки в друзья, поддержка от друзей и напоминание о тренировке теперь приходят, даже когда приложение закрыто. Включаются в профиле, в разделе «Уведомления», — отдельно на каждом устройстве. Напоминание приходит в выбранное время, только если за день ещё не было отметок.", go: "ps-open", btn: "Включить"}
+    ]},
     {v: 207, items: [
       {e: "🏠", t: "Новый адрес — denstar-train.ru", d: "Приложение переехало на собственный сервер в Москве. Аккаунты, друзья и значки уже здесь, вход — прежней почтой и паролем. Старые адреса сами перекидывают сюда вместе с отметками с устройства. Если приложение стоит на экране «Домой», поставь его заново отсюда."},
       {e: "🚂", t: "Новая иконка", d: "Паровозик со звездой — на экране «Домой» и во вкладке браузера."}
@@ -7698,6 +7722,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(go === "wk-open") weekOpen(weekStart());
     else if(go === "iv-open") ivOpen();
     else if(go === "doc-health") docOpen("health");
+    else if(go === "ps-open"){ goProfile("pushBox"); if(!loggedIn()) flash("Уведомления работают с аккаунтом: войди или зарегистрируйся"); }
     else if(go === "fr-find"){ goProfile("frCode"); setTimeout(function(){ var fq = document.getElementById("frCode"); if(fq) try { fq.focus({preventScroll: true}); } catch(e){} }, 350); }
     else if(go === "medals-open" || go === "feed-open" || go === "level-open") goProfile(go === "medals-open" ? "medalsBox" : go === "level-open" ? "levelBox" : "feedBox");
   }
@@ -8344,6 +8369,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(!AW.admin || !loggedIn() || US.busy) return Promise.resolve();
     US.busy = true; US.at = Date.now();
     if(!quiet) renderUsers();
+    sbReq("/rest/v1/rpc/admin_ops", {method: "POST", body: "{}"}).then(function(o){ US.ops = Array.isArray(o) ? o : []; renderUsers(); }, function(){ US.ops = null; });
     return sbReq("/rest/v1/rpc/admin_users", {method: "POST", body: "{}"}).then(function(rows){
       US.busy = false; US.err = ""; US.at = Date.now();
       US.list = (Array.isArray(rows) ? rows : []).filter(function(u){ return u && u.user_id; });
@@ -8370,10 +8396,10 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   }
   function usRow(u){
     var me = u.user_id === sbUser(), name = u.nick || "", isNew = !me && usT(u.created_at) > (US.since || 0);
-    var lv = +u.lv || 0, act = usT(+u.active_at || 0), sub = [];
+    var lv = +u.lv || 0, act = usT(+u.trained_at || 0) || usT(+u.active_at || 0), sub = [];
     sub.push("рег. " + usDate(usT(u.created_at)));
     if(u.last_sign_in_at) sub.push("вход " + usDate(usT(u.last_sign_in_at)));
-    sub.push(act ? "отметка " + usDate(act) : "без отметок");
+    sub.push(act ? "тренировка " + usDate(act) : "без отметок");
     if(lv) sub.push(rankOf(lv)[2] + " " + lv);
     if(+u.friends) sub.push("друзей " + u.friends);
     return '<li class="ff-row us-row' + (isNew ? " new" : "") + '"><span class="ff-ava">' + pcAva(u.photo, (name || u.email || "?").charAt(0).toUpperCase()) + '</span>' +
@@ -8387,6 +8413,17 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     var show = US.all || q ? L : L.slice(0, US_SHOW);
     return show.map(usRow).join("") + (show.length < L.length ? '<li class="us-more"><button type="button" class="linkbtn alt" data-act="us-all">Показать всех · ' + L.length + '</button></li>' : '');
   }
+  function usOpsHtml(){
+    if(!US.ops) return "";
+    var b = null;
+    US.ops.forEach(function(o){ if(o && o.k === "backup") b = o; });
+    if(!b) return '<p class="hint us-ops">💾 Копия базы ещё не делалась — первая будет ночью, в 3:30.</p>';
+    var v = b.v || {}, when = usDate(usT(b.at)), t;
+    if(v.ok === false) t = '<b class="us-bad">⚠ Копия базы ' + when + ' не сделалась</b>' + (v.err === "yadisk" ? ': не загрузилась на Яндекс Диск. На сервере выполни <code>training-yadisk</code>.' : '. Логи: <code>journalctl -t training-backup</code>.');
+    else if(v.yadisk === "ok") t = '💾 Копия базы: ' + when + ' · на сервере и на Яндекс Диске ✓';
+    else t = '💾 Копия базы: ' + when + ' · только на сервере. Чтобы копии уходили на Яндекс Диск, выполни на сервере <code>training-yadisk</code>.';
+    return '<p class="hint us-ops">' + t + '</p>';
+  }
   function usersHtml(){
     if(!AW.admin || !loggedIn()) return "";
     var L = US.list, h = '<section class="panel users" id="usersBox"><div class="md-head"><h2>Пользователи</h2>' + (L ? '<span class="md-count">видно только тебе</span>' : '') + '</div>';
@@ -8399,14 +8436,15 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     }
     var t0 = new Date(), today = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate()).getTime(), wk = Date.now() - 7 * 864e5;
     var nWeek = L.filter(function(u){ return usT(u.created_at) >= wk; }).length;
-    var nToday = L.filter(function(u){ return usT(+u.active_at || 0) >= today; }).length;
+    var nToday = L.filter(function(u){ return (usT(+u.trained_at || 0) || usT(+u.active_at || 0)) >= today; }).length;
     h += '<div class="nums us-sum" style="--n:3"><div><strong>' + L.length + '</strong><span>' + plural(L.length, ["аккаунт","аккаунта","аккаунтов"]) + ' всего</span></div>' +
       '<div><strong>' + nWeek + '</strong><span>' + plural(nWeek, ["новый","новых","новых"]) + ' за неделю</span></div>' +
       '<div><strong>' + nToday + '</strong><span>' + plural(nToday, ["тренировался","тренировались","тренировались"]) + ' сегодня</span></div></div>';
     if(L.length > 6) h += '<label class="field us-search" for="usQ">Найти по нику или почте<input type="search" id="usQ" value="' + esc(US.q || "") + '" placeholder="ник или почта" autocomplete="off" autocapitalize="off" spellcheck="false"></label>';
+    h += usOpsHtml();
     h += '<ul class="ff-list us-list" id="usList">' + usListHtml() + '</ul>';
     h += '<div class="test us-foot"><button type="button" class="linkbtn" data-act="us-reload"' + (US.busy ? ' disabled' : '') + '>' + (US.busy ? "Обновляю…" : "Обновить") + '</button>' +
-      '<span class="hint">Сверху — новые. Отметка — когда человек последний раз отмечал тренировку.</span></div>';
+      '<span class="hint">Сверху — новые. «Тренировка» — когда человек последний раз отмечал подход.</span></div>';
     return h + '</section>';
   }
   function renderUsers(){
@@ -8426,6 +8464,182 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     var ul = document.getElementById("usList");
     if(ul) ul.innerHTML = usListHtml();
   });
+  // ---------- push-уведомления: работают на своём сервере (denstar-train.ru) ----------
+  var PS_KEY = "pullups-push", PS_DEF = {fr: true, cheer: true, adm: true, rem: ""};
+  var PS = (function(){ try { var o = JSON.parse(localStorage.getItem(PS_KEY) || "null"); return o && typeof o === "object" ? o : {}; } catch(e){ return {}; } })();
+  if(!PS.prefs || typeof PS.prefs !== "object") PS.prefs = {};
+  Object.keys(PS_DEF).forEach(function(k){ if(PS.prefs[k] === undefined) PS.prefs[k] = PS_DEF[k]; });
+  var PSX = {busy: false, err: "", key: null, synced: 0};
+  function psSave(){ try { localStorage.setItem(PS_KEY, JSON.stringify({on: !!PS.on, ep: PS.ep || "", uid: PS.uid || "", prefs: PS.prefs})); } catch(e){} }
+  function psIOS(){ return /iPad|iPhone|iPod/.test(navigator.userAgent || "") || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1); }
+  function psStandalone(){ return !!((window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || navigator.standalone); }
+  function psSupported(){ return SELF_API && "serviceWorker" in navigator && "PushManager" in window && typeof Notification !== "undefined"; }
+  function psTz(){ try { return Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch(e){ return ""; } }
+  function psKeyBytes(k){
+    var s0 = String(k).replace(/-/g, "+").replace(/_/g, "/");
+    while(s0.length % 4) s0 += "=";
+    var bin = atob(s0), u = new Uint8Array(bin.length);
+    for(var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+    return u;
+  }
+  function psSameKey(sub, key){
+    try {
+      var a = new Uint8Array(sub.options.applicationServerKey), b = psKeyBytes(key);
+      if(a.length !== b.length) return false;
+      for(var i = 0; i < a.length; i++) if(a[i] !== b[i]) return false;
+      return true;
+    } catch(e){ return true; }
+  }
+  function psGetKey(){
+    if(PSX.key) return Promise.resolve(PSX.key);
+    return sbReq("/auth/v1/push/key", {}, false).then(function(d){ PSX.key = (d && d.key) || null; return PSX.key; });
+  }
+  function psReg(){
+    return navigator.serviceWorker.register("sw.js").then(function(){
+      return Promise.race([navigator.serviceWorker.ready, new Promise(function(res, rej){ setTimeout(function(){ rej(new Error("служебный скрипт страницы не запустился — обнови страницу")); }, 10000); })]);
+    });
+  }
+  function psSubscribe(){
+    return psGetKey().then(function(key){
+      if(!key) throw new Error("на сервере ещё не настроены уведомления");
+      return psReg().then(function(reg){
+        return reg.pushManager.getSubscription().then(function(sub){
+          if(sub && !psSameKey(sub, key)) return sub.unsubscribe().then(function(){ return null; });
+          return sub;
+        }).then(function(sub){
+          return sub || reg.pushManager.subscribe({userVisibleOnly: true, applicationServerKey: psKeyBytes(key)});
+        });
+      });
+    });
+  }
+  function psSend(sub){
+    var j = sub && sub.toJSON ? sub.toJSON() : sub;
+    if(!j || !j.endpoint || !j.keys) throw new Error("браузер не выдал подписку");
+    var p = PS.prefs, prefs = {fr: p.fr !== false, cheer: p.cheer !== false, adm: p.adm !== false, rem: p.rem || "", tz: psTz()};
+    return sbReq("/auth/v1/push/sub", {method: "POST", body: JSON.stringify({endpoint: j.endpoint, keys: j.keys, prefs: prefs})}).then(function(){
+      PS.on = true; PS.ep = j.endpoint; PS.uid = sbUser(); PSX.synced = Date.now(); PSX.err = ""; psSave();
+    });
+  }
+  function psErrText(e){
+    var m = (e && e.message) || "";
+    if(/не настроены/.test(m)) return "На сервере ещё не настроены уведомления. Обнови сервер — запусти установку ещё раз.";
+    if(/AbortError|push service|registration failed/i.test(m + " " + ((e && e.name) || ""))) return "Браузер не смог подключиться к своему сервису уведомлений. Проверь интернет или попробуй другой браузер.";
+    return "Не получилось: " + (m || "ошибка") + ".";
+  }
+  function psOn(){
+    if(!psSupported() || PSX.busy) return;
+    PSX.busy = true; PSX.err = ""; renderPush();
+    Notification.requestPermission().then(function(perm){
+      if(perm !== "granted") throw {perm: perm};
+      return psSubscribe();
+    }).then(psSend).then(function(){
+      PSX.busy = false; renderPush(); flash("🔔 Уведомления включены");
+    }).catch(function(e){
+      PSX.busy = false;
+      PSX.err = e && e.perm ? (e.perm === "denied" ? "" : "Браузер не дал разрешения. Нажми ещё раз и выбери «Разрешить».") : psErrText(e);
+      renderPush();
+    });
+  }
+  function psOff(silent){
+    var ep = PS.ep;
+    PS.on = false; PS.ep = ""; PS.uid = ""; psSave();
+    var p1 = ep && loggedIn() ? sbReq("/auth/v1/push/unsub", {method: "POST", body: JSON.stringify({endpoint: ep})}).catch(function(){}) : Promise.resolve();
+    var p2 = Promise.resolve();
+    try {
+      if("serviceWorker" in navigator) p2 = navigator.serviceWorker.getRegistration().then(function(reg){ return reg && reg.pushManager ? reg.pushManager.getSubscription() : null; })
+        .then(function(sub){ return sub ? sub.unsubscribe() : null; }).catch(function(){});
+    } catch(e){}
+    renderPush();
+    return Promise.all([p1, p2]).then(function(){ if(!silent) flash("Уведомления на этом устройстве выключены"); });
+  }
+  function psSync(){
+    if(!PS.on || !psSupported() || !loggedIn()) return Promise.resolve();
+    if(Notification.permission !== "granted"){ PS.on = false; psSave(); renderPush(); return Promise.resolve(); }
+    return psSubscribe().then(psSend).then(function(){ renderPush(); }, function(e){ PSX.err = psErrText(e); renderPush(); });
+  }
+  var PS_T = null;
+  function psPrefsChanged(){ psSave(); clearTimeout(PS_T); PS_T = setTimeout(function(){ psSync().then(function(){ if(!PSX.err) flash("Сохранил"); }); }, 500); }
+  function psTest(){
+    if(!PS.on || !PS.ep) return;
+    sbReq("/auth/v1/push/test", {method: "POST", body: JSON.stringify({endpoint: PS.ep})}).then(function(d){
+      flash(d && d.ok ? "Отправил — уведомление придёт через пару секунд" : "Сервер не смог доставить уведомление. Выключи и включи их снова.");
+    }).catch(function(e){
+      if(/не подписано/.test((e && e.message) || "")){ psSync().then(function(){ flash("Переподключил уведомления — нажми «Проверить» ещё раз"); }); }
+      else flash("Не получилось: " + sbErr(e));
+    });
+  }
+  function psCheck(k, label, on){
+    return '<label class="ps-row"><input type="checkbox" data-ps="' + k + '"' + (on ? ' checked' : '') + '><span>' + label + '</span></label>';
+  }
+  function pushHtml(){
+    if(!SELF_API || !loggedIn()) return "";
+    var h = '<section class="panel pushp" id="pushBox"><div class="md-head"><h2>Уведомления</h2>' + (PS.on ? '<span class="md-count">на этом устройстве</span>' : '') + '</div>';
+    if(!psSupported()){
+      h += '<p class="hint">' + (psIOS() && !psStandalone() ?
+        'На iPhone уведомления работают, когда приложение добавлено на экран «Домой»: в Safari нажми «Поделиться» → «На экран „Домой“» и открой «Тренировки» с иконки.' :
+        'Этот браузер не умеет push-уведомления. Подойдут Chrome, Яндекс Браузер, Firefox, Edge или Safari.') + '</p>';
+      return h + '</section>';
+    }
+    if(Notification.permission === "denied"){
+      return h + '<p class="hint">Уведомления для этого сайта запрещены в браузере. Разреши их: значок слева от адреса → «Уведомления» → «Разрешить», потом обнови страницу.</p></section>';
+    }
+    var p = PS.prefs;
+    if(!PS.on){
+      h += '<p class="hint">Заявки в друзья, поддержка от друзей и напоминание о тренировке — даже когда приложение закрыто.</p>' +
+        '<div class="test"><button type="button" class="primary" data-act="ps-on"' + (PSX.busy ? ' disabled' : '') + '>' + (PSX.busy ? "Включаю…" : "🔔 Включить уведомления") + '</button></div>';
+    } else {
+      h += '<div class="ps-list">' +
+        psCheck("fr", "Заявки в друзья и ответы на них", p.fr !== false) +
+        psCheck("cheer", "Когда друзья подбадривают", p.cheer !== false) +
+        '<div class="ps-row ps-rem"><label><input type="checkbox" data-ps="rem"' + (p.rem ? ' checked' : '') + '><span>Напомнить о тренировке, если за день не было отметок</span></label>' +
+          '<input type="time" id="psRemTime" step="300" value="' + esc(p.rem || "19:00") + '"' + (p.rem ? '' : ' disabled') + ' aria-label="Время напоминания"></div>' +
+        (AW.admin ? psCheck("adm", "Новые пользователи и сбои копий базы <small>— только тебе как админу</small>", p.adm !== false) : '') +
+        '</div>' +
+        '<div class="test"><button type="button" class="linkbtn" data-act="ps-test">Проверить</button>' +
+        '<button type="button" class="linkbtn alt" data-act="ps-off">Выключить на этом устройстве</button></div>' +
+        '<p class="hint">Настройки — для этого устройства: на телефоне и компьютере уведомления включаются отдельно.</p>';
+    }
+    if(PSX.err) h += '<p class="hint ps-err">' + esc(PSX.err) + '</p>';
+    return h + '</section>';
+  }
+  function renderPush(){
+    var s0 = document.getElementById("pushSlot");
+    if(s0) s0.innerHTML = pushHtml();
+  }
+  document.addEventListener("change", function(ev){
+    var t = ev.target;
+    if(!t || !t.closest || !t.closest("#pushBox")) return;
+    var k = t.getAttribute("data-ps");
+    if(k === "rem"){
+      var ti = document.getElementById("psRemTime");
+      PS.prefs.rem = t.checked ? ((ti && ti.value) || "19:00") : "";
+      if(ti) ti.disabled = !t.checked;
+      psPrefsChanged(); return;
+    }
+    if(k){ PS.prefs[k] = !!t.checked; psPrefsChanged(); return; }
+    if(t.id === "psRemTime" && /^\d{2}:\d{2}/.test(t.value || "")){ PS.prefs.rem = t.value.slice(0, 5); psPrefsChanged(); }
+  });
+  // нажали на уведомление: открыть нужное место
+  function psGo(go){
+    if(go === "users"){
+      goProfile("usersBox");
+      var n0 = 0, iv = setInterval(function(){ var el = document.getElementById("usersBox"); if(el || ++n0 > 30){ clearInterval(iv); if(el) scrollTo(el); } }, 200);
+      return;
+    }
+    if(go === "reqs" || go === "friends"){
+      if(loggedIn()){ FR.loaded = 0; sbFriends(); }
+      goProfile(go === "reqs" && document.getElementById("frReqs") ? "frReqs" : "friendsBox");
+    }
+  }
+  if("serviceWorker" in navigator){
+    try { navigator.serviceWorker.addEventListener("message", function(e){ if(e.data && e.data.type === "go") psGo(e.data.go); }); } catch(e){}
+  }
+  function psFromUrl(){
+    var m = /[?&]go=(reqs|friends|users)(?:&|$)/.exec(location.search || "");
+    if(!m) return;
+    try { history.replaceState(null, "", location.pathname + location.hash); } catch(e){}
+    setTimeout(function(){ psGo(m[1]); }, 600);
+  }
   setInterval(function(){ if(AW.ok) awAfterLoad(); }, 20000);
   document.addEventListener("input", function(ev){
     var id = ev.target && ev.target.id;
@@ -9135,6 +9349,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
         '<li>список друзей и заявок, реакции и значки;</li>' +
         '<li>статус «сейчас тренируется» — пока открыт режим тренировки или интервальный таймер;</li>' +
         '<li>название браузера и устройства, с которых ты входил, — чтобы показать, где была последняя синхронизация;</li>' +
+        '<li>если включишь уведомления — технический адрес подписки этого браузера и настройки уведомлений: какие присылать, время напоминания и часовой пояс;</li>' +
         '<li>дата и версия твоего согласия;</li>' +
         '<li>технические журналы хостинга: IP-адрес и время запросов.</li></ul>' +
         '<h3>Зачем</h3><ul>' +
@@ -9142,6 +9357,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
         '<li>хранить прогресс и синхронизировать его между устройствами;</li>' +
         '<li>показывать твои результаты взаимным друзьям, вести ленту и таблицу недели;</li>' +
         '<li>помогать друзьям найти тебя по коду, точной почте или точному нику;</li>' +
+        '<li>присылать уведомления, которые ты включил: заявки в друзья, поддержку друзей, напоминания о тренировке;</li>' +
         '<li>защищать сервис от злоупотреблений и скрывать недопустимые ники и фото.</li></ul>' +
         '<p>Основание — твоё согласие на обработку персональных данных (п. 1 ч. 1 ст. 6 Федерального закона № 152-ФЗ «О персональных данных»).</p>' +
         '<h3>Кто что видит</h3><ul>' +
@@ -9149,7 +9365,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
         '<li><b>Вошедший пользователь, который знает твой код, точную почту или точный ник,</b> — только ник, фото, уровень и код, чтобы отправить тебе заявку. Саму почту другим не показываем.</li>' +
         '<li><b>Оператор</b> технически имеет доступ к базе и использует его только для поддержки и модерации.</li></ul>' +
         '<h3>Где хранятся данные</h3><p>' + storageHtml() + '. Данные передаются по шифрованному соединению (HTTPS). Доступ ограничен правилами базы: каждый пользователь читает только свои записи и записи взаимных друзей.</p>' +
-        '<h3>Сколько хранятся</h3><p>Пока у тебя есть аккаунт. После удаления аккаунта данные стираются из базы сразу; в резервных копиях хостинга они могут оставаться до их плановой перезаписи.</p>' +
+        '<h3>Сколько хранятся</h3><p>Пока у тебя есть аккаунт. После удаления аккаунта данные стираются из базы сразу; в резервных копиях они остаются до их плановой перезаписи — не дольше 30 дней.</p>' +
         '<h3>Твои права</h3><ul>' +
         '<li>узнать, какие данные о тебе есть, и исправить их — ник и фото меняются в профиле;</li>' +
         '<li>удалить аккаунт со всеми данными — кнопка «Удалить аккаунт» внизу профиля;</li>' +
@@ -9163,8 +9379,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     consent: {t: "Согласие на обработку персональных данных", body: function(){
       return '<p class="doc-meta">Версия ' + esc(CONSENT_V) + '</p>' +
         '<p>Отмечая в приложении «Тренировки» галочку «Даю согласие на обработку персональных данных», я свободно, своей волей и в своём интересе даю согласие ' + (LEGAL.ownerTo ? esc(LEGAL.ownerTo) : legalVal("owner", "фамилия, имя и отчество оператора в дательном падеже")) + ' (далее — оператор; связь: ' + contactHtml() + ') на обработку моих персональных данных на условиях ниже.</p>' +
-        '<h3>Какие данные</h3><p>Адрес электронной почты; ник и фотография профиля, если я их укажу; сведения о моих тренировках, результатах, программах и заметках; список друзей, заявок, реакций и значков; сведения о браузерах и устройствах, с которых я вхожу; IP-адрес и время обращений к сервису.</p>' +
-        '<h3>Для чего</h3><p>Регистрация и вход в аккаунт; хранение и синхронизация прогресса между устройствами; показ моих результатов взаимным друзьям в приложении; поиск меня другими пользователями по коду, точному адресу почты или точному нику; поддержка пользователей, безопасность и модерация.</p>' +
+        '<h3>Какие данные</h3><p>Адрес электронной почты; ник и фотография профиля, если я их укажу; сведения о моих тренировках, результатах, программах и заметках; список друзей, заявок, реакций и значков; сведения о браузерах и устройствах, с которых я вхожу; адрес подписки на уведомления браузера и настройки уведомлений, если я их включу; IP-адрес и время обращений к сервису.</p>' +
+        '<h3>Для чего</h3><p>Регистрация и вход в аккаунт; хранение и синхронизация прогресса между устройствами; показ моих результатов взаимным друзьям в приложении; поиск меня другими пользователями по коду, точному адресу почты или точному нику; отправка уведомлений, которые я включу; резервное копирование; поддержка пользователей, безопасность и модерация.</p>' +
         '<h3>Что с ними можно делать</h3><p>Сбор, запись, систематизация, накопление, хранение, уточнение (обновление, изменение), извлечение, использование, предоставление доступа взаимным друзьям в приложении (ник, фото, уровень, значки, медали, рекорды, суммы повторений, лента, статус тренировки), блокирование, удаление и уничтожение — с использованием средств автоматизации.</p>' +
         '<h3>Где</h3><p>' + storageHtml() + '.' + (LEGAL.abroad ? ' Сервер находится за пределами России, и я даю согласие на трансграничную передачу моих данных в эту страну.' : '') + '</p>' +
         '<h3>Срок и отзыв</h3><p>Согласие действует до удаления аккаунта или до его отзыва. Отозвать согласие можно, удалив аккаунт в профиле или написав оператору на ' + contactHtml() + '. После отзыва оператор прекращает обработку и уничтожает данные в течение 30 дней, если хранить их дольше не требует закон.</p>' +
@@ -9302,6 +9518,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
         DEL = null; renderDel();
         var o = consentLocal(); if(uid && o[uid]){ delete o[uid]; try { localStorage.setItem("pullups-consent", JSON.stringify(o)); } catch(e){} }
         FR.list = []; FR.inc = []; FR.out = []; FR.found = null; FR.loaded = 0; AW.list = []; AW.admin = false;
+        if(PS.on) psOff(true);
         sbSaveTok(null); SB.mail = null; SB.last = 0;
         if(wipe){ state = fresh(); week = 0; sel = null; save(); }
         render();
@@ -9970,8 +10187,11 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       box.innerHTML = h;
       var fb = document.getElementById("friendsBox");
       if(fb) fb.innerHTML = friendsHtml();
+      var ps0 = document.getElementById("pushSlot");
+      if(!ps0 && fb && fb.parentNode){ ps0 = document.createElement("div"); ps0.id = "pushSlot"; fb.parentNode.insertBefore(ps0, fb.nextSibling); }
+      renderPush();
       var us = document.getElementById("usersSlot");
-      if(!us && fb && fb.parentNode){ us = document.createElement("div"); us.id = "usersSlot"; fb.parentNode.insertBefore(us, fb.nextSibling); }
+      if(!us && ps0 && ps0.parentNode){ us = document.createElement("div"); us.id = "usersSlot"; ps0.parentNode.insertBefore(us, ps0.nextSibling); }
       renderUsers();
       if(AW.admin && !US.busy && Date.now() - (US.at || 0) > 120000) usLoad(true);
       if(kid){
@@ -9996,6 +10216,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       if(fb0) fb0.innerHTML = "";
       var us0 = document.getElementById("usersSlot");
       if(us0) us0.innerHTML = "";
+      var ps1 = document.getElementById("pushSlot");
+      if(ps1) ps1.innerHTML = "";
       US.list = null; US.at = 0; US.since = null;
     }
     box.innerHTML = h;
@@ -10551,6 +10773,9 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(act === "us-reload"){ usLoad(); return; }
     if(act === "us-all"){ US.all = true; var ul0 = document.getElementById("usList"); if(ul0) ul0.innerHTML = usListHtml(); return; }
     if(act === "us-open"){ goProfile("usersBox"); return; }
+    if(act === "ps-on"){ psOn(); return; }
+    if(act === "ps-off"){ psOff(); return; }
+    if(act === "ps-test"){ psTest(); return; }
     if(act === "fr-copy"){
       var code = myCode();
       try {
@@ -11085,6 +11310,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   xpSchedule();
   setTimeout(function(){ if(!wnCheck()) weekCheck(); }, 1500);
   setTimeout(function(){ if(loggedIn() && !FR.loaded && !FR.loading) sbFriends(); }, 3000);
+  setTimeout(function(){ psSync(); }, 2500);
+  psFromUrl();
   renderLegalNav(); setupShow(); setTimeout(docFromHash, 300);
   window.addEventListener("hashchange", function(){ if(/prog=/.test(location.hash || "")){ if(ONB){ ONB = null; renderOnb(); } impFromHash(); } });
   syncNow(true);

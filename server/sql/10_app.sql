@@ -236,9 +236,16 @@ end;
 $$;
 
 -- 8. Админ: список всех пользователей — почта, ник, когда зарегистрировался, когда входил и отмечался
+do $$ begin
+  if exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+             where n.nspname = 'public' and p.proname = 'admin_users'
+               and not exists (select 1 from unnest(p.proargnames) a where a = 'trained_at')) then
+    drop function public.admin_users();
+  end if;
+end $$;
 create or replace function public.admin_users()
 returns table (user_id uuid, email text, nick text, photo text, code text, lv int,
-               created_at timestamptz, last_sign_in_at timestamptz, active_at bigint, friends int, hidden boolean)
+               created_at timestamptz, last_sign_in_at timestamptz, active_at bigint, trained_at bigint, friends int, hidden boolean)
 language plpgsql stable security definer set search_path = public as $$
 #variable_conflict use_column
 begin
@@ -250,6 +257,7 @@ begin
          case when p.stats->'lv'->>'n' ~ '^[0-9]{1,4}$' then (p.stats->'lv'->>'n')::int else 0 end,
          u.created_at, u.last_sign_in_at,
          case when p.stats->>'ts' ~ '^[0-9]{10,15}$' then (p.stats->>'ts')::bigint end,
+         case when p.stats->>'at' ~ '^[0-9]{10,15}$' then (p.stats->>'at')::bigint end,
          (select count(*)::int from public.friends f
             where f.user_id = u.id and exists (select 1 from public.friends g where g.user_id = f.friend_id and g.friend_id = u.id)),
          exists (select 1 from public.profile_bans b where b.user_id = u.id)
@@ -258,16 +266,127 @@ begin
 end;
 $$;
 
+-- 9. Админ: служебные отметки сервера (последняя копия базы и т.п.)
+create table if not exists auth.ops (k text primary key, v jsonb not null default '{}', at timestamptz not null default now());
+revoke all on auth.ops from anon, authenticated;
+grant select on auth.ops to trn_auth;
+create or replace function auth.ops_set(key text, val jsonb) returns void
+language plpgsql security definer set search_path = auth, public as $$
+begin
+  insert into auth.ops (k, v, at) values (key, val, now()) on conflict (k) do update set v = excluded.v, at = now();
+  if coalesce(val->>'ok', 'true') = 'false' then
+    perform pg_notify('trn_push', json_build_object('k', 'ops', 'key', key, 'v', val)::text);
+  end if;
+end;
+$$;
+revoke all on function auth.ops_set(text, jsonb) from public;
+create or replace function public.admin_ops()
+returns table (k text, v jsonb, at timestamptz)
+language plpgsql stable security definer set search_path = public as $$
+#variable_conflict use_column
+begin
+  if not exists (select 1 from public.badge_admins a where a.user_id = auth.uid()) then
+    raise exception 'only admin';
+  end if;
+  return query select o.k, o.v, o.at from auth.ops o order by o.k;
+end;
+$$;
+
+-- 10. Push-уведомления. Подписки устройств читает и пишет только сервер (роль trn_auth).
+create table if not exists auth.push_subs (
+  endpoint text primary key,
+  user_id uuid not null references auth.users on delete cascade,
+  p256dh text not null,
+  auth_key text not null,
+  prefs jsonb not null default '{}',
+  ua text,
+  rem_day text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists push_subs_user on auth.push_subs (user_id);
+revoke all on auth.push_subs from anon, authenticated;
+grant select, insert, update, delete on auth.push_subs to trn_auth;
+-- для сервера: кто админ и когда человек последний раз отмечал тренировку
+create or replace function auth.push_admins() returns setof uuid
+language sql stable security definer set search_path = public as $$ select user_id from public.badge_admins $$;
+create or replace function auth.push_stats(ids uuid[]) returns table (user_id uuid, nick text, trained_at bigint)
+language sql stable security definer set search_path = public as $$
+  select p.user_id, p.nick, case when p.stats->>'at' ~ '^[0-9]{10,15}$' then (p.stats->>'at')::bigint end
+  from public.profiles p where p.user_id = any(ids)
+$$;
+revoke all on function auth.push_admins() from public;
+revoke all on function auth.push_stats(uuid[]) from public;
+grant execute on function auth.push_admins() to trn_auth;
+grant execute on function auth.push_stats(uuid[]) to trn_auth;
+-- события из базы: сервер слушает канал trn_push и рассылает уведомления.
+-- Перенос из Supabase ставит trn.quiet = 1, чтобы не засыпать уведомлениями.
+create or replace function public.push_on_friend() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare nm text; mutual boolean;
+begin
+  if coalesce(current_setting('trn.quiet', true), '') = '1' or new.user_id = new.friend_id then return new; end if;
+  select p.nick into nm from public.profiles p where p.user_id = new.user_id;
+  mutual := exists (select 1 from public.friends f where f.user_id = new.friend_id and f.friend_id = new.user_id);
+  perform pg_notify('trn_push', json_build_object('k', case when mutual then 'fr_ok' else 'fr_req' end,
+    'to', new.friend_id, 'from', new.user_id, 'nick', nm)::text);
+  return new;
+end;
+$$;
+drop trigger if exists push_on_friend on public.friends;
+create trigger push_on_friend after insert on public.friends for each row execute function public.push_on_friend();
+-- реакции лежат в профиле того, кто реагирует: stats.reacts[кому] = {ts, e, all: {событие: эмодзи}}
+create or replace function public.push_on_react() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare k text; nv jsonb; ov jsonb; t text; e text; best_t text; best_e text;
+begin
+  if coalesce(current_setting('trn.quiet', true), '') = '1' then return new; end if;
+  if new.stats is null or jsonb_typeof(new.stats->'reacts') is distinct from 'object' then return new; end if;
+  if old.stats is not null and old.stats->'reacts' is not distinct from new.stats->'reacts' then return new; end if;
+  for k, nv in select * from jsonb_each(new.stats->'reacts') loop
+    continue when k !~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' or jsonb_typeof(nv) is distinct from 'object';
+    ov := case when old.stats is null or jsonb_typeof(old.stats->'reacts') is distinct from 'object' then null else old.stats->'reacts'->k end;
+    best_t := null; best_e := null;
+    if jsonb_typeof(nv->'all') = 'object' then
+      for t, e in select key, value #>> '{}' from jsonb_each(nv->'all') loop
+        if (ov is null or (ov->'all'->>t) is distinct from e) and e is not null and (best_t is null or t > best_t) then best_t := t; best_e := e; end if;
+      end loop;
+    elsif nv->>'e' is not null and (ov is null or (nv->>'ts') is distinct from (ov->>'ts') or (nv->>'e') is distinct from (ov->>'e')) then
+      best_t := nv->>'ts'; best_e := nv->>'e';
+    end if;
+    continue when best_e is null;
+    continue when not (exists (select 1 from public.friends f where f.user_id = new.user_id and f.friend_id = k::uuid)
+                   and exists (select 1 from public.friends f where f.user_id = k::uuid and f.friend_id = new.user_id));
+    perform pg_notify('trn_push', json_build_object('k', 'cheer', 'to', k, 'from', new.user_id, 'nick', new.nick, 'e', left(best_e, 8))::text);
+  end loop;
+  return new;
+end;
+$$;
+drop trigger if exists push_on_react on public.profiles;
+create trigger push_on_react after insert or update of stats on public.profiles for each row execute function public.push_on_react();
+create or replace function auth.push_on_signup() returns trigger
+language plpgsql security definer set search_path = auth, public as $$
+begin
+  if coalesce(current_setting('trn.quiet', true), '') = '1' then return new; end if;
+  perform pg_notify('trn_push', json_build_object('k', 'newuser', 'id', new.id, 'email', new.email)::text);
+  return new;
+end;
+$$;
+drop trigger if exists push_on_signup on auth.users;
+create trigger push_on_signup after insert on auth.users for each row execute function auth.push_on_signup();
+
 -- 7. Функции вызывают только вошедшие пользователи
 revoke all on function public.find_people(text) from public, anon;
 revoke all on function public.my_people() from public, anon;
 revoke all on function public.delete_me() from public, anon;
 revoke all on function public.admin_hide(uuid, text) from public, anon;
 revoke all on function public.admin_users() from public, anon;
+revoke all on function public.admin_ops() from public, anon;
 grant execute on function public.find_people(text) to authenticated;
 grant execute on function public.my_people() to authenticated;
 grant execute on function public.delete_me() to authenticated;
 grant execute on function public.admin_hide(uuid, text) to authenticated;
 grant execute on function public.admin_users() to authenticated;
+grant execute on function public.admin_ops() to authenticated;
 
 grant usage, select on all sequences in schema public to anon, authenticated;

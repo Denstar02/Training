@@ -117,6 +117,14 @@ grep -q '^DATABASE_URL_AUTH=' "$ETC/env" || cat >> "$ETC/env" <<ENV
 DATABASE_URL_AUTH=postgres://trn_auth:$AUTH_PW@127.0.0.1:5432/training
 DATABASE_URL_REST=postgres://authenticator:$REST_PW@127.0.0.1:5432/training
 ENV
+# ключи для push-уведомлений (VAPID): создаются один раз, при смене все устройства придётся подписать заново
+if ! grep -q '^PUSH_PUBLIC=' "$ETC/env"; then
+  node -e '
+    const c = require("crypto"), k = c.generateKeyPairSync("ec", {namedCurve: "prime256v1"}).privateKey.export({format: "jwk"});
+    const pub = Buffer.concat([Buffer.from([4]), Buffer.from(k.x, "base64url"), Buffer.from(k.y, "base64url")]).toString("base64url");
+    console.log("PUSH_PUBLIC=" + pub + "\nPUSH_PRIVATE=" + k.d + "\nPUSH_SUBJECT=mailto:" + process.argv[1]);' "$EMAIL" >> "$ETC/env" \
+    && ok "ключи для push-уведомлений созданы" || warn "не получилось создать ключи для push-уведомлений"
+fi
 chown root:training "$ETC/env" && chmod 640 "$ETC/env"
 
 say "База данных"
@@ -179,7 +187,7 @@ cat > /usr/local/bin/training-update <<UPD
 set -euo pipefail
 T=\$(mktemp -d)
 trap 'rm -rf "\$T"' EXIT
-for f in index.html cam.js sw.js manifest.webmanifest icon-192.png icon-512.png icon-maskable-512.png apple-touch-icon.png; do
+for f in index.html cam.js sw.js manifest.webmanifest icon-192.png icon-512.png icon-maskable-512.png apple-touch-icon.png badge-96.png; do
   curl -fsSL --retry 2 --connect-timeout 15 "$SITE_SRC/\$f?\$(date +%s)" -o "\$T/\$f"
 done
 grep -q 'SELF_HOSTS' "\$T/index.html" || { echo "index.html без поддержки своего сервера — пропускаю"; exit 1; }
@@ -238,13 +246,63 @@ ok "открыты только SSH (порт ${SSH_PORT:-22}), 80 и 443"
 say "Резервные копии и помощники"
 cat > /usr/local/bin/training-backup <<'BAK'
 #!/usr/bin/env bash
-# Тренировки: копия базы раз в сутки, храним 14 дней
-set -euo pipefail
-f=/var/backups/training/training-$(date +%F).dump
-runuser -u postgres -- pg_dump -Fc training > "$f.tmp" && mv "$f.tmp" "$f" && chmod 600 "$f"
-find /var/backups/training -name 'training-*.dump' -mtime +14 -delete
+# Тренировки: копия базы раз в сутки. На сервере храним 14 дней; если подключён Яндекс Диск (training-yadisk) —
+# ещё и туда, 30 дней. Итог пишется в базу: админ видит его в приложении и получает уведомление о сбое.
+set -uo pipefail
+D=/var/backups/training; f=$D/training-$(date +%F).dump
+log(){ logger -t training-backup "$*"; echo "$*"; }
+ok=true; err=""; yd=off
+mkdir -p "$D"
+if runuser -u postgres -- pg_dump -Fc training > "$f.tmp" && mv "$f.tmp" "$f"; then chmod 600 "$f"; log "копия: $f ($(stat -c %s "$f") байт)"
+else ok=false; err=pg_dump; rm -f "$f.tmp"; log "ошибка: pg_dump не сработал"; fi
+find "$D" -name 'training-*.dump' -mtime +14 -delete
+if [ "$ok" = true ] && [ -f /etc/training/yadisk ]; then
+  . /etc/training/yadisk
+  cfg=$(mktemp); trap 'rm -f "$cfg"' EXIT; chmod 600 "$cfg"
+  printf 'user = "%s:%s"\n' "$YD_USER" "$YD_PASS" > "$cfg"
+  base="https://webdav.yandex.ru/${YD_DIR:-training-backups}"
+  curl -sS -o /dev/null --max-time 30 -K "$cfg" -X MKCOL "$base/" || true
+  if curl -fsS -o /dev/null --max-time 600 --retry 2 -K "$cfg" -T "$f" "$base/$(basename "$f")"; then
+    yd=ok; log "копия загружена на Яндекс Диск: ${YD_DIR:-training-backups}/$(basename "$f")"
+    curl -sS -o /dev/null --max-time 30 -K "$cfg" -X DELETE "$base/training-$(date -d '-30 days' +%F).dump" || true
+  else yd=fail; ok=false; err=yadisk; log "ошибка: не загрузилась на Яндекс Диск"; fi
+fi
+size=$(stat -c %s "$f" 2>/dev/null || echo 0)
+runuser -u postgres -- psql -d training -Atq -c "select auth.ops_set('backup', jsonb_build_object('ok', $ok, 'yadisk', '$yd', 'size', $size, 'err', '$err', 'file', '$(basename "$f")'))" >/dev/null 2>&1 || true
+[ "$ok" = true ]
 BAK
 chmod 755 /usr/local/bin/training-backup
+cat > /usr/local/bin/training-yadisk <<'YDK'
+#!/usr/bin/env bash
+# Тренировки: подключить Яндекс Диск для копий базы.  training-yadisk — подключить,  training-yadisk off — отключить
+set -euo pipefail
+F=/etc/training/yadisk
+if [ "${1:-}" = off ]; then rm -f "$F"; echo "Яндекс Диск отключён: копии остаются только на сервере."; exit 0; fi
+cat <<'TXT'
+Нужен пароль приложения (обычный пароль от Яндекса не подойдёт):
+  1. Открой https://id.yandex.ru/security/app-passwords
+  2. «Создать пароль приложения» → тип «Файлы» (WebDAV) → назови, например, «Тренировки»
+  3. Скопируй пароль, который покажет Яндекс
+TXT
+read -r -p "Логин Яндекса (например, denstar02 или denstar02@yandex.ru): " U < /dev/tty
+read -r -s -p "Пароль приложения (символы не видны, вставка — правой кнопкой мыши): " P < /dev/tty; echo
+U=$(printf '%s' "$U" | tr -d '[:space:]'); P=$(printf '%s' "$P" | tr -d '[:space:]')
+[ -n "$U" ] && [ -n "$P" ] || { echo "✗ Нужны логин и пароль"; exit 1; }
+cfg=$(mktemp); trap 'rm -f "$cfg"' EXIT; chmod 600 "$cfg"
+printf 'user = "%s:%s"\n' "$U" "$P" > "$cfg"
+code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 30 -K "$cfg" -X PROPFIND -H 'Depth: 0' https://webdav.yandex.ru/ || true)
+case "$code" in
+  207) ;;
+  401) echo "✗ Яндекс не принял логин или пароль приложения. Проверь, что тип пароля — «Файлы»."; exit 1;;
+  *)   echo "✗ Яндекс Диск не ответил как надо (код $code). Попробуй ещё раз через минуту."; exit 1;;
+esac
+curl -sS -o /dev/null --max-time 30 -K "$cfg" -X MKCOL https://webdav.yandex.ru/training-backups/ || true
+umask 077; printf 'YD_USER=%q\nYD_PASS=%q\nYD_DIR=training-backups\n' "$U" "$P" > "$F"; chmod 600 "$F"
+echo "✓ Яндекс Диск подключён. Делаю копию прямо сейчас…"
+if /usr/local/bin/training-backup >/dev/null; then echo "✓ Готово: копия лежит на Яндекс Диске в папке training-backups. Дальше — каждую ночь в 3:30."
+else echo "✗ Копия не загрузилась. Подробности: journalctl -t training-backup -n 20"; exit 1; fi
+YDK
+chmod 755 /usr/local/bin/training-yadisk
 echo '30 3 * * * root /usr/local/bin/training-backup' > /etc/cron.d/training-backup
 cat > /usr/local/bin/training-admin <<'ADM'
 #!/usr/bin/env bash
@@ -259,7 +317,8 @@ SQL
 ADM
 chmod 755 /usr/local/bin/training-admin
 training-admin "$EMAIL" || true
-ok "копия базы каждый день в 3:30 → /var/backups/training"
+if [ -f /etc/training/yadisk ]; then ok "копия базы каждый день в 3:30 → /var/backups/training и на Яндекс Диск"
+else ok "копия базы каждый день в 3:30 → /var/backups/training (на Яндекс Диск — после training-yadisk)"; fi
 
 say "Проверка"
 DNS=$(pubdns "$DOMAIN")
@@ -278,5 +337,7 @@ cat <<DONE
   Перенос данных из Supabase:   bash $APP/migrate.sh
   Обновить сайт сейчас:         training-update
   Сделать админом:              training-admin почта
+  Копии на Яндекс Диск:         training-yadisk
+  Сделать копию сейчас:         training-backup
   Логи сервера:                 journalctl -u training-api -n 50
 DONE

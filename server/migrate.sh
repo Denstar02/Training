@@ -59,6 +59,7 @@ L <<'SQL'
 \set ON_ERROR_STOP on
 set client_min_messages = warning;
 begin;
+set local trn.quiet = '1';   -- не рассылать уведомления о «новых» пользователях и заявках при переносе
 truncate auth.users cascade;
 insert into auth.users (id, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at, last_sign_in_at)
   select distinct on (lower(email)) id, email, encrypted_password, coalesce(email_confirmed_at, created_at), raw_app_meta_data, raw_user_meta_data, created_at, updated_at, last_sign_in_at

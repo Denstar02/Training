@@ -1,5 +1,5 @@
 /* Тренировки: офлайн-кэш */
-const CACHE = "training-v3";
+const CACHE = "training-v4";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png", "./apple-touch-icon.png"];
 
 self.addEventListener("install", (e) => {
@@ -45,5 +45,28 @@ self.addEventListener("fetch", (e) => {
     if (cached) { fresh.catch(() => {}); return cached; }
     const res = await fresh;
     return res || new Response("Нет сети и нет копии в кэше", {status: 503, headers: {"Content-Type": "text/plain; charset=utf-8"}});
+  })());
+});
+
+// push-уведомления: сервер присылает {t: заголовок, b: текст, tag, go: куда открыть}
+self.addEventListener("push", (e) => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (err) { d = {b: e.data ? e.data.text() : ""}; }
+  const opts = {body: d.b || "", icon: "icon-192.png", badge: "badge-96.png", data: {go: d.go || ""}, lang: "ru"};
+  if (d.tag) { opts.tag = d.tag; opts.renotify = true; }
+  e.waitUntil(self.registration.showNotification(d.t || "Тренировки", opts));
+});
+self.addEventListener("notificationclick", (e) => {
+  e.notification.close();
+  const go = (e.notification.data && e.notification.data.go) || "";
+  e.waitUntil((async () => {
+    const list = await self.clients.matchAll({type: "window", includeUncontrolled: true});
+    for (const c of list) {
+      if (new URL(c.url).origin !== self.location.origin) continue;
+      try { await c.focus(); } catch (err) {}
+      if (go) c.postMessage({type: "go", go});
+      return;
+    }
+    await self.clients.openWindow(new URL("./" + (go ? "?go=" + go : ""), self.registration.scope).href);
   })());
 });
