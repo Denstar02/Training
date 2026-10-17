@@ -1688,6 +1688,22 @@ mark.todo{background:color-mix(in srgb, var(--danger) 16%, transparent);color:va
 .nums > div,.fp-tiles > div{flex:0 0 calc((100% - 8px * (var(--k) - 1)) / var(--k));min-width:0;box-sizing:border-box}
 @media (max-width:680px){.nums{--k:min(var(--n,4),3)}}
 @media (max-width:520px){.nums,.fp-tiles{--k:min(var(--n,4),2)}}
+/* 2.10: админ — все пользователи */
+.users .us-sum{margin:8px 0 14px;--k:3}
+@media (max-width:520px){.users .us-sum > div{padding:9px 10px}.users .us-sum strong{font-size:19px}.users .us-sum span{font-size:12px;line-height:1.3}}
+.us-search{margin:0 0 10px}
+.us-search input{width:100%}
+.us-row .ff-main small{white-space:normal;overflow-wrap:anywhere}
+.us-row .ff-main small.us-mail{color:var(--ink);opacity:.8}
+.us-row.new{box-shadow:inset 0 0 0 1.5px var(--accent)}
+.us-noname{color:var(--muted);font-weight:500}
+.us-tag{display:inline-block;margin-left:7px;padding:1px 8px;border-radius:var(--r-pill);font:700 11px/1.6 "Onest",system-ui,sans-serif;font-style:normal;vertical-align:1px;background:var(--accent);color:var(--accent-ink)}
+.us-tag.me{background:var(--accent-ghost);color:var(--accent)}
+.us-tag.off{background:color-mix(in srgb, var(--muted) 18%, transparent);color:var(--muted)}
+.us-more,.us-empty{list-style:none;text-align:center}
+.us-empty{padding:8px 0}
+.us-foot{align-items:center}
+.us-foot .hint{margin:0;flex:1 1 220px}
 .agree-box{display:grid;gap:10px;margin:6px 0 12px}
 .agree{display:flex;align-items:flex-start;gap:10px;font-size:14.5px;line-height:1.4;cursor:pointer}
 .agree input{flex:0 0 auto;width:20px;height:20px;margin:1px 0 0;accent-color:var(--accent)}
@@ -2506,7 +2522,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   var DONATE = "https://www.donationalerts.com/r/werewolf_023";
   var CONSENT_V = "2026-10-16";   // поменяй дату, если существенно изменишь согласие, — все подтвердят заново
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 2, APP_BUILD_N = 9;
+  var APP_MAJOR = 2, APP_BUILD_N = 10;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var APP_BUILD = APP_MAJOR * 100 + APP_BUILD_N;   // 1.35 → 135, 2.01 → 201
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
@@ -8308,6 +8324,108 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     return '<div class="test aw-admin"><span class="badge ok">ты выдаёшь значки</span>' +
       '<button type="button" class="linkbtn alt" data-act="aw-give" data-id="' + esc(uid) + '" data-name="' + esc(profName() || "себя") + '">🎖 Выдать себе</button></div>';
   }
+  // ---------- админ: все пользователи приложения ----------
+  // список приходит из функции admin_users на сервере; видит только админ (badge_admins)
+  var US = {list: null, busy: false, err: "", at: 0, all: false, q: "", since: null};
+  var US_KEY = "pullups-us-seen", US_SHOW = 10;
+  var US_MON = ["янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
+  function usSeenGet(){ try { return +localStorage.getItem(US_KEY) || 0; } catch(e){ return 0; } }
+  function usT(v){ var t = typeof v === "number" ? v : Date.parse(v || ""); return isNaN(t) ? 0 : t; }
+  function usDate(t){
+    if(!t) return "";
+    var d = new Date(t), n = new Date(), day = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    var days = Math.round((new Date(n.getFullYear(), n.getMonth(), n.getDate()) - day) / 864e5);
+    var hm = ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
+    if(days <= 0) return "сегодня в " + hm;
+    if(days === 1) return "вчера в " + hm;
+    return d.getDate() + " " + US_MON[d.getMonth()] + (d.getFullYear() !== n.getFullYear() ? " " + d.getFullYear() : "");
+  }
+  function usLoad(quiet){
+    if(!AW.admin || !loggedIn() || US.busy) return Promise.resolve();
+    US.busy = true; US.at = Date.now();
+    if(!quiet) renderUsers();
+    return sbReq("/rest/v1/rpc/admin_users", {method: "POST", body: "{}"}).then(function(rows){
+      US.busy = false; US.err = ""; US.at = Date.now();
+      US.list = (Array.isArray(rows) ? rows : []).filter(function(u){ return u && u.user_id; });
+      var prev = usSeenGet(), mx = 0, me = sbUser();
+      if(US.since == null) US.since = Math.min(prev || Infinity, Date.now() - 864e5);
+      US.list.forEach(function(u){ mx = Math.max(mx, usT(u.created_at)); });
+      if(mx > prev) try { localStorage.setItem(US_KEY, String(mx)); } catch(e){}
+      var fresh = prev ? US.list.filter(function(u){ return usT(u.created_at) > prev && u.user_id !== me; }) : [];
+      renderUsers();
+      if(fresh.length && !(TAB === "profile" && document.getElementById("usersBox"))){
+        var f = fresh[0];
+        flashSoft(fresh.length === 1 ? "👋 Новый пользователь: " + (f.nick || f.email || "без ника") : "👋 Новых пользователей: " + fresh.length, {label: "Посмотреть", act: "us-open"});
+      }
+    }, function(e){
+      US.busy = false;
+      var m = (e && e.message) || "";
+      US.err = /schema cache|could not find|does not exist/i.test(m) ? "missing" : /only admin/i.test(m) ? "admin" : (m || "ошибка сети");
+      renderUsers();
+    });
+  }
+  function usMatch(u){
+    var q = (US.q || "").trim().toLowerCase();
+    return !q || String(u.nick || "").toLowerCase().indexOf(q) >= 0 || String(u.email || "").toLowerCase().indexOf(q) >= 0;
+  }
+  function usRow(u){
+    var me = u.user_id === sbUser(), name = u.nick || "", isNew = !me && usT(u.created_at) > (US.since || 0);
+    var lv = +u.lv || 0, act = usT(+u.active_at || 0), sub = [];
+    sub.push("рег. " + usDate(usT(u.created_at)));
+    if(u.last_sign_in_at) sub.push("вход " + usDate(usT(u.last_sign_in_at)));
+    sub.push(act ? "отметка " + usDate(act) : "без отметок");
+    if(lv) sub.push(rankOf(lv)[2] + " " + lv);
+    if(+u.friends) sub.push("друзей " + u.friends);
+    return '<li class="ff-row us-row' + (isNew ? " new" : "") + '"><span class="ff-ava">' + pcAva(u.photo, (name || u.email || "?").charAt(0).toUpperCase()) + '</span>' +
+      '<span class="ff-main"><b>' + (name ? esc(name) : '<span class="us-noname">без ника</span>') +
+      (me ? '<i class="us-tag me">ты</i>' : isNew ? '<i class="us-tag">новый</i>' : '') + (u.hidden ? '<i class="us-tag off">скрыто модерацией</i>' : '') + '</b>' +
+      '<small class="us-mail">' + esc(u.email || "") + '</small><small>' + esc(sub.join(" · ")) + '</small></span></li>';
+  }
+  function usListHtml(){
+    var L = (US.list || []).filter(usMatch), q = (US.q || "").trim();
+    if(!L.length) return '<li class="hint us-empty">' + (q ? "Никого не нашлось по «" + esc(q) + "»." : "Пока никого.") + '</li>';
+    var show = US.all || q ? L : L.slice(0, US_SHOW);
+    return show.map(usRow).join("") + (show.length < L.length ? '<li class="us-more"><button type="button" class="linkbtn alt" data-act="us-all">Показать всех · ' + L.length + '</button></li>' : '');
+  }
+  function usersHtml(){
+    if(!AW.admin || !loggedIn()) return "";
+    var L = US.list, h = '<section class="panel users" id="usersBox"><div class="md-head"><h2>Пользователи</h2>' + (L ? '<span class="md-count">видно только тебе</span>' : '') + '</div>';
+    if(US.err === "missing") return h + '<p class="hint">На сервере ещё нет списка пользователей. Обнови сервер: залей на GitHub новые файлы из папки server и запусти на сервере установку ещё раз — данные не пострадают.</p></section>';
+    if(US.err === "admin") return h + '<p class="hint">Сервер не считает тебя админом. Выполни на сервере <code>training-admin ' + esc(SB.mail || "твоя@почта") + '</code>.</p></section>';
+    if(!L){
+      h += US.err ? '<p class="hint">Не загрузилось: ' + esc(US.err) + '.</p>' :
+        '<div class="skelcard"><span class="skel sk-ava"></span><span class="skel sk-l1"></span><span class="skel sk-l2"></span></div>';
+      return h + '<div class="test"><button type="button" class="linkbtn" data-act="us-reload">Обновить</button></div></section>';
+    }
+    var t0 = new Date(), today = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate()).getTime(), wk = Date.now() - 7 * 864e5;
+    var nWeek = L.filter(function(u){ return usT(u.created_at) >= wk; }).length;
+    var nToday = L.filter(function(u){ return usT(+u.active_at || 0) >= today; }).length;
+    h += '<div class="nums us-sum" style="--n:3"><div><strong>' + L.length + '</strong><span>' + plural(L.length, ["аккаунт","аккаунта","аккаунтов"]) + ' всего</span></div>' +
+      '<div><strong>' + nWeek + '</strong><span>' + plural(nWeek, ["новый","новых","новых"]) + ' за неделю</span></div>' +
+      '<div><strong>' + nToday + '</strong><span>' + plural(nToday, ["тренировался","тренировались","тренировались"]) + ' сегодня</span></div></div>';
+    if(L.length > 6) h += '<label class="field us-search" for="usQ">Найти по нику или почте<input type="search" id="usQ" value="' + esc(US.q || "") + '" placeholder="ник или почта" autocomplete="off" autocapitalize="off" spellcheck="false"></label>';
+    h += '<ul class="ff-list us-list" id="usList">' + usListHtml() + '</ul>';
+    h += '<div class="test us-foot"><button type="button" class="linkbtn" data-act="us-reload"' + (US.busy ? ' disabled' : '') + '>' + (US.busy ? "Обновляю…" : "Обновить") + '</button>' +
+      '<span class="hint">Сверху — новые. Отметка — когда человек последний раз отмечал тренировку.</span></div>';
+    return h + '</section>';
+  }
+  function renderUsers(){
+    var s = document.getElementById("usersSlot");
+    if(!s) return;
+    var a = document.activeElement, had = a && a.id === "usQ", ss = null;
+    if(had){ try { ss = [a.selectionStart, a.selectionEnd]; } catch(e){} }
+    s.innerHTML = usersHtml();
+    if(had){
+      var q = document.getElementById("usQ");
+      if(q){ try { q.focus({preventScroll: true}); if(ss) q.setSelectionRange(ss[0], ss[1]); } catch(e){} }
+    }
+  }
+  document.addEventListener("input", function(ev){
+    if(!ev.target || ev.target.id !== "usQ") return;
+    US.q = ev.target.value;
+    var ul = document.getElementById("usList");
+    if(ul) ul.innerHTML = usListHtml();
+  });
   setInterval(function(){ if(AW.ok) awAfterLoad(); }, 20000);
   document.addEventListener("input", function(ev){
     var id = ev.target && ev.target.id;
@@ -9852,6 +9970,10 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       box.innerHTML = h;
       var fb = document.getElementById("friendsBox");
       if(fb) fb.innerHTML = friendsHtml();
+      var us = document.getElementById("usersSlot");
+      if(!us && fb && fb.parentNode){ us = document.createElement("div"); us.id = "usersSlot"; fb.parentNode.insertBefore(us, fb.nextSibling); }
+      renderUsers();
+      if(AW.admin && !US.busy && Date.now() - (US.at || 0) > 120000) usLoad(true);
       if(kid){
         var kn = document.getElementById(kid);
         if(kn && kn !== ka){ try { kn.focus({preventScroll: true}); if(ks) kn.setSelectionRange(ks[0], ks[1]); } catch(e){} }
@@ -9872,6 +9994,9 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       h += '<p class="hint">Уже отмеченные тренировки не пропадут: после входа они сложатся с тем, что лежит в аккаунте.</p>';
       var fb0 = document.getElementById("friendsBox");
       if(fb0) fb0.innerHTML = "";
+      var us0 = document.getElementById("usersSlot");
+      if(us0) us0.innerHTML = "";
+      US.list = null; US.at = 0; US.since = null;
     }
     box.innerHTML = h;
   }
@@ -10423,6 +10548,9 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(act === "del-close"){ delClose(); return; }
     if(act === "del-go"){ delGo(); return; }
     if(act === "fr-reload"){ FR.loaded = 0; sbFriends(); flash("Обновляю"); return; }
+    if(act === "us-reload"){ usLoad(); return; }
+    if(act === "us-all"){ US.all = true; var ul0 = document.getElementById("usList"); if(ul0) ul0.innerHTML = usListHtml(); return; }
+    if(act === "us-open"){ goProfile("usersBox"); return; }
     if(act === "fr-copy"){
       var code = myCode();
       try {

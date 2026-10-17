@@ -235,14 +235,39 @@ begin
 end;
 $$;
 
+-- 8. Админ: список всех пользователей — почта, ник, когда зарегистрировался, когда входил и отмечался
+create or replace function public.admin_users()
+returns table (user_id uuid, email text, nick text, photo text, code text, lv int,
+               created_at timestamptz, last_sign_in_at timestamptz, active_at bigint, friends int, hidden boolean)
+language plpgsql stable security definer set search_path = public as $$
+#variable_conflict use_column
+begin
+  if not exists (select 1 from public.badge_admins a where a.user_id = auth.uid()) then
+    raise exception 'only admin';
+  end if;
+  return query
+  select u.id, u.email::text, p.nick, case when length(p.photo) <= 200000 then p.photo end, p.code,
+         case when p.stats->'lv'->>'n' ~ '^[0-9]{1,4}$' then (p.stats->'lv'->>'n')::int else 0 end,
+         u.created_at, u.last_sign_in_at,
+         case when p.stats->>'ts' ~ '^[0-9]{10,15}$' then (p.stats->>'ts')::bigint end,
+         (select count(*)::int from public.friends f
+            where f.user_id = u.id and exists (select 1 from public.friends g where g.user_id = f.friend_id and g.friend_id = u.id)),
+         exists (select 1 from public.profile_bans b where b.user_id = u.id)
+  from auth.users u left join public.profiles p on p.user_id = u.id
+  order by u.created_at desc;
+end;
+$$;
+
 -- 7. Функции вызывают только вошедшие пользователи
 revoke all on function public.find_people(text) from public, anon;
 revoke all on function public.my_people() from public, anon;
 revoke all on function public.delete_me() from public, anon;
 revoke all on function public.admin_hide(uuid, text) from public, anon;
+revoke all on function public.admin_users() from public, anon;
 grant execute on function public.find_people(text) to authenticated;
 grant execute on function public.my_people() to authenticated;
 grant execute on function public.delete_me() to authenticated;
 grant execute on function public.admin_hide(uuid, text) to authenticated;
+grant execute on function public.admin_users() to authenticated;
 
 grant usage, select on all sequences in schema public to anon, authenticated;

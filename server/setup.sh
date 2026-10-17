@@ -85,7 +85,7 @@ ok "Caddy $(caddy version | awk '{print $1}')"
 
 say "Файлы сервера"
 mkdir -p "$APP/sql" "$ETC" "$WWW" /var/backups/training
-for f in server.js sql/00_init.sql sql/10_app.sql Caddyfile.tpl migrate.sh; do fetch "$BASE/$f" "$APP/$f.new" && mv "$APP/$f.new" "$APP/$f"; done
+for f in server.js sql/00_init.sql sql/10_app.sql Caddyfile.tpl migrate.sh; do fetch "$BASE/$f?$(date +%s)" "$APP/$f.new" && mv "$APP/$f.new" "$APP/$f"; done   # ?время — мимо кэша GitHub Pages
 chmod 755 "$APP/migrate.sh"
 ok "скачано в $APP"
 id training >/dev/null 2>&1 || useradd --system --no-create-home --shell /usr/sbin/nologin training

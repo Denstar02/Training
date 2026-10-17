@@ -13017,7 +13017,7 @@ async function handleAuth(req, res, url) {
   }
   throw new HttpError(404, { code: 404, msg: "Not found" });
 }
-var IDENT = /^[a-z_][a-z0-9_]{0,62}$/, TABLES = { progress: ["user_id"], profiles: ["user_id"], friends: ["user_id", "friend_id"], badge_admins: ["user_id"], awards: ["id"], profile_bans: ["user_id"] }, RPCS = { find_people: "rows", my_people: "rows", find_friend: "rows", delete_me: "void", admin_hide: "void" }, RESERVED = /* @__PURE__ */ new Set(["select", "order", "limit", "offset", "on_conflict", "columns"]), qi = (id) => {
+var IDENT = /^[a-z_][a-z0-9_]{0,62}$/, TABLES = { progress: ["user_id"], profiles: ["user_id"], friends: ["user_id", "friend_id"], badge_admins: ["user_id"], awards: ["id"], profile_bans: ["user_id"] }, RPCS = { find_people: "rows", my_people: "rows", find_friend: "rows", delete_me: "void", admin_hide: "void", admin_users: "rows" }, RESERVED = /* @__PURE__ */ new Set(["select", "order", "limit", "offset", "on_conflict", "columns"]), qi = (id) => {
   if (!IDENT.test(id)) throw bad("\u041D\u0435\u0434\u043E\u043F\u0443\u0441\u0442\u0438\u043C\u043E\u0435 \u0438\u043C\u044F: " + String(id).slice(0, 40));
   return '"' + id + '"';
 };
