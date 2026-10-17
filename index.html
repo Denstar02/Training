@@ -2488,14 +2488,14 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   var SB_BUILTIN = SELF_API ? {url: location.origin, keys: ["self-hosted-api-no-key-needed"]} : SB_CLOUD;
   // переезд: когда новый адрес заработает, впиши его сюда (например "https://denstar-train.ru") —
   // копии на GitHub Pages и workers.dev начнут перекидывать туда и заберут с собой отметки из браузера
-  var MOVED_TO = "";
+  var MOVED_TO = "https://denstar-train.ru";
   // ===== для открытого доступа: впиши свои данные — они попадут в политику конфиденциальности и согласие =====
   // owner — ФИО оператора, ownerTo — оно же в дательном падеже (кому: даю согласие …); email и telegram — куда писать с вопросами о данных; storage — где стоит сервер базы;
   // abroad — true, если сервер за пределами России (тогда в согласии появится пункт о трансграничной передаче)
   var LEGAL = {owner: "Тарасов Денис Алексеевич", ownerTo: "Тарасову Денису Алексеевичу", email: "denstar02@gmail.com", telegram: "@denstar02", storage: SELF_API ? "Собственный сервер приложения в дата-центре в Москве (хостинг IHOR), Россия" : "Облачная база Supabase (Supabase Inc.), серверы Amazon Web Services во Франкфурте-на-Майне, Германия (регион eu-central-1)", abroad: !SELF_API, updated: "16 октября 2026"};
   var CONSENT_V = "2026-10-16";   // поменяй дату, если существенно изменишь согласие, — все подтвердят заново
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 2, APP_BUILD_N = 6;
+  var APP_MAJOR = 2, APP_BUILD_N = 7;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var APP_BUILD = APP_MAJOR * 100 + APP_BUILD_N;   // 1.35 → 135, 2.01 → 201
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
@@ -2726,7 +2726,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream("gzip"))).text().then(function(txt){
         var inc = normalize(JSON.parse(txt));
         state = mergeStates(state, inc); XPB = null; save(); render();
-        flash("Отметки перенесены со старого адреса" + (loggedIn() ? "" : ". Войди в аккаунт — они сложатся с тем, что в облаке"));
+        flash("Приложение переехало сюда, отметки перенесены" + (loggedIn() ? "" : ". Войди в аккаунт — они сложатся с тем, что на сервере"));
       }).catch(function(){ flash("Не получилось перенести отметки со старого адреса"); });
     } catch(e){ flash("Не получилось перенести отметки со старого адреса"); }
   }
@@ -5013,6 +5013,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     });
     Object.keys(old.times || {}).forEach(function(k){ out.times[k] = Math.max(out.times[k] || 0, old.times[k] || 0); });
     Object.keys(old.fin || {}).forEach(function(k){ if(!out.fin[k]) out.fin[k] = old.fin[k]; });
+    // заметки к тренировкам: недостающие берём из другой копии
+    Object.keys(old.notes || {}).forEach(function(k){ if(!out.notes[k] && old.notes[k]) out.notes[k] = old.notes[k]; });
     // профиль: пустое поле не затирает заполненное
     out.profile = {
       name: (out.profile && out.profile.name) || (old.profile && old.profile.name) || "",
@@ -7585,6 +7587,10 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   // ---------- что нового ----------
   var WN_KEY = "pullups-seen-ver", WN = null;
   var NEWS = [
+    {v: 207, items: [
+      {e: "🏠", t: "Новый адрес — denstar-train.ru", d: "Приложение переехало на собственный сервер в Москве. Аккаунты, друзья и значки уже здесь, вход — прежней почтой и паролем. Старые адреса сами перекидывают сюда вместе с отметками с устройства. Если приложение стоит на экране «Домой», поставь его заново отсюда."},
+      {e: "🚂", t: "Новая иконка", d: "Паровозик со звездой — на экране «Домой» и во вкладке браузера."}
+    ]},
     {v: 205, items: [
       {e: "🔐", t: "Цифры видят только друзья", d: "Дружба теперь взаимная: заявку нужно принять, и только тогда вы видите цифры друг друга. Кто найдёт тебя по коду, почте или нику, увидит лишь ник, фото и уровень."},
       {e: "🗑️", t: "Удаление аккаунта", d: "Внизу профиля — «Удалить аккаунт»: стирает из облака всё, что с тобой связано."},

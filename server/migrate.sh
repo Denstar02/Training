@@ -73,7 +73,7 @@ insert into public.friends (user_id, friend_id, created_at) select user_id, frie
 insert into public.awards (id, user_id, emoji, title, note, color, given_by, created_at) overriding system value
   select id, user_id, emoji, title, note, color, given_by, created_at from mig.awards
   where user_id in (select id from auth.users) and given_by in (select id from auth.users);
-select setval(pg_get_serial_sequence('public.awards', 'id'), greatest(coalesce((select max(id) from public.awards), 0), 1));
+do $$ begin perform setval(pg_get_serial_sequence('public.awards', 'id'), greatest(coalesce((select max(id) from public.awards), 0), 1)); end $$;
 commit;
 drop schema mig cascade;
 SQL

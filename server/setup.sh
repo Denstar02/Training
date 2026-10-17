@@ -210,8 +210,16 @@ systemctl daemon-reload && systemctl enable -q --now training-update.timer
 ok "сайт в $WWW, обновляется с GitHub каждые 10 минут"
 
 say "HTTPS и веб-сервер"
+pubdns(){ # A-запись по публичному DNS; /etc/hosts не годится — там имя сервера смотрит на 127.0.1.1
+  local r=""
+  r=$(curl -fsS --connect-timeout 6 "https://dns.google/resolve?name=$1&type=A" 2>/dev/null | grep -oE '"data": ?"[0-9.]+"' | grep -oE '[0-9.]+' | tail -1) || true
+  [ -n "$r" ] || r=$(curl -fsS --connect-timeout 6 -H 'accept: application/dns-json' "https://cloudflare-dns.com/dns-query?name=$1&type=A" 2>/dev/null | grep -oE '"data": ?"[0-9.]+"' | grep -oE '[0-9.]+' | tail -1) || true
+  [ -n "$r" ] || r=$(getent ahostsv4 "$1" 2>/dev/null | awk '$1 !~ /^127\./ {print $1; exit}') || true
+  printf '%s' "$r"
+}
+IP=$(curl -fsS --connect-timeout 8 https://api.ipify.org 2>/dev/null || hostname -I | awk '{print $1}')
 WWW_ON=0
-if getent ahostsv4 "www.$DOMAIN" >/dev/null 2>&1; then WWW_ON=1; fi
+if [ -n "$IP" ] && [ "$(pubdns "www.$DOMAIN")" = "$IP" ]; then WWW_ON=1; fi
 sed -e "s|__SITE__|$DOMAIN|g" -e "s|__DOMAIN__|$DOMAIN|g" -e "s|__EMAIL__|$EMAIL|g" "$APP/Caddyfile.tpl" > /etc/caddy/Caddyfile.new
 [ "$WWW_ON" = 1 ] && sed -i 's/^#WWW //' /etc/caddy/Caddyfile.new
 caddy validate --config /etc/caddy/Caddyfile.new --adapter caddyfile >/dev/null 2>&1 || { caddy validate --config /etc/caddy/Caddyfile.new --adapter caddyfile; die "Ошибка в настройках Caddy"; }
@@ -254,10 +262,11 @@ training-admin "$EMAIL" || true
 ok "копия базы каждый день в 3:30 → /var/backups/training"
 
 say "Проверка"
-IP=$(curl -fsS --connect-timeout 8 https://api.ipify.org 2>/dev/null || hostname -I | awk '{print $1}')
-DNS=$(getent ahostsv4 "$DOMAIN" | awk '{print $1; exit}' || true)
+DNS=$(pubdns "$DOMAIN")
 if [ "$DNS" = "$IP" ]; then ok "домен $DOMAIN смотрит на этот сервер ($IP)"
-else warn "домен $DOMAIN пока смотрит на ${DNS:-никуда}, а сервер — $IP. Поменяй A-записи в reg.ru на $IP; сертификат Caddy получит сам, как только DNS обновится."; fi
+elif [ -z "$DNS" ]; then warn "домен $DOMAIN пока не виден в интернете. В reg.ru проверь, что домен делегирован (для .ru нужна идентификация владельца), и поставь A-записи @ и www на $IP."
+else warn "домен $DOMAIN смотрит на $DNS, а сервер — $IP. Поменяй A-записи @ и www в reg.ru на $IP; сертификат Caddy получит сам, как только DNS обновится."; fi
+[ "$WWW_ON" = 1 ] || echo "  www.$DOMAIN подключится, если запустить эту установку ещё раз, когда DNS обновится (данные не пострадают)"
 sleep 3
 if curl -fsS --connect-timeout 10 "https://$DOMAIN/health" >/dev/null 2>&1; then ok "https://$DOMAIN работает"
 else warn "https://$DOMAIN пока не открывается — так бывает первые минуты, пока выдаётся сертификат. Логи: journalctl -u caddy -n 50"; fi
