@@ -1,5 +1,5 @@
 /* Тренировки: офлайн-кэш */
-const CACHE = "training-v1";
+const CACHE = "training-v2";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png", "./apple-touch-icon.png"];
 
 self.addEventListener("install", (e) => {
@@ -28,6 +28,7 @@ self.addEventListener("fetch", (e) => {
   if (req.method !== "GET") return;
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;   // шрифты и GitHub API идут напрямую
+  if (/\/(auth|rest)\/v1\//.test(url.pathname) || url.pathname.endsWith("/health")) return;   // свой сервер: вход и данные — всегда из сети
 
   e.respondWith((async () => {
     const cache = await caches.open(CACHE);

@@ -2478,17 +2478,24 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
 <script>
 (function(){
   // ===== настройки общей базы: вставь ключ один раз, и всем пользователям хватит почты с паролем =====
-  var SB_BUILTIN = {url: "https://fswqlbjlkpgrnykggczj.supabase.co", keys: [
+  var SB_CLOUD = {url: "https://fswqlbjlkpgrnykggczj.supabase.co", keys: [
     "sb_publishable_xiMxPtjCJx8o7oMtUEBuew_J51Gty0A",
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzd3FsYmpsa3Bncm55a2dnY3pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwNDIyNDUsImV4cCI6MjEwNjYxODI0NX0.KQMAqfGyNr1NeLMKu3iRuufLaZ5DEMRj2sc1ulkK5QY"
   ]};
+  // ===== свой сервер: на этих адресах приложение ходит в свой API на том же домене, а не в облако =====
+  var SELF_HOSTS = ["denstar-train.ru", "www.denstar-train.ru"];
+  var SELF_API = SELF_HOSTS.indexOf(location.hostname) >= 0;
+  var SB_BUILTIN = SELF_API ? {url: location.origin, keys: ["self-hosted-api-no-key-needed"]} : SB_CLOUD;
+  // переезд: когда новый адрес заработает, впиши его сюда (например "https://denstar-train.ru") —
+  // копии на GitHub Pages и workers.dev начнут перекидывать туда и заберут с собой отметки из браузера
+  var MOVED_TO = "";
   // ===== для открытого доступа: впиши свои данные — они попадут в политику конфиденциальности и согласие =====
   // owner — ФИО оператора, ownerTo — оно же в дательном падеже (кому: даю согласие …); email и telegram — куда писать с вопросами о данных; storage — где стоит сервер базы;
   // abroad — true, если сервер за пределами России (тогда в согласии появится пункт о трансграничной передаче)
-  var LEGAL = {owner: "Тарасов Денис Алексеевич", ownerTo: "Тарасову Денису Алексеевичу", email: "denstar02@gmail.com", telegram: "@denstar02", storage: "Облачная база Supabase (Supabase Inc.), серверы Amazon Web Services во Франкфурте-на-Майне, Германия (регион eu-central-1)", abroad: true, updated: "16 октября 2026"};
+  var LEGAL = {owner: "Тарасов Денис Алексеевич", ownerTo: "Тарасову Денису Алексеевичу", email: "denstar02@gmail.com", telegram: "@denstar02", storage: SELF_API ? "Собственный сервер приложения в дата-центре в Москве (хостинг IHOR), Россия" : "Облачная база Supabase (Supabase Inc.), серверы Amazon Web Services во Франкфурте-на-Майне, Германия (регион eu-central-1)", abroad: !SELF_API, updated: "16 октября 2026"};
   var CONSENT_V = "2026-10-16";   // поменяй дату, если существенно изменишь согласие, — все подтвердят заново
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 2, APP_BUILD_N = 5;
+  var APP_MAJOR = 2, APP_BUILD_N = 6;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var APP_BUILD = APP_MAJOR * 100 + APP_BUILD_N;   // 1.35 → 135, 2.01 → 201
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
@@ -2689,6 +2696,40 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
 
   var state = fresh();
   try { var raw = localStorage.getItem(KEY); if(raw){ state = normalize(JSON.parse(raw)); persistLocal(); } } catch(e){}
+  // ---------- переезд на новый адрес: старая копия упаковывает отметки в ссылку, новая их принимает ----------
+  function moveAway(){
+    var raw0 = null; try { raw0 = localStorage.getItem(KEY); } catch(e){}
+    var base = MOVED_TO.replace(/\/+$/, "") + "/";
+    var keep = (/^#(privacy|consent|health|setup)$/.exec(location.hash || "") || [])[1] || "";
+    var go = function(data){ location.replace(base + (data ? "#move=" + data + (keep ? "~" + keep : "") : (location.hash || ""))); };
+    if(!raw0 || typeof CompressionStream === "undefined"){ go(""); return; }
+    try {
+      new Response(new Blob([raw0]).stream().pipeThrough(new CompressionStream("gzip"))).arrayBuffer().then(function(buf){
+        var bin = "", u = new Uint8Array(buf);
+        for(var i = 0; i < u.length; i += 0x8000) bin += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000));
+        var b = btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+        go(b.length < 1500000 ? b : "");
+      }, function(){ go(""); });
+    } catch(e){ go(""); }
+  }
+  var MOVING = !!(MOVED_TO && !SELF_API && /(\.github\.io|\.workers\.dev)$/.test(location.hostname) && !/[?&]stay=1/.test(location.search));
+  if(MOVING) moveAway();
+  function moveIn(){
+    var m = /^#move=([A-Za-z0-9_-]+)(?:~(privacy|consent|health|setup))?$/.exec(location.hash || "");
+    if(!m) return;
+    try { history.replaceState(null, "", location.pathname + location.search + (m[2] ? "#" + m[2] : "")); } catch(e){}
+    if(typeof DecompressionStream === "undefined") return;
+    try {
+      var b = m[1].replace(/-/g, "+").replace(/_/g, "/"); while(b.length % 4) b += "=";
+      var bin = atob(b), u = new Uint8Array(bin.length);
+      for(var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+      new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream("gzip"))).text().then(function(txt){
+        var inc = normalize(JSON.parse(txt));
+        state = mergeStates(state, inc); XPB = null; save(); render();
+        flash("Отметки перенесены со старого адреса" + (loggedIn() ? "" : ". Войди в аккаунт — они сложатся с тем, что в облаке"));
+      }).catch(function(){ flash("Не получилось перенести отметки со старого адреса"); });
+    } catch(e){ flash("Не получилось перенести отметки со старого адреса"); }
+  }
   var sel = null;
   var db = null, writing = false, dirty = false, timer = null;
 
@@ -10890,6 +10931,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   bindSwipe();
   window.addEventListener("resize", function(){ moveTabInd(); });
   sbCatchRecovery();
+  moveIn();
   navSync();
   render();
   if(!impFromHash() && onbNeeded()) onbStart();
