@@ -1719,6 +1719,10 @@ mark.todo{background:color-mix(in srgb, var(--danger) 16%, transparent);color:va
 .ps-rem input[type="time"]{min-height:38px;padding:0 10px;border-radius:10px;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);font:inherit;font-variant-numeric:tabular-nums}
 .ps-rem input[type="time"]:disabled{opacity:.5}
 .ps-err{color:#B42318}
+/* 3.01: кардио */
+.cvar-hint{margin:10px 0 2px}
+@media (min-width:700px){.tabs{gap:4px}.tabs button{padding:0 10px}}
+.editor .num.wide{min-width:64px;font-variant-numeric:tabular-nums}
 .agree-box{display:grid;gap:10px;margin:6px 0 12px}
 .agree{display:flex;align-items:flex-start;gap:10px;font-size:14.5px;line-height:1.4;cursor:pointer}
 .agree input{flex:0 0 auto;width:20px;height:20px;margin:1px 0 0;accent-color:var(--accent)}
@@ -1751,7 +1755,7 @@ a.inl{color:var(--accent);font-weight:600;text-decoration:underline;text-underli
   <header class="topbar">
     <div>
     <h1>Тренировки</h1>
-    <p class="lede">Шесть программ: турник, отжимания, приседания, гантели, растяжка и своя. Везде короткие подходы вместо одной тяжёлой тренировки — в своём темпе и с запасом сил.</p>
+    <p class="lede">Семь программ: турник, отжимания, приседания, гантели, кардио, растяжка и своя. Везде короткие подходы вместо одной тяжёлой тренировки — в своём темпе и с запасом сил.</p>
     </div>
     <button type="button" class="syncpill" id="syncPill" data-syncpill data-act="sync-pill" aria-label="Состояние сохранения" hidden></button>
     <button type="button" class="accbtn" id="accBtn" data-act="acc" aria-label="Войти в аккаунт" aria-pressed="false"></button>
@@ -1764,6 +1768,7 @@ a.inl{color:var(--accent);font-weight:600;text-decoration:underline;text-underli
     <button type="button" role="tab" id="tab-push" data-act="tab" data-tab="push" aria-controls="panel-push" aria-selected="false">Отжимания</button>
     <button type="button" role="tab" id="tab-squat" data-act="tab" data-tab="squat" aria-controls="panel-squat" aria-selected="false">Приседания</button>
     <button type="button" role="tab" id="tab-dumb" data-act="tab" data-tab="dumb" aria-controls="panel-dumb" aria-selected="false">Гантели</button>
+    <button type="button" role="tab" id="tab-cardio" data-act="tab" data-tab="cardio" aria-controls="panel-cardio" aria-selected="false">Кардио</button>
     <button type="button" role="tab" id="tab-stretch" data-act="tab" data-tab="stretch" aria-controls="panel-stretch" aria-selected="false">Растяжка</button>
     <button type="button" role="tab" id="tab-custom" data-act="tab" data-tab="custom" aria-controls="panel-custom" aria-selected="false">Создать</button>
   </div>
@@ -2353,6 +2358,62 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     </section>
   </section>
 
+  <section id="panel-cardio" role="tabpanel" aria-labelledby="tab-cardio" hidden>
+    <section class="phead" aria-label="Ход программы">
+      <div class="hd-top">
+        <div class="rig-cap"><span id="ccapRange"></span><span id="ccapLeft"></span></div>
+        <div class="hd-arrows">
+          <button type="button" class="hd-arrow" id="cprev" data-act="cprev" data-c="c" aria-label="Предыдущая тренировка">‹</button>
+          <button type="button" class="hd-arrow" id="cnext" data-act="cnext" data-c="c" aria-label="Следующая тренировка">›</button>
+        </div>
+      </div>
+      <nav class="rig pushrig" aria-label="Тренировки программы"><div class="weeks" id="cweeks"></div></nav>
+      <p class="vh" id="cnavLabel" aria-live="polite"></p>
+      <p class="pstatus" id="cstatus"></p>
+      <div class="pchips">
+        <button type="button" class="pchip" data-act="hd" data-w="set" aria-expanded="false" aria-controls="chdset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></svg><span class="vh">Вариант и выносливость: </span><span class="setsum" id="csetSum"></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button>
+      </div>
+      <div class="hdbody" id="chdset" data-hd="set" hidden>
+      <div class="maxrow">
+        <p id="cmaxText"></p>
+        <div class="stepper" role="group" aria-label="Выносливость, минут без остановки">
+          <button type="button" data-act="cmax-" data-c="c" aria-label="Уменьшить">−</button>
+          <output id="cmaxOut">6</output>
+          <button type="button" data-act="cmax+" data-c="c" aria-label="Увеличить">+</button>
+        </div>
+        <div class="modebox" id="cvariant"></div>
+      </div>
+      <p class="hint cvar-hint">Дома — без инвентаря, на коврике. Скакалка — если она есть. Бег — на улице или на беговой дорожке. Прогресс у каждого варианта свой.</p>
+
+      <div class="legend" aria-hidden="true">
+        <span><i class="h"></i>Отрезок на время, нажми после него</span>
+        <span><i class="d"></i>Выполнено</span>
+        <span><i class="p"></i>Меньше плана</span>
+      </div>
+      </div>
+    </section>
+
+    <main><div id="cwork"></div></main>
+
+    <section class="pfoot" aria-label="Прогресс и правила">
+      <div class="pchips">
+        <button type="button" class="pchip" data-act="hd" data-w="ring" aria-expanded="false" aria-controls="cftring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5" opacity=".35"/><path d="M12 3.5a8.5 8.5 0 0 1 8.2 10.7"/></svg><span>Прогресс</span><span class="ftsum" id="cringSum"></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button>
+        <button type="button" class="pchip" data-act="hd" data-w="rules" aria-expanded="false" aria-controls="cftrules"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4.5h10.5A3.5 3.5 0 0 1 19 8v11.5H8.5A3.5 3.5 0 0 1 5 16z"/><path d="M5 16a3.5 3.5 0 0 1 3.5-3.5H19"/></svg><span>Правила</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button>
+      </div>
+      <div class="hdbody" id="cftring" data-hd="ring" hidden><div id="cring"></div></div>
+      <div class="hdbody rules" id="cftrules" data-hd="rules" hidden><p class="rules-t">Правила для кардио</p>
+      <ul>
+        <li>Выносливость — сколько минут ты держишь ровный темп без остановки. От неё строятся все отрезки, тест раз в 12 тренировок её уточняет.</li>
+        <li>Ровный темп — когда можешь говорить короткими фразами. Если не хватает дыхания даже на слово, сбавь.</li>
+        <li>Включи «Режим тренировки»: таймер сам ведёт по отрезкам и отдыху, голосовой тренер подсказывает, что дальше.</li>
+        <li>Кардио — 3–4 раза в неделю, между тренировками день отдыха. Его можно ставить в дни между силовыми.</li>
+        <li>Прыжки и бег — в устойчивой обуви, на ровном полу или дорожке. Первые недели программы дома без прыжков — это бережно для коленей.</li>
+        <li>Если кружится голова, давит в груди или сердце колотится неровно, остановись и пройди шагом. Не проходит — к врачу.</li>
+      </ul>
+      </div>
+    </section>
+  </section>
+
   <section id="panel-stretch" role="tabpanel" aria-labelledby="tab-stretch" hidden>
     <section class="phead" aria-label="Ход программы">
       <div class="hd-top">
@@ -2537,7 +2598,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   var DONATE = "https://www.donationalerts.com/r/denstar02";
   var CONSENT_V = "2026-10-17";   // поменяй дату, если существенно изменишь согласие, — все подтвердят заново
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 2, APP_BUILD_N = 12;
+  var APP_MAJOR = 3, APP_BUILD_N = 1;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var APP_BUILD = APP_MAJOR * 100 + APP_BUILD_N;   // 1.35 → 135, 2.01 → 201
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
@@ -2552,10 +2613,10 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   }
   applyTheme();
   var TAB = "pull";
-  try { var tb = localStorage.getItem(TKEY); if(tb === "push" || tb === "squat" || tb === "dumb" || tb === "stretch" || tb === "custom") TAB = tb; } catch(e){}
+  try { var tb = localStorage.getItem(TKEY); if(tb === "push" || tb === "squat" || tb === "dumb" || tb === "cardio" || tb === "stretch" || tb === "custom") TAB = tb; } catch(e){}
   // ---------- какие разделы показывать ----------
   var TABDEF = [{t: "pull", n: "Турник"}, {t: "push", n: "Отжимания"}, {t: "squat", n: "Приседания"},
-                {t: "dumb", n: "Гантели"}, {t: "stretch", n: "Растяжка"}, {t: "custom", n: "Создать"}];
+                {t: "dumb", n: "Гантели"}, {t: "cardio", n: "Кардио"}, {t: "stretch", n: "Растяжка"}, {t: "custom", n: "Создать"}];
   var HIDEKEY = "pullups-tabs-off", tabsOff = {};
   try { var ho = JSON.parse(localStorage.getItem(HIDEKEY) || "{}"); if(ho && typeof ho === "object" && !Array.isArray(ho)) tabsOff = ho; } catch(e){}
   function tabOn(t){ return !tabsOff[t]; }
@@ -2571,7 +2632,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   normalizeTab();
   var SETS = ["подход","подхода","подходов"];
   // тип дня: 0 — смазка канавки, 1 — удержания и подходы, 2 — лесенки/тест
-  function fresh(){ return {v:4, profile:{name:"", photo:""}, fin:{}, lastEvent:null, notes:{}, reacts:{}, feed:[], onb:{done:false}, updatedAt:0, mode:{pull:"short", push:"short", squat:"short", stretch:"short"}, variant:{push:"classic"}, start:null, timer:null, p:{startMax:15, max:null, tests:{}}, s:{startMax:25, max:null, tests:{}}, b:{startMax:12, max:null, tests:{}}, g:{startMax:12, max:null, tests:{}, weight:0, autoAt:0}, t:{front:40, side:45, tests:{}}, u:{startMax:4, max:null, tests:{}, legacy:0}, custom:{progs:[], cur:null, mount:{pull:null, push:null, squat:null, stretch:null}}, startMax:4, test4:null, test8:null, logs:{}, times:{}, cycles:[]}; }
+  function fresh(){ return {v:4, profile:{name:"", photo:""}, fin:{}, lastEvent:null, notes:{}, reacts:{}, feed:[], onb:{done:false}, updatedAt:0, mode:{pull:"short", push:"short", squat:"short", stretch:"short", cardio:"short"}, variant:{push:"classic", cardio:"home"}, start:null, timer:null, p:{startMax:15, max:null, tests:{}}, s:{startMax:25, max:null, tests:{}}, b:{startMax:12, max:null, tests:{}}, g:{startMax:12, max:null, tests:{}, weight:0, autoAt:0}, h:{startMax:6, max:null, tests:{}}, j:{startMax:3, max:null, tests:{}}, r:{startMax:3, max:null, tests:{}}, t:{front:40, side:45, tests:{}}, u:{startMax:4, max:null, tests:{}, legacy:0}, custom:{progs:[], cur:null, mount:{pull:null, push:null, squat:null, stretch:null}}, startMax:4, test4:null, test8:null, logs:{}, times:{}, cycles:[]}; }
   function normalize(s){
     var f = fresh();
     if(!s || typeof s !== "object") return f;
@@ -2635,10 +2696,12 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     };
     var MD = s.mode && typeof s.mode === "object" ? s.mode : MD0;
     f.mode = {};
-    ["pull","push","squat","dumb","stretch"].forEach(function(tb){
+    ["pull","push","squat","dumb","stretch","cardio"].forEach(function(tb){
       f.mode[tb] = (MD[tb] === "short" || MD[tb] === "day") ? MD[tb] : "short";
     });
-    f.variant = {push: (s.variant && s.variant.push === "board") ? "board" : "classic"};
+    f.mode.cardio = "short";
+    f.variant = {push: (s.variant && s.variant.push === "board") ? "board" : "classic",
+      cardio: (s.variant && ["home", "rope", "run"].indexOf(s.variant.cardio) >= 0) ? s.variant.cardio : "home"};
     var U0 = s.u && typeof s.u === "object" ? s.u : {};
     f.u = {
       legacy: U0.legacy == null ? null : clampInt(U0.legacy, 0, 100000, 0),
@@ -2683,7 +2746,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       side: clampInt(T.side, 0, 120, 45),
       tests: (T.tests && typeof T.tests === "object" && !Array.isArray(T.tests)) ? T.tests : {}
     };
-    [["p", 15], ["s", 25], ["b", 12], ["g", 12]].forEach(function(pair){
+    [["p", 15], ["s", 25], ["b", 12], ["g", 12], ["h", 6], ["j", 3], ["r", 3]].forEach(function(pair){
       var src = s[pair[0]] && typeof s[pair[0]] === "object" ? s[pair[0]] : {};
       f[pair[0]] = {
         startMax: clampInt(src.startMax, 1, 500, pair[1]),
@@ -2884,7 +2947,33 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     catcow: {label: "Кошка-корова на четвереньках", head: [34, 70], seg: [[[44, 76], [74, 82], [104, 74]], [[44, 76], [40, 106]], [[104, 74], [110, 106]]], head2: [36, 80], seg2: [[[44, 76], [74, 62], [104, 74]], [[44, 76], [40, 106]], [[104, 74], [110, 106]]], dur: 3},
     quad: {label: "Растяжка передней поверхности бедра", head: [70, 20], seg: [[[70, 30], [70, 62]], [[70, 62], [68, 84], [68, 106]], [[70, 62], [76, 84], [56, 68]], [[70, 38], [62, 64]], [[70, 38], [44, 46]]], head2: [70, 20], seg2: [[[70, 30], [70, 62]], [[70, 62], [68, 84], [68, 106]], [[70, 62], [78, 84], [52, 64]], [[70, 38], [58, 60]], [[70, 38], [44, 46]]], wall: 38, dur: 3.5},
     standfold: {label: "Наклон стоя к прямым ногам", head: [106, 82], seg: [[[84, 106], [82, 84], [80, 58]], [[80, 58], [98, 74]], [[98, 74], [104, 106]]], head2: [108, 90], seg2: [[[84, 106], [82, 84], [80, 62]], [[80, 62], [100, 82]], [[100, 82], [104, 106]]], dur: 4},
-    deepsquat: {label: "Глубокое сидение на корточках", head: [80, 40], seg: [[[80, 50], [80, 74]], [[80, 74], [52, 80], [58, 106]], [[80, 74], [108, 80], [102, 106]], [[80, 56], [64, 78], [80, 72]], [[80, 56], [96, 78], [80, 72]]], head2: [80, 46], seg2: [[[80, 56], [80, 80]], [[80, 80], [48, 84], [56, 106]], [[80, 80], [112, 84], [104, 106]], [[80, 62], [62, 82], [80, 78]], [[80, 62], [98, 82], [80, 78]]], dur: 4}
+    deepsquat: {label: "Глубокое сидение на корточках", head: [80, 40], seg: [[[80, 50], [80, 74]], [[80, 74], [52, 80], [58, 106]], [[80, 74], [108, 80], [102, 106]], [[80, 56], [64, 78], [80, 72]], [[80, 56], [96, 78], [80, 72]]], head2: [80, 46], seg2: [[[80, 56], [80, 80]], [[80, 80], [48, 84], [56, 106]], [[80, 80], [112, 84], [104, 106]], [[80, 62], [62, 82], [80, 78]], [[80, 62], [98, 82], [80, 78]]], dur: 4},
+  
+    // ---- кардио ----
+    stepjack: {label: "«Звёздочка» шагом: шаг в сторону, руки вверх", head: [80, 24], seg: [[[80, 34], [80, 66]], [[80, 66], [78, 86], [76, 106]], [[80, 66], [82, 86], [84, 106]], [[80, 40], [72, 54], [70, 68]], [[80, 40], [88, 54], [90, 68]]],
+      head2: [80, 24], seg2: [[[80, 34], [80, 66]], [[80, 66], [78, 86], [76, 106]], [[80, 66], [96, 86], [106, 106]], [[80, 40], [66, 28], [60, 14]], [[80, 40], [94, 28], [100, 14]]], dur: 1.6},
+    jack: {label: "«Звёздочка» с прыжком", head: [80, 24], seg: [[[80, 34], [80, 66]], [[80, 66], [78, 86], [76, 106]], [[80, 66], [82, 86], [84, 106]], [[80, 40], [72, 54], [70, 68]], [[80, 40], [88, 54], [90, 68]]],
+      head2: [80, 18], seg2: [[[80, 28], [80, 60]], [[80, 60], [68, 80], [58, 100]], [[80, 60], [92, 80], [102, 100]], [[80, 34], [64, 20], [58, 6]], [[80, 34], [96, 20], [102, 6]]], dur: 0.9},
+    box: {label: "Бой с тенью", head: [76, 24], seg: [[[76, 34], [78, 66]], [[78, 66], [70, 86], [64, 106]], [[78, 66], [88, 86], [94, 106]], [[76, 40], [86, 48], [90, 38]], [[76, 40], [98, 40], [116, 38]]],
+      head2: [78, 24], seg2: [[[78, 34], [78, 66]], [[78, 66], [70, 86], [64, 106]], [[78, 66], [88, 86], [94, 106]], [[78, 40], [100, 38], [118, 36]], [[78, 40], [88, 48], [92, 38]]], dur: 0.8},
+    knees: {label: "Бег на месте с высоким подниманием колен", head: [80, 24], seg: [[[80, 34], [80, 66]], [[80, 66], [68, 64], [70, 86]], [[80, 66], [82, 86], [82, 106]], [[80, 40], [70, 52], [72, 40]], [[80, 40], [90, 54], [88, 66]]],
+      head2: [80, 22], seg2: [[[80, 32], [80, 64]], [[80, 64], [78, 84], [78, 104]], [[80, 64], [92, 62], [90, 84]], [[80, 38], [70, 52], [72, 64]], [[80, 38], [90, 50], [88, 38]]], dur: 0.6},
+    skater: {label: "Конькобежец: прыжки в стороны", head: [58, 28], seg: [[[60, 38], [64, 68]], [[64, 68], [60, 88], [56, 106]], [[64, 68], [74, 86], [84, 98]], [[60, 44], [74, 58]], [[60, 44], [46, 52]]],
+      head2: [102, 28], seg2: [[[100, 38], [96, 68]], [[96, 68], [100, 88], [104, 106]], [[96, 68], [86, 86], [76, 98]], [[100, 44], [86, 58]], [[100, 44], [114, 52]]], dur: 1.2},
+    climber: {label: "Альпинист: колени к груди в упоре лёжа", head: [120, 62], seg: [[[110, 70], [64, 76]], [[110, 70], [114, 104]], [[64, 76], [90, 90], [86, 104]], [[64, 76], [42, 90], [24, 104]]],
+      head2: [120, 62], seg2: [[[110, 70], [64, 76]], [[110, 70], [114, 104]], [[64, 76], [42, 90], [24, 104]], [[64, 76], [90, 90], [86, 104]]], dur: 0.7},
+    burpee: {label: "Бёрпи: из прыжка в упор лёжа и обратно", head: [80, 20], seg: [[[80, 30], [80, 62]], [[80, 62], [76, 84], [74, 104]], [[80, 62], [84, 84], [86, 104]], [[80, 36], [72, 20], [70, 6]], [[80, 36], [88, 20], [90, 6]]],
+      head2: [116, 64], seg2: [[[106, 72], [60, 78]], [[60, 78], [40, 92], [22, 104]], [[60, 78], [42, 92], [24, 106]], [[106, 72], [108, 104]], [[106, 72], [112, 104]]], dur: 2.2},
+    rope: {label: "Прыжки через скакалку", head: [80, 24], seg: [[[80, 34], [80, 64]], [[80, 64], [78, 86], [78, 106]], [[80, 64], [82, 86], [82, 106]], [[80, 40], [68, 54], [62, 66]], [[80, 40], [92, 54], [98, 66]]],
+      head2: [80, 18], seg2: [[[80, 28], [80, 58]], [[80, 58], [78, 80], [78, 100]], [[80, 58], [82, 80], [82, 100]], [[80, 34], [68, 48], [62, 60]], [[80, 34], [92, 48], [98, 60]]],
+      rope: ["M62 66 C34 -6 126 -6 98 66", "M62 60 C34 136 126 136 98 60"], dur: 0.6},
+    ropealt: {label: "Бег через скакалку с ноги на ногу", head: [80, 22], seg: [[[80, 32], [80, 62]], [[80, 62], [74, 80], [76, 98]], [[80, 62], [82, 84], [82, 106]], [[80, 38], [68, 52], [62, 64]], [[80, 38], [92, 52], [98, 64]]],
+      head2: [80, 22], seg2: [[[80, 32], [80, 62]], [[80, 62], [78, 84], [78, 106]], [[80, 62], [86, 80], [84, 98]], [[80, 38], [68, 52], [62, 64]], [[80, 38], [92, 52], [98, 64]]],
+      rope: ["M62 64 C34 -8 126 -8 98 64", "M62 64 C34 140 126 140 98 64"], dur: 0.5},
+    run: {label: "Лёгкий бег", head: [84, 24], seg: [[[82, 34], [76, 64]], [[76, 64], [90, 82], [88, 106]], [[76, 64], [62, 82], [48, 88]], [[82, 40], [94, 50], [102, 42]], [[82, 40], [70, 52], [64, 62]]],
+      head2: [84, 22], seg2: [[[82, 32], [76, 62]], [[76, 62], [62, 80], [48, 86]], [[76, 62], [90, 80], [88, 104]], [[82, 38], [70, 50], [64, 60]], [[82, 38], [94, 48], [102, 40]]], dur: 0.55},
+    walk: {label: "Быстрая ходьба", head: [80, 24], seg: [[[80, 34], [79, 66]], [[79, 66], [86, 86], [90, 106]], [[79, 66], [74, 86], [68, 106]], [[80, 40], [86, 54], [90, 66]], [[80, 40], [74, 54], [70, 66]]],
+      head2: [80, 24], seg2: [[[80, 34], [79, 66]], [[79, 66], [74, 86], [68, 106]], [[79, 66], [86, 86], [90, 106]], [[80, 40], [74, 54], [70, 66]], [[80, 40], [86, 54], [90, 66]]], dur: 1.1}
   };
   function sfPath(seg){ return "M" + seg.map(function(p){ return p[0] + " " + p[1]; }).join(" L"); }
   function stretchFigure(name){
@@ -2895,6 +2984,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     (f.blocks || []).forEach(function(b){
       s += '<rect x="' + b[0] + '" y="' + b[1] + '" width="' + b[2] + '" height="' + b[3] + '" rx="3" fill="none" stroke="var(--line)" stroke-width="3"/>';
     });
+    if(f.rope) s += '<path d="' + f.rope[0] + '" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round">' +
+      (REDUCED ? '' : '<animate attributeName="d" values="' + f.rope[0] + ";" + f.rope[1] + ";" + f.rope[0] + '" dur="' + dur + 's" repeatCount="indefinite"/>') + '</path>';
     s += '<g fill="none" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">';
     if(!two && !REDUCED) s += '<animateTransform attributeName="transform" type="translate" values="0 0;0 2.5;0 0" dur="' + dur + 's" repeatCount="indefinite"/>';
     f.seg.forEach(function(seg, i){
@@ -2978,15 +3069,21 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(runNow) cls += " run";
     var name = {hold: "Удержание, секунд", hang: "Вис, секунд", plank: "Планка, секунд", wall: "Стульчик у стены, секунд", sec: "Удержание, секунд", slow: "Медленный подход", rep: "Подход", lad: "Ступень лесенки"}[it.kind];
     var aria = name + ", план " + it.target + (v != null ? ", сделано " + v : ", не выполнено");
-    var face = isSec(it.kind) ? (shown >= 90 ? Math.round(shown / 60) + "м" : shown + "с") : shown;
-    if(runNow) face = hold.left + "с";
+    var face = isSec(it.kind) ? (shown >= 90 ? (shown % 60 ? holdFmt(shown) : shown / 60 + "м") : shown + "с") : shown;
+    if(runNow) face = hold.left >= 60 ? holdFmt(hold.left) : hold.left + "с";
     return '<button type="button" class="' + cls + '" data-act="chip" data-key="' + key + '" data-idx="' + it.idx + '" data-t="' + it.target + '" aria-label="' + aria + '">' + face + '</button>';
   }
 
   function editorHtml(key, it, log){
     var v = log[it.idx], opts = [], q;
-    var secs = isSec(it.kind);
-    if(secs){
+    var secs = isSec(it.kind), cz = secs && isCardioKey(key);
+    if(cz){
+      var tg = it.target, stp = tg >= 120 ? 30 : 5;
+      [0, 0.25, 0.5, 0.75, 1].forEach(function(f){ var o = Math.round(tg * f / stp) * stp; if(opts.indexOf(o) < 0) opts.push(o); });
+      if(opts.indexOf(tg) < 0) opts.push(tg);
+      opts.push(tg + (tg >= 120 ? 60 : 15));
+      opts.sort(function(a, b){ return a - b; });
+    } else if(secs){
       opts = it.kind === "hold" ? [0, 2, 3, 4, 5, 6, 7, 8, 10, 12, 15]
         : it.target >= 90 ? [0, 60, 120, 180, 240, 300]
         : [0, 10, 15, 20, 30, 40, 45, 60, 90];
@@ -2995,9 +3092,9 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     } else {
       for(q = 0; q <= Math.max(it.target + 3, 5); q++) opts.push(q);
     }
-    var h = '<div class="editor"><p>' + (secs ? "Сколько секунд продержался? План: " : "Сколько получилось в этом подходе? План: ") + it.target + '</p><div class="row">';
+    var h = '<div class="editor"><p>' + (cz ? "Сколько получилось? План: " + cDur(it.target) : (secs ? "Сколько секунд продержался? План: " : "Сколько получилось в этом подходе? План: ") + it.target) + '</p><div class="row">';
     opts.forEach(function(o){
-      h += '<button type="button" class="num' + (v === o ? " cur" : "") + '" data-act="set" data-key="' + key + '" data-idx="' + it.idx + '" data-v="' + o + '">' + o + '</button>';
+      h += '<button type="button" class="num' + (cz ? " wide" : "") + (v === o ? " cur" : "") + '" data-act="set" data-key="' + key + '" data-idx="' + it.idx + '" data-v="' + o + '">' + (cz ? (o >= 60 ? holdFmt(o) : o + " с") : o) + '</button>';
     });
     return h + '<button type="button" class="ghost" data-act="clear" data-key="' + key + '" data-idx="' + it.idx + '">Не делал</button></div></div>';
   }
@@ -3075,10 +3172,11 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
         });
         h += '</div>';
       });
-      var secLeft = 0, secTarget = 0;
-      g.rows.forEach(function(r){ r.forEach(function(it){ if(isSec(it.kind) && log[it.idx] == null){ secLeft++; if(!secTarget) secTarget = it.target; } }); });
+      var secLeft = 0, secTarget = 0, secSum = 0;
+      g.rows.forEach(function(r){ r.forEach(function(it){ if(isSec(it.kind) && log[it.idx] == null){ secLeft++; secSum += it.target; if(!secTarget) secTarget = it.target; } }); });
       if(secLeft && !(hold && hold.key === key && hold.gi === gIdx)){
-        h += '<button type="button" class="linkbtn alt holdbtn" data-act="hold-run" data-key="' + key + '" data-gi="' + gIdx + '">Включить таймер: ' + secLeft + ' × ' + secTarget + ' с</button>';
+        h += '<button type="button" class="linkbtn alt holdbtn" data-act="hold-run" data-key="' + key + '" data-gi="' + gIdx + '">Включить таймер: ' +
+          (isCardioKey(key) ? (secLeft > 1 ? secLeft + " " + plural(secLeft, ["отрезок","отрезка","отрезков"]) + ", " : "") + cDur(secSum) : secLeft + ' × ' + secTarget + ' с') + '</button>';
       }
       if(selItem) h += editorHtml(key, selItem, log);
       h += '</div>';
@@ -3126,7 +3224,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   function pad(n){ return (n < 10 ? "0" : "") + n; }
   function scrollTo(el){ if(el && el.scrollIntoView) try { el.scrollIntoView({behavior: REDUCED ? "auto" : "smooth", block: "start"}); } catch(e){} }
   function goToCard(key){
-    var cg0 = /^([psubg])[dq](\d+)$/.exec(key);
+    var cg0 = /^([psubghjr])[dq](\d+)$/.exec(key);
     if(cg0){
       var ch0 = CHAINS[cg0[1]];
       if(TAB !== ch0.cfg.tab){ TAB = ch0.cfg.tab; try { localStorage.setItem(TKEY, TAB); } catch(e){} }
@@ -3154,7 +3252,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   var SKEY = "pullups-sound", soundOn = true, audio = null, alerted = null, baseTitle = document.title;
   try { soundOn = localStorage.getItem(SKEY) !== "0"; } catch(e){}
   function dayOfKey(key){
-    var cm0 = /^([psubg])([dq])(\d+)$/.exec(key);
+    var cm0 = /^([psubghjr])([dq])(\d+)$/.exec(key);
     if(cm0) return CHAINS[cm0[1]].build(+cm0[3] - 1, cm0[2] === "q" ? "short" : "day");
     var tm0 = /^t([dq])(\d+)$/.exec(key);
     if(tm0) return buildTDay(+tm0[2] - 1, tm0[1] === "q" ? "short" : "day");
@@ -3176,6 +3274,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(it && it.rest === 0){ state.timer = null; return; }
     var rest = it && it.rest != null ? it.rest : 50 * 60;
     state.timer = {key: key, next: next, due: Date.now() + rest * 1000, len: rest * 1000};
+    if(it && it.rl) state.timer.rl = it.rl;
     alerted = null;
   }
   function fmt(sec){
@@ -3187,15 +3286,20 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     var it = itemOf(t.key, t.next); if(!it) return "";
     var mk2 = /^m([a-z]+)_[a-z0-9]+-(\d+)$/.exec(t.key);
     var xk = /^x([a-z0-9]+)-(\d+)$/.exec(t.key);
-    var cm2 = /^([psubg])[dq](\d+)$/.exec(t.key);
+    var cm2 = /^([psubghjr])[dq](\d+)$/.exec(t.key);
     var tm2 = /^t[dq](\d+)$/.exec(t.key);
     var dname = mk2 ? (MTABS[mk2[1]] || "Своя программа") + ", занятие " + mk2[2]
       : xk ? "Своя программа, занятие " + xk[2]
-      : cm2 ? ({p: "Отжимания", s: "Приседания", u: "Турник", b: "Доска", g: "Гантели"})[cm2[1]] + ", тренировка " + cm2[2]
+      : cm2 ? ({p: "Отжимания", s: "Приседания", u: "Турник", b: "Доска", g: "Гантели", h: "Кардио дома", j: "Скакалка", r: "Бег"})[cm2[1]] + ", тренировка " + cm2[2]
       : tm2 ? "Растяжка, занятие " + tm2[1]
       : "Тренировка";
     var all = items(dayOfKey(t.key)), n = 0;
     all.forEach(function(a, i){ if(a.idx === t.next) n = i + 1; });
+    if(isCardioKey(t.key)){
+      var all0 = items(dayOfKey(t.key)), n0 = 0;
+      all0.forEach(function(a, i){ if(a.idx === t.next) n0 = i + 1; });
+      return dname + ", отрезок " + n0 + " из " + all0.length + ": " + (it.lab ? it.lab.toLowerCase() + " " : "") + cDur(it.target);
+    }
     var what = it.kind === "hold" ? "удержание " + it.target + " с" : it.kind === "hang" ? "вис " + it.target + " с" : it.kind === "plank" ? "планка " + it.target + " с" : it.kind === "sec" || it.kind === "wall" ? it.target + " с" : it.target + " " + plural(it.target, ["повторение","повторения","повторений"]);
     return dname + ", подход " + n + " из " + all.length + ": " + what;
   }
@@ -3209,7 +3313,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     bar.classList.toggle("due", due);
     bar.innerHTML = '<div class="tb-main"><div class="tb-text">' +
       (due ? '<button type="button" class="tb-line" data-act="timer-go"><strong>' + dueTitle(t.key) + '</strong></button>'
-           : '<button type="button" class="tb-line tb-set" data-act="timer-set" aria-label="Изменить время отдыха"><strong><span class="tb-time">' + fmt(left) + '</span> отдых</strong>' + PEN_IC + '</button>') +
+           : '<button type="button" class="tb-line tb-set" data-act="timer-set" aria-label="Изменить время отдыха"><strong><span class="tb-time">' + fmt(left) + '</span> ' + esc(t.rl || "отдых") + '</strong>' + PEN_IC + '</button>') +
       '<button type="button" class="tb-line tb-sub" data-act="timer-go"><span><span class="syncmini lead" data-syncpill data-mini hidden></span>' + esc(nextText(t)) + '</span></button></div>' +
       '<div class="tb-actions">' +
       (due ? '' : '<span class="tb-adj"><button type="button" class="tb-icon" data-act="timer-minus" aria-label="Минус минута">−1</button>' +
@@ -3221,7 +3325,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       document.title = "⏰ " + dueTitle(t.key);
       if(alerted !== t.due){
         alerted = t.due;
-        if(focusKey === t.key && coachActive()) coachDue();
+        if(focusKey === t.key && isCardioKey(t.key) && !FH && !FC && cardioAuto(t)){ /* следующий отрезок уже пошёл */ }
+        else if(focusKey === t.key && coachActive()) coachDue();
         else if(soundOn) playSig(tabOfKey(t.key), "due");
         if(document.hidden) notifyFire(dueTitle(t.key), nextText(t));
         try { if(navigator.vibrate) navigator.vibrate([180, 90, 180]); } catch(e){}
@@ -3276,9 +3381,10 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     push:    {name: "Отжимания",   type: "sine",     gain: .34, tick: [{f: 659, d: .05}],  start: [{f: 659, d: .10}], done: [{f: 659, d: .10}, {f: 988, d: .20, at: .11}],  due: [{f: 988, d: .12}, {f: 659, d: .12, at: .16}, {f: 988, d: .18, at: .32}],  rep: [{f: 880, d: .08}]},
     squat:   {name: "Приседания",  type: "sawtooth", gain: .18, tick: [{f: 392, d: .05}],  start: [{f: 392, d: .10}], done: [{f: 392, d: .10}, {f: 587, d: .22, at: .11}],  due: [{f: 587, d: .12}, {f: 392, d: .12, at: .16}, {f: 587, d: .20, at: .32}],  rep: [{f: 523, d: .08}]},
     stretch: {name: "Растяжка",    type: "sine",     gain: .26, tick: [{f: 523, d: .06}],  start: [{f: 523, d: .14}], done: [{f: 523, d: .16}, {f: 784, d: .30, at: .17}],  due: [{f: 784, d: .18}, {f: 523, d: .26, at: .22}],                            rep: [{f: 698, d: .10}]},
+    cardio:  {name: "Кардио",      type: "square",   gain: .14, tick: [{f: 698, d: .05}],  start: [{f: 698, d: .09}, {f: 932, d: .09, at: .1}], done: [{f: 932, d: .10}, {f: 1397, d: .20, at: .11}], due: [{f: 698, d: .10}, {f: 932, d: .10, at: .13}, {f: 1397, d: .16, at: .26}], rep: [{f: 1047, d: .07}]},
     custom:  {name: "Своя",        type: "triangle", gain: .28, tick: [{f: 587, d: .05}],  start: [{f: 587, d: .10}], done: [{f: 587, d: .10}, {f: 880, d: .20, at: .11}],  due: [{f: 880, d: .12}, {f: 587, d: .12, at: .16}, {f: 880, d: .18, at: .32}], rep: [{f: 740, d: .08}]}
   };
-  var DUE_TITLE = {pull: "Пора подтягиваться", push: "Пора отжиматься", squat: "Пора приседать", dumb: "Пора к гантелям", stretch: "Пора тянуться", custom: "Пора на подход"};
+  var DUE_TITLE = {pull: "Пора подтягиваться", push: "Пора отжиматься", squat: "Пора приседать", dumb: "Пора к гантелям", cardio: "Пора на кардио", stretch: "Пора тянуться", custom: "Пора на подход"};
   function dueTitle(key){ return DUE_TITLE[tabOfKey(key)] || "Пора на подход"; }
   function tabOfKey(key){
     if(!key) return "custom";
@@ -3287,6 +3393,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(/^s[dq]\d+$/.test(key)) return "squat";
     if(/^t[dq]\d+$/.test(key)) return "stretch";
     if(/^g[dq]\d+$/.test(key)) return "dumb";
+    if(/^[hjr][dq]\d+$/.test(key)) return "cardio";
     var m = /^m([a-z]+)_/.exec(key);
     if(m) return SOUND[m[1]] ? m[1] : "custom";
     return "custom";
@@ -3379,7 +3486,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
 
   // ---------- отмена последнего действия ----------
   var UNDO = [];
-  var UNDO_KEYS = ["logs", "times", "fin", "notes", "cycles", "lastEvent", "feed", "p", "s", "b", "g", "t", "u", "test4", "test8", "startMax"];
+  var UNDO_KEYS = ["logs", "times", "fin", "notes", "cycles", "lastEvent", "feed", "p", "s", "b", "g", "h", "j", "r", "t", "u", "test4", "test8", "startMax", "variant"];
   function undoSnap(){
     var o = {}, i;
     for(i = 0; i < UNDO_KEYS.length; i++){ var k = UNDO_KEYS[i]; if(state[k] !== undefined) o[k] = state[k]; }
@@ -3421,7 +3528,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   }
   function markToast(key, idx){
     var it = itemOf(key, idx), v = (state.logs[key] || [])[idx], info = itemInfo(key);
-    var txt = v != null ? "Отмечено: " + v + (it && isSec(it.kind) ? " с" : "") : "Отмечено";
+    var txt = v != null ? "Отмечено: " + (it && isSec(it.kind) && isCardioKey(key) ? cDur(v) : v + (it && isSec(it.kind) ? " с" : "")) : "Отмечено";
     if(info && !info.done && info.total) txt += " · осталось " + (info.total - info.n + 1) + " из " + info.total;
     else if(info && info.done) txt += " · все подходы закрыты";
     flash(txt, true);
@@ -3474,7 +3581,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       var w = C.build(doneIdx[i]), key = C.key(doneIdx[i]), log = state.logs[key] || [];
       var under = 0, total = 0;
       items(w).forEach(function(it){
-        if(isSec(it.kind)) return;
+        if(isSec(it.kind) && !C.cfg.secs) return;
         total++;
         if((log[it.idx] || 0) < it.target) under++;
       });
@@ -3499,7 +3606,10 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     var now = C.max(), next = Math.max(1, now + adv.dir);
     return '<div class="advice"><p><strong>' +
       (adv.dir > 0 ? "Три тренировки подряд закрыты полностью." : "Последние тренировки давались тяжело.") + '</strong> ' +
-      (adv.dir > 0
+      (C.cfg.secs ? (adv.dir > 0
+        ? "Можно поднять выносливость с " + now + " до " + next + " мин — отрезки станут чуть длиннее."
+        : "Можно снизить выносливость с " + now + " до " + next + " мин — отрезки станут короче. Это нормально: важнее ровный темп без перегруза.")
+      : adv.dir > 0
         ? "Можно поднять рабочий максимум с " + now + " до " + next + " — подходы станут чуть длиннее."
         : "Можно снизить рабочий максимум с " + now + " до " + next + " — подходы станут короче. Это нормально: главное не доходить до отказа.") + '</p>' +
       '<div class="test"><button type="button" class="primary" data-act="auto-yes" data-c="' + C.cfg.pre + '" data-d="' + adv.dir + '" data-n="' + adv.count + '">' +
@@ -3537,7 +3647,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
 
     C.build = function(i, m){
       if(i < 0 || i >= CCOUNT) return null;
-      if(C.isTest(i)) return {no: i + 1, title: "Тест максимума", test: i, groups: []};
+      if(C.isTest(i)) return {no: i + 1, title: cfg.testTitle || "Тест максимума", test: i, groups: []};
       var MP = MODES[m || C.modeOf(i)] || MODES.day;
       var block = Math.floor(i / 4), t = CTYPE[i % 4], list = maker(), groups = [],
           base = block < 3 ? 0.4 : block < 6 ? 0.45 : 0.5, next = "";
@@ -3602,13 +3712,28 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       return statsOf(w, C.key(i)).reps;
     };
     C.current = function(){ for(var i = 0; i < CCOUNT; i++) if(!C.done(i)) return i; return CCOUNT - 1; };
+    // для программ на время: сколько секунд запланировано и сделано
+    function secOf(w, key){
+      var log = state.logs[key] || [], z = {plan: 0, done: 0};
+      items(w).forEach(function(it){ if(!isSec(it.kind)) return; z.plan += it.target; var v = log[it.idx]; if(v != null && v > 0) z.done += v; });
+      return z;
+    }
+    C.secOf = secOf;
     C.repsMode = function(i, m){
       var w = C.build(i, m);
       if(!w) return 0;
       if(w.test) return 0;
-      return statsOf(w, C.key(i, m)).reps;
+      return cfg.secs ? secOf(w, C.key(i, m)).done : statsOf(w, C.key(i, m)).reps;
     };
     C.total = function(){
+      if(cfg.secs){
+        var sec = 0, k;
+        for(k = 0; k < CCOUNT; k++){
+          if(C.isTest(k)){ sec += (st().tests[k] || 0) * 60; continue; }
+          sec += C.repsMode(k, "day") + C.repsMode(k, "short");
+        }
+        return Math.round(sec / 60);
+      }
       var t = +(st().legacy || 0), i;
       for(i = 0; i < CCOUNT; i++){
         if(C.isTest(i)){ t += st().tests[i] || 0; continue; }
@@ -3619,7 +3744,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     C.totalOther = function(){
       var other = C.mode() === "short" ? "day" : "short", t = 0, i;
       for(i = 0; i < CCOUNT; i++) if(!C.isTest(i)) t += C.repsMode(i, other);
-      return t;
+      return cfg.secs ? Math.round(t / 60) : t;
     };
     C.ownLast = function(){
       var t = 0, i, v;
@@ -3632,6 +3757,10 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     C.lastTime = function(){
       var t = C.ownLast(), sib = cfg.sibling && typeof CHAINS !== "undefined" ? CHAINS[cfg.sibling] : null;
       if(sib && sib !== C && sib.ownLast){ var s2 = sib.ownLast(); if(s2 > t) t = s2; }
+      (cfg.siblings || []).forEach(function(p){
+        var s3 = typeof CHAINS !== "undefined" ? CHAINS[p] : null;
+        if(s3 && s3 !== C && s3.ownLast){ var v3 = s3.ownLast(); if(v3 > t) t = v3; }
+      });
       return t;
     };
     C.v = function(){ if(C.view == null) C.view = C.current(); return Math.max(0, Math.min(CCOUNT - 1, C.view)); };
@@ -3653,18 +3782,21 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
 
     function renderMax(){
       el("maxOut").textContent = st().startMax;
-      var t = (typeof cfg.maxLabel === "function" ? cfg.maxLabel() : cfg.maxLabel) + ": <strong>" + C.max() + "</strong>.";
-      t += st().max ? " Он взят из последнего теста. Кнопками справа меняется стартовый максимум: " + st().startMax + "."
+      var t = (typeof cfg.maxLabel === "function" ? cfg.maxLabel() : cfg.maxLabel) + ": <strong>" + C.max() + (cfg.secs ? " мин" : "") + "</strong>.";
+      if(cfg.secs) t += st().max ? " Это результат последнего теста. Кнопками справа меняется стартовый уровень: " + st().startMax + " мин."
+                                 : " От неё строятся все отрезки — поставь свою кнопками справа, тест уточнит.";
+      else t += st().max ? " Он взят из последнего теста. Кнопками справа меняется стартовый максимум: " + st().startMax + "."
                     : " От него считаются все подходы — поставь свой кнопками справа.";
       el("maxText").innerHTML = t;
       var mel = el("mode");
       if(mel) mel.innerHTML = modeToggle(cfg.tab);
       var sum = el("setSum");
       if(sum){
-        var parts = ["максимум " + C.max()];
+        var parts = [cfg.secs ? "выносливость " + C.max() + " мин" : "максимум " + C.max()];
         if(cfg.tab === "push") parts.push(state.variant && state.variant.push === "board" ? "доска" : "классика");
         if(cfg.pre === "g" && state.g.weight) parts.push(state.g.weight + " кг");
-        parts.push(MODES[C.mode()].label.toLowerCase());
+        if(cfg.vname) parts.push(cfg.vname.toLowerCase());
+        if(!cfg.secs) parts.push(MODES[C.mode()].label.toLowerCase());
         sum.textContent = parts.join(" · ");
       }
     }
@@ -3699,7 +3831,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     function renderRing(){
       var rsum = el("ringSum");
       if(!loggedIn()){ el("ring").innerHTML = lockHtml(); if(rsum) rsum.textContent = ""; return; }
-      var total = C.total(), steps = [100, 250, 500, 1000, 2500, 5000, 10000], goal = steps[steps.length - 1], prev = 0, i;
+      var total = C.total(), steps = cfg.secs ? [60, 150, 300, 600, 1200, 3000, 6000] : [100, 250, 500, 1000, 2500, 5000, 10000], goal = steps[steps.length - 1], prev = 0, i;
       for(i = 0; i < steps.length; i++){ if(total < steps[i]){ goal = steps[i]; prev = i ? steps[i - 1] : 0; break; } }
       var frac = goal > prev ? Math.min(1, (total - prev) / (goal - prev)) : 1, R = 52, Cc = 2 * Math.PI * R;
       var rk = "ring-" + cfg.pre, was = fillPrev[rk];
@@ -3713,8 +3845,13 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
         '<text x="65" y="82" text-anchor="middle">из ' + goal + '</text></svg>' +
         '<p class="hint">Всего ' + cfg.unit[2] + ' за программу. До отметки ' + goal + ' осталось ' + Math.max(0, goal - total) + '.</p></div>';
       var chart = testChart(C);
-      if(chart) h += '<details class="subdet"><summary>Рост максимума</summary>' + chart + '</details>';
-      var othr = C.totalOther();
+      if(chart) h += '<details class="subdet"><summary>' + (cfg.chartTitle || "Рост максимума") + '</summary>' + chart + '</details>';
+      var othr = cfg.secs ? 0 : C.totalOther();
+      if(cfg.siblings){
+        var sb3 = [];
+        cfg.siblings.forEach(function(p){ var s4 = CHAINS[p]; if(s4 && s4 !== C){ var v4 = s4.total(); if(v4) sb3.push("«" + s4.cfg.vname + "» — " + v4 + " мин"); } });
+        if(sb3.length) h += '<p class="hint">В других вариантах: ' + sb3.join(", ") + '. В профиле всё складывается.</p>';
+      }
       if(othr) h += '<p class="hint">Сюда входят оба темпа: в режиме «' + (C.mode() === "short" ? MODES.day.label : MODES.short.label) + '» отмечено ' + othr + " " + plural(othr, cfg.unit) + '.</p>';
       if(cfg.sibling && CHAINS[cfg.sibling]){
         var sib = CHAINS[cfg.sibling], sibTotal = sib.total();
@@ -3722,7 +3859,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       }
       if(st().legacy) h += '<p class="hint">Включая ' + st().legacy + " " + plural(st().legacy, cfg.unit) + ' из прежней программы по расписанию.</p>';
       var tests = Object.keys(st().tests).sort(function(a, b){ return a - b; });
-      if(tests.length) h += '<p class="hint">Тесты: ' + tests.map(function(k){ return "тренировка " + (+k + 1) + " — " + st().tests[k]; }).join(", ") + '. Стартовый максимум был ' + st().startMax + '.</p>';
+      if(tests.length) h += '<p class="hint">Тесты: ' + tests.map(function(k){ return "тренировка " + (+k + 1) + " — " + st().tests[k] + (cfg.secs ? " мин" : ""); }).join(", ") + '. ' + (cfg.secs ? "Стартовый уровень был " + st().startMax + " мин." : "Стартовый максимум был " + st().startMax + ".") + '</p>';
       el("ring").innerHTML = h;
     }
     function renderWork(){
@@ -3743,12 +3880,13 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
           '<button type="button" data-act="ctest-" data-c="' + cfg.pre + '" data-i="' + i + '" aria-label="Уменьшить">−</button>' +
           '<output>' + (tv != null ? tv : "—") + '</output>' +
           '<button type="button" data-act="ctest+" data-c="' + cfg.pre + '" data-i="' + i + '" data-base="' + prevMax + '" aria-label="Увеличить">+</button></div>';
-        h += tv != null ? '<span>Новый рабочий максимум: <strong>' + tv + '</strong></span>' : '<span class="tally">Отметь, сколько получилось</span>';
+        h += tv != null ? '<span>' + (cfg.secs ? "Новая выносливость" : "Новый рабочий максимум") + ': <strong>' + tv + (cfg.secs ? " мин" : "") + '</strong></span>' : '<span class="tally">' + (cfg.secs ? "Отметь, сколько минут получилось" : "Отметь, сколько получилось") + '</span>';
         h += '</div>';
       } else {
         var s2 = statsOf(w, key), wm = C.modeOf(i);
-        h += tallyRing(s2.reps, s2.planned, plural(s2.planned, ["повторения","повторений","повторений"]), "t-" + key, s2.plan > 0 && s2.done >= s2.plan) + '</div>';
-        if(wm !== C.mode()) h += '<p class="hint modenote">Эту тренировку ты начал в темпе «' + MODES[wm].label + '», поэтому подходы и отметки показаны в нём. Следующие пойдут в темпе «' + MODES[C.mode()].label + '».</p>';
+        if(cfg.secs){ var sx = secOf(w, key); h += tallyRing(cMin(sx.done), cMin(sx.plan), "минут", "t-" + key, s2.plan > 0 && s2.done >= s2.plan) + '</div>'; }
+        else h += tallyRing(s2.reps, s2.planned, plural(s2.planned, ["повторения","повторений","повторений"]), "t-" + key, s2.plan > 0 && s2.done >= s2.plan) + '</div>';
+        if(wm !== C.mode() && !cfg.secs) h += '<p class="hint modenote">Эту тренировку ты начал в темпе «' + MODES[wm].label + '», поэтому подходы и отметки показаны в нём. Следующие пойдут в темпе «' + MODES[C.mode()].label + '».</p>';
         h += groupsHtml(w, key);
         h += cardFoot(key, w.next);
         if(!C.done(i) && allLogged(w, key)) h += finishHtml(key);
@@ -4116,8 +4254,239 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     buildDay: dumbDay,
     testHint: "Разомнись двумя лёгкими подходами. Через 5 минут — один подход жима гантелей лёжа до момента, когда техника начнёт ломаться. Это и есть рабочий максимум."
   });
-  var CHAINS = {p: PUSH, s: SQUAT, u: PULL, b: BOARD, g: DUMB};
-  function chainOfTab(){ return TAB === "squat" ? SQUAT : TAB === "dumb" ? DUMB : TAB === "pull" ? PULL : pushChain(); }
+  // ---------- кардио: три варианта по инвентарю — дома без инвентаря, скакалка, бег ----------
+  // Максимум здесь — выносливость: сколько минут держишь ровный темп без остановки. От него строятся отрезки.
+  // Все отметки — в секундах (kind "sec"), итоги считаются в минутах.
+  var CARDIO_PRE = {h: 1, j: 1, r: 1};
+  function isCardioKey(k){ return /^[hjr][dq]\d+$/.test(String(k || "")); }
+  function cMin(sec){ return Math.round(sec / 60); }
+  function cDur(sec){
+    sec = Math.max(0, Math.round(sec));
+    if(sec < 90) return sec + " с";
+    var m = Math.floor(sec / 60), s = sec % 60;
+    return s ? m + " мин " + s + " с" : m + " мин";
+  }
+  function cLad(secs){
+    return secs.every(function(x){ return x % 60 === 0; }) ? secs.map(function(x){ return x / 60; }).join("–") + " мин" : secs.join("–") + " с";
+  }
+  function cClamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
+  function cRound(sec, step){ step = step || 15; return Math.max(step, Math.round(sec / step) * step); }
+  var CX = {
+    // дома, без инвентаря
+    march: {n: "Марш с высоким подниманием колен", s: "Марш", h: "Колени до уровня таза, руки работают как при ходьбе, спина прямая. Темп бодрый, но дыхание ровное.", a: "march"},
+    stepjack: {n: "«Звёздочка» шагом", s: "Звёздочка", h: "Шаг в сторону и руки над головой, вернулся — шаг в другую сторону. Без прыжков, бережно для коленей.", a: "stepjack"},
+    box: {n: "Бой с тенью", s: "Бой с тенью", h: "Лёгкая стойка, колени мягкие, прямые удары руками попеременно. Пружинь на носках и дыши на каждый удар.", a: "box"},
+    jack: {n: "«Звёздочка» с прыжком", s: "Звёздочка", h: "Прыжком ноги врозь и руки над головой, прыжком обратно. Приземляйся мягко на носки.", a: "jack"},
+    jog: {n: "Бег на месте", s: "Бег на месте", h: "Лёгкий бег на носках, руки согнуты в локтях, плечи расслаблены.", a: "knees"},
+    skater: {n: "Конькобежец", s: "Конькобежец", h: "Широкий шаг или прыжок в сторону, вторая нога уходит за опорную, корпус чуть вперёд. Чередуй стороны.", a: "skater"},
+    climber: {n: "Альпинист", s: "Альпинист", h: "Упор лёжа, поочерёдно подтягивай колени к груди. Таз не задирай, плечи над кистями.", a: "climber"},
+    knees: {n: "Высокие колени", s: "Колени", h: "Бег на месте с коленями до пояса, быстро и на носках. Руки помогают.", a: "knees"},
+    burpee: {n: "Бёрпи без отжимания", s: "Бёрпи", h: "Присел, руки на пол, ноги назад в планку, вернул ноги и выпрыгнул вверх. Лучше медленнее, но чисто.", a: "burpee"},
+    sjump: {n: "Прыжки из приседа", s: "Выпрыгивания", h: "Присед до параллели и мягкий прыжок вверх, приземление на носки с перекатом на пятку, колени не заваливаются внутрь.", a: "squat"},
+    // скакалка
+    rbasic: {n: "Прыжки на двух ногах", s: "Прыжки", h: "Невысоко, на носках, скакалку крутят кисти, локти у корпуса. Сбился — сразу продолжай.", a: "rope"},
+    ralt: {n: "С ноги на ногу", s: "Попеременно", h: "Лёгкий бег через скакалку: каждое вращение — смена ноги. Ритм ровный, как метроном.", a: "ropealt"},
+    rside: {n: "«Лыжник»", s: "Лыжник", h: "Прыжки из стороны в сторону через воображаемую линию, ноги вместе, вращение не останавливается.", a: "rope"},
+    rknees: {n: "Высокие колени со скакалкой", s: "Колени", h: "С ноги на ногу, но колени выше и темп быстрее.", a: "ropealt"},
+    rshadow: {n: "Прыжки без скакалки", s: "Без скакалки", h: "Та же техника, но скакалку держишь в одной руке сбоку или представляешь её — отдых для плеч, ритм не теряется.", a: "rope"},
+    // бег
+    walk: {n: "Быстрая ходьба", s: "Шагом", h: "Бодрый шаг, руки работают, дыхание через нос. Это и разминка, и отдых между отрезками.", a: "walk"},
+    run: {n: "Лёгкий бег", s: "Бег", h: "Разговорный темп: можно говорить короткими фразами. Шаг короткий, приземление под себя, плечи расслаблены.", a: "run"},
+    fast: {n: "Ускорение", s: "Ускорение", h: "Быстрее обычного, но не в полную силу — примерно на 7 из 10. Корпус прямой, руки помогают.", a: "run"}
+  };
+  // упражнения по ступеням: первые недели без прыжков, потом прыжки, в конце — самые интенсивные
+  var CX_TIER = {
+    h: [["march", "stepjack", "box"], ["jack", "jog", "skater", "climber"], ["knees", "burpee", "skater", "sjump", "climber"]],
+    j: [["rbasic", "ralt", "rshadow"], ["rbasic", "ralt", "rside"], ["ralt", "rside", "rknees", "rbasic"]]
+  };
+  function cTier(b){ return b <= 2 ? 0 : b <= 5 ? 1 : 2; }
+  function cPick(pool, i, n){ var out = [], k; for(k = 0; k < n; k++) out.push(pool[(i + k) % pool.length]); return out; }
+  function cIt(list, sec, rest, lab, rl){
+    var it = list(1, sec, "sec", rest, rest)[0];
+    if(lab) it.lab = lab;
+    if(rl) it.rl = rl;
+    return it;
+  }
+  function cGroup(title, hint, rows, anim, extra){
+    var g = {title: title, hint: hint, rows: rows, anim: anim};
+    if(extra) Object.keys(extra).forEach(function(k){ g[k] = extra[k]; });
+    return g;
+  }
+  function cMix(names){ return names.map(function(x){ return CX[x].s.toLowerCase(); }).join(", "); }
+  // ---- дома без инвентаря ----
+  function homeDay(ctx){
+    var t = ctx.type, b = ctx.block, M = ctx.max, list = ctx.list, tier = cTier(b), pool = CX_TIER.h[tier], groups = [], next = "";
+    groups.push(cGroup("Разминка: 3 минуты марша", CX.march.h, [[cIt(list, 180, 20, "Разминка", "приготовься")]], "march"));
+    if(t === "vol"){
+      var n = Math.min(4, 2 + Math.floor(b / 3)), L = cClamp(Math.round(M * 0.6), 2, 10);
+      L = Math.min(L, Math.max(2, Math.floor(28 / n)));
+      var mix = cPick(pool, ctx.i, 3), rows = [], q;
+      for(q = 0; q < n; q++) rows.push(cIt(list, L * 60, 60, "Отрезок " + (q + 1), "спокойный шаг"));
+      groups.push(cGroup(n + " " + plural(n, ["отрезок","отрезка","отрезков"]) + " по " + L + " мин в ровном темпе",
+        "Меняй упражнения каждую минуту: " + cMix(mix) + ". Темп такой, чтобы можно было говорить короткими фразами. Между отрезками минута спокойного шага.",
+        [rows], CX[mix[0]].a));
+      next = "Следующее кардио — через день: между ними можно силовую.";
+    } else if(t === "slow"){
+      var ex = cPick(pool, ctx.i, 3), W = Math.min(45, 20 + 5 * b), R = Math.max(15, 40 - 3 * b), rounds = Math.min(5, 3 + Math.floor(b / 3)), rows2 = [];
+      for(var r = 0; r < rounds; r++) rows2.push(ex.map(function(x, j){
+        var last = j === ex.length - 1;
+        return cIt(list, W, last ? 60 : R, CX[x].s, last ? "отдых между кругами" : "отдых");
+      }));
+      groups.push(cGroup(rounds + " " + plural(rounds, ["круг","круга","кругов"]) + ": " + cMix(ex) + " по " + W + " с",
+        "Работа " + W + " с в высоком темпе, отдых " + R + " с, между кругами минута. " + CX[ex[0]].h,
+        rows2, CX[ex[0]].a, {circ: true}));
+      next = "После интервалов дай телу день отдыха от кардио.";
+    } else if(t === "lad"){
+      var u = cClamp(cRound(M * 10, 30), 30, 120), steps = [1, 2, 3, 2, 1], ex3 = cPick(pool, ctx.i + 1, 5), row = [];
+      steps.forEach(function(k, j){ row.push(cIt(list, u * k, 45, CX[ex3[j]].s, "отдых")); });
+      groups.push(cGroup("Лесенка " + cLad(steps.map(function(k){ return u * k; })),
+        "Отрезки растут и снова уменьшаются, на каждом — своё упражнение: " + cMix(ex3) + ". Между ними 45 секунд отдыха.",
+        [row], CX[ex3[2]].a));
+      next = "Следующее кардио — через день.";
+    } else {
+      var E = cClamp(Math.round(M * 0.8), 4, 15);
+      groups.push(cGroup("Спокойный темп: " + E + " мин", "Марш и «звёздочка» шагом по очереди, дыхание через нос. Лёгкая тренировка восстанавливает.",
+        [[cIt(list, E * 60, 30, "Спокойный темп", "отдых")]], "stepjack"));
+      next = "Лёгкая тренировка: следующую можно уже завтра.";
+    }
+    groups.push(cGroup("Заминка: 2 минуты спокойного шага", "Шагай на месте, постепенно замедляясь, и выровняй дыхание. Потом потянись — раздел «Растяжка».",
+      [[cIt(list, 120, 0, "Заминка")]], "march"));
+    return {no: ctx.i + 1, title: ctx.name(t), groups: groups, next: next};
+  }
+  // ---- скакалка ----
+  function ropeDay(ctx){
+    var t = ctx.type, b = ctx.block, M = ctx.max, list = ctx.list, tier = cTier(b), pool = CX_TIER.j[tier], groups = [], next = "";
+    groups.push(cGroup("Разминка: 2 минуты марша и вращений руками", "Марш на месте, круги плечами и кистями, лёгкие подскоки на носках.", [[cIt(list, 120, 20, "Разминка", "приготовься")]], "march"));
+    if(t === "vol"){
+      var n = Math.min(5, 3 + Math.floor(b / 3)), L = cClamp(cRound(M * 0.6 * 60, 15), 30, 300), rows = [], q, mix = cPick(pool, ctx.i, 2);
+      for(q = 0; q < n; q++) rows.push(cIt(list, L, 60, CX[mix[q % 2]].s, "шагом"));
+      groups.push(cGroup(n + " " + plural(n, ["отрезок","отрезка","отрезков"]) + " по " + cDur(L) + " в ровном темпе",
+        "Прыгай спокойно, без рывков: " + cMix(mix) + " по очереди. Сбился — сразу продолжай, время идёт. Между отрезками минута шагом.",
+        [rows], "rope"));
+      next = "Голени любят отдых: следующую тренировку со скакалкой — через день.";
+    } else if(t === "slow"){
+      var W = Math.min(45, 25 + 3 * b), R = Math.max(15, 35 - 3 * b), cnt = Math.min(10, 6 + Math.floor(b / 2)), ex = cPick(pool, ctx.i, cnt), row2 = [];
+      if(b >= 6){ W = 20; R = 10; cnt = 8; ex = cPick(pool, ctx.i, 8); }
+      ex.forEach(function(x, j){ row2.push(cIt(list, W, j === ex.length - 1 ? 60 : R, CX[x].s, "отдых")); });
+      groups.push(cGroup((b >= 6 ? "Табата: " : "") + cnt + " × " + W + " с, отдых " + R + " с",
+        (b >= 6 ? "Восемь отрезков по 20 секунд на пределе и 10 секунд отдыха. " : "Быстро, но технично, отдых — шагом. ") + CX[ex[0]].h,
+        [row2], "ropealt", {circ: cnt >= 5}));
+      next = "После интервалов — день без прыжков.";
+    } else if(t === "lad"){
+      var u = cClamp(cRound(M * 8, 15), 30, 60), steps = [1, 2, 3, 2, 1], row = [], ex3 = cPick(pool, ctx.i + 1, 5);
+      steps.forEach(function(k, j){ row.push(cIt(list, u * k, 45, CX[ex3[j]].s, "отдых")); });
+      groups.push(cGroup("Лесенка " + cLad(steps.map(function(k){ return u * k; })),
+        "Отрезки растут и снова уменьшаются: " + cMix(ex3) + ". Между ними 45 секунд отдыха.", [row], "rope"));
+      next = "Следующее кардио — через день.";
+    } else {
+      var rows3 = [], k3;
+      for(k3 = 0; k3 < 3; k3++) rows3.push(cIt(list, 60, 60, CX.rbasic.s, "шагом"));
+      groups.push(cGroup("3 × 1 мин спокойных прыжков", "Совсем легко, на двух ногах. Между отрезками минута шагом.", [rows3], "rope"));
+      next = "Лёгкая тренировка: следующую можно уже завтра.";
+    }
+    groups.push(cGroup("Заминка: 2 минуты шагом и растяжка икр", "Шагай, выравнивая дыхание, потом по 30 секунд потяни икры у стены.", [[cIt(list, 120, 0, "Заминка")]], "walk"));
+    return {no: ctx.i + 1, title: ctx.name(t), groups: groups, next: next};
+  }
+  // ---- бег: как «с дивана до 5 км», но от твоего максимума ----
+  function runDay(ctx){
+    var t = ctx.type, b = ctx.block, M = ctx.max, list = ctx.list, groups = [], next = "";
+    groups.push(cGroup("Разминка: 5 минут быстрой ходьбы", CX.walk.h, [[cIt(list, 300, 10, "Ходьба", "приготовься")]], "walk"));
+    if(t === "vol"){
+      if(M >= 20){
+        var LL = Math.min(45, Math.round(M * 0.9));
+        groups.push(cGroup("Ровный бег " + LL + " мин", CX.run.h, [[cIt(list, LL * 60, 60, "Бег", "шагом")]], "run"));
+      } else {
+        var L = M <= 2 ? 60 : M <= 4 ? 90 : cRound(M * 0.6 * 60, 30), W = M < 8 ? 90 : 120;
+        var n = cClamp(Math.round(20 * 60 / (L + W)), 3, 8), rows = [], q;
+        for(q = 0; q < n; q++) rows.push(cIt(list, L, W, "Бег", "шагом"));
+        groups.push(cGroup(n + " × " + cDur(L) + " бега, между ними " + cDur(W) + " шагом", CX.run.h + " Ходьба между отрезками — бодрая.", [rows], "run"));
+      }
+      next = "Бегай через день: в дни между можно силовую или растяжку.";
+    } else if(t === "slow"){
+      var E = cClamp(Math.round(M * 0.5), 1, 15), k = Math.min(8, 4 + Math.floor(b / 2)), row = [];
+      groups.push(cGroup("Лёгкий бег " + E + " мин", CX.run.h, [[cIt(list, E * 60, 60, "Бег", "шагом")]], "run"));
+      for(var j = 0; j < k; j++) row.push(cIt(list, 30, 90, "Ускорение", "шагом или трусцой"));
+      groups.push(cGroup(k + " ускорений по 30 с", CX.fast.h + " Между ускорениями полторы минуты шагом или трусцой.", [row], "run", {circ: k >= 5}));
+      next = "После ускорений — день отдыха от бега.";
+    } else if(t === "lad"){
+      var steps = [0.4, 0.7, 1, 0.7, 0.4], row2 = [];
+      steps.forEach(function(f){ row2.push(cIt(list, cRound(M * f * 60, 30), 90, "Бег", "шагом")); });
+      groups.push(cGroup("Лесенка " + cLad(row2.map(function(it){ return it.target; })) + " бега",
+        "Отрезки растут до твоего максимума и снова уменьшаются. Между ними полторы минуты шагом.", [row2], "run"));
+      next = "Следующую тренировку делай через день.";
+    } else {
+      var Le = cRound(Math.max(30, M * 0.3 * 60), 30), rows3 = [], q3;
+      for(q3 = 0; q3 < 5; q3++) rows3.push(cIt(list, Le, 60, "Бег", "шагом"));
+      groups.push(cGroup("5 × " + cDur(Le) + " трусцой, между ними минута шагом", "Совсем медленно — так, чтобы можно было петь. Лёгкая тренировка восстанавливает.", [rows3], "run"));
+      next = "Лёгкая тренировка: следующую можно уже завтра.";
+    }
+    groups.push(cGroup("Заминка: 5 минут шагом", "Постепенно замедляйся и выровняй дыхание. Потом потяни икры и бёдра.", [[cIt(list, 300, 0, "Заминка")]], "walk"));
+    return {no: ctx.i + 1, title: ctx.name(t), groups: groups, next: next};
+  }
+  var CARDIO_COMMON = {
+    tab: "cardio", dom: "c", secs: true, siblings: ["h", "j", "r"],
+    unit: ["минута","минуты","минут"],
+    pace: "Кардио — 3–4 раза в неделю, между тренировками день отдыха или силовая.",
+    didToday: "занимался кардио",
+    form: "", slowHint: "",
+    hold: {title: "", hint: "", kind: "sec"},
+    testTitle: "Тест выносливости", chartTitle: "Рост выносливости", maxWord: "выносливость",
+    anim: {rep: "march", slow: "march", hold: "march"}
+  };
+  function cardioCfg(o){ var c = {}; Object.keys(CARDIO_COMMON).forEach(function(k){ c[k] = CARDIO_COMMON[k]; }); Object.keys(o).forEach(function(k){ c[k] = o[k]; }); return c; }
+  var CHOME = makeChain(cardioCfg({
+    pre: "h", vname: "Дома",
+    maxLabel: "Выносливость — минут без остановки в ровном темпе",
+    names: {vol: "Ровный темп", slow: "Интервалы", lad: "Лесенка", easy: "Лёгкая"},
+    anim: {rep: "march", slow: "jack", hold: "march"},
+    buildDay: homeDay,
+    testHint: "Разомнись 3 минуты маршем. Потом двигайся без остановки в ровном темпе — марш, «звёздочка», бег на месте, — пока можешь говорить короткими фразами. Сколько минут продержался, столько и отметь."
+  }));
+  var CROPE = makeChain(cardioCfg({
+    pre: "j", vname: "Скакалка",
+    maxLabel: "Выносливость — минут прыжков без долгих пауз",
+    names: {vol: "Ровный темп", slow: "Интервалы", lad: "Лесенка", easy: "Лёгкая"},
+    anim: {rep: "rope", slow: "ropealt", hold: "rope"},
+    buildDay: ropeDay,
+    testHint: "Разомнись 2 минуты. Прыгай в спокойном темпе, сколько получится: сбился — сразу продолжай. Отметь минуты до момента, когда сбиваешься всё время или не хватает дыхания."
+  }));
+  var CRUN = makeChain(cardioCfg({
+    pre: "r", vname: "Бег",
+    maxLabel: "Выносливость — минут бега без остановки",
+    names: {vol: "Ровный бег", slow: "Ускорения", lad: "Лесенка", easy: "Лёгкая"},
+    anim: {rep: "run", slow: "run", hold: "walk"},
+    buildDay: runDay,
+    testHint: "Разомнись 5 минут быстрой ходьбой. Беги в разговорном темпе без остановки, сколько получится, и отметь минуты. Перешёл на шаг — тест окончен."
+  }));
+  var CARDIO_V = {home: CHOME, rope: CROPE, run: CRUN};
+  function cardioVariant(){ var v = state.variant && state.variant.cardio; return CARDIO_V[v] ? v : "home"; }
+  function cardioChain(){ return CARDIO_V[cardioVariant()]; }
+  function cardioVariantToggle(){
+    var cur = cardioVariant(), names = {home: "Дома", rope: "Скакалка", run: "Бег"};
+    var h = '<span class="seg-label">Вариант</span><div class="seg modeseg" role="radiogroup" aria-label="Вариант кардио">';
+    ["home", "rope", "run"].forEach(function(v){
+      h += '<button type="button" role="radio" data-act="cvariant" data-v="' + v + '" aria-checked="' + (cur === v) + '">' + names[v] + '</button>';
+    });
+    return h + '</div>';
+  }
+  function cardioSecs(){
+    var s = 0;
+    Object.keys(state.logs || {}).forEach(function(k){
+      if(!isCardioKey(k)) return;
+      var w = dayOfKey(k); if(!w || w.test) return;
+      var log = state.logs[k] || [];
+      items(w).forEach(function(it){ var v = log[it.idx]; if(v != null && v > 0 && isSec(it.kind)) s += v; });
+    });
+    ["h", "j", "r"].forEach(function(p){ var ts = state[p] && state[p].tests; if(ts) Object.keys(ts).forEach(function(i){ s += (+ts[i] || 0) * 60; }); });
+    return s;
+  }
+  function cardioMinutes(){ return Math.round(cardioSecs() / 60); }
+  // слова для секунд: в кардио это не «удержания»
+  function secWord(key, many){ return isCardioKey(key) ? "кардио" : (many ? "удержаний" : "удержания"); }
+  var CHAINS = {p: PUSH, s: SQUAT, u: PULL, b: BOARD, g: DUMB, h: CHOME, j: CROPE, r: CRUN};
+  function chainOfTab(){ return TAB === "squat" ? SQUAT : TAB === "dumb" ? DUMB : TAB === "pull" ? PULL : TAB === "cardio" ? cardioChain() : pushChain(); }
+  // кнопки общей панели: «p» — текущий вариант отжиманий, «c» — текущий вариант кардио
+  function chainBy(pre){ return pre === "p" ? pushChain() : pre === "c" ? cardioChain() : CHAINS[pre]; }
 
   // ---------- свои программы ----------
   var custView = {};
@@ -4889,6 +5258,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
         add(tab, MTABS[tab] + (tab === "push" && state.variant && state.variant.push === "board" ? ", доска" : ""), i, C.build(i), C.key(i), CCOUNT);
       }
     });
+    var cch = cardioChain(), cci = cch.current();
+    add("cardio", "Кардио" + ({home: "", rope: ", скакалка", run: ", бег"})[cardioVariant()], cci, cch.build(cci), cch.key(cci), CCOUNT);
     var smp = mountedProg("stretch");
     if(smp){
       var si = mountedCurrent("stretch", smp);
@@ -4973,7 +5344,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     var box = document.getElementById("soundTest");
     if(!box) return;
     var h = "";
-    ["pull", "push", "squat", "stretch", "custom"].forEach(function(k){
+    ["pull", "push", "squat", "cardio", "stretch", "custom"].forEach(function(k){
       h += '<button type="button" class="blockbtn" data-act="sound-test" data-s="' + k + '">' + SOUND[k].name + '</button>';
     });
     box.innerHTML = h;
@@ -5063,7 +5434,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       photo: (out.profile && out.profile.photo) || (old.profile && old.profile.photo) || ""
     };
     // максимумы и тесты программ
-    ["u", "p", "s", "b", "g"].forEach(function(k){
+    ["u", "p", "s", "b", "g", "h", "j", "r"].forEach(function(k){
       if(!out[k] || !old[k]) return;
       Object.keys(old[k].tests || {}).forEach(function(i){ if(out[k].tests[i] == null) out[k].tests[i] = old[k].tests[i]; });
       if(out[k].max == null && old[k].max != null) out[k].max = old[k].max;
@@ -6310,8 +6681,10 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
         return;
       }
       hold.phase = "rest";
-      hold.left = hold.rest;
-      hold.end = Date.now() + hold.rest * 1000;
+      hold.cur = it.rest != null && it.rest > 0 && it.rest <= 600 ? it.rest : hold.rest;
+      hold.rl = it.rl || "";
+      hold.left = hold.cur;
+      hold.end = Date.now() + hold.cur * 1000;
       render();
     } else {
       hold.i++;
@@ -6323,6 +6696,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       render();
     }
   }
+  function cap1(t){ t = String(t || ""); return t.charAt(0).toUpperCase() + t.slice(1); }
   function holdFmt(sec){
     sec = Math.max(0, Math.round(sec));
     var m = Math.floor(sec / 60), s2 = sec % 60;
@@ -6332,20 +6706,21 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     var bar = document.getElementById("holdbar");
     if(!bar) return;
     if(!hold){ bar.hidden = true; bar.innerHTML = ""; return; }
-    var it = hold.list[hold.i], total = hold.phase === "work" ? it.target : hold.rest;
+    var it = hold.list[hold.i], total = hold.phase === "work" ? it.target : (hold.cur || hold.rest), cz = isCardioKey(hold.key);
     var pct = total ? Math.max(0, Math.min(100, 100 * (total - hold.left) / total)) : 0;
     if(textOnly && bar.firstChild){
       var n = bar.querySelector(".hb-count"), p = bar.querySelector(".hb-track i");
       if(n) n.textContent = holdFmt(hold.left);
       if(p) p.style.width = pct.toFixed(1) + "%";
       var chip = document.querySelector(".chip.run");
-      if(chip && hold.phase === "work") chip.textContent = hold.left + "с";
+      if(chip && hold.phase === "work") chip.textContent = hold.left >= 60 ? holdFmt(hold.left) : hold.left + "с";
       return;
     }
     bar.hidden = false;
     bar.innerHTML = '<div class="hb-main">' +
       '<div class="hb-info"><strong class="hb-count">' + holdFmt(hold.left) + '</strong>' +
-      '<span>' + (hold.phase === "work" ? "Держи" : "Отдых") + ": " + esc(hold.title) + ", подход " + (hold.i + 1) + " из " + hold.list.length + '</span></div>' +
+      '<span>' + (cz ? (hold.phase === "work" ? esc(it.lab || hold.title) : esc(cap1(hold.rl || "отдых"))) + ", отрезок " + (hold.i + 1) + " из " + hold.list.length
+        : (hold.phase === "work" ? "Держи" : "Отдых") + ": " + esc(hold.title) + ", подход " + (hold.i + 1) + " из " + hold.list.length) + '</span></div>' +
       '<div class="hb-actions">' +
       '<button type="button" class="linkbtn" data-act="hold-pause">' + (hold.paused ? "Дальше" : "Пауза") + '</button>' +
       '<button type="button" class="tb-icon" data-act="hold-stop" aria-label="Остановить таймер">✕</button>' +
@@ -6435,11 +6810,12 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       {v: PUSH.total() + BOARD.total(), u: ["отжимание","отжимания","отжиманий"], tail: ""},
       {v: SQUAT.total(), u: ["приседание","приседания","приседаний"], tail: ""},
       {v: DUMB.total(), u: ["повторение","повторения","повторений"], tail: " с гантелями"},
+      {v: cardioMinutes(), u: ["минута","минуты","минут"], tail: " кардио"},
       {v: tMinutes(), u: ["минута","минуты","минут"], tail: " растяжки"}
     ];
     var h = '<div class="nums" style="--n:' + rows.length + '">';
     rows.forEach(function(r){
-      h += '<div><strong data-num="pf-' + r.u[2] + '">' + r.v + '</strong><span>' + plural(r.v, r.u) + r.tail + '</span></div>';
+      h += '<div><strong data-num="pf-' + r.u[2] + r.tail + '">' + r.v + '</strong><span>' + plural(r.v, r.u) + r.tail + '</span></div>';
     });
     return h + '</div>';
   }
@@ -6457,7 +6833,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   function myStats(){
     return {
       pull: PULL.total(), push: PUSH.total() + BOARD.total(), squat: SQUAT.total(),
-      dumb: DUMB.total(), stretch: tMinutes(), ts: Date.now(), at: lastMarkTs() || null, last: state.lastEvent || null, reacts: state.reacts || {},
+      dumb: DUMB.total(), cardio: cardioMinutes(), stretch: tMinutes(), ts: Date.now(), at: lastMarkTs() || null, last: state.lastEvent || null, reacts: state.reacts || {},
       wk: {id: weekId(), reps: weekReps()}, feed: (state.feed || []).slice(-15),
       lv: (function(){ var xx = xpCalc().xp; return {n: levelOf(xx), xp: xx}; })(),
       md: Object.keys(state.medals || {}), live: liveInfo(),
@@ -6772,6 +7148,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     {k: "bar", n: "Турник"},
     {k: "board", n: "Доска для отжиманий"},
     {k: "dumb", n: "Гантели"},
+    {k: "rope", n: "Скакалка"},
     {k: "none", n: "Ничего, только пол"}
   ];
   function onbNeeded(){
@@ -6789,6 +7166,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(!skip && ONB){
       ["pull", "push", "squat", "dumb", "stretch"].forEach(function(t){ state.mode[t] = ONB.mode; });
       if(ONB.gear.board) state.variant.push = "board";
+      if(ONB.gear.rope) state.variant.cardio = "rope";
       state.u.startMax = ONB.max.u;
       state.p.startMax = ONB.max.p;
       state.b.startMax = Math.max(1, Math.round(ONB.max.p * 0.8));
@@ -6859,7 +7237,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     var now = C.max(), soft = Math.max(1, Math.round(now * 0.8));
     if(soft === now) return "";
     return '<div class="advice"><p><strong>Перерыв ' + days + " " + plural(days, ["день","дня","дней"]) + '.</strong> ' +
-      'После паузы лучше войти мягче: сбавить рабочий максимум с ' + now + ' до ' + soft + ' и вернуть его, когда подходы снова будут даваться легко.</p>' +
+      (C.cfg.secs ? 'После паузы лучше войти мягче: сбавить выносливость с ' + now + ' до ' + soft + ' мин и вернуть её, когда отрезки снова будут даваться легко.</p>'
+        : 'После паузы лучше войти мягче: сбавить рабочий максимум с ' + now + ' до ' + soft + ' и вернуть его, когда подходы снова будут даваться легко.</p>') +
       '<div class="test"><button type="button" class="primary" data-act="break-yes" data-c="' + C.cfg.pre + '" data-n="' + soft + '" data-t="' + last + '">Сбавить до ' + soft + '</button>' +
       '<button type="button" class="linkbtn alt" data-act="break-no" data-c="' + C.cfg.pre + '" data-t="' + last + '">Продолжить как есть</button></div></div>';
   }
@@ -6873,25 +7252,27 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
 
   // ---------- рекорды ----------
   function records(){
-    var best = 0, bestKey = "", day = 0, dayKey = "", hold = 0, holdKey = "";
+    var best = 0, bestKey = "", day = 0, dayKey = "", hold = 0, holdKey = "", cardio = 0;
     Object.keys(state.logs || {}).forEach(function(k){
       var w = dayOfKey(k);
       if(!w) return;
-      var log = state.logs[k] || [], sum = 0;
+      var log = state.logs[k] || [], sum = 0, cz = isCardioKey(k), csum = 0;
       items(w).forEach(function(it){
         var v = log[it.idx];
         if(v == null) return;
+        if(cz){ if(isSec(it.kind) && v > 0) csum += v; return; }
         if(isSec(it.kind)){ if(v > hold){ hold = v; holdKey = k; } return; }
         sum += v;
         if(v > best){ best = v; bestKey = k; }
       });
       if(sum > day){ day = sum; dayKey = k; }
+      if(csum > cardio) cardio = csum;
     });
-    return {best: best, bestKey: bestKey, day: day, dayKey: dayKey, hold: hold, holdKey: holdKey};
+    return {best: best, bestKey: bestKey, day: day, dayKey: dayKey, hold: hold, holdKey: holdKey, cardio: Math.round(cardio / 60)};
   }
   function keyName(k){
-    var m = /^([psubg])[dq]\d+$/.exec(k);
-    if(m) return ({p: "отжимания", s: "приседания", u: "турник", b: "доска", g: "гантели"})[m[1]];
+    var m = /^([psubghjr])[dq]\d+$/.exec(k);
+    if(m) return ({p: "отжимания", s: "приседания", u: "турник", b: "доска", g: "гантели", h: "кардио", j: "скакалка", r: "бег"})[m[1]];
     if(/^t[dq]\d+$/.test(k)) return "растяжка";
     if(/^x/.test(k)) return "своя программа";
     var mm = /^m([a-z]+)_/.exec(k);
@@ -6900,11 +7281,12 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   }
   function recordsHtml(){
     var r = records();
-    if(!r.best && !r.hold) return "";
+    if(!r.best && !r.hold && !r.cardio) return "";
     var t = [];
     if(r.best) t.push('<div><strong>' + r.best + '</strong><span>лучший подход, ' + keyName(r.bestKey) + '</span></div>');
     if(r.day) t.push('<div><strong>' + r.day + '</strong><span>повторений за тренировку</span></div>');
     if(r.hold) t.push('<div><strong>' + r.hold + '</strong><span>секунд удержания</span></div>');
+    if(r.cardio) t.push('<div><strong>' + r.cardio + '</strong><span>' + plural(r.cardio, ["минута","минуты","минут"]) + ' кардио за тренировку</span></div>');
     return '<h3 class="camset-label">Личные рекорды</h3><div class="nums" style="--n:' + t.length + '">' + t.join("") + '</div>';
   }
 
@@ -6922,6 +7304,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     {id: "squat1k",  e: "🦵", n: "Тысяча приседаний",   d: "1000 приседаний",                          g: 1000, k: "squat"},
     {id: "set30",    e: "🔥", n: "Тридцатка",           d: "30 повторений в одном подходе",            g: 30,   k: "bestSet"},
     {id: "hold60",   e: "⏱️", n: "Железная выдержка",   d: "Удержание или планка на 60 секунд",        g: 60,   k: "bestHold"},
+    {id: "cardio60", e: "🫀", n: "Час кардио",          d: "60 минут кардио за всё время",             g: 60,   k: "cardio"},
+    {id: "cardio600", e: "🏃", n: "Выносливость",       d: "600 минут кардио за всё время",            g: 600,  k: "cardio"},
     {id: "streak3",  e: "📅", n: "Три дня подряд",      d: "Заниматься три дня подряд",                g: 3,    k: "streak"},
     {id: "streak7",  e: "🗓️", n: "Неделя без пропусков", d: "Заниматься семь дней подряд",             g: 7,    k: "streak"},
     {id: "streak30", e: "🌊", n: "Месяц в строю",       d: "Заниматься 30 дней подряд",                g: 30,   k: "streak"},
@@ -6938,24 +7322,25 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   function dayNum(ts){ var d = new Date(ts); return Math.round(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 864e5); }
   function medalCtx(){
     var c = {sets: 0, reps: 0, bestSet: 0, bestHold: 0, early: 0, night: 0, circuits: 0, tests: 0, streak: 0,
-      pull: PULL.total(), push: PUSH.total() + BOARD.total(), board: BOARD.total(), squat: SQUAT.total(),
+      pull: PULL.total(), push: PUSH.total() + BOARD.total(), board: BOARD.total(), squat: SQUAT.total(), cardio: cardioMinutes(),
       fins: Object.keys(state.fin || {}).length,
       cam: state.flags && state.flags.cam ? 1 : 0, share: state.flags && state.flags.share ? 1 : 0, pr: state.flags && state.flags.pr ? 1 : 0,
       friends: FR && FR.list ? FR.list.length : 0};
     Object.keys(state.logs || {}).forEach(function(k){
       var w = dayOfKey(k);
       if(!w || w.test) return;
-      var log = state.logs[k] || [], all = items(w), full = all.length > 0;
+      var log = state.logs[k] || [], all = items(w), full = all.length > 0, cz = isCardioKey(k);
       all.forEach(function(it){
         var v = log[it.idx];
         if(v == null){ full = false; return; }
         c.sets++;
+        if(cz) return;
         if(isSec(it.kind)){ if(v > c.bestHold) c.bestHold = v; }
         else { c.reps += v; if(v > c.bestSet) c.bestSet = v; }
       });
       if(full && w.groups.some(function(g){ return g.circ && g.rows.length >= 3; })) c.circuits++;
     });
-    ["u", "p", "s", "b", "g"].forEach(function(p){ if(state[p] && state[p].tests && Object.keys(state[p].tests).length) c.tests = 1; });
+    ["u", "p", "s", "b", "g", "h", "j", "r"].forEach(function(p){ if(state[p] && state[p].tests && Object.keys(state[p].tests).length) c.tests = 1; });
     if(state.t && state.t.tests && Object.keys(state.t.tests).length) c.tests = 1;
     var days = {};
     function seen(ts){
@@ -7074,8 +7459,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(xd){ var xp0 = custProgById(xd[1]); return (xp0 ? xp0.name : "Своя программа") + ", " + fromYmd(xd[2]).toLocaleDateString("ru-RU", {day: "numeric", month: "long"}); }
     var xk = /^x([a-z0-9]+)-(\d+)$/.exec(key);
     if(xk){ var xp = custProgById(xk[1]); return (xp ? xp.name : "Своя программа") + ", занятие " + xk[2]; }
-    var cm = /^([psubg])[dq](\d+)$/.exec(key);
-    if(cm) return ({p: "Отжимания", s: "Приседания", u: "Турник", b: "Отжимания на доске", g: "Гантели"})[cm[1]] + ", тренировка " + cm[2];
+    var cm = /^([psubghjr])[dq](\d+)$/.exec(key);
+    if(cm) return ({p: "Отжимания", s: "Приседания", u: "Турник", b: "Отжимания на доске", g: "Гантели", h: "Кардио дома", j: "Кардио со скакалкой", r: "Бег"})[cm[1]] + ", тренировка " + cm[2];
     var tm = /^t[dq](\d+)$/.exec(key);
     if(tm) return "Растяжка, занятие " + tm[1];
     return "Тренировка";
@@ -7094,7 +7479,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     var mins = 0;
     if(FS.key === key && FS.start){ mins = Math.round((Date.now() - FS.start) / 60000); if(mins > 300) mins = 0; }
     var ts = (state.fin && state.fin[key]) || state.times[key] || Date.now();
-    return {title: w.title || "Тренировка", prog: keyProgTitle(key), reps: reps, secs: secs, sets: sets, total: total, mins: mins,
+    return {title: w.title || "Тренировка", prog: keyProgTitle(key), reps: reps, secs: secs, sets: sets, total: total, mins: mins, cardio: isCardioKey(key),
       streak: streakDays(activityMap()), date: new Date(ts), prs: keyRecords(key)};
   }
   function wrapText(ctx, text, maxW){
@@ -7148,7 +7533,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     x.strokeStyle = "#7DD3FC"; x.lineWidth = 30;
     x.beginPath(); x.arc(cx, cy, R, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.max(0.02, Math.min(1, f))); x.stroke();
     var big = d.reps ? String(d.reps) : d.secs >= 120 ? String(Math.round(d.secs / 60)) : String(d.secs);
-    var lab = d.reps ? plural(d.reps, ["повторение","повторения","повторений"]) : d.secs >= 120 ? "минут удержаний" : "секунд удержаний";
+    var lab = d.reps ? plural(d.reps, ["повторение","повторения","повторений"]) : d.cardio ? (d.secs >= 120 ? "минут кардио" : "секунд кардио") : d.secs >= 120 ? "минут удержаний" : "секунд удержаний";
     x.textAlign = "center"; x.fillStyle = "#fff";
     x.font = "700 " + (big.length > 3 ? 150 : 190) + "px " + D;
     x.fillText(big, cx, cy + (big.length > 3 ? 40 : 55));
@@ -7247,7 +7632,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(!it) return null;
     var sec = isSec(it.kind);
     if(!sec && it.kind !== "rep") return null;
-    if(/^t[dq]\d+$/.test(key)) return null;
+    if(/^t[dq]\d+$/.test(key) || isCardioKey(key)) return null;
     var cm = /^([psub])[dq]\d+$/.exec(key);
     if(cm) return sec ? {id: cm[1] + ":s:" + it.kind, name: PR_SEC[it.kind] || "Удержание", sec: true}
       : {id: cm[1] + ":r", name: PR_NAMES[cm[1]], sec: false};
@@ -7339,8 +7724,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     var it = info.it, sec = isSec(it.kind), val = focusVal == null ? it.target : focusVal, round = focusRound(info);
     var parts = [focusName(info) + "."];
     if(round) parts.push(round + ".");
-    else if(info.total > 1) parts.push("Подход " + info.n + " из " + info.total + ".");
-    parts.push(val + " " + (sec ? plural(val, ["секунда","секунды","секунд"]) : plural(val, ["повторение","повторения","повторений"])) + ".");
+    else if(info.total > 1) parts.push((isCardioKey(focusKey) ? "Отрезок " : "Подход ") + info.n + " из " + info.total + ".");
+    parts.push((sec ? spokenDur(val) : val + " " + plural(val, ["повторение","повторения","повторений"])) + ".");
     return parts.join(" ");
   }
   function coachIntro(lead){
@@ -7380,6 +7765,16 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(n === 10 && len >= 25 && !CT.said[10]){ CT.said[10] = 1; say("Десять секунд"); }
     else if(n >= 1 && n <= 3 && !CT.said[n]){ CT.said[n] = 1; say(["", "Один", "Два", "Три"][n]); }
   }
+  function cardioAuto(t){
+    var inf = itemInfo(focusKey);
+    if(!inf || inf.done || !inf.it || inf.it.idx !== t.next || !isSec(inf.it.kind)) return false;
+    setTimeout(function(){
+      if(!focusKey || FH || FC) return;
+      var i2 = itemInfo(focusKey);
+      if(i2 && !i2.done && i2.it && i2.it.idx === inf.it.idx) fhStart(i2, true);
+    }, 250);
+    return true;
+  }
   function coachDue(){
     var info = itemInfo(focusKey);
     if(info && !info.done) say("Поехали! " + coachSetText(info));
@@ -7407,13 +7802,13 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
 
   // ---------- итоги недели ----------
   function addDays(ts, n){ var d = new Date(ts); d.setDate(d.getDate() + n); return d.getTime(); }
-  var CAT_NAMES = {p: "Отжимания", s: "Приседания", u: "Турник", b: "Отжимания на доске", g: "Гантели"};
+  var CAT_NAMES = {p: "Отжимания", s: "Приседания", u: "Турник", b: "Отжимания на доске", g: "Гантели", h: "Кардио", j: "Кардио", r: "Кардио"};
   function catOfKey(k){
     var xk = /^x([a-z0-9]+)-/.exec(k);
     if(xk){ var xp = custProgById(xk[1]); return xp ? xp.name : "Своя программа"; }
     var mk = /^m([a-z]+)_([a-z0-9]+)-/.exec(k);
     if(mk){ var mp = custProgById(mk[2]); return mp ? mp.name : (MTABS[mk[1]] || "Своя программа"); }
-    var cm = /^([psubg])[dq]\d+$/.exec(k);
+    var cm = /^([psubghjr])[dq]\d+$/.exec(k);
     if(cm) return CAT_NAMES[cm[1]];
     if(/^t[dq]\d+$/.test(k)) return "Растяжка";
     return "Тренировка";
@@ -7432,16 +7827,17 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   }
   function weekData(ws){
     var we = addDays(ws, 7), d = {ws: ws, we: we, reps: 0, secs: 0, sets: 0, days: [0, 0, 0, 0, 0, 0, 0], act: [0, 0, 0, 0, 0, 0, 0],
-      trains: 0, cats: {}, medals: [], prs: [], prev: 0, best: -1, actDays: 0};
+      trains: 0, cats: {}, medals: [], prs: [], prev: 0, best: -1, actDays: 0, cardio: 0};
     Object.keys(state.logs || {}).forEach(function(k){
       var ts = state.times && state.times[k];
       if(!(ts >= ws && ts < we)) return;
       var w = dayOfKey(k);
       if(!w || w.test) return;
-      var log = state.logs[k] || [], r = 0, s = 0, n = 0;
+      var log = state.logs[k] || [], r = 0, s = 0, n = 0, cz = isCardioKey(k);
       items(w).forEach(function(it){ var v = log[it.idx]; if(v == null) return; n++; if(isSec(it.kind)) s += v; else r += v; });
       if(!n) return;
       var di = (new Date(ts).getDay() + 6) % 7;
+      if(cz){ d.cardio += s; s = 0; }
       d.reps += r; d.secs += s; d.sets += n; d.days[di] += r; d.act[di] = 1; d.trains++;
       var c = catOfKey(k);
       d.cats[c] = (d.cats[c] || 0) + r;
@@ -7530,6 +7926,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       '<div><b>' + d.sets + '</b><span>' + plural(d.sets, SETS) + '</span></div></div>';
     if(d.best >= 0) h += '<p class="wk-line">Лучший день — <b>' + WD_FULL[d.best] + '</b>, ' + numSp(d.days[d.best]) + ' ' + plural(d.days[d.best], ["повторение","повторения","повторений"]) + '.</p>';
     if(d.secs >= 30) h += '<p class="wk-line">Удержания: <b>' + (d.secs >= 120 ? Math.round(d.secs / 60) + " мин" : d.secs + " с") + '</b>.</p>';
+    if(d.cardio >= 60) h += '<p class="wk-line">Кардио: <b>' + Math.round(d.cardio / 60) + ' мин</b>.</p>';
     var cats = Object.keys(d.cats).filter(function(c){ return d.cats[c] > 0; }).sort(function(a, b){ return d.cats[b] - d.cats[a]; });
     if(cats.length > 1){
       var cmx = d.cats[cats[0]];
@@ -7635,6 +8032,11 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   // ---------- что нового ----------
   var WN_KEY = "pullups-seen-ver", WN = null;
   var NEWS = [
+    {v: 301, items: [
+      {e: "🫀", t: "Новый раздел «Кардио»", d: "Три варианта, как у отжиманий: дома без инвентаря, со скакалкой и бег — на улице или на дорожке. 30 тренировок: ровный темп, интервалы, лесенки и лёгкие дни, а раз в 12 тренировок — тест выносливости. Отрезки строятся от того, сколько минут ты держишь темп без остановки.", go: "cardio-open", btn: "Открыть кардио"},
+      {e: "⏱️", t: "Таймер сам ведёт по отрезкам", d: "В режиме тренировки следующий отрезок кардио стартует сам, как только закончился отдых, а голосовой тренер называет упражнение и время."},
+      {e: "🏅", t: "Минуты кардио в профиле", d: "Их видно тебе и друзьям, они дают опыт и две новые медали — «Час кардио» и «Выносливость»."}
+    ]},
     {v: 212, items: [
       {e: "🔔", t: "Push-уведомления", d: "Заявки в друзья, поддержка от друзей и напоминание о тренировке теперь приходят, даже когда приложение закрыто. Включаются в профиле, в разделе «Уведомления», — отдельно на каждом устройстве. Напоминание приходит в выбранное время, только если за день ещё не было отметок.", go: "ps-open", btn: "Включить"}
     ]},
@@ -7722,6 +8124,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(go === "wk-open") weekOpen(weekStart());
     else if(go === "iv-open") ivOpen();
     else if(go === "doc-health") docOpen("health");
+    else if(go === "cardio-open"){ if(tabsOff.cardio){ delete tabsOff.cardio; tabsOffSave(); } TAB = "cardio"; try { localStorage.setItem(TKEY, TAB); } catch(e){} navPush(); render(); }
     else if(go === "ps-open"){ goProfile("pushBox"); if(!loggedIn()) flash("Уведомления работают с аккаунтом: войди или зарегистрируйся"); }
     else if(go === "fr-find"){ goProfile("frCode"); setTimeout(function(){ var fq = document.getElementById("frCode"); if(fq) try { fq.focus({preventScroll: true}); } catch(e){} }, 350); }
     else if(go === "medals-open" || go === "feed-open" || go === "level-open") goProfile(go === "medals-open" ? "medalsBox" : go === "level-open" ? "levelBox" : "feedBox");
@@ -7777,7 +8180,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   }
   function feedFin(key){
     var w = dayOfKey(key), cd = cardData(key), ev = {k: "fin", t: (w && w.title) || "тренировка", p: keyProgTitle(key), ts: state.lastEvent && state.lastEvent.ts};
-    if(cd){ if(cd.reps) ev.n = cd.reps; if(cd.secs) ev.h = cd.secs; if(cd.sets) ev.s = cd.sets; }
+    if(cd){ if(cd.reps) ev.n = cd.reps; if(cd.secs){ if(cd.cardio) ev.c = cd.secs; else ev.h = cd.secs; } if(cd.sets) ev.s = cd.sets; }
     feedPush(ev);
   }
   function lsNum(k){ try { return +localStorage.getItem(k) || 0; } catch(e){ return 0; } }
@@ -7877,7 +8280,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(ev.p) bits.push(ev.p);
     if(ev.n) bits.push(ev.n + " " + plural(ev.n, ["повторение","повторения","повторений"]));
     if(ev.h) bits.push((ev.h >= 120 ? Math.round(ev.h / 60) + " мин" : ev.h + " с") + " удержаний");
-    if(!ev.n && !ev.h && ev.s) bits.push(ev.s + " " + plural(ev.s, SETS));
+    if(ev.c) bits.push((ev.c >= 120 ? Math.round(ev.c / 60) + " мин" : ev.c + " с") + " кардио");
+    if(!ev.n && !ev.h && !ev.c && ev.s) bits.push(ev.s + " " + plural(ev.s, SETS));
     return bits.join(" · ");
   }
   function evIcon(ev){ return ev.k === "pr" ? "🏆" : ev.k === "medal" ? (ev.e || "🏅") : ev.k === "lvl" ? (ev.e || "⭐") : ev.k === "award" ? (ev.e || "🎖️") : ev.k === "iv" ? "⏱️" : "🏁"; }
@@ -8161,7 +8565,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   // ---------- уровни и опыт ----------
   // опыт считается из того, что уже отмечено: ничего лишнего не храним, кроме последнего отпразднованного уровня
   var XP_RULES = [
-    ["подтягивание", 3], ["отжимание, приседание, повтор с гантелями", 1], ["3 секунды удержания или растяжки", 1],
+    ["подтягивание", 3], ["отжимание, приседание, повтор с гантелями", 1], ["3 секунды удержания или растяжки", 1], ["10 секунд кардио", 1],
     ["завершённая тренировка", 25], ["день с тренировкой", 10], ["медаль", 50]
   ];
   var RANKS = [[1, "Новичок", "🌱"], [3, "Любитель", "🏃"], [5, "Атлет", "💪"], [8, "Боец", "🥊"], [12, "Ветеран", "🎖️"],
@@ -8172,15 +8576,16 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     return 1;
   }
   function xpCalc(){
-    var b = {reps: 0, secs: 0, fins: 0, days: 0, medals: 0}, days = {};
+    var b = {reps: 0, secs: 0, cardio: 0, fins: 0, days: 0, medals: 0}, days = {};
     Object.keys(state.logs || {}).forEach(function(k){
       var w = dayOfKey(k);
       if(!w || w.test) return;
-      var log = state.logs[k] || [];
+      var log = state.logs[k] || [], cz = isCardioKey(k);
       w.groups.forEach(function(g){ g.rows.forEach(function(r){ r.forEach(function(it){
         var v = log[it.idx];
         if(v == null || !(v > 0)) return;
-        if(isSec(it.kind)) b.secs += v; else b.reps += v * xpMult(k, it, g);
+        if(cz && isSec(it.kind)) b.cardio += v;
+        else if(isSec(it.kind)) b.secs += v; else b.reps += v * xpMult(k, it, g);
       }); }); });
     });
     b.fins = Object.keys(state.fin || {}).length;
@@ -8188,7 +8593,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     Object.keys(state.fin || {}).forEach(function(k){ if(state.fin[k]) days[dayNum(state.fin[k])] = 1; });
     b.days = Object.keys(days).length;
     b.medals = Object.keys(state.medals || {}).length;
-    b.parts = [b.reps, Math.floor(b.secs / 3), b.fins * 25, b.days * 10, b.medals * 50];
+    b.parts = [b.reps, Math.floor(b.secs / 3), b.fins * 25, b.days * 10, b.medals * 50, Math.floor(b.cardio / 10)];
     b.xp = b.parts.reduce(function(s, x){ return s + x; }, 0);
     return b;
   }
@@ -8216,7 +8621,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     h += '<details class="subdet lv-how"><summary>Как копится опыт</summary><ul class="lv-rules">' +
       XP_RULES.map(function(r){ return '<li><span>' + esc(r[0]) + '</span><b>+' + r[1] + '</b></li>'; }).join("") + '</ul>' +
       '<p class="hint">Сейчас: повторения ' + numSp(b.parts[0]) + ', удержания ' + numSp(b.parts[1]) + ', тренировки ' + numSp(b.parts[2]) +
-      ', дни ' + numSp(b.parts[3]) + ', медали ' + numSp(b.parts[4]) + '.</p>' +
+      ', кардио ' + numSp(b.parts[5]) + ', дни ' + numSp(b.parts[3]) + ', медали ' + numSp(b.parts[4]) + '.</p>' +
       '<div class="lv-ladder">' + RANKS.map(function(r){
         return '<span class="' + (L.n >= r[0] ? "on" : "") + (L.rank === r ? " cur" : "") + '"><i aria-hidden="true">' + r[2] + '</i>' + esc(r[1]) + '<small>' + r[0] + '</small></span>';
       }).join("") + '</div></details></section>';
@@ -8834,6 +9239,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       {v: st.push || 0, u: ["отжимание","отжимания","отжиманий"]},
       {v: st.squat || 0, u: ["приседание","приседания","приседаний"]},
       {v: st.dumb || 0, u: ["повтор с гантелями","повтора с гантелями","повторов с гантелями"]},
+      {v: st.cardio || 0, u: ["минута кардио","минуты кардио","минут кардио"]},
       {v: st.stretch || 0, u: ["минута растяжки","минуты растяжки","минут растяжки"]}
     ].filter(function(t){ return t.v > 0; });
     if(tiles.length) h += '<div class="fp-tiles" style="--n:' + tiles.length + '">' + tiles.map(function(t){ return '<div><b>' + numSp(t.v) + '</b><span>' + plural(t.v, t.u) + '</span></div>'; }).join("") + '</div>';
@@ -9293,6 +9699,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       {v: st.push || 0, u: ["отжимание","отжимания","отжиманий"]},
       {v: st.squat || 0, u: ["приседание","приседания","приседаний"]},
       {v: st.dumb || 0, u: ["повтор с гантелями","повтора с гантелями","повторов с гантелями"]},
+      {v: st.cardio || 0, u: ["минута кардио","минуты кардио","минут кардио"]},
       {v: st.stretch || 0, u: ["минута растяжки","минуты растяжки","минут растяжки"]}
     ].filter(function(r){ return r.v > 0; });
     var line = rows.length ? rows.map(function(r){ return numSp(r.v) + " " + plural(r.v, r.u); }).join(" · ") : "пока без отметок";
@@ -9387,7 +9794,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
         '<p>Дата и версия согласия сохраняются в моём аккаунте.</p>';
     }},
     health: {t: "Здоровье и безопасность", body: function(){
-      return '<p>Программы в приложении — общие тренировки с собственным весом и гантелями для здоровых людей. Это не медицинская рекомендация и не замена врачу или тренеру.</p>' +
+      return '<p>Программы в приложении — общие тренировки с собственным весом, гантелями и кардио для здоровых людей. Это не медицинская рекомендация и не замена врачу или тренеру.</p>' +
         '<h3>Сначала посоветуйся с врачом, если</h3><ul>' +
         '<li>есть болезни сердца или сосудов, повышенное давление, диабет;</li>' +
         '<li>болят суставы или спина, были травмы или операции;</li>' +
@@ -9402,6 +9809,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
         '<li>разминайся 5–10 минут перед тренировкой;</li>' +
         '<li>добавляй нагрузку постепенно — программы так и построены, не перепрыгивай уровни;</li>' +
         '<li>давай мышцам день-два на восстановление;</li>' +
+        '<li>в кардио держи ровный темп: если не получается сказать короткую фразу, сбавь; прыгай и бегай в устойчивой обуви, на ровной поверхности;</li>' +
         '<li>счётчик по камере может ошибаться — ориентируйся на самочувствие, а не на цифру;</li>' +
         '<li>дети занимаются под присмотром взрослых.</li></ul>';
     }}
@@ -9730,6 +10138,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(TAB === "push") return {prev: "pprev", next: "pnext"};
     if(TAB === "squat") return {prev: "sprev", next: "snext"};
     if(TAB === "dumb") return {prev: "gprev", next: "gnext"};
+    if(TAB === "cardio") return {prev: "cprev", next: "cnext"};
     return null;
   }
   function bindSwipe(){
@@ -9859,15 +10268,16 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     }
     focusMark();
   }
-  function fhStart(info){
+  function fhStart(info, auto){
     var target = focusVal == null ? info.it.target : focusVal;
     if(target <= 0) return;
+    if(auto) focusVal = null;
     unlockAudio();
     FH = {key: focusKey, idx: info.it.idx, target: target, start: Date.now(), end: Date.now() + target * 1000, last: null, iv: null};
     FH.iv = setInterval(fhTick, 200);
     if(soundOn) playSig(tabOfKey(focusKey), "start");
     try { if(navigator.vibrate) navigator.vibrate(40); } catch(e){}
-    if(coachActive()) say("Держим!");
+    if(coachActive()) say(isCardioKey(focusKey) ? (auto ? "Поехали! " : "") + focusName(info) + ", " + spokenDur(target) + "." : "Держим!");
     renderFocus();
   }
   function fhStop(){ if(FH){ clearInterval(FH.iv); FH = null; } }
@@ -9889,7 +10299,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(n !== FH.last){
       FH.last = n;
       var b = document.querySelector("#focus .fc-big b");
-      if(b) b.textContent = n;
+      if(b) b.textContent = n >= 60 ? holdFmt(n) : n;
       if(coachActive() && (n <= 3 || (n === 10 && FH.target >= 20))) say(n === 10 ? "Десять секунд" : ["", "Один", "Два", "Три"][n]);
       else if(n <= 3 && soundOn) playSig(tabOfKey(focusKey), "tick");
     }
@@ -9955,6 +10365,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   function focusRound(info){
     var g = info.group;
     if(!g || !(g.circ || g.rnum) || g.rows.length < 2) return "";
+    if(isCardioKey(focusKey) && g.rows[0].length < 2) return "";
     for(var r = 0; r < g.rows.length; r++) for(var j = 0; j < g.rows[r].length; j++)
       if(g.rows[r][j].idx === info.it.idx) return "Круг " + (r + 1) + " из " + g.rows.length;
     return "";
@@ -9970,7 +10381,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(!out) return "";
     var nm = out.it.lab || out.g.title, cur = focusName(info);
     if(nm === cur) return "";
-    return nm + " · " + out.it.target + (isSec(out.it.kind) ? " с" : "");
+    return nm + " · " + (isSec(out.it.kind) && isCardioKey(key) ? cDur(out.it.target) : out.it.target + (isSec(out.it.kind) ? " с" : ""));
   }
   function focusDots(key, info){
     var log = state.logs[key] || [], all = items(info.day), done = 0;
@@ -9991,8 +10402,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       if(isSec(it.kind)) secs += v; else reps += v;
     });
     if(reps) parts.push(reps + " " + plural(reps, ["повторение","повторения","повторений"]));
-    if(secs) parts.push((secs >= 120 ? Math.round(secs / 60) + " мин" : secs + " с") + " удержаний");
-    parts.push(info.total + " " + plural(info.total, SETS));
+    if(secs) parts.push((secs >= 120 ? Math.round(secs / 60) + " мин" : secs + " с") + " " + secWord(key, true));
+    parts.push(info.total + " " + plural(info.total, isCardioKey(key) ? ["отрезок","отрезка","отрезков"] : SETS));
     if(FS.key === key && FS.start){
       var mins = Math.round((Date.now() - FS.start) / 60000);
       if(mins >= 1 && mins < 600) parts.push("за " + mins + " " + plural(mins, ["минуту","минуты","минут"]));
@@ -10046,16 +10457,19 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       var ringF = FH ? Math.min(1, (Date.now() - FH.start) / (FH.target * 1000)) : ri ? ri.f : 1;
       var ringCls = FH ? "hold" : ri && !ri.due ? "rest" : ri && ri.due ? "due" : "ready";
       h += '<div class="fc-mid"><p class="fc-ex">' + esc(focusName(info)) + '</p>';
-      h += '<p class="fc-sub">' + (round ? round + " · " : "") + "подход " + info.n + " из " + info.total + (sec ? " · держать " + it.target + " с" : "") + '</p>';
+      var cz = isCardioKey(focusKey);
+      h += '<p class="fc-sub">' + (round ? round + " · " : "") + (cz ? "отрезок " : "подход ") + info.n + " из " + info.total + (sec ? (cz ? " · " + cDur(it.target) : " · держать " + it.target + " с") : "") + '</p>';
       if(hint) h += '<p class="fc-lead">' + esc(hint) + '</p>';
       if(info.group.board) h += '<div class="fc-map">' + boardMapHtml(info.group.board, "Схема доски: " + info.group.title) + '</div>';
       h += focusDots(focusKey, info);
-      var bigLab = FH ? "держи · нажми, чтобы закончить" : sec ? "секунд · нажми, чтобы начать" : "повторений · отметить";
+      var bigLab = FH ? (cz ? "идёт · нажми, чтобы закончить" : "держи · нажми, чтобы закончить") : sec ? (cz ? (val >= 60 ? "нажми, чтобы начать" : "секунд · нажми, чтобы начать") : "секунд · нажми, чтобы начать") : "повторений · отметить";
+      var bigVal = FH ? Math.max(1, Math.ceil((FH.end - Date.now()) / 1000)) : val;
+      if(sec && bigVal >= 60) bigVal = holdFmt(bigVal);
       h += '<div class="fc-val"><button type="button" class="fc-step" data-act="focus-less" aria-label="Меньше"' + (FH ? " disabled" : "") + '>−</button>' +
         '<div class="fc-ringwrap ' + ringCls + '">' + focusRing(ringF, 120) +
-        '<button type="button" class="fc-big' + (FH ? " holding" : "") + '" data-act="focus-mark"><b>' + (FH ? Math.max(1, Math.ceil((FH.end - Date.now()) / 1000)) : val) + '</b><span>' + bigLab + '</span></button></div>' +
+        '<button type="button" class="fc-big' + (FH ? " holding" : "") + '" data-act="focus-mark"><b>' + bigVal + '</b><span>' + bigLab + '</span></button></div>' +
         '<button type="button" class="fc-step" data-act="focus-more" aria-label="Больше"' + (FH ? " disabled" : "") + '>+</button></div>';
-      if(ri && !ri.due && !FH) h += '<button type="button" class="fc-state fc-set" data-act="timer-set" aria-label="Изменить время отдыха"><b>' + fmt(Math.ceil(ri.left)) + '</b> отдых' + PEN_IC + '</button>';
+      if(ri && !ri.due && !FH) h += '<button type="button" class="fc-state fc-set" data-act="timer-set" aria-label="Изменить время отдыха"><b>' + fmt(Math.ceil(ri.left)) + '</b> ' + esc(ri.t.rl || "отдых") + PEN_IC + '</button>';
       else if(ri && ri.due && !FH) h += '<p class="fc-state due" role="status"><b>Пора</b> отдых закончился, делай подход</p>';
       var tools = (camMode && !FH ? '<button type="button" class="fc-tool" data-act="focus-cam">' + CAM_IC + 'Считать камерой</button>' : '') + coachBtn() +
         (!FH ? '<button type="button" class="fc-tool" data-act="iv-open">' + IC_CLOCK + 'Интервалы</button>' : '');
@@ -10096,7 +10510,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     startTimer(row.key, it.idx);
     save(); render();
     if(soundOn) playSig(tabOfKey(row.key), "rep");
-    flash("Отмечено: " + it.target + (isSec(it.kind) ? " с" : "") + ", подход " + info.n + " из " + info.total, true);
+    flash("Отмечено: " + (isSec(it.kind) && isCardioKey(row.key) ? cDur(it.target) + ", отрезок " : it.target + (isSec(it.kind) ? " с" : "") + ", подход ") + info.n + " из " + info.total, true);
   }
 
   // ---------- журнал активности ----------
@@ -10369,12 +10783,14 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     document.getElementById("panel-squat").hidden = TAB !== "squat";
     var dp = document.getElementById("panel-dumb");
     if(dp) dp.hidden = TAB !== "dumb";
+    var cdp = document.getElementById("panel-cardio");
+    if(cdp) cdp.hidden = TAB !== "cardio";
     document.getElementById("panel-stretch").hidden = TAB !== "stretch";
     document.getElementById("panel-custom").hidden = TAB !== "custom";
     var pp = document.getElementById("panel-profile");
     if(pp) pp.hidden = TAB !== "profile";
     if(TAB === "profile"){
-      ["pull", "push", "squat", "dumb", "stretch", "custom"].forEach(function(t){
+      ["pull", "push", "squat", "dumb", "cardio", "stretch", "custom"].forEach(function(t){
         var el2 = document.getElementById("panel-" + t);
         if(el2) el2.hidden = true;
       });
@@ -10436,6 +10852,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(Date.now() - BOOT_T > 6000) enginePrefetch();
     var pv = document.getElementById("pvariant");
     if(pv) pv.innerHTML = variantToggle();
+    var cvb = document.getElementById("cvariant");
+    if(cvb) cvb.innerHTML = cardioVariantToggle();
     var gw = document.getElementById("gweight");
     if(gw && document.activeElement !== gw) gw.value = (state.g && state.g.weight) ? String(state.g.weight) : "";
     ledeToggle();
@@ -10443,6 +10861,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     else if(TAB === "push") pushChain().render();
     else if(TAB === "squat") SQUAT.render();
     else if(TAB === "dumb") DUMB.render();
+    else if(TAB === "cardio") cardioChain().render();
     else if(TAB === "stretch") renderStretch();
     else if(TAB === "custom") renderCustom();
     if(MTABS[TAB]) renderMounted(TAB);
@@ -10656,19 +11075,28 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     }
     if(act === "tab-vis"){ tabVisToggle(b.getAttribute("data-t")); return; }
     if(act === "theme"){ theme = theme === "light" ? "dark" : theme === "dark" ? "auto" : "light"; try { localStorage.setItem(THKEY, theme); } catch(e){} applyTheme(); return; }
-    if(act === "tab"){ var tv2 = b.getAttribute("data-tab"); if(!tabOn(tv2)) return; prevTab = tv2; if(cam) camFinish(false); var tbf = TAB; TAB = (tv2 === "push" || tv2 === "squat" || tv2 === "dumb" || tv2 === "stretch" || tv2 === "custom") ? tv2 : "pull"; sel = null; cntVal = null; try { localStorage.setItem(TKEY, TAB); } catch(e){} if(TAB !== tbf) navPush(); render(); return; }
+    if(act === "tab"){ var tv2 = b.getAttribute("data-tab"); if(!tabOn(tv2)) return; prevTab = tv2; if(cam) camFinish(false); var tbf = TAB; TAB = (tv2 === "push" || tv2 === "squat" || tv2 === "dumb" || tv2 === "cardio" || tv2 === "stretch" || tv2 === "custom") ? tv2 : "pull"; sel = null; cntVal = null; try { localStorage.setItem(TKEY, TAB); } catch(e){} if(TAB !== tbf) navPush(); render(); return; }
     if(act === "cmax-" || act === "cmax+"){
-      var cpre = b.getAttribute("data-c");
-      if(cpre === "p") cpre = pushChain().cfg.pre;
-      var chm = CHAINS[cpre];
+      var chm = chainBy(b.getAttribute("data-c"));
       state[chm.cfg.pre].startMax = clampInt(state[chm.cfg.pre].startMax + (act === "cmax+" ? 1 : -1), 1, 500, 15);
       sel = null; cntVal = null; save(); render(); return;
     }
     if(act === "ctest-" || act === "ctest+"){
-      var tpre = b.getAttribute("data-c"); if(tpre === "p") tpre = pushChain().cfg.pre;
-      var cht = CHAINS[tpre];
+      var cht = chainBy(b.getAttribute("data-c"));
       cht.setTest(+b.getAttribute("data-i"), act === "ctest+" ? 1 : -1, +b.getAttribute("data-base"));
       cntVal = null; save(); render(); return;
+    }
+    if(act === "cvariant"){
+      var cvv = b.getAttribute("data-v");
+      if(!CARDIO_V[cvv]) return;
+      if(!state.variant) state.variant = {};
+      if(cardioVariant() === cvv) return;
+      undoPush("Вариант вернулся");
+      state.variant.cardio = cvv;
+      CHOME.view = null; CROPE.view = null; CRUN.view = null; sel = null;
+      save(); render();
+      flash(cvv === "rope" ? "Кардио со скакалкой" : cvv === "run" ? "Бег: на улице или на дорожке" : "Кардио дома без инвентаря");
+      return;
     }
     if(act === "variant"){
       var vv = b.getAttribute("data-v") === "board" ? "board" : "classic";
@@ -10705,7 +11133,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       return;
     }
     if(act === "auto-yes" || act === "auto-no"){
-      var ac = CHAINS[b.getAttribute("data-c")];
+      var ac = chainBy(b.getAttribute("data-c"));
       if(!ac) return;
       undoPush("Нагрузка вернулась");
       var sa = state[ac.cfg.pre];
@@ -10723,7 +11151,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(act === "onb-done"){ onbClose(false); return; }
     if(act === "onb-skip"){ onbClose(true); return; }
     if(act === "break-yes" || act === "break-no"){
-      var bc = CHAINS[b.getAttribute("data-c")];
+      var bc = chainBy(b.getAttribute("data-c"));
       if(!bc) return;
       var sb2 = state[bc.cfg.pre];
       sb2.breakAt = +b.getAttribute("data-t") || Date.now();
@@ -10800,7 +11228,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       var idx = Math.max(0, Math.min(n - 1, Math.floor(x / Math.max(1, rect.width) * n)));
       if(b.getAttribute("data-t")){ tView = idx; sel = null; render(); scrollTo(document.getElementById("twork")); }
       else {
-        var tc = CHAINS[b.getAttribute("data-c")];
+        var tc = chainBy(b.getAttribute("data-c"));
         if(tc){ tc.view = idx; sel = null; cntVal = null; render(); scrollTo(document.getElementById(tc.cfg.dom || tc.cfg.pre) || document.getElementById((tc.cfg.dom || tc.cfg.pre) + "work")); }
       }
       return;
@@ -10815,6 +11243,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       if(!tsk) return;
       tsk.due = Date.now() - 1; alerted = tsk.due;
       save(); renderTimer();
+      if(tsk.key === focusKey && isCardioKey(tsk.key) && !FH && !FC && cardioAuto(tsk)) return;
       if(tsk.key === focusKey && coachActive()) coachDue();
       return;
     }
@@ -10839,7 +11268,10 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       var fi = itemInfo(focusKey);
       if(!fi || fi.done) return;
       var base = focusVal == null ? fi.it.target : focusVal;
-      focusVal = Math.max(0, Math.min(600, base + (act === "focus-more" ? 1 : -1)));
+      if(isCardioKey(focusKey) && isSec(fi.it.kind)){
+        var stp = fi.it.target >= 120 ? 30 : 5;
+        focusVal = Math.max(0, Math.min(3600, base + (act === "focus-more" ? stp : -stp)));
+      } else focusVal = Math.max(0, Math.min(600, base + (act === "focus-more" ? 1 : -1)));
       renderFocus();
       return;
     }
@@ -11018,14 +11450,12 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       save(); render(); return;
     }
     if(act === "cgo"){
-      var gpre = b.getAttribute("data-c"); if(gpre === "p") gpre = pushChain().cfg.pre;
-      var chg = CHAINS[gpre];
+      var chg = chainBy(b.getAttribute("data-c"));
       chg.view = +b.getAttribute("data-i"); sel = null; cntVal = null; render();
-      scrollTo(document.getElementById(chg.cfg.pre + "work")); return;
+      scrollTo(document.getElementById((chg.cfg.dom || chg.cfg.pre) + "work")); return;
     }
     if(act === "cprev" || act === "cnext"){
-      var npre = b.getAttribute("data-c"); if(npre === "p") npre = pushChain().cfg.pre;
-      var chn = CHAINS[npre];
+      var chn = chainBy(b.getAttribute("data-c"));
       chn.view = Math.max(0, Math.min(CCOUNT - 1, chn.v() + (act === "cnext" ? 1 : -1)));
       sel = null; cntVal = null; render(); return;
     }
