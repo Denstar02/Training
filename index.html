@@ -20,6 +20,7 @@
   --bg:#E8ECF0; --surface:#FFFFFF; --ink:#15202B; --muted:#586676; --line:#C5CEd8;
   --accent:#2A52D6; --accent-ink:#FFFFFF; --accent-soft:#DCE4FB;
   --done:#15803D; --done-ink:#FFFFFF; --part:#B26A0B; --steel:#8A96A3;
+  --fig-far:#9AA6B3; --fig-shadow:rgba(21,32,43,.13); --fig-block:#D3DAE2; --fig-acc2:#8FA4E8;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
@@ -27,6 +28,7 @@
     --bg:#0D1828; --surface:#14233A; --ink:#E6EEF7; --muted:#97A9BE; --line:#283B54;
     --accent:#7F9CFF; --accent-ink:#0A0F1F; --accent-soft:#1F3158;
     --done:#4ADE80; --done-ink:#06231A; --part:#EBA640; --steel:#57687D;
+  --fig-far:#5F7189; --fig-shadow:rgba(0,0,0,.35); --fig-block:#22344D; --fig-acc2:#4D63A8;
     color-scheme:dark;
   }
 }
@@ -34,6 +36,7 @@
   --bg:#0D1828; --surface:#14233A; --ink:#E6EEF7; --muted:#97A9BE; --line:#283B54;
   --accent:#7F9CFF; --accent-ink:#0A0F1F; --accent-soft:#1F3158;
   --done:#4ADE80; --done-ink:#06231A; --part:#EBA640; --steel:#57687D;
+  --fig-far:#5F7189; --fig-shadow:rgba(0,0,0,.35); --fig-block:#22344D; --fig-acc2:#4D63A8;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -95,8 +98,8 @@ button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid
 .group.has-anim .row + .row{margin-top:0}
 .group.has-anim > .editor{margin-top:2px}
 .gtext .hint{margin-bottom:0}
-.fig svg{display:block;width:84px;height:auto;border-radius:10px;background:var(--bg)}
-.day.extra .fig svg{background:var(--surface)}
+.fig .rig{display:block;width:84px;height:auto;border-radius:10px;background:var(--bg)}
+.day.extra .fig .rig{background:var(--surface)}
 .editor{margin-top:12px;padding:12px;border-radius:12px;border:2px solid var(--accent)}
 .editor p{margin:0 0 8px;font-size:14px;color:var(--muted)}
 .editor .row{gap:8px}
@@ -456,7 +459,7 @@ p.plan{border-left:3px solid var(--accent);padding-left:10px;margin-top:var(--s3
 /* мелочи */
 details.panel summary,details summary{letter-spacing:-.01em}
 .legend{font-size:12.5px}
-.fig svg{border-radius:12px}
+.fig .rig{border-radius:12px}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 @media (max-width:420px){
   .tabs{gap:4px;padding:4px}
@@ -1748,6 +1751,29 @@ a.inl{color:var(--accent);font-weight:600;text-decoration:underline;text-underli
 .doc-card .warm-top h2,.cns-card .warm-top h2,.del-card .warm-top h2{color:var(--ink)}
 @media (max-width:420px){#frReqs .ff-btns{grid-column:2 / -1;justify-content:flex-start}.fr-reqs.out .ff-btns{grid-column:auto;justify-content:flex-end}}
 .linkbtn.alt.del-link{color:var(--danger)}
+
+/* 3.02: фигурки на скелете и просмотр крупно */
+button.fig{position:relative;display:block;padding:0;margin:0;border:0;background:none;color:var(--muted);border-radius:12px;cursor:zoom-in;font:inherit;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+button.fig:hover .rig{box-shadow:inset 0 0 0 2px var(--accent-soft)}
+button.fig:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.fig-zoom{position:absolute;right:4px;bottom:4px;width:18px;height:18px;border-radius:6px;background:var(--surface);color:var(--muted);display:flex;align-items:center;justify-content:center;opacity:.92;pointer-events:none}
+.fig-zoom svg{width:11px;height:11px;display:block}
+.day.extra .fig-zoom{background:var(--bg)}
+.fig-dlg .fv-card{max-width:540px;padding-bottom:16px}
+.fv-stage{margin-top:10px;border-radius:16px;background:var(--bg);overflow:hidden}
+.fv-stage .rig{display:block;width:100%;height:auto}
+.fv-frames{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:6px}
+.fv-frames .rig{display:block;width:100%;height:auto;border-radius:10px;background:var(--surface)}
+.fv-ctl{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-top:8px}
+.fv-cap{margin:0;font-size:13.5px;line-height:1.4;color:var(--muted)}
+.fv-ctl .linkbtn{flex:none;margin:0;white-space:nowrap}
+.fv-title{font-family:"Onest",system-ui,sans-serif;font-size:17px;font-weight:600;margin-top:12px}
+.fv-text{margin:6px 0 0;font-size:15px;line-height:1.5}
+/* пауза в редакторе своей программы */
+.edrest{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.edrest-in{display:flex;align-items:center;gap:6px}
+#custEditor .edrest-in input{width:64px;text-align:center}
+.edrest-in span{font-size:13px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -2562,6 +2588,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
 <div id="docDlg" class="warm doc-dlg" role="dialog" aria-modal="true" aria-label="Документ" hidden></div>
 <div id="cnsDlg" class="warm cns-dlg" role="dialog" aria-modal="true" aria-label="Согласие на обработку данных" hidden></div>
 <div id="delDlg" class="warm del-dlg" role="dialog" aria-modal="true" aria-label="Удаление аккаунта" hidden></div>
+<div id="figDlg" class="warm fig-dlg" role="dialog" aria-modal="true" aria-label="Упражнение крупно" hidden></div>
 <div id="ivDlg" class="warm iv-dlg" role="dialog" aria-modal="true" aria-label="Интервальный таймер" hidden></div>
 <div id="ivRun" class="ivrun" role="dialog" aria-modal="true" aria-label="Интервальный таймер идёт" hidden></div>
 <div id="frDlg" class="warm fp-dlg" role="dialog" aria-modal="true" aria-label="Профиль друга" hidden></div>
@@ -2598,7 +2625,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   var DONATE = "https://www.donationalerts.com/r/denstar02";
   var CONSENT_V = "2026-10-17";   // поменяй дату, если существенно изменишь согласие, — все подтвердят заново
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 3, APP_BUILD_N = 1;
+  var APP_MAJOR = 3, APP_BUILD_N = 2;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var APP_BUILD = APP_MAJOR * 100 + APP_BUILD_N;   // 1.35 → 135, 2.01 → 201
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
@@ -2852,180 +2879,535 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
 
 
   var REDUCED = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-  // позы фигурки (левая рука; правая зеркальна): смещение тела, высота плеч, локоть
-  var POSE = {
-    bottom: {dy: 0,     sy: 58,   ex: 43,   ey: 45},
-    mid:    {dy: -13.5, sy: 44.5, ex: 35.4, ey: 46.7},
-    top:    {dy: -27,   sy: 31,   ex: 44,   ey: 45},
-    active: {dy: -4,    sy: 54,   ex: 43,   ey: 43}
-  };
-  var ANIMS = {
-    pull: {dur: 3.2, keys: [0,.17,.34,.5,.67,.84,1], poses: ["bottom","mid","top","top","mid","bottom","bottom"], still: "top",
-      label: "Подтягивание: из полного виса подбородок поднимается выше перекладины, затем плавно вниз"},
-    hold: {dur: 5.5, keys: [0,.1,.2,.68,.8,.92,1], poses: ["bottom","mid","top","top","mid","bottom","bottom"], still: "top",
-      label: "Удержание: подтянуться, задержаться с подбородком над перекладиной, затем медленно опуститься"},
-    hang: {dur: 4, keys: [0,.3,.5,.8,1], poses: ["bottom","active","active","bottom","bottom"], still: "active",
-      label: "Вис: руки прямые, плечи тянутся вниз от ушей"}
-  };
-  function armPath(p, right){
-    function m(x){ return right ? 120 - x : x; }
-    return "M" + m(50) + " " + p.sy + " L" + m(p.ex) + " " + p.ey + " L" + m(36) + " 32";
+  // ---------- фигурки: скелет, позы и анимация ----------
+  // Фигурка собирается из суставов: углы и опоры задаются позами, между позами углы плавно переходят,
+  // поэтому руки и ноги не «укорачиваются». Анимирует один общий цикл requestAnimationFrame, только видимые фигурки.
+  var RIG = {hr: 7.5, nk: 3.5, to: 29, ua: 16, fa: 15, th: 22, sh: 21, ft: 7.5, sw: 7.5, hw: 4.5};
+  var FG = 107;           // уровень щиколоток стоящей фигурки
+  var D2R = Math.PI / 180;
+  function fr1(v){ return Math.round(v * 10) / 10; }
+  function fpt(p){ return fr1(p[0]) + " " + fr1(p[1]); }
+  function fpath(a){ return "M" + a.map(fpt).join(" L"); }
+  function fadd(p, d, l){ return [p[0] + d[0] * l, p[1] + d[1] * l]; }
+  // направление «вниз», повёрнутое на угол a (градусы) в сторону sg (+1 — вправо по экрану)
+  function fdn(a, sg){ return [sg * Math.sin(a * D2R), Math.cos(a * D2R)]; }
+  function fik(r, t, l1, l2, k){
+    var dx = t[0] - r[0], dy = t[1] - r[1], d = Math.sqrt(dx * dx + dy * dy) || 0.001;
+    var dd = Math.max(Math.abs(l1 - l2) + 0.01, Math.min(l1 + l2 - 0.01, d));
+    var a0 = Math.atan2(dy, dx), ca = (l1 * l1 + dd * dd - l2 * l2) / (2 * l1 * dd);
+    var a = Math.acos(Math.max(-1, Math.min(1, ca))) * (k < 0 ? -1 : 1);
+    var m = [r[0] + l1 * Math.cos(a0 + a), r[1] + l1 * Math.sin(a0 + a)];
+    return [m, [r[0] + dd * Math.cos(a0), r[1] + dd * Math.sin(a0)]];
   }
-  var POSE_P = {
-    top:    {sh: 84, el: [46, 105], hip: 107, head: 74},
-    mid:    {sh: 94, el: [56, 112], hip: 111, head: 84},
-    bottom: {sh: 104, el: [66, 118], hip: 116, head: 94}
-  };
-  var PANIMS = {
-    push: {dur: 3.2, keys: [0,.18,.36,.46,.64,.82,1], poses: ["top","mid","bottom","bottom","mid","top","top"], still: "top",
-      label: "Отжимание: тело прямое, грудь опускается почти до пола и возвращается вверх"},
-    pushslow: {dur: 5, keys: [0,.25,.5,.56,.64,.72,1], poses: ["top","mid","bottom","bottom","mid","top","top"], still: "mid",
-      label: "Медленное отжимание: три секунды вниз, одна секунда вверх"},
-    plank: {dur: 4, keys: [0,1], poses: ["top","top"], still: "top",
-      label: "Планка: тело прямое, поясница не провисает"}
-  };
-  function pArm(p){ return "M48 " + p.sh + " L" + p.el[0] + " " + p.el[1] + " L44 126"; }
-  function pBody(p){ return "M40 " + (p.sh - 5) + " L48 " + p.sh + " L98 " + p.hip + " L140 126"; }
-  function pushFigure(kind){
-    var a = PANIMS[kind], st = POSE_P[a.still], kt = a.keys.join(";"), rep = ' dur="' + a.dur + 's" repeatCount="indefinite"';
-    var poses = a.poses.map(function(n){ return POSE_P[n]; });
-    var stat = REDUCED || kind === "plank";
-    var s = '<svg viewBox="0 0 160 140" role="img" aria-label="' + a.label + '">';
-    s += '<line x1="8" y1="126" x2="152" y2="126" stroke="var(--steel)" stroke-width="5" stroke-linecap="round"/>';
-    s += '<g fill="none" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">';
-    s += '<path d="' + pBody(st) + '">' + (stat ? '' : '<animate attributeName="d" values="' + poses.map(pBody).join(";") + '" keyTimes="' + kt + '"' + rep + '/>') + '</path>';
-    s += '<path d="' + pArm(st) + '">' + (stat ? '' : '<animate attributeName="d" values="' + poses.map(pArm).join(";") + '" keyTimes="' + kt + '"' + rep + '/>') + '</path>';
-    s += '<circle cx="34" cy="' + st.head + '" r="7">' + (stat ? '' : '<animate attributeName="cy" values="' + poses.map(function(p){ return p.head; }).join(";") + '" keyTimes="' + kt + '"' + rep + '/>') + '</circle>';
-    s += '</g><circle cx="44" cy="126" r="3.5" fill="var(--ink)"/><circle cx="140" cy="126" r="3.5" fill="var(--ink)"/></svg>';
-    return '<div class="fig">' + s + '</div>';
+  // поза → вектор чисел и обратно (чтобы интерполировать любые позы одной функцией)
+  var FLIMB = ["a", "b", "l", "r"];
+  function fflat(p){
+    var v = [p.p[0], p.p[1], p.t || 0, p.c || 0, p.n || 0, p.s == null ? 1 : p.s];
+    FLIMB.forEach(function(k){
+      var q = p[k];
+      if(q && q.length != null) v.push(q[0], q[1], q[2] || 0);
+      else v.push(q.x, q.y, q.f || 0);
+    });
+    if(p.e) p.e.forEach(function(x){ v.push(x); });
+    return v;
   }
-  var POSE_S = {
-    stand:  {head: [60, 28], sh: [60, 40], hip: [60, 80], knee: [60, 112], ankle: [60, 134], hand: [67, 70]},
-    mid:    {head: [58, 40], sh: [56, 51], hip: [52, 89], knee: [66, 113], ankle: [60, 134], hand: [76, 66]},
-    bottom: {head: [66, 50], sh: [62, 62], hip: [44, 98], knee: [72, 116], ankle: [60, 134], hand: [86, 66]},
-    wall:   {head: [46, 54], sh: [46, 66], hip: [46, 106], knee: [78, 106], ankle: [78, 134], hand: [76, 70]}
-  };
-  var SANIMS = {
-    squat: {dur: 3.2, keys: [0,.18,.36,.46,.64,.82,1], poses: ["stand","mid","bottom","bottom","mid","stand","stand"], still: "bottom",
-      label: "Приседание: таз опускается до уровня колен и возвращается вверх"},
-    squatslow: {dur: 5, keys: [0,.25,.5,.56,.64,.72,1], poses: ["stand","mid","bottom","bottom","mid","stand","stand"], still: "mid",
-      label: "Медленное приседание: три секунды вниз, одна секунда вверх"},
-    wall: {dur: 4, keys: [0,1], poses: ["wall","wall"], still: "wall", wall: true,
-      label: "Стульчик у стены: спина прижата к стене, бёдра параллельно полу"}
-  };
-  function sBody(p){ return "M" + p.sh[0] + " " + p.sh[1] + " L" + p.hip[0] + " " + p.hip[1] + " L" + p.knee[0] + " " + p.knee[1] + " L" + p.ankle[0] + " " + p.ankle[1]; }
-  function sArm(p){ return "M" + p.sh[0] + " " + p.sh[1] + " L" + p.hand[0] + " " + p.hand[1]; }
-  function sFoot(p){ return "M" + (p.ankle[0] - 8) + " 137 H" + (p.ankle[0] + 14); }
-  function squatFigure(kind){
-    var a = SANIMS[kind], st = POSE_S[a.still], kt = a.keys.join(";"), rep = ' dur="' + a.dur + 's" repeatCount="indefinite"';
-    var poses = a.poses.map(function(n){ return POSE_S[n]; }), stat = REDUCED || kind === "wall";
-    var s2 = '<svg viewBox="0 0 120 150" role="img" aria-label="' + a.label + '">';
-    s2 += '<line x1="8" y1="138" x2="112" y2="138" stroke="var(--steel)" stroke-width="5" stroke-linecap="round"/>';
-    if(a.wall) s2 += '<line x1="34" y1="22" x2="34" y2="138" stroke="var(--steel)" stroke-width="5" stroke-linecap="round"/>';
-    s2 += '<g fill="none" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">';
-    s2 += '<path d="' + sBody(st) + '">' + (stat ? '' : '<animate attributeName="d" values="' + poses.map(sBody).join(";") + '" keyTimes="' + kt + '"' + rep + '/>') + '</path>';
-    s2 += '<path d="' + sArm(st) + '">' + (stat ? '' : '<animate attributeName="d" values="' + poses.map(sArm).join(";") + '" keyTimes="' + kt + '"' + rep + '/>') + '</path>';
-    s2 += '<path d="' + sFoot(st) + '">' + (stat ? '' : '<animate attributeName="d" values="' + poses.map(sFoot).join(";") + '" keyTimes="' + kt + '"' + rep + '/>') + '</path>';
-    s2 += '<circle cx="' + st.head[0] + '" cy="' + st.head[1] + '" r="8">' + (stat ? '' :
-      '<animate attributeName="cx" values="' + poses.map(function(p){ return p.head[0]; }).join(";") + '" keyTimes="' + kt + '"' + rep + '/>' +
-      '<animate attributeName="cy" values="' + poses.map(function(p){ return p.head[1]; }).join(";") + '" keyTimes="' + kt + '"' + rep + '/>') + '</circle>';
-    return '<div class="fig">' + s2 + '</g></svg></div>';
+  function funflat(v, tpl){
+    var p = {p: [v[0], v[1]], t: v[2], c: v[3], n: v[4], s: v[5]}, i = 6;
+    FLIMB.forEach(function(k){
+      var q = tpl[k];
+      if(q && q.length != null) p[k] = [v[i], v[i + 1], v[i + 2]];
+      else p[k] = {x: v[i], y: v[i + 1], f: v[i + 2], k: q.k};
+      i += 3;
+    });
+    if(tpl.e) p.e = v.slice(i, i + tpl.e.length);
+    return p;
   }
-  var SFIG = {
-    march: {label: "Марш на месте: колено поднимается высоко", head: [70, 20], seg: [[[70, 30], [70, 62]], [[70, 62], [66, 84], [66, 106]], [[70, 62], [90, 60], [84, 84]], [[70, 36], [54, 52]], [[70, 36], [86, 46]]], head2: [70, 20], seg2: [[[70, 30], [70, 62]], [[70, 62], [74, 84], [74, 106]], [[70, 62], [50, 60], [56, 84]], [[70, 36], [86, 52]], [[70, 36], [54, 46]]], dur: 1.6},
-    lunge: {label: "Низкий выпад с опорой на руки", head: [100, 48], seg: [[[72, 80], [102, 84], [104, 106]], [[72, 80], [46, 102], [30, 106]], [[72, 80], [92, 58]], [[92, 58], [110, 106]]], head2: [100, 54], seg2: [[[72, 86], [102, 84], [104, 106]], [[72, 86], [42, 104], [28, 106]], [[72, 86], [92, 64]], [[92, 64], [110, 106]]], dur: 4},
-    seatedfold: {label: "Наклон к вытянутой ноге сидя", head: [80, 62], seg: [[[50, 100], [112, 104], [112, 94]], [[50, 100], [66, 90], [52, 102]], [[50, 100], [72, 70]], [[72, 70], [106, 94]]], head2: [88, 72], seg2: [[[50, 100], [112, 104], [112, 94]], [[50, 100], [66, 90], [52, 102]], [[50, 100], [80, 78]], [[80, 78], [112, 100]]], dur: 4},
-    kneel: {label: "Растяжка сгибателей бедра с колена", head: [66, 34], seg: [[[66, 74], [94, 78], [96, 106]], [[66, 74], [50, 104], [30, 106]], [[66, 74], [66, 44]], [[66, 48], [92, 74]]], head2: [72, 36], seg2: [[[74, 76], [96, 78], [98, 106]], [[74, 76], [46, 104], [28, 106]], [[74, 76], [72, 46]], [[72, 50], [96, 76]]], dur: 4},
-    pigeon: {label: "Голубь: голень впереди, нога назад", head: [106, 66], seg: [[[80, 98], [104, 96], [66, 104]], [[80, 98], [26, 104]], [[80, 98], [98, 74]], [[98, 74], [112, 102]]], head2: [104, 78], seg2: [[[80, 100], [104, 98], [66, 104]], [[80, 100], [26, 104]], [[80, 100], [96, 86]], [[96, 86], [110, 104]]], dur: 4},
-    frontsplit: {label: "Полушпагат с опорой на книги", head: [76, 50], seg: [[[76, 92], [132, 102], [132, 94]], [[76, 92], [22, 104]], [[76, 92], [76, 60]], [[76, 66], [56, 88]], [[76, 66], [96, 88]]], head2: [76, 58], seg2: [[[76, 100], [132, 102], [132, 94]], [[76, 100], [22, 104]], [[76, 100], [76, 68]], [[76, 74], [56, 88]], [[76, 74], [96, 88]]], blocks: [[48, 88, 16, 12], [88, 88, 16, 12]], dur: 4.5},
-    butterfly: {label: "Бабочка сидя", head: [80, 28], seg: [[[80, 38], [80, 72]], [[80, 72], [50, 86], [74, 98]], [[80, 72], [110, 86], [86, 98]], [[80, 44], [60, 84]], [[80, 44], [100, 84]]], head2: [80, 32], seg2: [[[80, 42], [80, 72]], [[80, 72], [48, 92], [74, 98]], [[80, 72], [112, 92], [86, 98]], [[80, 48], [58, 90]], [[80, 48], [102, 90]]], dur: 4},
-    straddlefold: {label: "Складка сидя ноги врозь", head: [80, 62], seg: [[[80, 100], [22, 106]], [[80, 100], [138, 106]], [[80, 100], [80, 72]], [[80, 78], [56, 98]], [[80, 78], [104, 98]]], head2: [80, 74], seg2: [[[80, 100], [22, 106]], [[80, 100], [138, 106]], [[80, 100], [80, 82]], [[80, 88], [54, 102]], [[80, 88], [106, 102]]], dur: 4.5},
-    walllegs: {label: "Ноги врозь по стене лёжа на спине", head: [36, 98], seg: [[[46, 102], [128, 104]], [[128, 104], [110, 34]], [[128, 104], [142, 42]]], head2: [36, 98], seg2: [[[46, 102], [128, 104]], [[128, 104], [100, 40]], [[128, 104], [144, 50]]], wall: 146, dur: 5},
-    frog: {label: "Поза лягушки на предплечьях", head: [80, 48], seg: [[[60, 60], [100, 60]], [[60, 60], [56, 96]], [[100, 60], [104, 96]], [[80, 60], [80, 88]], [[80, 88], [38, 96], [34, 106]], [[80, 88], [122, 96], [126, 106]]], head2: [80, 52], seg2: [[[60, 60], [100, 60]], [[60, 60], [56, 96]], [[100, 60], [104, 96]], [[80, 60], [80, 94]], [[80, 94], [34, 100], [30, 106]], [[80, 94], [126, 100], [130, 106]]], dur: 4},
-    sidesplit: {label: "Скольжение в поперечный шпагат", head: [80, 54], seg: [[[80, 96], [14, 106]], [[80, 96], [146, 106]], [[80, 96], [80, 64]], [[80, 70], [62, 104]], [[80, 70], [98, 104]]], head2: [80, 60], seg2: [[[80, 102], [14, 106]], [[80, 102], [146, 106]], [[80, 102], [80, 70]], [[80, 76], [62, 106]], [[80, 76], [98, 106]]], dur: 4.5},
-    swing: {label: "Мах ногой с опорой о стену", head: [62, 20], seg: [[[62, 30], [62, 62]], [[62, 62], [60, 84], [60, 106]], [[62, 62], [92, 72], [110, 84]], [[62, 36], [34, 44]]], head2: [62, 20], seg2: [[[62, 30], [62, 62]], [[62, 62], [60, 84], [60, 106]], [[62, 62], [36, 74], [20, 86]], [[62, 36], [34, 44]]], wall: 28, dur: 2},
-    catcow: {label: "Кошка-корова на четвереньках", head: [34, 70], seg: [[[44, 76], [74, 82], [104, 74]], [[44, 76], [40, 106]], [[104, 74], [110, 106]]], head2: [36, 80], seg2: [[[44, 76], [74, 62], [104, 74]], [[44, 76], [40, 106]], [[104, 74], [110, 106]]], dur: 3},
-    quad: {label: "Растяжка передней поверхности бедра", head: [70, 20], seg: [[[70, 30], [70, 62]], [[70, 62], [68, 84], [68, 106]], [[70, 62], [76, 84], [56, 68]], [[70, 38], [62, 64]], [[70, 38], [44, 46]]], head2: [70, 20], seg2: [[[70, 30], [70, 62]], [[70, 62], [68, 84], [68, 106]], [[70, 62], [78, 84], [52, 64]], [[70, 38], [58, 60]], [[70, 38], [44, 46]]], wall: 38, dur: 3.5},
-    standfold: {label: "Наклон стоя к прямым ногам", head: [106, 82], seg: [[[84, 106], [82, 84], [80, 58]], [[80, 58], [98, 74]], [[98, 74], [104, 106]]], head2: [108, 90], seg2: [[[84, 106], [82, 84], [80, 62]], [[80, 62], [100, 82]], [[100, 82], [104, 106]]], dur: 4},
-    deepsquat: {label: "Глубокое сидение на корточках", head: [80, 40], seg: [[[80, 50], [80, 74]], [[80, 74], [52, 80], [58, 106]], [[80, 74], [108, 80], [102, 106]], [[80, 56], [64, 78], [80, 72]], [[80, 56], [96, 78], [80, 72]]], head2: [80, 46], seg2: [[[80, 56], [80, 80]], [[80, 80], [48, 84], [56, 106]], [[80, 80], [112, 84], [104, 106]], [[80, 62], [62, 82], [80, 78]], [[80, 62], [98, 82], [80, 78]]], dur: 4},
-  
+  function fprep(def){
+    if(def._v) return def;
+    def._v = def.k.map(fflat);
+    var n = def.k.length;
+    def._t = def.at || def.k.map(function(x, i){ return i / n; });
+    return def;
+  }
+  // поза в момент ph (0…1) цикла
+  function fpose(def, ph){
+    fprep(def);
+    var V = def._v, T = def._t, n = V.length, i = n - 1, j, u, out = [], x;
+    ph = ((ph % 1) + 1) % 1;
+    for(x = 0; x < n; x++) if(T[x] <= ph) i = x;
+    j = (i + 1) % n;
+    var t0 = T[i], t1 = j ? T[j] : 1;
+    u = t1 > t0 ? (ph - t0) / (t1 - t0) : 0;
+    var spline = def.m === "s";
+    if(!spline) u = u * u * (3 - 2 * u);
+    var A = V[(i - 1 + n) % n], B = V[i], C = V[j], D = V[(j + 1) % n];
+    for(x = 0; x < B.length; x++){
+      if(spline){
+        var u2 = u * u, u3 = u2 * u;
+        out.push(0.5 * (2 * B[x] + (-A[x] + C[x]) * u + (2 * A[x] - 5 * B[x] + 4 * C[x] - D[x]) * u2 + (-A[x] + 3 * B[x] - 3 * C[x] + D[x]) * u3));
+      } else out.push(B[x] + (C[x] - B[x]) * u);
+    }
+    return funflat(out, def.k[0]);
+  }
+  // суставы по позе
+  function fjoints(def, p){
+    var front = def.v === "f", F = def.fx || 1, R = RIG, J = {front: front};
+    var P = p.p, td = [F * Math.sin(p.t * D2R), -Math.cos(p.t * D2R)];
+    if(front) td = [Math.sin(p.t * D2R), -Math.cos(p.t * D2R)];
+    var C = fadd(P, td, R.to * (p.s == null ? 1 : p.s)), pr = [-td[1], td[0]];          // pr — перпендикуляр к корпусу, вправо по экрану
+    if(front && def.fx === -1) pr = [-pr[0], -pr[1]];
+    J.P = P; J.C = C; J.td = td; J.c = p.c || 0;
+    var hd = (p.t + (p.n || 0)) * D2R;
+    var hdir = front ? [Math.sin(hd), -Math.cos(hd)] : [F * Math.sin(hd), -Math.cos(hd)];
+    J.H = fadd(C, hdir, R.nk + R.hr);
+    J.N = fadd(C, hdir, R.nk * 0.6);
+    // плечи и тазобедренные суставы
+    var sA = C, sB = C, hA = P, hB = P;
+    if(front){ sA = fadd(C, pr, -R.sw); sB = fadd(C, pr, R.sw); hA = fadd(P, pr, -R.hw); hB = fadd(P, pr, R.hw); }
+    else { sA = fadd(C, td, -1.5); sB = sA; }
+    J.sA = sA; J.sB = sB; J.hA = hA; J.hB = hB;
+    function arm(q, s0, sg){
+      if(q.length == null){ var ik = fik(s0, [q.x, q.y], R.ua, R.fa, (q.k || 1) * (front ? sg : F)); return [s0, ik[0], ik[1]]; }
+      var e = fadd(s0, fdn(q[0], sg), R.ua);
+      return [s0, e, fadd(e, fdn(q[0] + q[1], sg), R.fa)];
+    }
+    function leg(q, h0, sg){
+      var k, a, t;
+      if(q.length == null){
+        var ik = fik(h0, [q.x, q.y], R.th, R.sh, (q.k || 1) * (front ? -sg : -F));
+        k = ik[0]; a = ik[1];
+        var fa0 = (q.f || 0) * D2R;
+        t = front ? [a[0] + sg * 5, a[1] + 1] : [a[0] + F * R.ft * Math.cos(fa0), a[1] - R.ft * Math.sin(fa0)];
+        return [h0, k, a, t];
+      }
+      k = fadd(h0, fdn(q[0], sg), R.th);
+      a = fadd(k, fdn(q[0] - q[1], sg), front ? R.sh * (1 - (q[2] || 0)) : R.sh);
+      t = front ? [a[0] + sg * 5, a[1] + 1] : fadd(a, fdn(q[0] - q[1] + 90 + (q[2] || 0), sg), R.ft);
+      return [h0, k, a, t];
+    }
+    var sl = front ? -1 : F, sr = front ? 1 : F;
+    J.A = arm(p.a, sA, sl); J.B = arm(p.b, sB, sr);
+    J.L = leg(p.l, hA, sl); J.Rl = leg(p.r, hB, sr);
+    J.e = p.e || [];
+    return J;
+  }
+  function ftorso(J){
+    if(J.front){
+      var R = RIG, pr = [-J.td[1], J.td[0]], C = J.C, P = J.P;
+      var a = fadd(C, pr, -R.sw + 1.5), b = fadd(C, pr, R.sw - 1.5), c = fadd(P, pr, R.hw - 0.5), d = fadd(P, pr, -R.hw + 0.5);
+      return "M" + fpt(a) + " L" + fpt(b) + " L" + fpt(c) + " L" + fpt(d) + " Z";
+    }
+    var P2 = J.P, C2 = J.C;
+    if(!J.c) return "M" + fpt(P2) + " L" + fpt(C2);
+    var m = [(P2[0] + C2[0]) / 2, (P2[1] + C2[1]) / 2], n = [-J.td[1], J.td[0]];
+    return "M" + fpt(P2) + " Q" + fpt([m[0] + n[0] * J.c, m[1] + n[1] * J.c]) + " " + fpt(C2);
+  }
+  // детали: тень, скакалка, гантели
+  function fshadow(J){
+    var low = Math.max(J.L[3][1], J.Rl[3][1], J.L[2][1], J.Rl[2][1]), up = Math.max(0, FG - low);
+    var x = (J.L[2][0] + J.Rl[2][0]) / 2;
+    return {cx: fr1(x), rx: fr1(Math.max(10, 21 - up * 0.45)), opacity: fr1(Math.max(0.25, 1 - up / 30) * 10) / 10};
+  }
+  function frope(J, ph){
+    var f = ph * 2 * Math.PI, hA = J.A[2], hB = J.B[2];
+    var Y = 58 - 52 * Math.cos(f), y0 = (hA[1] + hB[1]) / 2, yc = y0 + (Y - y0) / 0.75;
+    var w = 8 + 6 * Math.abs(Math.cos(f));
+    var d = "M" + fpt(hA) + " C" + fpt([hA[0] - w, yc]) + " " + fpt([hB[0] + w, yc]) + " " + fpt(hB);
+    var front = Math.sin(f) > 0;
+    return {d: d, front: front};
+  }
+  function fdb(J, which, front){
+    var h = which === "a" ? J.A : J.B, w = h[2], e = h[1];
+    if(!front) return 'translate(' + fpt(w) + ')';
+    var ang = Math.atan2(w[1] - e[1], w[0] - e[0]) * 180 / Math.PI;
+    return 'translate(' + fpt(w) + ') rotate(' + fr1(ang) + ')';
+  }
+  // части рисунка: [тег, постоянные атрибуты, функция изменяемых атрибутов]
+  function fparts(def){
+    if(def._parts) return def._parts;
+    var P = [], pr = def.pr || {}, side = def.v !== "f";
+    function add(tag, st, dyn, inner){ P.push([tag, st, dyn, inner]); }
+    var LIMB = ' fill="none" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"';
+    if(pr.panel) add("rect", 'x="16" y="10" width="128" height="98" rx="4" fill="var(--fig-block)"');
+    if(pr.top) add("rect", 'x="26" y="6" width="108" height="108" rx="8" fill="var(--fig-block)"');
+    if(pr.bar == null && !pr.top) add("line", 'x1="-20" y1="111" x2="180" y2="111" stroke="var(--steel)" stroke-width="3"');
+    if(pr.wall != null) add("line", 'x1="' + pr.wall + '" y1="8" x2="' + pr.wall + '" y2="111" stroke="var(--steel)" stroke-width="4" stroke-linecap="round"');
+    if(pr.bar != null) add("line", 'x1="14" y1="' + pr.bar + '" x2="146" y2="' + pr.bar + '" stroke="var(--steel)" stroke-width="5" stroke-linecap="round"');
+    (pr.blocks || []).forEach(function(b){
+      add("rect", 'x="' + b[0] + '" y="' + b[1] + '" width="' + b[2] + '" height="' + b[3] + '" rx="2.5" fill="var(--fig-block)" stroke="var(--steel)" stroke-width="2"');
+    });
+    if(pr.bench) add("path", 'd="' + pr.bench + '" fill="none" stroke="var(--steel)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"');
+    if(pr.shadow) add("ellipse", 'cy="111" ry="2.6" fill="var(--fig-shadow)"', function(J){ return fshadow(J); });
+    if(pr.rope) add("path", 'fill="none" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round" opacity=".55"', function(J, ph){ var r = frope(J, ph * pr.rope); return {d: r.d, display: r.front ? "none" : "inline"}; });
+    var far = side ? "var(--fig-far)" : "var(--ink)";
+    // дальние конечности
+    add("path", 'stroke="' + far + '"' + LIMB, function(J){ return {d: fpath(J.Rl)}; });
+    if(side) add("path", 'stroke="' + far + '"' + LIMB, function(J){ return {d: fpath(J.B)}; });
+    if(side && pr.db && pr.db.indexOf("b") >= 0) add("circle", 'r="5" fill="var(--fig-acc2)"', function(J){ return {cx: fr1(J.B[2][0]), cy: fr1(J.B[2][1])}; });
+    if(!side) add("path", 'stroke="var(--ink)"' + LIMB, function(J){ return {d: fpath(J.L)}; });
+    // корпус и голова
+    if(side) add("path", 'fill="none" stroke="var(--ink)" stroke-width="9" stroke-linecap="round"', function(J){ return {d: ftorso(J)}; });
+    else add("path", 'fill="var(--ink)" stroke="var(--ink)" stroke-width="5" stroke-linejoin="round"', function(J){ return {d: ftorso(J)}; });
+    add("path", 'fill="none" stroke="var(--ink)" stroke-width="5" stroke-linecap="round"', function(J){ return {d: "M" + fpt(J.C) + " L" + fpt(J.N)}; });
+    add("circle", 'r="' + RIG.hr + '" fill="var(--ink)"', function(J){ return {cx: fr1(J.H[0]), cy: fr1(J.H[1])}; });
+    // ближние конечности
+    if(side) add("path", 'stroke="var(--ink)"' + LIMB, function(J){ return {d: fpath(J.L)}; });
+    if(!side) add("path", 'stroke="var(--ink)"' + LIMB, function(J){ return {d: fpath(J.B)}; });
+    add("path", 'stroke="var(--ink)"' + LIMB, function(J){ return {d: fpath(J.A)}; });
+    if(pr.db){
+      if(side){ if(pr.db.indexOf("a") >= 0) add("circle", 'r="5.5" fill="var(--accent)"', function(J){ return {cx: fr1(J.A[2][0]), cy: fr1(J.A[2][1])}; }); }
+      else pr.db.split("").forEach(function(w){
+        add("g", '', function(J){ return {transform: fdb(J, w, true)}; }, '<rect x="-2" y="-9" width="4" height="18" rx="2" fill="var(--accent)"/><rect x="-4.5" y="-10" width="9" height="5" rx="2" fill="var(--accent)"/><rect x="-4.5" y="5" width="9" height="5" rx="2" fill="var(--accent)"/>');
+      });
+    }
+    if(pr.grip) add("g", '', null, '<circle cx="' + pr.grip[0] + '" cy="' + pr.bar + '" r="3.6" fill="var(--ink)"/><circle cx="' + pr.grip[1] + '" cy="' + pr.bar + '" r="3.6" fill="var(--ink)"/>');
+    if(pr.rope) add("path", 'fill="none" stroke="var(--accent)" stroke-width="2.6" stroke-linecap="round"', function(J, ph){ var r = frope(J, ph * pr.rope); return {d: r.d, display: r.front ? "inline" : "none"}; });
+    def._parts = P;
+    return P;
+  }
+  // P: [tag, static, dyn, inner]
+  // рамка: фигурка и снаряды за весь цикл с полями, в пропорции 4:3 — мелкие превью получаются крупнее
+  function fbox(def){
+    if(def._vb) return def._vb;
+    var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9, pr = def.pr || {}, i;
+    function pt(x, y, r){ r = r || 0; if(x - r < x0) x0 = x - r; if(x + r > x1) x1 = x + r; if(y - r < y0) y0 = y - r; if(y + r > y1) y1 = y + r; }
+    for(i = 0; i < 32; i++){
+      var J = figGeo(def, i / 32);
+      pt(J.H[0], J.H[1], RIG.hr + 1);
+      [J.A, J.B, J.L, J.Rl].forEach(function(lb){ lb.forEach(function(q){ pt(q[0], q[1], 3.5); }); });
+      pt(J.P[0], J.P[1], 5); pt(J.C[0], J.C[1], 5);
+      if(pr.db){ pt(J.A[2][0], J.A[2][1], 10); pt(J.B[2][0], J.B[2][1], 10); }
+      if(pr.rope){ pt(J.A[2][0] - 14, 4); pt(J.B[2][0] + 14, 112); }
+    }
+    if(pr.bar != null){ pt(14, pr.bar - 4); pt(146, pr.bar + 4); }
+    else if(!pr.top) pt(x0, 113);
+    if(pr.wall != null) pt(pr.wall, y0);
+    (pr.blocks || []).forEach(function(b){ pt(b[0], b[1]); pt(b[0] + b[2], b[1] + b[3]); });
+    if(pr.panel){ pt(16, 10); pt(144, 108); }
+    if(pr.top){ pt(26, 6); pt(134, 114); }
+    var m = 7, w = x1 - x0 + 2 * m, h = y1 - y0 + 2 * m, cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+    w = Math.max(w, h * 4 / 3, 92); h = w * 3 / 4;
+    if(w > 160){ w = 160; h = 120; }
+    var x = cx - w / 2, y = cy - h / 2;
+    if(!pr.top && pr.bar == null && y + h < 116) y = 116 - h;   // пол всегда виден у нижнего края
+    def._vb = [fr1(x), fr1(y), fr1(w), fr1(h)].join(" ");
+    return def._vb;
+  }
+  function fattrs(o){ var s = ""; for(var k in o) s += " " + k + '="' + o[k] + '"'; return s; }
+  function figGeo(def, ph){ var p = fpose(def, ph); return fjoints(def, p); }
+  function figMarkup(name, ph, cls){
+    var def = FIGS[name], parts = fparts(def), J = figGeo(def, ph == null ? (def.still || 0) : ph);
+    var s = '<svg class="rig' + (cls ? " " + cls : "") + '" data-fig="' + name + '" viewBox="' + fbox(def) + '"' + (cls === "thumb" ? ' aria-hidden="true" focusable="false">' : ' role="img" aria-label="' + esc(def.label) + '">');
+    parts.forEach(function(q){
+      var dyn = q[2] ? q[2](J, ph == null ? (def.still || 0) : ph) : {};
+      s += "<" + q[0] + (q[1] ? " " + q[1] : "") + fattrs(dyn) + (q[3] ? ">" + q[3] + "</" + q[0] + ">" : "/>");
+    });
+    return s + "</svg>";
+  }
+  function figDraw(svg, now){
+    var st = svg.__rig;
+    if(!st){
+      var def = FIGS[svg.getAttribute("data-fig")];
+      if(!def) return;
+      st = svg.__rig = {def: def, parts: fparts(def), els: svg.children, ph: (def.still || 0), last: now};
+    }
+    var dt = Math.min(0.1, Math.max(0, (now - st.last) / 1000)); st.last = now;
+    var sp = +(svg.getAttribute("data-speed") || 1);
+    st.ph = (st.ph + dt * sp / st.def.d) % 1;
+    var J = figGeo(st.def, st.ph);
+    for(var i = 0; i < st.parts.length; i++){
+      var q = st.parts[i];
+      if(!q[2]) continue;
+      var o = q[2](J, st.ph), el = st.els[i];
+      if(!el) continue;
+      for(var k in o) el.setAttribute(k, o[k]);
+    }
+  }
+  var FIG_RAF = 0, FIG_TO = 0, FIG_FR = 0;
+  function figTick(now){
+    FIG_RAF = 0; FIG_TO = 0;
+    var list = document.getElementsByClassName("rig"), vh = window.innerHeight || 800, any = false;
+    if(!document.hidden) for(var i = 0; i < list.length; i++){
+      var s = list[i], r = s.getBoundingClientRect();
+      if(!r.width || r.bottom < 0 || r.top > vh) continue;
+      any = true;
+      // мелкие фигурки — 30 кадров в секунду, крупная в окне просмотра — каждый кадр
+      if(FIG_FR % 2 === 0 || s.classList.contains("big")) figDraw(s, now || performance.now());
+    }
+    FIG_FR++;
+    if(any) FIG_RAF = requestAnimationFrame(figTick);
+    else FIG_TO = setTimeout(function(){ figTick(performance.now()); }, 400);
+  }
+  function figKick(){
+    if(REDUCED || typeof requestAnimationFrame !== "function") return;
+    if(FIG_TO){ clearTimeout(FIG_TO); FIG_TO = 0; }
+    if(!FIG_RAF) FIG_RAF = requestAnimationFrame(figTick);
+  }
+  var IC_ZOOM = '<span class="fig-zoom" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M2.5 6V2.5H6M13.5 6V2.5H10M2.5 10v3.5H6M13.5 10v3.5H10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
+  function figure(kind, title, hint){
+    if(!FIGS[kind]) return "";
+    return '<button type="button" class="fig" data-act="fig" data-fig="' + kind + '" data-t="' + esc(title || "") + '" data-h="' + esc(hint || "") + '" aria-label="Показать крупнее: ' + esc(FIGS[kind].label) + '">' +
+      figMarkup(kind, null, "thumb") + IC_ZOOM + '</button>';
+  }
+  // позы: p — таз, t — наклон корпуса, c — изгиб спины, s — укорочение корпуса (наклон к зрителю), n — наклон головы
+  // a/b — руки: [плечо, локоть] или {x, y} — куда тянется кисть; l/r — ноги: [бедро, колено, стопа] или {x, y, f} — где щиколотка
+  // v: "s" — вид сбоку (дальние рука и нога светлее), "f" — вид спереди; m: "s" — плавная петля, иначе разгон и торможение у каждой позы
+  function fS(x, y, f){ return {x: x, y: y == null ? FG : y, f: f || 0}; }
+  function fK(o, d){ var r = {}, k; for(k in o) r[k] = o[k]; for(k in d) r[k] = d[k]; return r; }
+  // упор лёжа: щиколотки (34, 100), кисти (103, 107); верх и низ отжимания
+  var P_TOP = {p: [74.75, 86.3], t: 71.4, a: {x: 103, y: 107}, b: {x: 101, y: 107}, l: fS(34, 100, -80), r: fS(32, 100, -80)};
+  var P_LOW = fK(P_TOP, {p: [76.96, 98.2], t: 87.6});
+  var ST = {p: [80, 64], t: 2, a: [4, 8], b: [-4, 8], l: fS(82), r: fS(78)};
+  var HANG = {p: [80, 77], a: {x: 54, y: 21}, b: {x: 106, y: 21}, l: [3, 8, .42], r: [3, 8, .42]};
+  var HTOP = fK(HANG, {p: [80, 52]});
+  var BAR = {bar: 20, grip: [54, 106]};
+  var FIGS = {
+    // ---- турник ----
+    pull: {v: "f", d: 3.2, at: [0, .34, .5, .84], pr: BAR, still: .4,
+      label: "Подтягивание: из полного виса подбородок поднимается выше перекладины, затем плавно вниз", k: [HANG, HTOP, HTOP, HANG]},
+    hold: {v: "f", d: 5.5, at: [0, .18, .6, .92], pr: BAR, still: .4,
+      label: "Удержание: подтянуться, задержаться с подбородком над перекладиной, затем медленно опуститься", k: [HANG, HTOP, HTOP, HANG]},
+    hang: {v: "f", d: 4, at: [0, .3, .6, .85], pr: BAR, still: .45,
+      label: "Вис: руки прямые, плечи тянутся вниз от ушей", k: [HANG, fK(HANG, {p: [80, 74]}), fK(HANG, {p: [80, 74]}), HANG]},
+    // ---- отжимания ----
+    push: {v: "s", d: 3, at: [0, .36, .46, .8], still: .4,
+      label: "Отжимание: тело прямое, грудь опускается почти до пола и возвращается вверх", k: [P_TOP, P_LOW, P_LOW, P_TOP]},
+    pushslow: {v: "s", d: 5, at: [0, .56, .64, .82], still: .3,
+      label: "Медленное отжимание: три секунды вниз, одна секунда вверх", k: [P_TOP, P_LOW, P_LOW, P_TOP]},
+    plank: {v: "s", d: 4, still: 0, label: "Планка на предплечьях: тело прямое, поясница не провисает",
+      k: [{p: [76.66, 94.6], t: 82.8, a: [0, 92], b: [0, 92], l: fS(34, 100, -80), r: fS(32, 100, -80)},
+          {p: [76.66, 94], t: 83.3, a: [0, 92], b: [0, 92], l: fS(34, 100, -80), r: fS(32, 100, -80)}]},
+    // ---- приседания ----
+    squat: {v: "s", d: 3.2, at: [0, .34, .46, .8], still: .4,
+      label: "Приседание: таз назад и вниз до уровня колен, пятки на полу, затем вверх",
+      k: [fK(ST, {p: [78, 64], a: [8, 10], b: [8, 10]}), {p: [60, 88], t: 42, n: -22, a: [85, 5], b: [85, 5], l: fS(82), r: fS(78)},
+          {p: [60, 88], t: 42, n: -22, a: [85, 5], b: [85, 5], l: fS(82), r: fS(78)}, fK(ST, {p: [78, 64], a: [8, 10], b: [8, 10]})]},
+    squatslow: {v: "s", d: 5, at: [0, .56, .64, .82], still: .3,
+      label: "Медленное приседание: три секунды вниз, одна секунда вверх",
+      k: [fK(ST, {p: [78, 64], a: [8, 10], b: [8, 10]}), {p: [60, 88], t: 42, n: -22, a: [85, 5], b: [85, 5], l: fS(82), r: fS(78)},
+          {p: [60, 88], t: 42, n: -22, a: [85, 5], b: [85, 5], l: fS(82), r: fS(78)}, fK(ST, {p: [78, 64], a: [8, 10], b: [8, 10]})]},
+    wall: {v: "s", d: 4, pr: {wall: 40}, still: 0, label: "Стульчик у стены: спина прижата к стене, бёдра параллельно полу",
+      k: [{p: [47, 86], t: 0, a: [38, 30], b: [34, 34], l: fS(69), r: fS(67)},
+          {p: [47, 85.4], t: 0, a: [38, 30], b: [34, 34], l: fS(69), r: fS(67)}]},
+    // ---- гантели ----
+    dbpress: {v: "s", d: 3.2, at: [0, .4, .5, .9], pr: {db: "ab"}, still: .45, label: "Жим гантелей лёжа: от груди вверх, поясница прижата",
+      k: [{p: [93, 101], t: -90, a: {x: 67, y: 86}, b: {x: 66, y: 86}, l: fS(118), r: fS(116)},
+          {p: [93, 101], t: -90, a: {x: 64, y: 70.5}, b: {x: 63, y: 70.5}, l: fS(118), r: fS(116)},
+          {p: [93, 101], t: -90, a: {x: 64, y: 70.5}, b: {x: 63, y: 70.5}, l: fS(118), r: fS(116)},
+          {p: [93, 101], t: -90, a: {x: 67, y: 86}, b: {x: 66, y: 86}, l: fS(118), r: fS(116)}]},
+    dbrow: {v: "s", d: 3, at: [0, .38, .5, .88], pr: {db: "ab"}, still: .45, label: "Тяга гантелей в наклоне: спина прямая, гантели к поясу",
+      k: [{p: [68, 67], t: 72, n: -35, a: {x: 95, y: 88}, b: {x: 93, y: 88}, l: fS(80), r: fS(78)},
+          {p: [68, 67], t: 72, n: -35, a: {x: 82, y: 70}, b: {x: 80, y: 70}, l: fS(80), r: fS(78)},
+          {p: [68, 67], t: 72, n: -35, a: {x: 82, y: 70}, b: {x: 80, y: 70}, l: fS(80), r: fS(78)},
+          {p: [68, 67], t: 72, n: -35, a: {x: 95, y: 88}, b: {x: 93, y: 88}, l: fS(80), r: fS(78)}]},
+    dblunge: {v: "s", d: 3.4, at: [0, .4, .5, .9], pr: {db: "ab"}, still: .45, label: "Выпад с гантелями: шаг вперёд, заднее колено почти до пола",
+      k: [{p: [77, 69], t: 2, a: [2, 4], b: [-2, 4], l: fS(100), r: fS(52, 104, -55)},
+          {p: [76, 87], t: 2, a: [2, 4], b: [-2, 4], l: fS(100), r: fS(52, 104, -55)},
+          {p: [76, 87], t: 2, a: [2, 4], b: [-2, 4], l: fS(100), r: fS(52, 104, -55)},
+          {p: [77, 69], t: 2, a: [2, 4], b: [-2, 4], l: fS(100), r: fS(52, 104, -55)}]},
+    dbpressup: {v: "f", d: 3.2, at: [0, .4, .5, .9], pr: {db: "ab"}, still: .45, label: "Жим гантелей над головой: от плеч вверх, живот подтянут",
+      k: [{p: [80, 64], a: [78, 100], b: [78, 100], l: fS(74), r: fS(86)},
+          {p: [80, 64], a: [166, 6], b: [166, 6], l: fS(74), r: fS(86)},
+          {p: [80, 64], a: [166, 6], b: [166, 6], l: fS(74), r: fS(86)},
+          {p: [80, 64], a: [78, 100], b: [78, 100], l: fS(74), r: fS(86)}]},
+    dbcurl: {v: "s", d: 3, at: [0, .38, .5, .9], pr: {db: "ab"}, still: .45, label: "Подъём на бицепс: локти прижаты к корпусу, без рывка",
+      k: [fK(ST, {a: [4, 4], b: [2, 4]}), fK(ST, {a: [6, 138], b: [4, 138]}), fK(ST, {a: [6, 138], b: [4, 138]}), fK(ST, {a: [4, 4], b: [2, 4]})]},
+    dbrdl: {v: "s", d: 4, at: [0, .42, .54, .88], pr: {db: "ab"}, still: .5, label: "Румынская тяга: таз назад, спина прямая, гантели скользят вдоль ног",
+      k: [fK(ST, {a: [2, 2], b: [0, 2]}), {p: [62, 66], t: 78, n: -30, a: [0, 0], b: [-2, 0], l: fS(82), r: fS(80)},
+          {p: [62, 66], t: 78, n: -30, a: [0, 0], b: [-2, 0], l: fS(82), r: fS(80)}, fK(ST, {a: [2, 2], b: [0, 2]})]},
+    dbsquat: {v: "s", d: 3.2, at: [0, .36, .48, .84], pr: {db: "ab"}, still: .42, label: "Приседание с гантелями у плеч: пятки на полу, колени по носкам",
+      k: [fK(ST, {p: [78, 64], a: [22, 150], b: [20, 150]}), {p: [60, 88], t: 40, n: -20, a: [62, 140], b: [60, 140], l: fS(82), r: fS(78)},
+          {p: [60, 88], t: 40, n: -20, a: [62, 140], b: [60, 140], l: fS(82), r: fS(78)}, fK(ST, {p: [78, 64], a: [22, 150], b: [20, 150]})]},
+    dbplank: {v: "s", d: 3.4, at: [0, .32, .46, .78], pr: {db: "ab"}, still: .4, label: "Планка с протяжкой: в упоре лёжа гантель к поясу, таз не разворачивается",
+      k: [P_TOP, fK(P_TOP, {a: {x: 86, y: 90}}), fK(P_TOP, {a: {x: 86, y: 90}}), P_TOP]},
+    // ---- растяжка ----
+    lunge: {v: "s", d: 4.5, at: [0, .4, .7], still: .5, label: "Низкий выпад с опорой на руки: таз тянется вниз и вперёд",
+      k: [{p: [78, 89], t: 58, n: -25, a: {x: 104, y: 106}, b: {x: 102, y: 106}, l: fS(104), r: fS(36, 103, -80)},
+          {p: [76, 94], t: 62, n: -25, a: {x: 104, y: 106}, b: {x: 102, y: 106}, l: fS(104), r: fS(34, 104, -80)},
+          {p: [76, 94], t: 62, n: -25, a: {x: 104, y: 106}, b: {x: 102, y: 106}, l: fS(104), r: fS(34, 104, -80)}]},
+    seatedfold: {v: "s", d: 5, at: [0, .4, .75], still: .55, label: "Наклон к вытянутой ноге сидя: тянешься грудью к колену",
+      k: [{p: [50, 103], t: 18, a: {x: 82, y: 98}, b: {x: 80, y: 99}, l: [88, 0, -6], r: {x: 64, y: 106, f: 0}},
+          {p: [50, 103], t: 62, c: -3, n: 12, a: {x: 96, y: 98}, b: {x: 94, y: 99}, l: [88, 0, -6], r: {x: 64, y: 106, f: 0}},
+          {p: [50, 103], t: 62, c: -3, n: 12, a: {x: 96, y: 98}, b: {x: 94, y: 99}, l: [88, 0, -6], r: {x: 64, y: 106, f: 0}}]},
+    kneel: {v: "s", d: 4.5, at: [0, .4, .72], still: .5, label: "Растяжка сгибателей бедра с колена: таз уходит вперёд, корпус прямой",
+      k: [{p: [78, 86], t: -4, a: [-12, 70], b: [-14, 70], l: fS(100), r: [-32.7, 57.3, -90]},
+          {p: [84, 88], t: -8, a: [-12, 70], b: [-14, 70], l: fS(100), r: [-40.6, 49.4, -90]},
+          {p: [84, 88], t: -8, a: [-12, 70], b: [-14, 70], l: fS(100), r: [-40.6, 49.4, -90]}]},
+    pigeon: {v: "s", d: 5, at: [0, .4, .75], still: .55, label: "Голубь: голень впереди, вторая нога вытянута назад, корпус к полу",
+      k: [{p: [76, 100], t: -4, a: {x: 92, y: 106}, b: {x: 90, y: 106}, l: [70, 160, 0], r: [-80, 0, -100]},
+          {p: [76, 101], t: 62, n: 10, a: {x: 108, y: 106}, b: {x: 106, y: 106}, l: [70, 160, 0], r: [-80, 0, -100]},
+          {p: [76, 101], t: 62, n: 10, a: {x: 108, y: 106}, b: {x: 106, y: 106}, l: [70, 160, 0], r: [-80, 0, -100]}]},
+    frontsplit: {v: "s", d: 5, at: [0, .4, .75], pr: {blocks: [[80, 90, 14, 17]]}, still: .55, label: "Полушпагат с опорой на книги: таз медленно опускается",
+      k: [{p: [76, 88], t: 0, a: {x: 87, y: 90}, b: {x: 85, y: 90}, l: [68, 0, 12], r: [-68, 0, -112]},
+          {p: [76, 96], t: 0, a: {x: 87, y: 90}, b: {x: 85, y: 90}, l: [79, 0, 1], r: [-79, 0, -101]},
+          {p: [76, 96], t: 0, a: {x: 87, y: 90}, b: {x: 85, y: 90}, l: [79, 0, 1], r: [-79, 0, -101]}]},
+    butterfly: {v: "f", d: 3, m: "s", still: 0, label: "Бабочка сидя: стопы вместе, колени мягко опускаются к полу",
+      k: [{p: [80, 103], a: {x: 74, y: 104}, b: {x: 86, y: 104}, l: [100, 170, 0], r: [100, 170, 0]},
+          {p: [80, 103], a: {x: 74, y: 104}, b: {x: 86, y: 104}, l: [88, 158, 0], r: [88, 158, 0]}]},
+    straddlefold: {v: "f", d: 5, at: [0, .4, .75], still: .55, label: "Складка сидя ноги врозь: спина длинная, корпус тянется вперёд",
+      k: [{p: [80, 103], a: {x: 66, y: 106}, b: {x: 94, y: 106}, l: [86, 0, 0], r: [86, 0, 0]},
+          {p: [80, 103], s: .45, a: {x: 58, y: 104}, b: {x: 102, y: 104}, l: [86, 0, 0], r: [86, 0, 0]},
+          {p: [80, 103], s: .45, a: {x: 58, y: 104}, b: {x: 102, y: 104}, l: [86, 0, 0], r: [86, 0, 0]}]},
+    walllegs: {v: "f", d: 6, at: [0, .45, .8], pr: {panel: 1}, still: .6, label: "Ноги врозь по стене лёжа на спине: ноги медленно скользят в стороны",
+      k: [{p: [80, 78], t: 180, s: .38, a: [150, 0], b: [150, 0], l: [168, 0, 0], r: [168, 0, 0]},
+          {p: [80, 78], t: 180, s: .38, a: [150, 0], b: [150, 0], l: [130, 0, 0], r: [130, 0, 0]},
+          {p: [80, 78], t: 180, s: .38, a: [150, 0], b: [150, 0], l: [130, 0, 0], r: [130, 0, 0]}]},
+    frog: {v: "f", d: 5, at: [0, .4, .75], pr: {top: 1}, still: .55, label: "Лягушка на предплечьях (вид сверху): колени широко, таз мягко уходит назад",
+      k: [{p: [80, 68], a: [150, 30], b: [150, 30], l: [90, 90, 0], r: [90, 90, 0]},
+          {p: [80, 74], a: [138, 42], b: [138, 42], l: [104, 104, 0], r: [104, 104, 0]},
+          {p: [80, 74], a: [138, 42], b: [138, 42], l: [104, 104, 0], r: [104, 104, 0]}]},
+    sidesplit: {v: "f", d: 5, at: [0, .4, .75], pr: {blocks: [[59, 86, 13, 21], [88, 86, 13, 21]]}, still: .55, label: "Скольжение в поперечный шпагат с опорой на руки",
+      k: [{p: [80, 82], s: .8, a: {x: 65.5, y: 86}, b: {x: 94.5, y: 86}, l: [50, 0, 0], r: [50, 0, 0]},
+          {p: [80, 95], s: .85, a: {x: 65.5, y: 86}, b: {x: 94.5, y: 86}, l: [72, 0, 0], r: [72, 0, 0]},
+          {p: [80, 95], s: .85, a: {x: 65.5, y: 86}, b: {x: 94.5, y: 86}, l: [72, 0, 0], r: [72, 0, 0]}]},
+    swing: {v: "s", d: 2, pr: {wall: 40}, still: .5, label: "Мах ногой с опорой о стену: нога свободно ходит вперёд и назад",
+      k: [{p: [72, 64], t: 4, a: [30, 20], b: {x: 44, y: 44}, l: [-35, 8, 0], r: fS(72)},
+          {p: [72, 64], t: -6, a: [-20, 20], b: {x: 44, y: 44}, l: [72, 4, 10], r: fS(72)}]},
+    catcow: {v: "s", d: 4, still: .5, label: "Кошка-корова: спина то округляется вверх, то мягко прогибается",
+      k: [{p: [60, 83], t: 90, c: 6, n: -28, a: {x: 90, y: 107}, b: {x: 88, y: 107}, l: [0, 90, -90], r: [0, 90, -90]},
+          {p: [60, 83], t: 90, c: -7, n: 42, a: {x: 90, y: 107}, b: {x: 88, y: 107}, l: [0, 90, -90], r: [0, 90, -90]}]},
+    quad: {v: "s", d: 4, at: [0, .4, .75], pr: {wall: 112}, still: .55, label: "Растяжка передней поверхности бедра стоя: пятка к ягодице, колени рядом",
+      k: [{p: [72, 64], t: 0, a: {x: 66.5, y: 66}, b: [78, 0], l: [-4, 166, -20], r: fS(72)},
+          {p: [72, 64], t: 2, a: {x: 66, y: 64}, b: [78, 0], l: [-14, 166, -20], r: fS(72)},
+          {p: [72, 64], t: 2, a: {x: 66, y: 64}, b: [78, 0], l: [-14, 166, -20], r: fS(72)}]},
+    standfold: {v: "s", d: 5, at: [0, .4, .75], still: .55, label: "Наклон стоя к прямым ногам: живот к бёдрам, шея расслаблена",
+      k: [{p: [70, 65.5], t: 100, c: -1, n: 22, a: {x: 94, y: 100}, b: {x: 92, y: 100}, l: fS(80), r: fS(78)},
+          {p: [68, 66], t: 128, c: -3, n: 30, a: {x: 88, y: 106}, b: {x: 86, y: 106}, l: fS(80), r: fS(78)},
+          {p: [68, 66], t: 128, c: -3, n: 30, a: {x: 88, y: 106}, b: {x: 86, y: 106}, l: fS(80), r: fS(78)}]},
+    deepsquat: {v: "s", d: 4, m: "s", still: 0, label: "Глубокое сидение на корточках: пятки на полу, локти разводят колени",
+      k: [{p: [70, 97], t: 24, n: -10, a: {x: 94, y: 80}, b: {x: 93, y: 81}, l: fS(82), r: fS(80)},
+          {p: [68, 99], t: 30, n: -6, a: {x: 95, y: 82}, b: {x: 94, y: 83}, l: fS(82), r: fS(80)}]},
     // ---- кардио ----
-    stepjack: {label: "«Звёздочка» шагом: шаг в сторону, руки вверх", head: [80, 24], seg: [[[80, 34], [80, 66]], [[80, 66], [78, 86], [76, 106]], [[80, 66], [82, 86], [84, 106]], [[80, 40], [72, 54], [70, 68]], [[80, 40], [88, 54], [90, 68]]],
-      head2: [80, 24], seg2: [[[80, 34], [80, 66]], [[80, 66], [78, 86], [76, 106]], [[80, 66], [96, 86], [106, 106]], [[80, 40], [66, 28], [60, 14]], [[80, 40], [94, 28], [100, 14]]], dur: 1.6},
-    jack: {label: "«Звёздочка» с прыжком", head: [80, 24], seg: [[[80, 34], [80, 66]], [[80, 66], [78, 86], [76, 106]], [[80, 66], [82, 86], [84, 106]], [[80, 40], [72, 54], [70, 68]], [[80, 40], [88, 54], [90, 68]]],
-      head2: [80, 18], seg2: [[[80, 28], [80, 60]], [[80, 60], [68, 80], [58, 100]], [[80, 60], [92, 80], [102, 100]], [[80, 34], [64, 20], [58, 6]], [[80, 34], [96, 20], [102, 6]]], dur: 0.9},
-    box: {label: "Бой с тенью", head: [76, 24], seg: [[[76, 34], [78, 66]], [[78, 66], [70, 86], [64, 106]], [[78, 66], [88, 86], [94, 106]], [[76, 40], [86, 48], [90, 38]], [[76, 40], [98, 40], [116, 38]]],
-      head2: [78, 24], seg2: [[[78, 34], [78, 66]], [[78, 66], [70, 86], [64, 106]], [[78, 66], [88, 86], [94, 106]], [[78, 40], [100, 38], [118, 36]], [[78, 40], [88, 48], [92, 38]]], dur: 0.8},
-    knees: {label: "Бег на месте с высоким подниманием колен", head: [80, 24], seg: [[[80, 34], [80, 66]], [[80, 66], [68, 64], [70, 86]], [[80, 66], [82, 86], [82, 106]], [[80, 40], [70, 52], [72, 40]], [[80, 40], [90, 54], [88, 66]]],
-      head2: [80, 22], seg2: [[[80, 32], [80, 64]], [[80, 64], [78, 84], [78, 104]], [[80, 64], [92, 62], [90, 84]], [[80, 38], [70, 52], [72, 64]], [[80, 38], [90, 50], [88, 38]]], dur: 0.6},
-    skater: {label: "Конькобежец: прыжки в стороны", head: [58, 28], seg: [[[60, 38], [64, 68]], [[64, 68], [60, 88], [56, 106]], [[64, 68], [74, 86], [84, 98]], [[60, 44], [74, 58]], [[60, 44], [46, 52]]],
-      head2: [102, 28], seg2: [[[100, 38], [96, 68]], [[96, 68], [100, 88], [104, 106]], [[96, 68], [86, 86], [76, 98]], [[100, 44], [86, 58]], [[100, 44], [114, 52]]], dur: 1.2},
-    climber: {label: "Альпинист: колени к груди в упоре лёжа", head: [120, 62], seg: [[[110, 70], [64, 76]], [[110, 70], [114, 104]], [[64, 76], [90, 90], [86, 104]], [[64, 76], [42, 90], [24, 104]]],
-      head2: [120, 62], seg2: [[[110, 70], [64, 76]], [[110, 70], [114, 104]], [[64, 76], [42, 90], [24, 104]], [[64, 76], [90, 90], [86, 104]]], dur: 0.7},
-    burpee: {label: "Бёрпи: из прыжка в упор лёжа и обратно", head: [80, 20], seg: [[[80, 30], [80, 62]], [[80, 62], [76, 84], [74, 104]], [[80, 62], [84, 84], [86, 104]], [[80, 36], [72, 20], [70, 6]], [[80, 36], [88, 20], [90, 6]]],
-      head2: [116, 64], seg2: [[[106, 72], [60, 78]], [[60, 78], [40, 92], [22, 104]], [[60, 78], [42, 92], [24, 106]], [[106, 72], [108, 104]], [[106, 72], [112, 104]]], dur: 2.2},
-    rope: {label: "Прыжки через скакалку", head: [80, 24], seg: [[[80, 34], [80, 64]], [[80, 64], [78, 86], [78, 106]], [[80, 64], [82, 86], [82, 106]], [[80, 40], [68, 54], [62, 66]], [[80, 40], [92, 54], [98, 66]]],
-      head2: [80, 18], seg2: [[[80, 28], [80, 58]], [[80, 58], [78, 80], [78, 100]], [[80, 58], [82, 80], [82, 100]], [[80, 34], [68, 48], [62, 60]], [[80, 34], [92, 48], [98, 60]]],
-      rope: ["M62 66 C34 -6 126 -6 98 66", "M62 60 C34 136 126 136 98 60"], dur: 0.6},
-    ropealt: {label: "Бег через скакалку с ноги на ногу", head: [80, 22], seg: [[[80, 32], [80, 62]], [[80, 62], [74, 80], [76, 98]], [[80, 62], [82, 84], [82, 106]], [[80, 38], [68, 52], [62, 64]], [[80, 38], [92, 52], [98, 64]]],
-      head2: [80, 22], seg2: [[[80, 32], [80, 62]], [[80, 62], [78, 84], [78, 106]], [[80, 62], [86, 80], [84, 98]], [[80, 38], [68, 52], [62, 64]], [[80, 38], [92, 52], [98, 64]]],
-      rope: ["M62 64 C34 -8 126 -8 98 64", "M62 64 C34 140 126 140 98 64"], dur: 0.5},
-    run: {label: "Лёгкий бег", head: [84, 24], seg: [[[82, 34], [76, 64]], [[76, 64], [90, 82], [88, 106]], [[76, 64], [62, 82], [48, 88]], [[82, 40], [94, 50], [102, 42]], [[82, 40], [70, 52], [64, 62]]],
-      head2: [84, 22], seg2: [[[82, 32], [76, 62]], [[76, 62], [62, 80], [48, 86]], [[76, 62], [90, 80], [88, 104]], [[82, 38], [70, 50], [64, 60]], [[82, 38], [94, 48], [102, 40]]], dur: 0.55},
-    walk: {label: "Быстрая ходьба", head: [80, 24], seg: [[[80, 34], [79, 66]], [[79, 66], [86, 86], [90, 106]], [[79, 66], [74, 86], [68, 106]], [[80, 40], [86, 54], [90, 66]], [[80, 40], [74, 54], [70, 66]]],
-      head2: [80, 24], seg2: [[[80, 34], [79, 66]], [[79, 66], [74, 86], [68, 106]], [[79, 66], [86, 86], [90, 106]], [[80, 40], [74, 54], [70, 66]], [[80, 40], [86, 54], [90, 66]]], dur: 1.1}
+    march: {v: "s", d: 1.5, m: "s", pr: {shadow: 1}, still: 0, label: "Марш на месте: колено поднимается до уровня таза, руки работают как при ходьбе",
+      k: [{p: [80, 64], t: 3, a: [-32, 30], b: [34, 50], l: fS(97, 90, -25), r: fS(78)},
+          {p: [80, 64], t: 3, a: [0, 25], b: [0, 25], l: fS(84, 101, -10), r: fS(78)},
+          {p: [80, 64], t: 3, a: [34, 50], b: [-32, 30], l: fS(81), r: fS(97, 90, -25)},
+          {p: [80, 64], t: 3, a: [0, 25], b: [0, 25], l: fS(81), r: fS(84, 101, -10)}]},
+    walk: {v: "s", d: 1.1, m: "s", pr: {shadow: 1}, still: 0, label: "Быстрая ходьба: шаг с пятки, руки согнуты и работают в такт",
+      k: [{p: [80, 65.2], t: 4, a: [-30, 45], b: [30, 55], l: fS(95, FG, 18), r: fS(66, 105, -30)},
+          {p: [80, 63.6], t: 4, a: [0, 50], b: [0, 50], l: fS(80), r: fS(82, 97, -15)},
+          {p: [80, 65.2], t: 4, a: [30, 55], b: [-30, 45], l: fS(66, 105, -30), r: fS(95, FG, 18)},
+          {p: [80, 63.6], t: 4, a: [0, 50], b: [0, 50], l: fS(82, 97, -15), r: fS(80)}]},
+    run: {v: "s", d: 0.66, m: "s", pr: {shadow: 1}, still: .25, label: "Лёгкий бег: корпус чуть вперёд, приземление под себя, руки согнуты",
+      k: [{p: [78, 66], t: 10, a: [-45, 95], b: [45, 85], l: fS(84, FG, 4), r: fS(54, 90, -45)},
+          {p: [78, 62], t: 10, a: [-20, 90], b: [20, 90], l: fS(64, 103, -40), r: fS(90, 88, -10)},
+          {p: [78, 66], t: 10, a: [45, 85], b: [-45, 95], l: fS(54, 90, -45), r: fS(84, FG, 4)},
+          {p: [78, 62], t: 10, a: [20, 90], b: [-20, 90], l: fS(90, 88, -10), r: fS(64, 103, -40)}]},
+    knees: {v: "s", d: 0.72, m: "s", pr: {shadow: 1}, still: 0, label: "Бег на месте с высоким подниманием колен: на носках, руки согнуты",
+      k: [{p: [80, 62], t: 0, a: [-40, 95], b: [45, 95], l: fS(99, 84, -30), r: fS(79, 105, -35)},
+          {p: [80, 64], t: 0, a: [0, 95], b: [0, 95], l: fS(83, 104, -25), r: fS(79, 106, -30)},
+          {p: [80, 62], t: 0, a: [45, 95], b: [-40, 95], l: fS(81, 105, -35), r: fS(99, 84, -30)},
+          {p: [80, 64], t: 0, a: [0, 95], b: [0, 95], l: fS(81, 106, -30), r: fS(83, 104, -25)}]},
+    jog: {v: "s", d: 0.64, m: "s", pr: {shadow: 1}, still: 0, label: "Бег на месте: на носках, пятки уходят назад, руки согнуты",
+      k: [{p: [80, 64], t: 4, a: [-35, 90], b: [35, 90], l: fS(82, 106, -15), r: fS(68, 94, -40)},
+          {p: [80, 65], t: 4, a: [0, 90], b: [0, 90], l: fS(82, 106, -15), r: fS(77, 101, -30)},
+          {p: [80, 64], t: 4, a: [35, 90], b: [-35, 90], l: fS(68, 94, -40), r: fS(80, 106, -15)},
+          {p: [80, 65], t: 4, a: [0, 90], b: [0, 90], l: fS(77, 101, -30), r: fS(80, 106, -15)}]},
+    sjump: {v: "s", d: 2.2, at: [0, .3, .5, .68, .86], pr: {shadow: 1}, still: .5, label: "Прыжок из приседа: присед, мощный толчок вверх, мягкое приземление",
+      k: [fK(ST, {a: [6, 10], b: [4, 10]}),
+          {p: [62, 87], t: 40, n: -20, a: [-34, 18], b: [-36, 18], l: fS(82), r: fS(80)},
+          {p: [80, 51], t: 0, a: [165, 6], b: [163, 6], l: fS(82, 94, -60), r: fS(80, 94, -60)},
+          {p: [70, 76], t: 22, n: -10, a: [42, 30], b: [40, 30], l: fS(82), r: fS(80)},
+          fK(ST, {a: [6, 10], b: [4, 10]})]},
+    jack: {v: "f", d: 1, m: "s", pr: {shadow: 1}, still: .5, label: "«Звёздочка» с прыжком: ноги врозь и руки над головой, затем обратно",
+      k: [{p: [80, 64], a: [12, 6], b: [12, 6], l: fS(76), r: fS(84)},
+          {p: [80, 58], a: [95, 10], b: [95, 10], l: fS(68, 100), r: fS(92, 100)},
+          {p: [80, 66], a: [168, 8], b: [168, 8], l: fS(63), r: fS(97)},
+          {p: [80, 58], a: [95, 10], b: [95, 10], l: fS(68, 100), r: fS(92, 100)}]},
+    stepjack: {v: "f", d: 2.4, pr: {shadow: 1}, still: .25, label: "«Звёздочка» шагом: шаг в сторону и руки вверх, без прыжка",
+      k: [{p: [80, 64], a: [12, 6], b: [12, 6], l: fS(76), r: fS(84)},
+          {p: [77, 65], a: [165, 8], b: [165, 8], l: fS(60), r: fS(84)},
+          {p: [80, 64], a: [12, 6], b: [12, 6], l: fS(76), r: fS(84)},
+          {p: [83, 65], a: [165, 8], b: [165, 8], l: fS(76), r: fS(100)}]},
+    box: {v: "s", d: 1.8, at: [0, .16, .34, .56, .76], pr: {shadow: 1}, still: .16, label: "Бой с тенью: руки у подбородка, удары прямой рукой на выдохе",
+      k: [{p: [78, 66], t: 6, n: -6, a: [40, 128], b: [34, 132], l: fS(92), r: fS(64, FG, -10)},
+          {p: [79, 66], t: 10, n: -6, a: [88, 4], b: [34, 132], l: fS(92), r: fS(64, FG, -10)},
+          {p: [78, 66], t: 6, n: -6, a: [40, 128], b: [34, 132], l: fS(92), r: fS(64, FG, -10)},
+          {p: [81, 66.5], t: 14, n: -6, a: [30, 132], b: [90, 2], l: fS(92), r: fS(64, 104, -30)},
+          {p: [78, 66], t: 6, n: -6, a: [40, 128], b: [34, 132], l: fS(92), r: fS(64, FG, -10)}]},
+    skater: {v: "f", d: 1.5, at: [0, .25, .5, .75], pr: {shadow: 1}, still: 0, label: "Конькобежец: прыжок в сторону на одну ногу, вторая уходит за спину",
+      k: [{p: [62, 73], t: -10, a: [55, 15], b: [-25, -15], l: fS(60), r: fS(42, 99, 0)},
+          {p: [80, 60], t: 0, a: [25, 10], b: [25, 10], l: fS(75, 97), r: fS(85, 97)},
+          {p: [98, 73], t: 10, a: [-25, -15], b: [55, 15], l: fS(118, 99, 0), r: fS(100)},
+          {p: [80, 60], t: 0, a: [25, 10], b: [25, 10], l: fS(75, 97), r: fS(85, 97)}]},
+    climber: {v: "s", d: 0.8, m: "s", still: 0, label: "Альпинист: в упоре лёжа колени по очереди к груди",
+      k: [fK(P_TOP, {p: [75.5, 84], t: 70, l: fS(80, 102, -70)}), fK(P_TOP, {p: [75.5, 84], t: 70, r: fS(78, 102, -70)})]},
+    burpee: {v: "s", d: 3.6, at: [0, .13, .26, .4, .53, .66, .79, .9], pr: {shadow: 1}, still: .79, label: "Бёрпи: присед, упор лёжа, обратно в присед и прыжок вверх",
+      k: [{p: [80, 64], t: 2, a: {x: 82, y: 95}, b: {x: 80, y: 95}, l: fS(82), r: fS(80)},
+          {p: [66, 90], t: 50, n: -20, a: {x: 98, y: 106}, b: {x: 96, y: 106}, l: fS(82), r: fS(80)},
+          {p: [74.75, 86.3], t: 71.4, a: {x: 101, y: 106}, b: {x: 99, y: 106}, l: fS(34, 100, -80), r: fS(32, 100, -80)},
+          {p: [74.75, 86.3], t: 71.4, a: {x: 101, y: 106}, b: {x: 99, y: 106}, l: fS(34, 100, -80), r: fS(32, 100, -80)},
+          {p: [66, 90], t: 50, n: -20, a: {x: 98, y: 106}, b: {x: 96, y: 106}, l: fS(82), r: fS(80)},
+          {p: [80, 64], t: 2, a: {x: 84, y: 92}, b: {x: 82, y: 92}, l: fS(82), r: fS(80)},
+          {p: [80, 56], t: 0, a: {x: 92, y: 1}, b: {x: 90, y: 1}, l: fS(82, 98, -50), r: fS(80, 98, -50)},
+          {p: [80, 65], t: 2, a: {x: 84, y: 92}, b: {x: 82, y: 92}, l: fS(82), r: fS(80)}]},
+    ropeside: {v: "f", d: 1.1, m: "s", at: [0, .25, .5, .75], pr: {rope: 2, shadow: 1}, still: .25, label: "«Лыжник» со скакалкой: прыжки из стороны в сторону, ноги вместе",
+      k: [{p: [72, 65], a: [32, 48], b: [32, 48], l: fS(69), r: fS(75)},
+          {p: [80, 59], a: [32, 48], b: [32, 48], l: fS(77, 100.5), r: fS(83, 100.5)},
+          {p: [88, 65], a: [32, 48], b: [32, 48], l: fS(85), r: fS(91)},
+          {p: [80, 59], a: [32, 48], b: [32, 48], l: fS(77, 100.5), r: fS(83, 100.5)}]},
+    ropenone: {v: "f", d: 0.62, m: "s", at: [0, .25, .5, .75], pr: {shadow: 1}, still: .5, label: "Прыжки без скакалки: та же техника, кисти вращают воображаемую скакалку",
+      k: [{p: [80, 65], a: [32, 48], b: [32, 48], l: fS(77), r: fS(83)},
+          {p: [80, 62.5], a: [32, 48], b: [32, 48], l: fS(77, 104, 0), r: fS(83, 104, 0)},
+          {p: [80, 59], a: [32, 48], b: [32, 48], l: fS(77, 100.5, 0), r: fS(83, 100.5, 0)},
+          {p: [80, 62.5], a: [32, 48], b: [32, 48], l: fS(77, 104, 0), r: fS(83, 104, 0)}]},
+    rope: {v: "f", d: 0.62, m: "s", at: [0, .25, .5, .75], pr: {rope: 1, shadow: 1}, still: .3, label: "Прыжки через скакалку: невысоко, на носках, вращают кисти",
+      k: [{p: [80, 65], a: [32, 48], b: [32, 48], l: fS(77), r: fS(83)},
+          {p: [80, 62.5], a: [32, 48], b: [32, 48], l: fS(77, 104, 0), r: fS(83, 104, 0)},
+          {p: [80, 59], a: [32, 48], b: [32, 48], l: fS(77, 100.5, 0), r: fS(83, 100.5, 0)},
+          {p: [80, 62.5], a: [32, 48], b: [32, 48], l: fS(77, 104, 0), r: fS(83, 104, 0)}]},
+    ropealt: {v: "f", d: 1.1, m: "s", at: [0, .25, .5, .75], pr: {rope: 2, shadow: 1}, still: .25, label: "Бег через скакалку: под каждый оборот — шаг с ноги на ногу",
+      k: [{p: [80, 64], a: [32, 48], b: [32, 48], l: fS(77), r: fS(83)},
+          {p: [80, 62], a: [32, 48], b: [32, 48], l: fS(78, 96, 0), r: fS(83, 105, 0)},
+          {p: [80, 64], a: [32, 48], b: [32, 48], l: fS(77), r: fS(83)},
+          {p: [80, 62], a: [32, 48], b: [32, 48], l: fS(77, 105, 0), r: fS(82, 96, 0)}]}
   };
-  function sfPath(seg){ return "M" + seg.map(function(p){ return p[0] + " " + p[1]; }).join(" L"); }
-  function stretchFigure(name){
-    var f = SFIG[name], two = !!f.seg2, dur = f.dur || 4;
-    var s = '<svg viewBox="0 0 160 120" role="img" aria-label="' + f.label + '">';
-    s += '<line x1="6" y1="108" x2="154" y2="108" stroke="var(--steel)" stroke-width="5" stroke-linecap="round"/>';
-    if(f.wall) s += '<line x1="' + f.wall + '" y1="12" x2="' + f.wall + '" y2="108" stroke="var(--steel)" stroke-width="5" stroke-linecap="round"/>';
-    (f.blocks || []).forEach(function(b){
-      s += '<rect x="' + b[0] + '" y="' + b[1] + '" width="' + b[2] + '" height="' + b[3] + '" rx="3" fill="none" stroke="var(--line)" stroke-width="3"/>';
-    });
-    if(f.rope) s += '<path d="' + f.rope[0] + '" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round">' +
-      (REDUCED ? '' : '<animate attributeName="d" values="' + f.rope[0] + ";" + f.rope[1] + ";" + f.rope[0] + '" dur="' + dur + 's" repeatCount="indefinite"/>') + '</path>';
-    s += '<g fill="none" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">';
-    if(!two && !REDUCED) s += '<animateTransform attributeName="transform" type="translate" values="0 0;0 2.5;0 0" dur="' + dur + 's" repeatCount="indefinite"/>';
-    f.seg.forEach(function(seg, i){
-      var d = sfPath(seg);
-      s += '<path d="' + d + '">' +
-        (two && !REDUCED ? '<animate attributeName="d" values="' + d + ";" + sfPath(f.seg2[i]) + ";" + d + '" dur="' + dur + 's" repeatCount="indefinite"/>' : '') + '</path>';
-    });
-    s += '<circle cx="' + f.head[0] + '" cy="' + f.head[1] + '" r="8">';
-    if(two && !REDUCED){
-      s += '<animate attributeName="cx" values="' + f.head[0] + ";" + f.head2[0] + ";" + f.head[0] + '" dur="' + dur + 's" repeatCount="indefinite"/>';
-      s += '<animate attributeName="cy" values="' + f.head[1] + ";" + f.head2[1] + ";" + f.head[1] + '" dur="' + dur + 's" repeatCount="indefinite"/>';
-    }
-    s += '</circle></g></svg>';
-    return '<div class="fig">' + s + '</div>';
+  // ---------- фигурка крупно ----------
+  var FIGV = null;
+  function figvOpen(k, title, hint){
+    if(!FIGS[k]) return;
+    FIGV = {k: k, t: title || "", h: hint || "", slow: false, back: document.activeElement};
+    renderFigv();
   }
-  function figure(kind){
-    if(typeof DFIG !== "undefined" && DFIG[kind]) return dumbFigure(kind);
-    if(SFIG[kind]) return stretchFigure(kind);
-    if(PANIMS[kind]) return pushFigure(kind);
-    if(SANIMS[kind]) return squatFigure(kind);
-    var a = ANIMS[kind], st = POSE[a.still], kt = a.keys.join(";"), rep = ' dur="' + a.dur + 's" repeatCount="indefinite"';
-    var poses = a.poses.map(function(n){ return POSE[n]; });
-    var s = '<svg viewBox="0 0 120 140" role="img" aria-label="' + a.label + '">';
-    if(a.stool){
-      s += '<rect x="46" y="108" width="28" height="30" rx="3" fill="none" stroke="var(--steel)" stroke-width="3"' + (REDUCED ? ' opacity="0">' : '>') +
-        (REDUCED ? '' : '<animate attributeName="opacity" values="1;1;0;0;1;1" keyTimes="0;.12;.2;.93;.97;1"' + rep + '/>') + '</rect>';
-    }
-    s += '<line x1="16" y1="32" x2="104" y2="32" stroke="var(--steel)" stroke-width="5" stroke-linecap="round"/>';
-    s += '<g fill="none" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">';
-    if(a.fade && !REDUCED) s += '<animate attributeName="opacity" values="1;1;0;0;1" keyTimes="0;.86;.9;.96;1"' + rep + '/>';
-    [false, true].forEach(function(right){
-      s += '<path d="' + armPath(st, right) + '">' +
-        (REDUCED ? '' : '<animate attributeName="d" values="' + poses.map(function(p){ return armPath(p, right); }).join(";") + '" keyTimes="' + kt + '"' + rep + '/>') + '</path>';
-    });
-    s += '<g transform="translate(0 ' + st.dy + ')">' +
-      (REDUCED ? '' : '<animateTransform attributeName="transform" type="translate" values="' + poses.map(function(p){ return "0 " + p.dy; }).join(";") + '" keyTimes="' + kt + '"' + rep + '/>') +
-      '<circle cx="60" cy="49" r="7"/><path d="M50 58 H70 M60 56 V96 L55 134 M60 96 L65 134"/></g>';
-    s += '</g><circle cx="36" cy="32" r="3.5" fill="var(--ink)"/><circle cx="84" cy="32" r="3.5" fill="var(--ink)"/></svg>';
-    return '<div class="fig">' + s + '</div>';
+  function figvClose(){
+    var bk = FIGV && FIGV.back;
+    FIGV = null; renderFigv();
+    if(bk && bk.focus && document.body.contains(bk)) try { bk.focus({preventScroll: true}); } catch(e){}
   }
+  function figvSpeed(){
+    if(!FIGV) return;
+    FIGV.slow = !FIGV.slow;
+    var sv = document.querySelector("#figDlg .rig"), bt = document.querySelector('#figDlg [data-act="fv-speed"]');
+    if(sv) sv.setAttribute("data-speed", FIGV.slow ? "0.45" : "1");
+    if(bt){ bt.setAttribute("aria-pressed", String(FIGV.slow)); bt.textContent = FIGV.slow ? "Обычная скорость" : "Замедлить"; }
+  }
+  function renderFigv(){
+    var box = document.getElementById("figDlg");
+    if(!box) return;
+    if(!FIGV){ box.hidden = true; box.innerHTML = ""; modalSync(); return; }
+    var def = fprep(FIGS[FIGV.k]), stage;
+    if(REDUCED){
+      // без анимации — три ключевых момента движения рядом
+      var ts = [], seen = [];
+      def._v.forEach(function(v, i){ var key = v.map(fr1).join(","); if(seen.indexOf(key) < 0){ seen.push(key); ts.push(def._t[i]); } });
+      if(ts.length === 2) ts = [ts[0], (ts[0] + ts[1]) / 2, ts[1]];
+      ts = ts.slice(0, 3);
+      stage = '<div class="fv-frames">' + ts.map(function(t){ return figMarkup(FIGV.k, t); }).join("") + '</div>';
+    } else stage = figMarkup(FIGV.k, null, "big");
+    box.innerHTML = '<div class="warm-card fv-card" role="document"><div class="warm-top"><span>Как выполнять</span>' +
+      '<button type="button" class="tb-icon" data-act="fv-close" aria-label="Закрыть">✕</button></div>' +
+      '<div class="fv-stage">' + stage + '</div>' +
+      '<div class="fv-ctl"><p class="fv-cap">' + esc(def.label) + '</p>' +
+      (REDUCED ? '' : '<button type="button" class="linkbtn alt" data-act="fv-speed" aria-pressed="false">Замедлить</button>') + '</div>' +
+      (FIGV.t ? '<h3 class="fv-title">' + esc(FIGV.t) + '</h3>' : '') +
+      (FIGV.h ? '<p class="fv-text">' + esc(FIGV.h) + '</p>' : '') +
+      '</div>';
+    box.hidden = false; modalSync();
+    figKick();
+    var cl = box.querySelector('[data-act="fv-close"]');
+    if(cl) try { cl.focus({preventScroll: true}); } catch(e){}
+  }
+  document.addEventListener("click", function(ev){ if(FIGV && ev.target && ev.target.id === "figDlg") figvClose(); });
 
   function items(day){ var a = []; day.groups.forEach(function(g){ g.rows.forEach(function(r){ a = a.concat(r); }); }); return a; }
   function allLogged(day, key){
@@ -3152,7 +3534,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     day.groups.forEach(function(g, gN){
       var gIdx = (gi0 || 0) + gN;
       var selItem = null, hs = splitHint(g.hint), hk = key + ":" + gIdx, hOpen = !!HOW[hk];
-      h += '<div class="group' + (g.anim ? ' has-anim' : '') + '">' + (g.anim ? figure(g.anim) : '') +
+      var gfig = g.anim ? figure(g.anim, g.title, g.hint) : "";
+      h += '<div class="group' + (gfig ? ' has-anim' : '') + '">' + gfig +
         '<div class="gtext"><h3>' + esc(g.title) + '</h3>' +
         (hs.lead ? '<p class="hint">' + esc(hs.lead) + '</p>' : '') +
         (hs.more && hOpen ? '<p class="hint howmore">' + esc(hs.more) + '</p>' : '') +
@@ -4142,62 +4525,16 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     });
     return h + '</div>';
   }
-  // ---------- фигурки с гантелями ----------
-  var DFIG = {
-    dbpress: {label: "Жим гантелей лёжа", head: [34, 92], head2: [34, 92],
-      seg: [[[44, 98], [112, 100]], [[112, 100], [128, 86], [140, 104]], [[52, 96], [58, 76], [54, 58]]],
-      seg2: [[[44, 98], [112, 100]], [[112, 100], [128, 86], [140, 104]], [[52, 96], [68, 82], [54, 76]]],
-      db: [[54, 58]], db2: [[54, 76]], dur: 3.2},
-    dbrow: {label: "Тяга гантелей в наклоне", head: [118, 60], head2: [116, 62],
-      seg: [[[70, 108], [70, 84]], [[70, 84], [108, 66]], [[108, 66], [104, 96]]],
-      seg2: [[[70, 108], [70, 84]], [[70, 84], [106, 68]], [[106, 68], [90, 80]]],
-      db: [[104, 96]], db2: [[90, 80]], dur: 3},
-    dblunge: {label: "Выпады с гантелями", head: [78, 38], head2: [78, 48],
-      seg: [[[78, 78], [104, 84], [104, 108]], [[78, 78], [52, 98], [38, 106]], [[78, 78], [78, 48]]],
-      seg2: [[[78, 88], [104, 90], [104, 108]], [[78, 88], [48, 104], [34, 108]], [[78, 88], [78, 58]]],
-      db: [[50, 72], [106, 72]], db2: [[50, 82], [106, 82]], dur: 3.4},
-    dbpressup: {label: "Жим гантелей над головой", head: [76, 36], head2: [76, 36],
-      seg: [[[76, 108], [76, 46]], [[76, 54], [56, 44], [56, 26]], [[76, 54], [96, 44], [96, 26]]],
-      seg2: [[[76, 108], [76, 46]], [[76, 54], [52, 58], [58, 46]], [[76, 54], [100, 58], [94, 46]]],
-      db: [[56, 26], [96, 26]], db2: [[58, 46], [94, 46]], dur: 3.2}
-  };
-  function dumbFigure(name){
-    var f = DFIG[name], two = !!f.seg2, dur = f.dur || 3.2, kt = "0;0.5;1";
-    var s2 = '<svg viewBox="0 0 160 120" role="img" aria-label="' + f.label + '">';
-    s2 += '<line x1="6" y1="108" x2="154" y2="108" stroke="var(--steel)" stroke-width="5" stroke-linecap="round"/>';
-    s2 += '<g fill="none" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">';
-    f.seg.forEach(function(seg, i){
-      var d = sfPath(seg);
-      s2 += '<path d="' + d + '">' + (two && !REDUCED ? '<animate attributeName="d" values="' + d + ";" + sfPath(f.seg2[i]) + ";" + d + '" keyTimes="' + kt + '" dur="' + dur + 's" repeatCount="indefinite"/>' : '') + '</path>';
-    });
-    s2 += '<circle cx="' + f.head[0] + '" cy="' + f.head[1] + '" r="8">';
-    if(two && !REDUCED){
-      s2 += '<animate attributeName="cx" values="' + f.head[0] + ";" + f.head2[0] + ";" + f.head[0] + '" keyTimes="' + kt + '" dur="' + dur + 's" repeatCount="indefinite"/>';
-      s2 += '<animate attributeName="cy" values="' + f.head[1] + ";" + f.head2[1] + ";" + f.head[1] + '" keyTimes="' + kt + '" dur="' + dur + 's" repeatCount="indefinite"/>';
-    }
-    s2 += '</circle></g>';
-    (f.db || []).forEach(function(p, i){
-      var q = (f.db2 || [])[i] || p;
-      s2 += '<rect x="' + (p[0] - 10) + '" y="' + (p[1] - 4) + '" width="20" height="8" rx="3" fill="var(--accent)">';
-      if(two && !REDUCED){
-        s2 += '<animate attributeName="x" values="' + (p[0] - 10) + ";" + (q[0] - 10) + ";" + (p[0] - 10) + '" keyTimes="' + kt + '" dur="' + dur + 's" repeatCount="indefinite"/>';
-        s2 += '<animate attributeName="y" values="' + (p[1] - 4) + ";" + (q[1] - 4) + ";" + (p[1] - 4) + '" keyTimes="' + kt + '" dur="' + dur + 's" repeatCount="indefinite"/>';
-      }
-      s2 += '</rect>';
-    });
-    return '<div class="fig">' + s2 + '</svg></div>';
-  }
-
   // ---------- программа с гантелями ----------
   var DUMB_EX = {
     press: {n: "Жим гантелей лёжа", h: "Лёжа на полу или на скамье: гантели от груди вверх, локти под 45 градусов, поясница прижата.", a: "dbpress"},
     row: {n: "Тяга гантелей в наклоне", h: "Наклон корпуса вперёд, спина прямая, тянешь гантели к поясу и сводишь лопатки.", a: "dbrow"},
-    squat: {n: "Приседания с гантелями", h: "Гантели у плеч или вдоль корпуса, пятки на полу, колени идут по носкам.", a: "squat"},
-    dead: {n: "Румынская тяга", h: "Ноги чуть согнуты, таз уходит назад, гантели скользят вдоль бёдер, спина прямая.", a: "squatslow"},
+    squat: {n: "Приседания с гантелями", h: "Гантели у плеч или вдоль корпуса, пятки на полу, колени идут по носкам.", a: "dbsquat"},
+    dead: {n: "Румынская тяга", h: "Ноги чуть согнуты, таз уходит назад, гантели скользят вдоль бёдер, спина прямая.", a: "dbrdl"},
     lunge: {n: "Выпады с гантелями", h: "Шаг вперёд, заднее колено почти до пола, корпус вертикальный. Считается шаг каждой ногой.", a: "dblunge"},
-    curl: {n: "Подъёмы на бицепс", h: "Локти прижаты к корпусу, подъём без рывка, опускание медленное.", a: "dbpressup"},
+    curl: {n: "Подъёмы на бицепс", h: "Локти прижаты к корпусу, подъём без рывка, опускание медленное.", a: "dbcurl"},
     shoulder: {n: "Жим гантелей над головой", h: "Стоя, живот подтянут, гантели от плеч вверх, поясница не прогибается.", a: "dbpressup"},
-    plank: {n: "Планка с протяжкой гантели", h: "Упор лёжа, поочерёдно подтягиваешь гантель к поясу, таз не разворачивается.", a: "plank"}
+    plank: {n: "Планка с протяжкой гантели", h: "Упор лёжа, поочерёдно подтягиваешь гантель к поясу, таз не разворачивается.", a: "dbplank"}
   };
   function dumbDay(ctx){
     var t = ctx.type, MP = ctx.MP, list = ctx.list, re = ctx.re, b = ctx.block, base = ctx.base, groups = [], next = "";
@@ -4232,7 +4569,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       var sec = Math.min(45, 25 + 5 * b), rl = Math.max(1, Math.floor(0.3 * ctx.max)), ls = MP.lightSets;
       groups.push({title: DUMB_EX.plank.n + ": 3 " + plural(3, SETS) + " по " + sec + " " + plural(sec, ["секунде","секунды","секунд"]),
         hint: DUMB_EX.plank.h + " " + MP.holdHint,
-        rows: [list(3, sec, "plank", MP.holdRest, MP.holdOut)], anim: "plank"});
+        rows: [list(3, sec, "plank", MP.holdRest, MP.holdOut)], anim: "dbplank"});
       g("shoulder", ls, rl, MP.lightRest);
       next = "Лёгкая тренировка восстанавливает: следующую можно уже завтра.";
     }
@@ -4277,18 +4614,18 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     stepjack: {n: "«Звёздочка» шагом", s: "Звёздочка", h: "Шаг в сторону и руки над головой, вернулся — шаг в другую сторону. Без прыжков, бережно для коленей.", a: "stepjack"},
     box: {n: "Бой с тенью", s: "Бой с тенью", h: "Лёгкая стойка, колени мягкие, прямые удары руками попеременно. Пружинь на носках и дыши на каждый удар.", a: "box"},
     jack: {n: "«Звёздочка» с прыжком", s: "Звёздочка", h: "Прыжком ноги врозь и руки над головой, прыжком обратно. Приземляйся мягко на носки.", a: "jack"},
-    jog: {n: "Бег на месте", s: "Бег на месте", h: "Лёгкий бег на носках, руки согнуты в локтях, плечи расслаблены.", a: "knees"},
+    jog: {n: "Бег на месте", s: "Бег на месте", h: "Лёгкий бег на носках, руки согнуты в локтях, плечи расслаблены.", a: "jog"},
     skater: {n: "Конькобежец", s: "Конькобежец", h: "Широкий шаг или прыжок в сторону, вторая нога уходит за опорную, корпус чуть вперёд. Чередуй стороны.", a: "skater"},
     climber: {n: "Альпинист", s: "Альпинист", h: "Упор лёжа, поочерёдно подтягивай колени к груди. Таз не задирай, плечи над кистями.", a: "climber"},
     knees: {n: "Высокие колени", s: "Колени", h: "Бег на месте с коленями до пояса, быстро и на носках. Руки помогают.", a: "knees"},
     burpee: {n: "Бёрпи без отжимания", s: "Бёрпи", h: "Присел, руки на пол, ноги назад в планку, вернул ноги и выпрыгнул вверх. Лучше медленнее, но чисто.", a: "burpee"},
-    sjump: {n: "Прыжки из приседа", s: "Выпрыгивания", h: "Присед до параллели и мягкий прыжок вверх, приземление на носки с перекатом на пятку, колени не заваливаются внутрь.", a: "squat"},
+    sjump: {n: "Прыжки из приседа", s: "Выпрыгивания", h: "Присед до параллели и мягкий прыжок вверх, приземление на носки с перекатом на пятку, колени не заваливаются внутрь.", a: "sjump"},
     // скакалка
     rbasic: {n: "Прыжки на двух ногах", s: "Прыжки", h: "Невысоко, на носках, скакалку крутят кисти, локти у корпуса. Сбился — сразу продолжай.", a: "rope"},
     ralt: {n: "С ноги на ногу", s: "Попеременно", h: "Лёгкий бег через скакалку: каждое вращение — смена ноги. Ритм ровный, как метроном.", a: "ropealt"},
-    rside: {n: "«Лыжник»", s: "Лыжник", h: "Прыжки из стороны в сторону через воображаемую линию, ноги вместе, вращение не останавливается.", a: "rope"},
+    rside: {n: "«Лыжник»", s: "Лыжник", h: "Прыжки из стороны в сторону через воображаемую линию, ноги вместе, вращение не останавливается.", a: "ropeside"},
     rknees: {n: "Высокие колени со скакалкой", s: "Колени", h: "С ноги на ногу, но колени выше и темп быстрее.", a: "ropealt"},
-    rshadow: {n: "Прыжки без скакалки", s: "Без скакалки", h: "Та же техника, но скакалку держишь в одной руке сбоку или представляешь её — отдых для плеч, ритм не теряется.", a: "rope"},
+    rshadow: {n: "Прыжки без скакалки", s: "Без скакалки", h: "Та же техника, но скакалку держишь в одной руке сбоку или представляешь её — отдых для плеч, ритм не теряется.", a: "ropenone"},
     // бег
     walk: {n: "Быстрая ходьба", s: "Шагом", h: "Бодрый шаг, руки работают, дыхание через нос. Это и разминка, и отдых между отрезками.", a: "walk"},
     run: {n: "Лёгкий бег", s: "Бег", h: "Разговорный темп: можно говорить короткими фразами. Шаг короткий, приземление под себя, плечи расслаблены.", a: "run"},
@@ -4527,8 +4864,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     sec = Math.max(0, Math.round(+sec || 0));
     if(!sec) return "без паузы";
     if(sec < 60) return sec + " " + plural(sec, ["секунда","секунды","секунд"]);
-    var m = Math.round(sec / 6) / 10;
-    return (m === Math.round(m) ? m : m.toFixed(1).replace(".", ",")) + " " + plural(Math.round(m), ["минута","минуты","минут"]);
+    var m = Math.floor(sec / 60), sc = sec % 60;
+    return sc ? m + " мин " + sc + " с" : m + " " + plural(m, ["минута","минуты","минут"]);
   }
   function dayCircuit(day){ return !!day && day.mode === "circuit"; }
   function dayRounds(day){ return Math.max(1, Math.min(60, +day.rounds || 1)); }
@@ -5001,7 +5338,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     h += '<label>Сколько<input type="number" min="0" max="600"' + at("val") + ' value="' + exVal(ex) + '"></label>';
     if(!circ){
       h += '<label>Подходов<input type="number" min="1" max="30"' + at("sets") + ' value="' + exSets(ex) + '"></label>';
-      h += '<label>Пауза, мин<input type="number" min="0" max="180" step="0.5"' + at("restmin") + ' value="' + (Math.round((+ex.rest || 0) / 6) / 10) + '"></label>';
+      h += restFields(at, +ex.rest || 0, 180);
     }
     h += '<label>Показывать в разделе<select' + at("cat") + '>' +
       '<option value=""' + (!ex.cat ? " selected" : "") + '>только здесь</option>' +
@@ -5011,6 +5348,21 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     h += '<label class="edwide">Подсказка по технике<input type="text"' + at("hint") + ' value="' + esc(ex.hint || "") + '" placeholder="Необязательно"></label>';
     h += '</div>';
     return h;
+  }
+  // пауза в редакторе: минуты и секунды, шаг — одна секунда; 60 в секундах переносится в минуты, −1 — занимает минуту
+  function restFields(at, sec, maxMin, lab){
+    sec = Math.max(0, Math.round(+sec || 0));
+    return '<div class="edrest" role="group" aria-label="' + (lab || "Пауза") + '"><span class="edrest-l">' + (lab || "Пауза") + '</span><span class="edrest-in">' +
+      '<input type="number" inputmode="numeric" min="0" max="' + maxMin + '" step="1"' + at("restm") + ' value="' + Math.floor(sec / 60) + '" aria-label="Минуты">' +
+      '<span>мин</span>' +
+      '<input type="number" inputmode="numeric" min="-1" max="60" step="1"' + at("rests") + ' value="' + pad(sec % 60) + '" aria-label="Секунды">' +
+      '<span>сек</span></span></div>';
+  }
+  function restEdit(cur, k, v, max){
+    var n = parseInt(v, 10), m = Math.floor(cur / 60), sc = cur % 60;
+    if(!isFinite(n)) n = 0;
+    if(k === "restm") m = Math.max(0, n); else sc = n;
+    return Math.max(0, Math.min(max, m * 60 + sc));
   }
   function exSummary(day, ex){
     var circ = dayCircuit(day), v = exVal(ex);
@@ -5065,7 +5417,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
         : "Сначала все подходы первого упражнения, потом второго и так далее. Пауза задаётся у каждого упражнения своя.") + '</p>';
       if(circ){
         h += '<div class="edfields"><label>Кругов<input type="number" min="1" max="60" data-f="day" data-di="' + di + '" data-k="rounds" value="' + dayRounds(day) + '"></label>' +
-          '<label>Пауза между подходами, мин<input type="number" min="0" max="60" step="0.5" data-f="day" data-di="' + di + '" data-k="restmin" value="' + (Math.round(dayRest(day) / 6) / 10) + '"></label></div>';
+          restFields(function(k){ return ' data-f="day" data-di="' + di + '" data-k="' + k + '"'; }, dayRest(day), 60, "Пауза между подходами") + '</div>';
       }
       h += '<ul class="exlist">';
       ex.forEach(function(e, xi){
@@ -5104,6 +5456,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       var day = prog.days[+el.getAttribute("data-di")]; if(!day) return;
       if(k === "rounds") day.rounds = Math.max(1, Math.min(60, parseInt(v, 10) || 1));
       else if(k === "restmin") day.rest = Math.max(0, Math.min(3600, Math.round((parseFloat(v) || 0) * 60)));
+      else if(k === "restm" || k === "rests") day.rest = restEdit(dayRest(day), k, v, 3600);
       else day.name = v.slice(0, 40);
     } else if(f === "ex"){
       var d2 = prog.days[+el.getAttribute("data-di")]; if(!d2) return;
@@ -5115,6 +5468,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       else if(k === "sets") ex.sets = Math.max(1, Math.min(30, parseInt(v, 10) || 1));
       else if(k === "val") ex.val = Math.max(0, Math.min(600, parseInt(v, 10) || 0));
       else if(k === "restmin") ex.rest = Math.max(0, Math.min(10800, Math.round((parseFloat(v) || 0) * 60)));
+      else if(k === "restm" || k === "rests") ex.rest = restEdit(Math.max(0, Math.min(10800, Math.round(+ex.rest || 0))), k, v, 10800);
     }
   }
 
@@ -8032,6 +8386,11 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   // ---------- что нового ----------
   var WN_KEY = "pullups-seen-ver", WN = null;
   var NEWS = [
+    {v: 302, items: [
+      {e: "🏃", t: "Фигурки упражнений нарисованы заново", d: "У фигурки теперь настоящие суставы: руки и ноги не «складываются» в движении, а дальняя рука и нога светлее, чтобы было видно, что делает каждая. Появились свои фигурки для упражнений с гантелями, бега на месте, выпрыгиваний и разных прыжков через скакалку.", go: "fig-demo", btn: "Посмотреть"},
+      {e: "🔍", t: "Нажми на фигурку — она откроется крупно", d: "В большом окне движение видно целиком, его можно замедлить, а под ним — подсказка по технике."},
+      {e: "⏸️", t: "Паузы в своей программе — с точностью до секунды", d: "В редакторе программы пауза задаётся минутами и секундами, а не шагом в полминуты."}
+    ]},
     {v: 301, items: [
       {e: "🫀", t: "Новый раздел «Кардио»", d: "Три варианта, как у отжиманий: дома без инвентаря, со скакалкой и бег — на улице или на дорожке. 30 тренировок: ровный темп, интервалы, лесенки и лёгкие дни, а раз в 12 тренировок — тест выносливости. Отрезки строятся от того, сколько минут ты держишь темп без остановки.", go: "cardio-open", btn: "Открыть кардио"},
       {e: "⏱️", t: "Таймер сам ведёт по отрезкам", d: "В режиме тренировки следующий отрезок кардио стартует сам, как только закончился отдых, а голосовой тренер называет упражнение и время."},
@@ -8124,6 +8483,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(go === "wk-open") weekOpen(weekStart());
     else if(go === "iv-open") ivOpen();
     else if(go === "doc-health") docOpen("health");
+    else if(go === "fig-demo") figvOpen("run", "Лёгкий бег", "Нажми на любую фигурку в тренировке — она откроется вот так. Кнопка «Замедлить» показывает движение вдвое медленнее.");
     else if(go === "cardio-open"){ if(tabsOff.cardio){ delete tabsOff.cardio; tabsOffSave(); } TAB = "cardio"; try { localStorage.setItem(TKEY, TAB); } catch(e){} navPush(); render(); }
     else if(go === "ps-open"){ goProfile("pushBox"); if(!loggedIn()) flash("Уведомления работают с аккаунтом: войди или зарегистрируйся"); }
     else if(go === "fr-find"){ goProfile("frCode"); setTimeout(function(){ var fq = document.getElementById("frCode"); if(fq) try { fq.focus({preventScroll: true}); } catch(e){} }, 350); }
@@ -9722,7 +10082,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
 
   // ---------- открытый доступ: документы, согласие, удаление аккаунта, заявки в друзья, модерация ----------
   var DOC = null, CNS = null, CNS_LATER = false, DEL = null, BAN = {nick: "", photo: false};
-  var MODALS = ["onb", "imp", "focus", "shareDlg", "weekDlg", "wnDlg", "restDlg", "frDlg", "awDlg", "ivDlg", "ivRun", "docDlg", "cnsDlg", "delDlg"];
+  var MODALS = ["figDlg", "onb", "imp", "focus", "shareDlg", "weekDlg", "wnDlg", "restDlg", "frDlg", "awDlg", "ivDlg", "ivRun", "docDlg", "cnsDlg", "delDlg"];
   function modalSync(){
     var any = MODALS.some(function(id){ var el = document.getElementById(id); return el && !el.hidden; });
     document.body.classList.toggle("modal-open", any);
@@ -10701,6 +11061,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   window.addEventListener("popstate", function(ev){
     var st = ev.state;
     if(!st || !st.app){ navSync(); return; }
+    if(FIGV){ figvClose(); navPush(); return; }
     if(IMP){ impClose(); navPush(); return; }
     if(ONB){ onbClose(true); navPush(); return; }
     var want = st.focus && itemInfo(st.focus) ? st.focus : null;
@@ -10873,6 +11234,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     renderHold();
     renderTimer();
     renderPill();
+    figKick();
   }
 
   function setStatus(cloud){
@@ -10936,6 +11298,9 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   document.addEventListener("click", function(ev){
     var b = ev.target.closest("[data-act]"); if(!b) return;
     var act = b.getAttribute("data-act"), key = b.getAttribute("data-key"), idx = +b.getAttribute("data-idx");
+    if(act === "fig"){ figvOpen(b.getAttribute("data-fig"), b.getAttribute("data-t"), b.getAttribute("data-h")); return; }
+    if(act === "fv-close"){ figvClose(); return; }
+    if(act === "fv-speed"){ figvSpeed(); return; }
     if(act === "chip"){
       var log = logFor(key, idx);
       if(log[idx] == null){
@@ -11570,6 +11935,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   });
 
   document.addEventListener("keydown", function(ev){
+    if(ev.key === "Escape" && FIGV){ figvClose(); return; }
     if(ev.key === "Escape" && LVT && !document.getElementById("lvlUp").hidden){ lvlUpHide(); return; }
     if(ev.key === "Enter" && ev.target && ev.target.id === "frCode"){ ev.preventDefault(); frAdd(); return; }
     if(ev.key === "Escape" && DOC){ docClose(); return; }
@@ -11682,7 +12048,14 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       if(state.g.weight) flash("Вес записан. Если он заметно изменился, пройди тест максимума заново");
       return;
     }
-    if(t3.getAttribute && t3.getAttribute("data-f")){ custEdit(t3); save(); render(); return; }
+    if(t3.getAttribute && t3.getAttribute("data-f")){
+      // после перерисовки редактора фокус остаётся в том же поле: стрелки и колесо продолжают шагать по секунде
+      var fsel = ["f", "di", "xi", "k"].map(function(a){ var v = t3.getAttribute("data-" + a); return v == null ? "" : '[data-' + a + '="' + v + '"]'; }).join("");
+      var had = document.activeElement === t3;
+      custEdit(t3); save(); render();
+      if(had){ var nf = document.querySelector(fsel); if(nf && nf !== t3) try { nf.focus({preventScroll: true}); } catch(e){} }
+      return;
+    }
   });
 
   var camFileInput = document.getElementById("camFile");
