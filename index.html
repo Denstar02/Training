@@ -1769,6 +1769,9 @@ button.fig:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .fv-ctl .linkbtn{flex:none;margin:0;white-space:nowrap}
 .fv-title{font-family:"Onest",system-ui,sans-serif;font-size:17px;font-weight:600;margin-top:12px}
 .fv-text{margin:6px 0 0;font-size:15px;line-height:1.5}
+/* 3.03: «−»/«+» интервального таймера можно удерживать */
+.iv-step{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
+.iv-step:active{background:var(--accent-soft)}
 /* пауза в редакторе своей программы */
 .edrest{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
 .edrest-in{display:flex;align-items:center;gap:6px}
@@ -2625,7 +2628,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   var DONATE = "https://www.donationalerts.com/r/denstar02";
   var CONSENT_V = "2026-10-17";   // поменяй дату, если существенно изменишь согласие, — все подтвердят заново
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 3, APP_BUILD_N = 2;
+  var APP_MAJOR = 3, APP_BUILD_N = 3;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var APP_BUILD = APP_MAJOR * 100 + APP_BUILD_N;   // 1.35 → 135, 2.01 → 201
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
@@ -2659,7 +2662,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   normalizeTab();
   var SETS = ["подход","подхода","подходов"];
   // тип дня: 0 — смазка канавки, 1 — удержания и подходы, 2 — лесенки/тест
-  function fresh(){ return {v:4, profile:{name:"", photo:""}, fin:{}, lastEvent:null, notes:{}, reacts:{}, feed:[], onb:{done:false}, updatedAt:0, mode:{pull:"short", push:"short", squat:"short", stretch:"short", cardio:"short"}, variant:{push:"classic", cardio:"home"}, start:null, timer:null, p:{startMax:15, max:null, tests:{}}, s:{startMax:25, max:null, tests:{}}, b:{startMax:12, max:null, tests:{}}, g:{startMax:12, max:null, tests:{}, weight:0, autoAt:0}, h:{startMax:6, max:null, tests:{}}, j:{startMax:3, max:null, tests:{}}, r:{startMax:3, max:null, tests:{}}, t:{front:40, side:45, tests:{}}, u:{startMax:4, max:null, tests:{}, legacy:0}, custom:{progs:[], cur:null, mount:{pull:null, push:null, squat:null, stretch:null}}, startMax:4, test4:null, test8:null, logs:{}, times:{}, cycles:[]}; }
+  function fresh(){ return {v:4, profile:{name:"", photo:""}, fin:{}, lastEvent:null, notes:{}, reacts:{}, feed:[], onb:{done:false}, updatedAt:0, mode:{pull:"short", push:"short", squat:"short", stretch:"short", cardio:"short"}, variant:{push:"classic", cardio:"home"}, start:null, timer:null, p:{startMax:15, max:null, tests:{}}, s:{startMax:25, max:null, tests:{}}, b:{startMax:12, max:null, tests:{}}, g:{startMax:12, max:null, tests:{}, weight:0, autoAt:0}, h:{startMax:6, max:null, tests:{}}, j:{startMax:3, max:null, tests:{}}, r:{startMax:3, max:null, tests:{}}, t:{front:40, side:45, tests:{}}, u:{startMax:4, max:null, tests:{}, legacy:0}, custom:{progs:[], cur:null, mount:{pull:null, push:null, squat:null, cardio:null, stretch:null}}, startMax:4, test4:null, test8:null, logs:{}, times:{}, cycles:[]}; }
   function normalize(s){
     var f = fresh();
     if(!s || typeof s !== "object") return f;
@@ -2762,7 +2765,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     var C0 = s.custom && typeof s.custom === "object" ? s.custom : {};
     f.custom = {progs: [], cur: typeof C0.cur === "string" ? C0.cur : null, mount: {}};
     var M0 = C0.mount && typeof C0.mount === "object" ? C0.mount : {};
-    ["pull", "push", "squat", "dumb", "stretch"].forEach(function(tb2){ f.custom.mount[tb2] = typeof M0[tb2] === "string" ? M0[tb2] : null; });
+    ["pull", "push", "squat", "dumb", "cardio", "stretch"].forEach(function(tb2){ f.custom.mount[tb2] = typeof M0[tb2] === "string" ? M0[tb2] : null; });
     (Array.isArray(C0.progs) ? C0.progs : []).forEach(function(p){
       var np = normProg(p);
       if(np) f.custom.progs.push(np);
@@ -2804,9 +2807,9 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
             n: String((e && e.n) || "").slice(0, 60),
             sets: clampInt(e && e.sets, 1, 30, 1),
             kind: (e && e.kind) === "sec" ? "sec" : "rep",
-            val: clampInt(e && e.val, 0, 600, 0),
+            val: clampInt(e && e.val, 0, (e && e.kind) === "sec" ? 10800 : 600, 0),
             rest: clampInt(e && e.rest, 0, 10800, 0),
-            cat: ["pull","push","squat","dumb","stretch"].indexOf(e && e.cat) >= 0 ? e.cat : "",
+            cat: ["pull","push","squat","dumb","cardio","stretch"].indexOf(e && e.cat) >= 0 ? e.cat : "",
             hint: String((e && e.hint) || "").slice(0, 200)
           };
         })
@@ -3678,7 +3681,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       : "Тренировка";
     var all = items(dayOfKey(t.key)), n = 0;
     all.forEach(function(a, i){ if(a.idx === t.next) n = i + 1; });
-    if(isCardioKey(t.key)){
+    if(isCardioKey(t.key) && isSec(it.kind)){
       var all0 = items(dayOfKey(t.key)), n0 = 0;
       all0.forEach(function(a, i){ if(a.idx === t.next) n0 = i + 1; });
       return dname + ", отрезок " + n0 + " из " + all0.length + ": " + (it.lab ? it.lab.toLowerCase() + " " : "") + cDur(it.target);
@@ -4595,7 +4598,9 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   // Максимум здесь — выносливость: сколько минут держишь ровный темп без остановки. От него строятся отрезки.
   // Все отметки — в секундах (kind "sec"), итоги считаются в минутах.
   var CARDIO_PRE = {h: 1, j: 1, r: 1};
-  function isCardioKey(k){ return /^[hjr][dq]\d+$/.test(String(k || "")); }
+  function isCardioKey(k){ return /^([hjr][dq]\d+|mcardio_[a-z0-9]+-\d+)$/.test(String(k || "")); }
+  // в кардио из своей программы бывают и повторения: «отрезками» называем только упражнения на время
+  function czAll(key, day){ return isCardioKey(key) && !!day && items(day).every(function(it){ return isSec(it.kind); }); }
   function cMin(sec){ return Math.round(sec / 60); }
   function cDur(sec){
     sec = Math.max(0, Math.round(sec));
@@ -4849,14 +4854,14 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     return out;
   }
   function custDateKey(prog, t){ return "x" + prog.id + "-" + t; }
-  function exVal(ex){ return Math.max(0, Math.min(600, +ex.val || 0)); }
+  function exVal(ex){ return Math.max(0, Math.min(ex.kind === "sec" ? 10800 : 600, Math.round(+ex.val || 0))); }
   function exKind(ex){ return ex.kind === "sec" ? "sec" : "rep"; }
   function exSets(ex){ return Math.max(1, Math.min(30, +ex.sets || 1)); }
   function exName(ex){ return (ex.n || "").trim() || "Упражнение"; }
   function exAmount(ex){
     var v = exVal(ex);
     return exKind(ex) === "sec"
-      ? v + " " + plural(v, ["секунда","секунды","секунд"])
+      ? (v >= 60 ? restWord(v) : v + " " + plural(v, ["секунда","секунды","секунд"]))
       : v + " " + plural(v, ["повторение","повторения","повторений"]);
   }
   function exWorkSec(ex){ var v = exVal(ex); return exKind(ex) === "sec" ? v : Math.max(4, v * 3); }
@@ -4916,7 +4921,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       var row = list(n, v, exKind(e), rest, rest);
       row.forEach(function(it){ it.cat = e.cat || ""; });
       groups.push({title: exName(e),
-        hint: n + " " + plural(n, SETS) + " по " + exAmount(e) + ", пауза " + restWord(rest) + (e.hint ? ". " + e.hint : ""),
+        hint: n + " " + plural(n, SETS) + " по " + exAmount(e) + (rest ? ", пауза " + restWord(rest) : n > 1 ? ", без пауз" : "") + (e.hint ? ". " + e.hint : ""),
         rows: [row]});
     });
     return groups;
@@ -4981,6 +4986,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
      d: "Два упражнения идут по кругу с общей паузой: подход первого, пауза, подход второго, пауза — и снова по кругу."},
     {k: "chain", n: "Простая программа",
      d: "Несколько упражнений подряд: сначала все подходы одного, потом следующее. Занятия идут цепочкой."},
+    {k: "cardio", n: "Своё кардио",
+     d: "Разминка, отрезки бега с отдыхом шагом и заминка. Время задаётся минутами и секундами, программа встанет в раздел «Кардио»."},
     {k: "week", n: "Три дня в неделю",
      d: "Понедельник, среда, пятница. Занятие появляется в свой день недели, отметки хранятся по датам."}
   ];
@@ -4991,6 +4998,13 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
         days: [{name: "Круг", mode: "circuit", rounds: 11, rest: 60, ex: [
           {n: "Отжимания на доске", sets: 1, kind: "rep", val: 35, rest: 60, hint: "", cat: ""},
           {n: "Гантели", sets: 1, kind: "rep", val: 6, rest: 60, hint: "", cat: ""}
+        ]}]};
+    } else if(kind === "cardio"){
+      prog = {id: id, name: "Своё кардио", count: 12, sched: "chain",
+        days: [{name: "Интервалы", mode: "seq", rounds: 1, rest: 60, ex: [
+          {n: "Разминка: быстрый шаг", sets: 1, kind: "sec", val: 300, rest: 0, hint: "Бодрый шаг, руки работают, дыхание ровное.", cat: "cardio"},
+          {n: "Бег", sets: 6, kind: "sec", val: 120, rest: 60, hint: "Разговорный темп: можно говорить короткими фразами. Пауза — шагом, не стоя.", cat: "cardio"},
+          {n: "Заминка: спокойный шаг", sets: 1, kind: "sec", val: 300, rest: 0, hint: "Постепенно замедляйся и выровняй дыхание.", cat: "cardio"}
         ]}]};
     } else if(kind === "week"){
       prog = {id: id, name: "Неделя", count: 12, sched: "week",
@@ -5105,7 +5119,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     var t;
     if(dayCircuit(day)){
       t = dayRounds(day) + " " + plural(dayRounds(day), ["круг","круга","кругов"]) + ": " +
-        ex.map(function(e){ return exName(e) + " " + amt(e); }).join(" → ") + ", пауза " + restWord(dayRest(day));
+        ex.map(function(e){ return exName(e) + " " + amt(e); }).join(" → ") + (dayRest(day) ? ", пауза " + restWord(dayRest(day)) : ", без пауз");
     } else {
       t = ex.map(function(e){ return exName(e) + " " + exSets(e) + "×" + amt(e); }).join(", ");
     }
@@ -5335,7 +5349,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     h += '<label class="edwide">Название<input type="text"' + at("n") + ' value="' + esc(ex.n || "") + '" placeholder="Например, отжимания на доске"></label>';
     h += '<div class="edfields">';
     h += '<label>Считать<select' + at("kind") + '><option value="rep"' + (exKind(ex) !== "sec" ? " selected" : "") + '>повторы</option><option value="sec"' + (exKind(ex) === "sec" ? " selected" : "") + '>секунды</option></select></label>';
-    h += '<label>Сколько<input type="number" min="0" max="600"' + at("val") + ' value="' + exVal(ex) + '"></label>';
+    h += exKind(ex) === "sec" ? msFields(at, exVal(ex), 180, "Сколько", "val")
+      : '<label>Сколько<input type="number" min="0" max="600"' + at("val") + ' value="' + exVal(ex) + '"></label>';
     if(!circ){
       h += '<label>Подходов<input type="number" min="1" max="30"' + at("sets") + ' value="' + exSets(ex) + '"></label>';
       h += restFields(at, +ex.rest || 0, 180);
@@ -5350,35 +5365,37 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     return h;
   }
   // пауза в редакторе: минуты и секунды, шаг — одна секунда; 60 в секундах переносится в минуты, −1 — занимает минуту
-  function restFields(at, sec, maxMin, lab){
+  function msFields(at, sec, maxMin, lab, pre){
     sec = Math.max(0, Math.round(+sec || 0));
-    return '<div class="edrest" role="group" aria-label="' + (lab || "Пауза") + '"><span class="edrest-l">' + (lab || "Пауза") + '</span><span class="edrest-in">' +
-      '<input type="number" inputmode="numeric" min="0" max="' + maxMin + '" step="1"' + at("restm") + ' value="' + Math.floor(sec / 60) + '" aria-label="Минуты">' +
+    return '<div class="edrest" role="group" aria-label="' + lab + '"><span class="edrest-l">' + lab + '</span><span class="edrest-in">' +
+      '<input type="number" inputmode="numeric" min="0" max="' + maxMin + '" step="1"' + at(pre + "m") + ' value="' + Math.floor(sec / 60) + '" aria-label="' + lab + ', минуты">' +
       '<span>мин</span>' +
-      '<input type="number" inputmode="numeric" min="-1" max="60" step="1"' + at("rests") + ' value="' + pad(sec % 60) + '" aria-label="Секунды">' +
+      '<input type="number" inputmode="numeric" min="-1" max="60" step="1"' + at(pre + "s") + ' value="' + pad(sec % 60) + '" aria-label="' + lab + ', секунды">' +
       '<span>сек</span></span></div>';
   }
+  function restFields(at, sec, maxMin, lab){ return msFields(at, sec, maxMin, lab || "Пауза", "rest"); }
+  // k оканчивается на «m» — правили минуты, на «s» — секунды
   function restEdit(cur, k, v, max){
     var n = parseInt(v, 10), m = Math.floor(cur / 60), sc = cur % 60;
     if(!isFinite(n)) n = 0;
-    if(k === "restm") m = Math.max(0, n); else sc = n;
+    if(/m$/.test(k)) m = Math.max(0, n); else sc = n;
     return Math.max(0, Math.min(max, m * 60 + sc));
   }
   function exSummary(day, ex){
     var circ = dayCircuit(day), v = exVal(ex);
-    var unit = exKind(ex) === "sec" ? (v >= 90 ? Math.round(v / 60) + " мин" : v + " с") : v + " повт.";
+    var unit = exKind(ex) === "sec" ? cDur(v) : v + " повт.";
     if(circ) return unit + " в каждом круге";
-    return exSets(ex) + " × " + unit + " · пауза " + restWord(+ex.rest || 0);
+    return exSets(ex) + " × " + unit + " · " + (+ex.rest ? "пауза " + restWord(+ex.rest) : "без пауз");
   }
   function dayPlanHtml(day){
     var ex = dayEx(day);
     if(!ex.length) return '<p class="hint plan">Добавь хотя бы одно упражнение.</p>';
     var pl = custPlan(day), h = '<p class="hint plan"><strong>Как пойдёт занятие.</strong> ';
     if(dayCircuit(day)){
-      var seq = ex.map(function(e){ return exName(e) + " " + exVal(e); });
+      var seq = ex.map(function(e){ return exName(e) + " " + (exKind(e) === "sec" ? cDur(exVal(e)) : exVal(e)); });
       h += seq.join(" → пауза → ") + " → пауза → " + seq[0] + " … и так " + dayRounds(day) + " " + plural(dayRounds(day), ["круг","круга","кругов"]) + ".";
     } else {
-      h += ex.map(function(e){ return exName(e) + " " + exSets(e) + "×" + exVal(e); }).join(", затем ") + ".";
+      h += ex.map(function(e){ return exName(e) + " " + (exKind(e) === "sec" ? exSets(e) + " × " + cDur(exVal(e)) : exSets(e) + "×" + exVal(e)); }).join(", затем ") + ".";
     }
     h += ' Всего ' + pl.sets + " " + plural(pl.sets, SETS) + ", примерно " + pl.mins + " " + plural(pl.mins, ["минута","минуты","минут"]) + ".</p>";
     return h;
@@ -5462,18 +5479,19 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       var d2 = prog.days[+el.getAttribute("data-di")]; if(!d2) return;
       var ex = d2.ex[+el.getAttribute("data-xi")]; if(!ex) return;
       if(k === "n") ex.n = v.slice(0, 60);
-      else if(k === "cat") ex.cat = ["pull","push","squat","dumb","stretch"].indexOf(v) >= 0 ? v : "";
+      else if(k === "cat") ex.cat = ["pull","push","squat","dumb","cardio","stretch"].indexOf(v) >= 0 ? v : "";
       else if(k === "hint") ex.hint = v.slice(0, 200);
       else if(k === "kind") ex.kind = v === "sec" ? "sec" : "rep";
       else if(k === "sets") ex.sets = Math.max(1, Math.min(30, parseInt(v, 10) || 1));
       else if(k === "val") ex.val = Math.max(0, Math.min(600, parseInt(v, 10) || 0));
+      else if(k === "valm" || k === "vals") ex.val = restEdit(exVal(ex), k, v, 10800);
       else if(k === "restmin") ex.rest = Math.max(0, Math.min(10800, Math.round((parseFloat(v) || 0) * 60)));
       else if(k === "restm" || k === "rests") ex.rest = restEdit(Math.max(0, Math.min(10800, Math.round(+ex.rest || 0))), k, v, 10800);
     }
   }
 
   // ---------- своя программа, разложенная по разделам ----------
-  var MTABS = {pull: "Турник", push: "Отжимания", squat: "Приседания", dumb: "Гантели", stretch: "Растяжка"};
+  var MTABS = {pull: "Турник", push: "Отжимания", squat: "Приседания", dumb: "Гантели", cardio: "Кардио", stretch: "Растяжка"};
   var mountView = {};
   function mountedProg(tab){ var id = state.custom.mount ? state.custom.mount[tab] : null; return id ? custProgById(id) : null; }
   function mountedDays(prog, tab){
@@ -5541,6 +5559,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
         (idx === cur ? ' <span class="badge">текущее</span>' : mountedDone(tab, prog, idx) ? ' <span class="badge ok">готово</span>' : "") + '</p><h2>' + esc(w.title) + '</h2></div>' +
         tallyRing(st2.done, st2.plan, plural(st2.plan, ["подхода","подходов","подходов"]), "", st2.plan > 0 && st2.done >= st2.plan) + '</div></article>';
       w.groups.forEach(function(g, gi2){ h += '<article class="day">' + groupsHtml({groups: [g]}, key, gi2) + '</article>'; });
+      h += '<article class="day cfcard">' + cardFoot(key, "") + '</article>';
       if(!mountedDone(tab, prog, idx) && allLogged(w, key)) h += finishHtml(key);
       else if(mountedDone(tab, prog, idx) && idx < total - 1) h += '<div class="test"><button type="button" class="primary" data-act="m-go" data-tab="' + tab + '" data-i="' + (idx + 1) + '">Дальше: занятие ' + (idx + 2) + '</button></div>';
       h += '</main>';
@@ -5612,8 +5631,14 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
         add(tab, MTABS[tab] + (tab === "push" && state.variant && state.variant.push === "board" ? ", доска" : ""), i, C.build(i), C.key(i), CCOUNT);
       }
     });
-    var cch = cardioChain(), cci = cch.current();
-    add("cardio", "Кардио" + ({home: "", rope: ", скакалка", run: ", бег"})[cardioVariant()], cci, cch.build(cci), cch.key(cci), CCOUNT);
+    var cmp = mountedProg("cardio");
+    if(cmp){
+      var cmi = mountedCurrent("cardio", cmp);
+      add("cardio", "Кардио: " + cmp.name, cmi, mountedBuild("cardio", cmp, cmi), mountedKey("cardio", cmp, cmi), custCount(cmp), "Занятие");
+    } else {
+      var cch = cardioChain(), cci = cch.current();
+      add("cardio", "Кардио" + ({home: "", rope: ", скакалка", run: ", бег"})[cardioVariant()], cci, cch.build(cci), cch.key(cci), CCOUNT);
+    }
     var smp = mountedProg("stretch");
     if(smp){
       var si = mountedCurrent("stretch", smp);
@@ -7614,7 +7639,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       items(w).forEach(function(it){
         var v = log[it.idx];
         if(v == null) return;
-        if(cz){ if(isSec(it.kind) && v > 0) csum += v; return; }
+        if(cz && isSec(it.kind)){ if(v > 0) csum += v; return; }
         if(isSec(it.kind)){ if(v > hold){ hold = v; holdKey = k; } return; }
         sum += v;
         if(v > best){ best = v; bestKey = k; }
@@ -7688,7 +7713,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
         var v = log[it.idx];
         if(v == null){ full = false; return; }
         c.sets++;
-        if(cz) return;
+        if(cz && isSec(it.kind)) return;
         if(isSec(it.kind)){ if(v > c.bestHold) c.bestHold = v; }
         else { c.reps += v; if(v > c.bestSet) c.bestSet = v; }
       });
@@ -7986,7 +8011,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(!it) return null;
     var sec = isSec(it.kind);
     if(!sec && it.kind !== "rep") return null;
-    if(/^t[dq]\d+$/.test(key) || isCardioKey(key)) return null;
+    if(/^t[dq]\d+$/.test(key) || (isCardioKey(key) && (sec || /^[hjr]/.test(key)))) return null;
     var cm = /^([psub])[dq]\d+$/.exec(key);
     if(cm) return sec ? {id: cm[1] + ":s:" + it.kind, name: PR_SEC[it.kind] || "Удержание", sec: true}
       : {id: cm[1] + ":r", name: PR_NAMES[cm[1]], sec: false};
@@ -8078,7 +8103,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     var it = info.it, sec = isSec(it.kind), val = focusVal == null ? it.target : focusVal, round = focusRound(info);
     var parts = [focusName(info) + "."];
     if(round) parts.push(round + ".");
-    else if(info.total > 1) parts.push((isCardioKey(focusKey) ? "Отрезок " : "Подход ") + info.n + " из " + info.total + ".");
+    else if(info.total > 1) parts.push((isCardioKey(focusKey) && isSec(info.it.kind) ? "Отрезок " : "Подход ") + info.n + " из " + info.total + ".");
     parts.push((sec ? spokenDur(val) : val + " " + plural(val, ["повторение","повторения","повторений"])) + ".");
     return parts.join(" ");
   }
@@ -8386,6 +8411,10 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   // ---------- что нового ----------
   var WN_KEY = "pullups-seen-ver", WN = null;
   var NEWS = [
+    {v: 303, items: [
+      {e: "🫀", t: "Своя программа — в разделе «Кардио»", d: "В редакторе своей программы у упражнения можно выбрать раздел «Кардио». После «Разложить по разделам» программа встанет туда вместо стандартной, а её минуты пойдут в профиль, опыт и медали кардио. Время упражнения задаётся минутами и секундами, до трёх часов. Для старта есть готовый шаблон «Своё кардио».", go: "cust-open", btn: "Открыть редактор"},
+      {e: "⏱️", t: "Интервальный таймер — шаг в одну секунду", d: "Кнопки «−» и «+» меняют работу и отдых на секунду. Если кнопку удерживать, числа листаются всё быстрее."}
+    ]},
     {v: 302, items: [
       {e: "🏃", t: "Фигурки упражнений нарисованы заново", d: "У фигурки теперь настоящие суставы: руки и ноги не «складываются» в движении, а дальняя рука и нога светлее, чтобы было видно, что делает каждая. Появились свои фигурки для упражнений с гантелями, бега на месте, выпрыгиваний и разных прыжков через скакалку.", go: "fig-demo", btn: "Посмотреть"},
       {e: "🔍", t: "Нажми на фигурку — она откроется крупно", d: "В большом окне движение видно целиком, его можно замедлить, а под ним — подсказка по технике."},
@@ -8483,6 +8512,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(go === "wk-open") weekOpen(weekStart());
     else if(go === "iv-open") ivOpen();
     else if(go === "doc-health") docOpen("health");
+    else if(go === "cust-open"){ if(tabsOff.custom){ delete tabsOff.custom; tabsOffSave(); } TAB = "custom"; try { localStorage.setItem(TKEY, TAB); } catch(e){} navPush(); render(); scrollTo(document.getElementById("custEditor")); }
     else if(go === "fig-demo") figvOpen("run", "Лёгкий бег", "Нажми на любую фигурку в тренировке — она откроется вот так. Кнопка «Замедлить» показывает движение вдвое медленнее.");
     else if(go === "cardio-open"){ if(tabsOff.cardio){ delete tabsOff.cardio; tabsOffSave(); } TAB = "cardio"; try { localStorage.setItem(TKEY, TAB); } catch(e){} navPush(); render(); }
     else if(go === "ps-open"){ goProfile("pushBox"); if(!loggedIn()) flash("Уведомления работают с аккаунтом: войди или зарегистрируйся"); }
@@ -9884,9 +9914,9 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     box.hidden = false; document.body.classList.add("modal-open");
     var pr = IV_PRESETS[IV.kind];
     var fld = function(id, lab, val, unit, min, max){
-      return '<label class="iv-f"><span>' + lab + '</span><span class="iv-in"><button type="button" class="iv-step" data-act="iv-step" data-f="' + id + '" data-d="-1" aria-label="Меньше">−</button>' +
+      return '<label class="iv-f"><span>' + lab + '</span><span class="iv-in"><button type="button" class="iv-step" data-act="iv-step" data-f="' + id + '" data-d="-1" aria-label="Меньше" title="Нажми — на шаг меньше, удерживай — быстрее">−</button>' +
         '<input type="number" inputmode="numeric" id="iv-' + id + '" min="' + min + '" max="' + max + '" value="' + val + '">' +
-        '<button type="button" class="iv-step" data-act="iv-step" data-f="' + id + '" data-d="1" aria-label="Больше">+</button></span><small>' + unit + '</small></label>';
+        '<button type="button" class="iv-step" data-act="iv-step" data-f="' + id + '" data-d="1" aria-label="Больше" title="Нажми — на шаг больше, удерживай — быстрее">+</button></span><small>' + unit + '</small></label>';
     };
     var h = '<div class="warm-card iv-card" role="document"><div class="gwrap"><div class="gw-glow" aria-hidden="true"></div><p class="gw-txt">' + IC_ZAP + '<span id="ivTotal">Всего ' + ivDur(ivTotal()) + ' вместе с подготовкой</span></p>' +
       '<div class="wk-hero dk"><div class="wk-top"><span>Интервальный таймер</span><button type="button" class="tb-icon" data-act="iv-close" aria-label="Закрыть">✕</button></div>' +
@@ -9900,6 +9930,40 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       '<div class="warm-actions"><button type="button" class="primary iv-go" data-act="iv-start">' + IC_ZAP + 'Старт</button><button type="button" class="linkbtn alt" data-act="iv-close">Отмена</button></div></div></div>';
     box.innerHTML = h;
   }
+  // шаг «−»/«+»: нажатие — на секунду (раунды — на один), удержание листает всё быстрее, а после пары секунд — по 5
+  var IV_HOLD = null, IV_NOCLICK = 0;
+  function ivNudge(b, step){
+    var f = b.getAttribute("data-f"), el = document.getElementById("iv-" + f), d = +b.getAttribute("data-d");
+    if(!el) return;
+    var v = Math.round(+el.value || 0), lo = f === "rest" ? 0 : f === "rounds" ? 1 : 5, hi = f === "rounds" ? 99 : 1800;
+    if(f === "rounds") step = 1;
+    var nv = step > 1 ? (d > 0 ? Math.floor(v / step) * step + step : Math.ceil(v / step) * step - step) : v + d;
+    el.value = Math.max(lo, Math.min(hi, nv));
+    ivRead();
+  }
+  function ivHoldStop(){
+    if(!IV_HOLD) return;
+    clearTimeout(IV_HOLD.t);
+    if(IV_HOLD.n) IV_NOCLICK = Date.now();
+    IV_HOLD = null;
+  }
+  document.addEventListener("pointerdown", function(ev){
+    var b = ev.target && ev.target.closest ? ev.target.closest(".iv-step") : null;
+    if(!b || (ev.button != null && ev.button > 0)) return;
+    ivHoldStop(); IV_NOCLICK = 0;
+    var hr = {n: 0, t: 0};
+    IV_HOLD = hr;
+    function tick(){
+      if(IV_HOLD !== hr || !document.body.contains(b)){ ivHoldStop(); return; }
+      hr.n++;
+      ivNudge(b, hr.n > 24 ? 5 : 1);
+      hr.t = setTimeout(tick, hr.n > 10 ? 55 : 110);
+    }
+    hr.t = setTimeout(tick, 420);
+  });
+  ["pointerup", "pointercancel"].forEach(function(t){ document.addEventListener(t, ivHoldStop); });
+  window.addEventListener("blur", ivHoldStop);
+  document.addEventListener("contextmenu", function(ev){ if(ev.target && ev.target.closest && ev.target.closest(".iv-step")) ev.preventDefault(); });
   function ivRead(){
     if(!IV) return;
     ["work", "rest", "rounds"].forEach(function(f){
@@ -10518,7 +10582,9 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       if(Math.abs(dx) < 70 || Math.abs(dy) > Math.abs(dx) * 0.6) return;
       var ids = swipeTarget();
       if(!ids) return;
-      var btn = document.getElementById(dx < 0 ? ids.next : ids.prev);
+      // в разделе стоит своя программа — листаем её занятия, а не спрятанную стандартную
+      var btn = MTABS[TAB] && mountedProg(TAB) ? document.querySelector("#" + TAB + 'Mounted [data-act="m-' + (dx < 0 ? "next" : "prev") + '"]')
+        : document.getElementById(dx < 0 ? ids.next : ids.prev);
       if(btn && !btn.disabled) btn.click();
     }, {passive: true});
   }
@@ -10763,7 +10829,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     });
     if(reps) parts.push(reps + " " + plural(reps, ["повторение","повторения","повторений"]));
     if(secs) parts.push((secs >= 120 ? Math.round(secs / 60) + " мин" : secs + " с") + " " + secWord(key, true));
-    parts.push(info.total + " " + plural(info.total, isCardioKey(key) ? ["отрезок","отрезка","отрезков"] : SETS));
+    parts.push(info.total + " " + plural(info.total, czAll(key, info.day) ? ["отрезок","отрезка","отрезков"] : SETS));
     if(FS.key === key && FS.start){
       var mins = Math.round((Date.now() - FS.start) / 60000);
       if(mins >= 1 && mins < 600) parts.push("за " + mins + " " + plural(mins, ["минуту","минуты","минут"]));
@@ -10817,7 +10883,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       var ringF = FH ? Math.min(1, (Date.now() - FH.start) / (FH.target * 1000)) : ri ? ri.f : 1;
       var ringCls = FH ? "hold" : ri && !ri.due ? "rest" : ri && ri.due ? "due" : "ready";
       h += '<div class="fc-mid"><p class="fc-ex">' + esc(focusName(info)) + '</p>';
-      var cz = isCardioKey(focusKey);
+      var cz = isCardioKey(focusKey) && sec;
       h += '<p class="fc-sub">' + (round ? round + " · " : "") + (cz ? "отрезок " : "подход ") + info.n + " из " + info.total + (sec ? (cz ? " · " + cDur(it.target) : " · держать " + it.target + " с") : "") + '</p>';
       if(hint) h += '<p class="fc-lead">' + esc(hint) + '</p>';
       if(info.group.board) h += '<div class="fc-map">' + boardMapHtml(info.group.board, "Схема доски: " + info.group.title) + '</div>';
@@ -11635,8 +11701,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       var base = focusVal == null ? fi.it.target : focusVal;
       if(isCardioKey(focusKey) && isSec(fi.it.kind)){
         var stp = fi.it.target >= 120 ? 30 : 5;
-        focusVal = Math.max(0, Math.min(3600, base + (act === "focus-more" ? stp : -stp)));
-      } else focusVal = Math.max(0, Math.min(600, base + (act === "focus-more" ? 1 : -1)));
+        focusVal = Math.max(0, Math.min(10800, base + (act === "focus-more" ? stp : -stp)));
+      } else focusVal = Math.max(0, Math.min(isSec(fi.it.kind) ? 10800 : 600, base + (act === "focus-more" ? 1 : -1)));
       renderFocus();
       return;
     }
@@ -11860,8 +11926,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(act === "iv-close"){ ivClose(); return; }
     if(act === "iv-kind"){ ivRead(); ivUse(b.getAttribute("data-k")); renderIv(); return; }
     if(act === "iv-step"){
-      var isf = b.getAttribute("data-f"), iel = document.getElementById("iv-" + isf), d0 = +b.getAttribute("data-d");
-      if(iel){ var st0 = isf === "rounds" ? 1 : (+iel.value >= 120 ? 15 : 5); iel.value = Math.max(isf === "rest" ? 0 : isf === "rounds" ? 1 : 5, (+iel.value || 0) + d0 * st0); ivRead(); }
+      if(IV_NOCLICK && Date.now() - IV_NOCLICK < 700){ IV_NOCLICK = 0; return; }   // после удержания щелчок уже не нужен
+      ivNudge(b, 1);
       return;
     }
     if(act === "iv-start"){ ivStart(); return; }
