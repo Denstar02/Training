@@ -1769,6 +1769,9 @@ button.fig:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .fv-ctl .linkbtn{flex:none;margin:0;white-space:nowrap}
 .fv-title{font-family:"Onest",system-ui,sans-serif;font-size:17px;font-weight:600;margin-top:12px}
 .fv-text{margin:6px 0 0;font-size:15px;line-height:1.5}
+/* 3.04: подсказки под камерой меняются, но не двигают картинку и кнопки */
+#camHint,#camDiag{min-height:4.5em}
+#camStart[hidden],#camFileBtn[hidden],#camManual[hidden]{display:none}
 /* 3.03: «−»/«+» интервального таймера можно удерживать */
 .iv-step{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
 .iv-step:active{background:var(--accent-soft)}
@@ -2628,7 +2631,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   var DONATE = "https://www.donationalerts.com/r/denstar02";
   var CONSENT_V = "2026-10-17";   // поменяй дату, если существенно изменишь согласие, — все подтвердят заново
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 3, APP_BUILD_N = 3;
+  var APP_MAJOR = 3, APP_BUILD_N = 4;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var APP_BUILD = APP_MAJOR * 100 + APP_BUILD_N;   // 1.35 → 135, 2.01 → 201
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
@@ -6657,11 +6660,33 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   // --- движок камеры: в артефакте он внутри страницы, на сайте — отдельным файлом cam.js и грузится по требованию ---
   var CAM_SRC = "cam.js", enginePromise = null;
   function engineReady(){ return !!(window.tf && window.FaceCore); }
+  // движок уже лежит на телефоне? (кэш приложения; в него cam.js попадает при первом запуске камеры)
+  function engineCached(){
+    try {
+      if(!window.caches || !caches.match) return Promise.resolve(false);
+      return caches.match(CAM_SRC, {ignoreSearch: true}).then(function(r){ return !!r; }).catch(function(){ return false; });
+    } catch(e){ return Promise.resolve(false); }
+  }
+  // подсказка под камерой — только когда экран камеры открыт (фоновая подготовка молчит)
+  function camSay(t){ try { var st = camEl("camStage"); if(st && !st.hidden) camStatus(t); } catch(e){} }
+  // просим браузер не вычищать кэш с движком, когда на телефоне мало места
+  function enginePersist(){
+    try {
+      if(!navigator.storage || !navigator.storage.persist || localStorage.getItem("pullups-persist")) return;
+      navigator.storage.persist().then(function(ok){ try { localStorage.setItem("pullups-persist", ok ? "1" : "0"); } catch(e){} }).catch(function(){});
+    } catch(e){}
+  }
   function ensureEngine(){
     if(engineReady()) return Promise.resolve();
     if(enginePromise) return enginePromise;
-    try { camStatus("Загружаю движок камеры — около 2 МБ, только в первый раз…"); } catch(e){}
-    enginePromise = new Promise(function(res, rej){
+    enginePromise = engineCached().then(function(have){
+      camSay(have ? "Запускаю распознавание…" : "Загружаю движок камеры — около 2 МБ. Это один раз: дальше он хранится на телефоне.");
+      return engineLoad();
+    }).then(function(){ enginePersist(); }).catch(function(e){ enginePromise = null; throw e; });
+    return enginePromise;
+  }
+  function engineLoad(){
+    return new Promise(function(res, rej){
       var done = false, s = document.createElement("script");
       var fail = function(msg){ if(done) return; done = true; rej(new Error(msg)); };
       var tmo = setTimeout(function(){ fail("движок камеры грузится слишком долго — проверь интернет и попробуй ещё раз"); }, 60000);
@@ -6669,17 +6694,23 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       s.onload = function(){ clearTimeout(tmo); if(done) return; done = true; engineReady() ? res() : rej(new Error("движок камеры загрузился с ошибкой")); };
       s.onerror = function(){ clearTimeout(tmo); fail("не загрузился движок камеры (cam.js) — проверь интернет; если выкладываешь сайт сам, cam.js должен лежать рядом с index.html"); };
       document.head.appendChild(s);
-    }).catch(function(e){ enginePromise = null; throw e; });
-    return enginePromise;
+    });
   }
-  // кто уже считал камерой — тому движок заранее подтягиваем в фоне на вкладках с камерой, без спешки и не на медленной связи
+  // кто уже считал камерой — тому движок и модель заранее поднимаем в фоне на вкладках с камерой и в режиме тренировки:
+  // «Начать подход с камерой» тогда срабатывает сразу, без загрузки. Не на медленной связи, если движка ещё нет на телефоне.
+  var warmT = 0;
   function enginePrefetch(){
-    if(engineReady() || enginePromise || !(state.flags && state.flags.cam)) return;
-    if(TAB !== "push" && TAB !== "squat" && TAB !== "custom") return;
-    var c = navigator.connection || {};
-    if(c.saveData || /2g/.test(c.effectiveType || "")) return;
-    try { fetch(CAM_SRC, {priority: "low"}).catch(function(){}); } catch(e){}
-    enginePrefetch = function(){};
+    if(warmT || modelPromise || cam || document.hidden || !(state.flags && state.flags.cam)) return;
+    var here = TAB === "push" || TAB === "squat" || (focusKey && !!focusCamMode(focusKey, itemInfo(focusKey)));
+    if(!here) return;
+    warmT = setTimeout(function(){
+      engineCached().then(function(have){
+        var c = navigator.connection || {};
+        if(!have && (c.saveData || /2g/.test(c.effectiveType || ""))) return;   // warmT не сбрасываем: в эту сессию больше не пробуем
+        var go = function(){ warmT = 0; if(!modelPromise && !cam) loadFaceModel().catch(function(){}); };
+        if(window.requestIdleCallback) requestIdleCallback(go, {timeout: 4000}); else go();
+      });
+    }, 2500);
   }
   var BOOT_T = Date.now();
   setTimeout(function(){ enginePrefetch(); }, 8000);
@@ -6690,7 +6721,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(modelPromise) return modelPromise;
     modelPromise = (function(){
       return ensureEngine()
-        .then(function(){ try { camStatus("Загружаю модель распознавания, это занимает пару секунд…"); } catch(e){} })
+        .then(function(){ camSay("Запускаю распознавание — пара секунд…"); })
         .then(function(){ return tf.setBackend("webgl").catch(function(){ return false; }); })
         .then(function(ok){ return ok ? null : tf.setBackend("cpu"); })
         .then(function(){ return tf.ready(); })
@@ -6765,7 +6796,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     camEl("camCd").hidden = true;
     camEl("camChip").textContent = "Готовлюсь";
     camCount(false);
-    camStatus("Загружаю модель распознавания, это занимает пару секунд…");
+    camStatus(modelPromise ? "Запускаю распознавание…" : "Готовлю распознавание…");
     var id = ++camId, stream = null;
     loadFaceModel().then(function(model){
       if(id !== camId) return;
@@ -6801,6 +6832,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     camCount(false);
     var ready = Promise.resolve();
     if(source === "camera"){
+      camLock(true);
       v.removeAttribute("src"); v.srcObject = stream;
       camStatus(CAMMODE[mode].during);
       ready = v.play().catch(function(){}).then(function(){ return waitVideo(v); }).then(function(){
@@ -6898,7 +6930,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   }
   function camFrame(v, t, id){
     var W = v.videoWidth, H = v.videoHeight, dims = W + "x" + H;
-    if(dims !== cam.dims){ cam.dims = dims; cam.box = null; cam.counter.rotLocked = false; }
+    if(dims !== cam.dims){ if(cam.dims) cam.dimsN = (cam.dimsN || 0) + 1; cam.dims = dims; cam.box = null; cam.counter.rotLocked = false; }
     var img = tf.browser.fromPixels(v);
     var run = cam.mode === "s" ? detectFar(img, W, H) : window.FaceCore.detectAuto(tf, cam.model, img, cam.counter, MIN_SCORE);
     return run.then(function(det){
@@ -6947,7 +6979,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       cam.diag.fps = Math.round(10 * (cam.frames - cam.diag.n) / ((now - cam.diag.t) / 1000)) / 10;
       cam.diag.t = now; cam.diag.n = cam.frames;
       var el = camEl("camDiag");
-      if(el) el.textContent = "Кадр " + (cam.dims || "—") + ", обработка " + ((window.tf && tf.getBackend && tf.getBackend()) || "—") +
+      if(el) el.textContent = "Кадр " + (cam.dims || "—") + (cam.dimsN ? " (менялся " + cam.dimsN + " " + plural(cam.dimsN, ["раз","раза","раз"]) + ")" : "") + ", обработка " + ((window.tf && tf.getBackend && tf.getBackend()) || "—") +
         ", " + cam.diag.fps + " кадров/с, лицо: " + (cam.lastScore ? Math.round(cam.lastScore * 100) + "%, размер " + Math.round((cam.lastSize || 0) * 100) + "% кадра" : "не найдено") +
         ", свет: " + Math.round((cam.lastBright || 0) * 100) + "%";
     }
@@ -6978,8 +7010,20 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     ctx.moveTo(l + len, btm); ctx.lineTo(l, btm); ctx.lineTo(l, btm - len);
     ctx.stroke();
   }
+  // пока идёт подход, экран не поворачивается: телефон лежит на полу, и поворот перевернул бы кадр камеры
+  // (работает в установленном приложении на Android; где браузер не умеет, ничего не происходит)
+  var camLocked = false;
+  function camLock(on){
+    try {
+      var so = screen.orientation;
+      if(!so || !so.lock) return;
+      if(on && !camLocked) so.lock(so.type).then(function(){ camLocked = true; }).catch(function(){});
+      else if(!on && camLocked){ camLocked = false; so.unlock(); }
+    } catch(e){}
+  }
   function camFinish(saveIt){
     if(!cam) return;
+    camLock(false);
     var n = cam.counter ? cam.counter.count : 0, copts = cam.opts;
     camId++;
     if(cam.raf) cancelAnimationFrame(cam.raf);
@@ -8411,6 +8455,9 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   // ---------- что нового ----------
   var WN_KEY = "pullups-seen-ver", WN = null;
   var NEWS = [
+    {v: 304, items: [
+      {e: "📷", t: "Счётчик по камере запускается быстрее", d: "Движок распознавания хранится на телефоне и больше не скачивается заново. Если ты уже считал подходы камерой, он готовится в фоне, пока открыт раздел или режим тренировки, — кнопка «Начать подход с камерой» срабатывает сразу. Подсказки под камерой больше не двигают картинку, а на время подхода экран не поворачивается (в установленном приложении на Android)."}
+    ]},
     {v: 303, items: [
       {e: "🫀", t: "Своя программа — в разделе «Кардио»", d: "В редакторе своей программы у упражнения можно выбрать раздел «Кардио». После «Разложить по разделам» программа встанет туда вместо стандартной, а её минуты пойдут в профиль, опыт и медали кардио. Время упражнения задаётся минутами и секундами, до трёх часов. Для старта есть готовый шаблон «Своё кардио».", go: "cust-open", btn: "Открыть редактор"},
       {e: "⏱️", t: "Интервальный таймер — шаг в одну секунду", d: "Кнопки «−» и «+» меняют работу и отдых на секунду. Если кнопку удерживать, числа листаются всё быстрее."}
@@ -10632,6 +10679,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   function wakeOff(){ try { if(FS.wake) FS.wake.release(); } catch(e){} FS.wake = null; }
   document.addEventListener("visibilitychange", function(){ if(!document.hidden && focusKey) wakeOn(); });
   function focusOpen(key){
+    setTimeout(enginePrefetch, 0);
     focusKey = key;
     focusVal = null;
     if(FS.key !== key){ FS.key = key; FS.start = Date.now(); }
@@ -11276,7 +11324,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   }
   function render(){
     renderTabs();
-    if(Date.now() - BOOT_T > 6000) enginePrefetch();
+    enginePrefetch();
     var pv = document.getElementById("pvariant");
     if(pv) pv.innerHTML = variantToggle();
     var cvb = document.getElementById("cvariant");
