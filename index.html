@@ -2631,7 +2631,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   var DONATE = "https://www.donationalerts.com/r/denstar02";
   var CONSENT_V = "2026-10-17";   // поменяй дату, если существенно изменишь согласие, — все подтвердят заново
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 3, APP_BUILD_N = 4;
+  var APP_MAJOR = 3, APP_BUILD_N = 5;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var APP_BUILD = APP_MAJOR * 100 + APP_BUILD_N;   // 1.35 → 135, 2.01 → 201
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
@@ -2685,6 +2685,10 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       Object.keys(s.flags).forEach(function(k){ if(typeof s.flags[k] === "number") f.flags[k] = s.flags[k]; });
     if(typeof s.wkSeen === "number" && s.wkSeen > 0) f.wkSeen = s.wkSeen;
     if(typeof s.lvl === "number" && s.lvl > 0) f.lvl = Math.min(99, Math.floor(s.lvl));
+    if(s.clk && typeof s.clk === "object" && !Array.isArray(s.clk)){
+      f.clk = {};
+      Object.keys(s.clk).forEach(function(k){ if(typeof s.clk[k] === "number" && s.clk[k] > 0) f.clk[k] = s.clk[k]; });
+    }
     if(s.devs && typeof s.devs === "object" && !Array.isArray(s.devs)){
       f.devs = {};
       Object.keys(s.devs).forEach(function(k){ var d = s.devs[k]; if(d && typeof d === "object" && typeof d.at === "number") f.devs[k] = {n: String(d.n || ""), s: String(d.s || ""), at: d.at}; });
@@ -2832,8 +2836,43 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   var NET = {busy: false, err: "", kind: "", okAt: 0, fails: 0, rt: null};
   var DBS = {busy: false, err: "", kind: "", okAt: 0, fails: 0, wait: !!(window.claude && typeof window.claude.use === "function")};
 
+  // ---------- «часы» настроек: у каждой настройки программ своё время правки ----------
+  // Копия целиком может оказаться новее, а отдельная настройка в ней — старше (устройство долго лежало и не знало о правке
+  // на другом). При сложении копий каждую настройку берём оттуда, где её меняли позже: так максимум, поднятый на работе,
+  // не откатится дома, даже если дома потом нажали «Оставить как есть» или переключили режим.
+  var CLK = (function(){
+    var a = [];
+    ["u", "p", "s", "b", "g", "h", "j", "r"].forEach(function(c){ ["startMax", "max", "weight"].forEach(function(f){ a.push(c + "." + f); }); });
+    ["front", "side"].forEach(function(f){ a.push("t." + f); });
+    ["pull", "push", "squat", "dumb", "stretch", "cardio"].forEach(function(f){ a.push("mode." + f); });
+    ["push", "cardio"].forEach(function(f){ a.push("variant." + f); });
+    return a;
+  })(), CLKB = null;
+  function clkGet(st, p){ var i = p.indexOf("."), o = st && st[p.slice(0, i)]; return o && typeof o === "object" ? o[p.slice(i + 1)] : undefined; }
+  function clkPut(st, p, v){ var i = p.indexOf("."), o = st && st[p.slice(0, i)]; if(o && typeof o === "object") o[p.slice(i + 1)] = v; }
+  // JSON с ключами по алфавиту: база хранит ключи в своём порядке, а сравнивать нужно содержимое
+  function canon(v){
+    if(v === undefined || v === null || typeof v === "function") return "null";
+    if(typeof v !== "object") return JSON.stringify(v);
+    var i, a = [];
+    if(Array.isArray(v)){ for(i = 0; i < v.length; i++) a.push(canon(v[i])); return "[" + a.join(",") + "]"; }
+    var ks = Object.keys(v).filter(function(k){ return v[k] !== undefined && typeof v[k] !== "function"; }).sort();
+    for(i = 0; i < ks.length; i++) a.push(JSON.stringify(ks[i]) + ":" + canon(v[ks[i]]));
+    return "{" + a.join(",") + "}";
+  }
+  function clkOf(st, k){ return st && st.clk && typeof st.clk[k] === "number" ? st.clk[k] : 0; }
+  function clkBase(){ CLKB = {}; CLK.forEach(function(k){ CLKB[k] = canon(clkGet(state, k)); }); }
+  function clkMark(){
+    if(!CLKB){ clkBase(); return; }
+    CLK.forEach(function(k){
+      var c = canon(clkGet(state, k));
+      if(c !== CLKB[k]){ if(!state.clk) state.clk = {}; state.clk[k] = state.updatedAt || Date.now(); CLKB[k] = c; }
+    });
+  }
+
   var state = fresh();
   try { var raw = localStorage.getItem(KEY); if(raw){ state = normalize(JSON.parse(raw)); persistLocal(); } } catch(e){}
+  clkBase();
   // ---------- переезд на новый адрес: старая копия упаковывает отметки в ссылку, новая их принимает ----------
   function moveAway(){
     var raw0 = null; try { raw0 = localStorage.getItem(KEY); } catch(e){}
@@ -3740,7 +3779,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     } else renderTimer();
   }
   setInterval(tick, 1000);
-  document.addEventListener("visibilitychange", function(){ if(!document.hidden){ renderTimer(); syncNow(true); } });
+  document.addEventListener("visibilitychange", function(){ if(!document.hidden){ renderTimer(); if(syncMode() === "sb") syncFresh(); else syncNow(true); } });
   function unlockAudio(){
     try {
       if(!audio){ var AC = window.AudioContext || window.webkitAudioContext; if(AC) audio = new AC(); }
@@ -5815,12 +5854,24 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       name: (out.profile && out.profile.name) || (old.profile && old.profile.name) || "",
       photo: (out.profile && out.profile.photo) || (old.profile && old.profile.photo) || ""
     };
+    // настройки программ: каждую берём оттуда, где её меняли позже (см. «часы» настроек)
+    var clk = {};
+    CLK.forEach(function(k){
+      var cn = clkOf(out, k), co = clkOf(old, k);
+      if(co > cn){ var ov = clkGet(old, k); if(ov !== undefined) clkPut(out, k, ov); }
+      // копии из версий до 3.05 часов не знают: рабочий максимум в них растёт с прогрессом, поэтому берём больший
+      else if(!cn && !co && /\.max$/.test(k)){ var m1 = clkGet(out, k), m2 = clkGet(old, k); if(m1 != null && m2 != null && m2 > m1) clkPut(out, k, m2); }
+      if(cn || co) clk[k] = Math.max(cn, co);
+    });
+    if(Object.keys(clk).length) out.clk = clk;
     // максимумы и тесты программ
     ["u", "p", "s", "b", "g", "h", "j", "r"].forEach(function(k){
       if(!out[k] || !old[k]) return;
       Object.keys(old[k].tests || {}).forEach(function(i){ if(out[k].tests[i] == null) out[k].tests[i] = old[k].tests[i]; });
       if(out[k].max == null && old[k].max != null) out[k].max = old[k].max;
       if(k === "u") out[k].legacy = Math.max(out[k].legacy || 0, old[k].legacy || 0);
+      out[k].autoAt = Math.max(out[k].autoAt || 0, old[k].autoAt || 0);
+      if(old[k].breakAt || out[k].breakAt) out[k].breakAt = Math.max(out[k].breakAt || 0, old[k].breakAt || 0);
     });
     Object.keys((old.t && old.t.tests) || {}).forEach(function(i){
       if(!out.t.tests[i]) out.t.tests[i] = old.t.tests[i];
@@ -5866,7 +5917,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
         var before = JSON.stringify(state);
         if(remote){
           var merged = mergeStates(state, remote);
-          if(JSON.stringify(merged) !== before){ state = merged; XPB = null; persistLocal(); render(); }
+          if(JSON.stringify(merged) !== before){ state = merged; XPB = null; clkBase(); persistLocal(); render(); }
         }
         var body = {files: {}};
         r0 = REV.r;
@@ -5951,12 +6002,19 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     var h = {apikey: SB.key, "Content-Type": "application/json"};
     if(opts.headers) for(var k in opts.headers) h[k] = opts.headers[k];
     if(auth !== false && SB.tok) h.Authorization = "Bearer " + SB.tok.access_token;
-    return fetch(sbBase() + path, {method: opts.method || "GET", headers: h, body: opts.body, keepalive: !!opts.keepalive})
+    // запрос без ответа не висит вечно: после сна компьютера или смены сети он мог бы заблокировать синхронизацию до перезагрузки
+    var ac = typeof AbortController === "function" ? new AbortController() : null, tmo = 0;
+    var fin = function(){ clearTimeout(tmo); };
+    var lost = function(e){ fin(); if(e && e.name === "AbortError") throw new Error("нет связи: сервер не ответил вовремя"); throw e; };
+    if(ac) tmo = setTimeout(function(){ try { ac.abort(); } catch(e){} }, opts.timeout || 25000);
+    return fetch(sbBase() + path, {method: opts.method || "GET", headers: h, body: opts.body, keepalive: !!opts.keepalive, signal: ac ? ac.signal : undefined})
       .then(function(r){
         if(r.status === 401 && auth !== false && SB.tok && SB.tok.refresh_token && !opts.retried){
+          fin();
           return sbRefresh().then(function(){ opts.retried = true; return sbReq(path, opts, auth); });
         }
         return r.text().then(function(txt){
+          fin();
           var data = null;
           try { data = txt ? JSON.parse(txt) : null; } catch(e){ data = null; }
           if(!r.ok){
@@ -5968,8 +6026,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
             throw new Error(msg);
           }
           return data;
-        });
-      });
+        }, lost);
+      }, lost);
   }
   var SBR = null;
   function sbRefresh(){
@@ -6023,34 +6081,70 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     render();
     syncStatus("Вышел. Прогресс остался в этом браузере, а в аккаунте сохранён.");
   }
+  // что известно о копии на сервере: когда её сохранили в последний раз (по часам сервера) и когда мы это проверяли
+  var SBW = {seen: 0, peekAt: 0, peeking: false};
+  function marksCount(st){
+    var n = 0;
+    Object.keys(st.logs || {}).forEach(function(k){ var l = st.logs[k]; if(Array.isArray(l)) l.forEach(function(v){ if(v != null) n++; }); });
+    return n;
+  }
   function sbSync(silent){
-    if(!sbOn() || SB.busy) return Promise.resolve();
+    if(!sbOn()) return Promise.resolve();
+    // зависшая синхронизация больше не блокирует новые: через полторы минуты её место занимает свежая
+    if(SB.busy && Date.now() - (SB.busyAt || 0) < 90000) return Promise.resolve();
     var uid = sbUser();
     if(!uid) return Promise.resolve();
-    SB.busy = true; NET.busy = true;
+    var run = SB.run = (SB.run || 0) + 1;
+    SB.busy = true; SB.busyAt = Date.now(); NET.busy = true;
     clearTimeout(SB.timer); clearTimeout(NET.rt);
     if(!silent) syncStatus("Синхронизирую…");
     var r0 = 0, sent = false;
-    return sbReq("/rest/v1/progress?select=data&limit=1")
+    return sbReq("/rest/v1/progress?select=data,updated_at&limit=1")
       .then(function(rows){
-        var remote = (rows && rows[0] && rows[0].data) ? normalize(rows[0].data) : null;
+        var row = rows && rows[0], remote = row && row.data ? normalize(row.data) : null, rAt = row ? (Date.parse(row.updated_at) || 0) : 0;
         if(remote){
+          var before = marksCount(state);
           var merged = mergeStates(state, remote);
-          if(JSON.stringify(merged) !== JSON.stringify(state)){ state = merged; XPB = null; persistLocal(); render(); }
+          if(JSON.stringify(merged) !== JSON.stringify(state)){
+            state = merged; XPB = null; clkBase(); persistLocal(); render();
+            var got = marksCount(state) - before;
+            if(got > 0 && Date.now() - BOOT_T > 8000) flash("Подтянул " + got + " " + plural(got, ["отметку","отметки","отметок"]) + " с другого устройства");
+          }
         }
         r0 = REV.r;
+        // отправляем, только если у нас есть то, чего нет на сервере, — иначе два открытых устройства гоняли бы копию друг другу
+        var need = !remote || REV.r > REV.n || canon(normalize(JSON.parse(JSON.stringify(state)))) !== canon(remote);
+        if(!need){ SBW.seen = rAt; return "same"; }
         devStamp(); persistLocal();
-        var body = JSON.stringify([{user_id: uid, data: JSON.parse(JSON.stringify(state)), updated_at: new Date().toISOString()}]);
+        var at = new Date().toISOString();
+        var body = JSON.stringify([{user_id: uid, data: JSON.parse(JSON.stringify(state)), updated_at: at}]);
         return sbReq("/rest/v1/progress", {
           method: "POST",
           headers: {Prefer: "resolution=merge-duplicates,return=minimal"},
           body: body,
-          keepalive: !!document.hidden && body.length < 60000
-        });
+          keepalive: !!document.hidden && body.length < 60000,
+          timeout: 45000
+        }).then(function(){ SBW.seen = Date.parse(at); return "sent"; });
       })
-      .then(function(){ sent = true; netOk(r0); return sbPutProfile(); })
-      .then(function(){ SB.last = Date.now(); SB.busy = false; renderSync(); renderAcc(); renderProfile(); netDone(); })
-      .catch(function(e){ SB.busy = false; syncStatus("Синхронизация не прошла: " + sbErr(e)); if(sent) netDone(); else netFail(e); });
+      .then(function(how){ sent = true; netOk(r0); return how === "sent" ? sbPutProfile() : null; })
+      .then(function(){ SB.last = Date.now(); if(run === SB.run) SB.busy = false; renderSync(); renderAcc(); renderProfile(); netDone(); })
+      .catch(function(e){ if(run === SB.run) SB.busy = false; syncStatus("Синхронизация не прошла: " + sbErr(e)); if(sent) netDone(); else netFail(e); });
+  }
+  // Пока приложение открыто, раз в минуту спрашиваем у сервера только время последнего сохранения — это пара байт.
+  // Сменилось — значит, отмечали на другом устройстве: подтягиваем копию. Так открытая вкладка не отстаёт на дни.
+  function sbPeek(){
+    if(!sbOn() || (SB.busy && Date.now() - (SB.busyAt || 0) < 90000) || SBW.peeking || !sbUser()) return Promise.resolve();
+    SBW.peeking = true;
+    return sbReq("/rest/v1/progress?select=updated_at&limit=1", {timeout: 15000}).then(function(rows){
+      SBW.peeking = false; SBW.peekAt = Date.now();
+      var at = rows && rows[0] ? (Date.parse(rows[0].updated_at) || 0) : 0;
+      if(at !== SBW.seen || REV.r > REV.n) return sbSync(true);
+    }, function(){ SBW.peeking = false; SBW.peekAt = Date.now(); });
+  }
+  function syncFresh(){
+    if(syncMode() !== "sb") return Promise.resolve();
+    if(REV.r > REV.n) return syncNow(true);
+    return sbPeek();
   }
   function sbSchedule(){
     if(!sbOn()) return;
@@ -6216,6 +6310,15 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     else if(v.k === "auth") flash("Вход в аккаунт устарел. Войди заново — отметки на этом устройстве никуда не денутся", {label: "Войти", act: "sync-login"});
   }
   window.addEventListener("online", function(){ NET.fails = 0; DBS.fails = 0; if(db && REV.r > REV.d) flush(); syncNow(true); renderPill(); });
+  // свежесть копии: раз в минуту, при возврате в окно и после сна компьютера (долгий перерыв между тиками таймера)
+  var FRESH_T = Date.now();
+  setInterval(function(){
+    var now = Date.now(), gap = now - FRESH_T; FRESH_T = now;
+    if(document.hidden || (typeof navigator !== "undefined" && navigator.onLine === false)) return;
+    if(gap > 45000 || now - SBW.peekAt > 60000) syncFresh();
+  }, 15000);
+  window.addEventListener("focus", function(){ if(Date.now() - SBW.peekAt > 5000) syncFresh(); });
+  window.addEventListener("pageshow", function(e){ if(e && e.persisted) syncFresh(); });
   window.addEventListener("offline", function(){ renderPill(); });
   document.addEventListener("visibilitychange", function(){ if(document.hidden) syncFlushNow(); });
   window.addEventListener("pagehide", syncFlushNow);
@@ -8455,6 +8558,9 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   // ---------- что нового ----------
   var WN_KEY = "pullups-seen-ver", WN = null;
   var NEWS = [
+    {v: 305, items: [
+      {e: "🔄", t: "Синхронизация между устройствами", d: "Открытое приложение раз в минуту проверяет, не отмечал ли ты что-то на другом устройстве, а ещё — когда возвращаешься в окно и когда компьютер просыпается. Пришедшие отметки показываются коротким сообщением. Если интернет пропал посреди отправки, синхронизация больше не замирает до перезагрузки страницы. А максимум, поднятый на одном устройстве, не откатывается назад, если на другом долго не открывал приложение."}
+    ]},
     {v: 304, items: [
       {e: "📷", t: "Счётчик по камере запускается быстрее", d: "Движок распознавания хранится на телефоне и больше не скачивается заново. Если ты уже считал подходы камерой, он готовится в фоне, пока открыт раздел или режим тренировки, — кнопка «Начать подход с камерой» срабатывает сразу. Подсказки под камерой больше не двигают картинку, а на время подхода экран не поворачивается (в установленном приложении на Android)."}
     ]},
@@ -8860,7 +8966,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       try {
         var merged = mergeStates(state, normalize(JSON.parse(ev.newValue)));
         LSW = ev.newValue;
-        if(JSON.stringify(merged) !== JSON.stringify(state)){ state = merged; XPB = null; render(); if(focusKey) renderFocus(); }
+        if(JSON.stringify(merged) !== JSON.stringify(state)){ state = merged; XPB = null; clkBase(); render(); if(focusKey) renderFocus(); }
       } catch(e){}
     }
     if(ev.key === SB.tkey){
@@ -11363,7 +11469,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       var raw = localStorage.getItem(KEY);
       if(raw && LSW != null && raw !== LSW){
         // соседняя вкладка успела записать своё — складываем, чтобы ничего не потерять
-        try { state = mergeStates(state, normalize(JSON.parse(raw))); XPB = null; } catch(e){}
+        try { state = mergeStates(state, normalize(JSON.parse(raw))); XPB = null; clkBase(); } catch(e){}
       }
       LSW = JSON.stringify(state);
       localStorage.setItem(KEY, LSW); localBad = false;
@@ -11372,6 +11478,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   function save(){
     // время правки только растёт: если часы на устройствах расходятся, свежая правка всё равно считается свежей
     state.updatedAt = Math.max(Date.now(), (state.updatedAt || 0) + 1);
+    clkMark();
     persistLocal();
     REV.r++; revSave();
     if(db){ clearTimeout(timer); timer = setTimeout(flush, 700); }
@@ -12241,7 +12348,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
         if(snap.exists){
           var remote = normalize(JSON.parse(JSON.stringify(snap.data())));
           var merged = mergeStates(state, remote);
-          state = merged; XPB = null;
+          state = merged; XPB = null; clkBase();
           persistLocal();
           // в облаке нет того, что накопилось здесь, — дошлём
           if(JSON.stringify(merged) !== JSON.stringify(mergeStates(remote, remote))){ if(REV.d >= REV.r){ REV.r++; revSave(); } flush(); }
