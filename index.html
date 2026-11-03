@@ -1769,6 +1769,12 @@ button.fig:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .fv-ctl .linkbtn{flex:none;margin:0;white-space:nowrap}
 .fv-title{font-family:"Onest",system-ui,sans-serif;font-size:17px;font-weight:600;margin-top:12px}
 .fv-text{margin:6px 0 0;font-size:15px;line-height:1.5}
+/* 3.06: отсчёт перед таймером */
+.chip.run.prep{animation:none;border-style:dashed;background:transparent}
+.fc-ringwrap.prep .fr-bar{stroke:#93C5FD;transition:stroke-dasharray .2s linear}
+.focus .fc-big.prep{background:#E6F0FF}
+.prepseg{margin:4px 0 12px;flex-wrap:wrap}
+.prepseg button{flex:1 1 auto}
 /* 3.04: подсказки под камерой меняются, но не двигают картинку и кнопки */
 #camHint,#camDiag{min-height:4.5em}
 #camStart[hidden],#camFileBtn[hidden],#camManual[hidden]{display:none}
@@ -2569,6 +2575,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       <p class="hint">Каждая программа подаёт свой сигнал, чтобы на слух было понятно, какой таймер сработал. Нажми, чтобы послушать:</p>
       <div class="picker" id="soundTest"></div>
       <div id="notifyRow"></div>
+      <div id="prepRow"></div>
 
     <p class="hint"><strong>Разделы на панели.</strong> Нажми, чтобы убрать ненужные: они пропадут с панели вкладок и из строки «Сегодня», а отметки и прогресс останутся.</p>
     <div class="picker" id="tabPick" role="group" aria-label="Какие разделы показывать"></div>
@@ -2631,7 +2638,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   var DONATE = "https://www.donationalerts.com/r/denstar02";
   var CONSENT_V = "2026-10-17";   // поменяй дату, если существенно изменишь согласие, — все подтвердят заново
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 3, APP_BUILD_N = 5;
+  var APP_MAJOR = 3, APP_BUILD_N = 6;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var APP_BUILD = APP_MAJOR * 100 + APP_BUILD_N;   // 1.35 → 135, 2.01 → 201
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
@@ -3492,12 +3499,12 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(v != null) cls += v >= it.target ? " done" : " part";
     if(isSel(key, it.idx)) cls += " sel";
     if(lastLogged && lastLogged.key === key && lastLogged.idx === it.idx && !REDUCED) cls += " just";
-    var runNow = hold && hold.phase === "work" && hold.key === key && hold.list[hold.i] && hold.list[hold.i].idx === it.idx;
-    if(runNow) cls += " run";
+    var runNow = hold && (hold.phase === "work" || hold.phase === "prep") && hold.key === key && hold.list[hold.i] && hold.list[hold.i].idx === it.idx;
+    if(runNow) cls += " run" + (hold.phase === "prep" ? " prep" : "");
     var name = {hold: "Удержание, секунд", hang: "Вис, секунд", plank: "Планка, секунд", wall: "Стульчик у стены, секунд", sec: "Удержание, секунд", slow: "Медленный подход", rep: "Подход", lad: "Ступень лесенки"}[it.kind];
     var aria = name + ", план " + it.target + (v != null ? ", сделано " + v : ", не выполнено");
     var face = isSec(it.kind) ? (shown >= 90 ? (shown % 60 ? holdFmt(shown) : shown / 60 + "м") : shown + "с") : shown;
-    if(runNow) face = hold.left >= 60 ? holdFmt(hold.left) : hold.left + "с";
+    if(runNow) face = hold.phase === "prep" ? hold.left + "…" : hold.left >= 60 ? holdFmt(hold.left) : hold.left + "с";
     return '<button type="button" class="' + cls + '" data-act="chip" data-key="' + key + '" data-idx="' + it.idx + '" data-t="' + it.target + '" aria-label="' + aria + '">' + face + '</button>';
   }
 
@@ -3768,7 +3775,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     var t = state.timer; if(!t) return;
     var el = document.querySelector("#timerbar .tb-time"), left = (t.due - Date.now()) / 1000;
     // в режиме тренировки отдых показан своим счётчиком и кольцом — их тоже обновляем каждую секунду
-    var inFocus = focusKey && t.key === focusKey && !FH && !FC;
+    var inFocus = focusKey && t.key === focusKey && !FH && !FC && !FP;
     var fr = inFocus ? document.querySelector("#focus .fc-state:not(.due) b") : null;
     var barDue = el && document.getElementById("timerbar").classList.contains("due");
     if(inFocus && left > 0) coachTick(t, left);
@@ -7155,6 +7162,19 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   var hold = null, holdTick = null;
   function holdSound(kind){ if(!soundOn) return; playSig(tabOfKey(hold ? hold.key : ""), kind); }
   function holdBuzz(ms){ try { if(navigator.vibrate) navigator.vibrate(ms); } catch(e){} }
+  // ---------- отсчёт перед таймером: время взяться за перекладину, лечь в планку или встать в позицию ----------
+  var PREPKEY = "pullups-prep", PREP = 5;
+  try { var pv0 = localStorage.getItem(PREPKEY); if(pv0 != null && /^(0|3|5|10)$/.test(pv0)) PREP = +pv0; } catch(e){}
+  function renderPrep(){
+    var el = document.getElementById("prepRow");
+    if(!el) return;
+    var h = '<p class="hint"><strong>Отсчёт перед таймером.</strong> Сколько секунд дать, чтобы взяться за перекладину, лечь в планку или встать в позицию, прежде чем пойдёт время виса, удержания, растяжки или кардио. Ещё одно нажатие на кнопку во время отсчёта запускает таймер сразу.</p>' +
+      '<div class="seg prepseg" role="radiogroup" aria-label="Отсчёт перед таймером">';
+    [[0, "Без отсчёта"], [3, "3 с"], [5, "5 с"], [10, "10 с"]].forEach(function(o){
+      h += '<button type="button" role="radio" data-act="prep-set" data-s="' + o[0] + '" aria-checked="' + (PREP === o[0]) + '">' + o[1] + '</button>';
+    });
+    el.innerHTML = h + '</div>';
+  }
   function holdStart(key, gi){
     var day = dayOfKey(key);
     if(!day || !day.groups || !day.groups[gi]) return;
@@ -7163,13 +7183,14 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(!pending.length){ flash("В этом упражнении всё отмечено"); return; }
     unlockAudio();
     var restSec = pending[0].rest && pending[0].rest > 0 && pending[0].rest <= 180 ? pending[0].rest : 20;
-    hold = {key: key, gi: gi, title: g.title, list: pending, i: 0, phase: "work",
-            left: pending[0].target, end: Date.now() + pending[0].target * 1000, paused: false, rest: restSec};
+    var prep = PREP > 0 ? PREP : 0;
+    hold = {key: key, gi: gi, title: g.title, list: pending, i: 0, phase: prep ? "prep" : "work", prepLen: prep,
+            left: prep || pending[0].target, end: Date.now() + (prep || pending[0].target) * 1000, paused: false, rest: restSec};
     document.body.classList.add("has-hold");
     render();
     clearInterval(holdTick);
     holdTick = setInterval(holdLoop, 250);
-    holdSound("start");
+    if(prep) holdBuzz(30); else holdSound("start");
   }
   function holdStop(silent){
     clearInterval(holdTick); holdTick = null;
@@ -7192,6 +7213,16 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   }
   function holdNext(){
     if(!hold) return;
+    // отсчёт закончился — пошло время подхода (после паузы — сколько оставалось)
+    if(hold.phase === "prep"){
+      var tg = hold.after != null ? hold.after : hold.list[hold.i].target;
+      hold.workLen = hold.after != null ? hold.list[hold.i].target : null;
+      hold.after = null;
+      hold.phase = "work"; hold.left = tg; hold.end = Date.now() + tg * 1000;
+      holdSound("start"); holdBuzz(40);
+      render();
+      return;
+    }
     if(hold.phase === "work"){
       var it = hold.list[hold.i], log = logFor(hold.key, it.idx);
       if(log[it.idx] == null){
@@ -7232,7 +7263,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     var bar = document.getElementById("holdbar");
     if(!bar) return;
     if(!hold){ bar.hidden = true; bar.innerHTML = ""; return; }
-    var it = hold.list[hold.i], total = hold.phase === "work" ? it.target : (hold.cur || hold.rest), cz = isCardioKey(hold.key);
+    var it = hold.list[hold.i], total = hold.phase === "prep" ? hold.prepLen : hold.phase === "work" ? (hold.workLen || it.target) : (hold.cur || hold.rest), cz = isCardioKey(hold.key);
     var pct = total ? Math.max(0, Math.min(100, 100 * (total - hold.left) / total)) : 0;
     if(textOnly && bar.firstChild){
       var n = bar.querySelector(".hb-count"), p = bar.querySelector(".hb-track i");
@@ -7240,15 +7271,18 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       if(p) p.style.width = pct.toFixed(1) + "%";
       var chip = document.querySelector(".chip.run");
       if(chip && hold.phase === "work") chip.textContent = hold.left >= 60 ? holdFmt(hold.left) : hold.left + "с";
+      else if(chip && hold.phase === "prep") chip.textContent = hold.left + "…";
       return;
     }
     bar.hidden = false;
     bar.innerHTML = '<div class="hb-main">' +
       '<div class="hb-info"><strong class="hb-count">' + holdFmt(hold.left) + '</strong>' +
-      '<span>' + (cz ? (hold.phase === "work" ? esc(it.lab || hold.title) : esc(cap1(hold.rl || "отдых"))) + ", отрезок " + (hold.i + 1) + " из " + hold.list.length
+      '<span>' + (hold.phase === "prep" ? "Приготовься: " + esc(cz ? (it.lab || hold.title) : hold.title) + (cz ? ", отрезок " : ", подход ") + (hold.i + 1) + " из " + hold.list.length
+        : cz ? (hold.phase === "work" ? esc(it.lab || hold.title) : esc(cap1(hold.rl || "отдых"))) + ", отрезок " + (hold.i + 1) + " из " + hold.list.length
         : (hold.phase === "work" ? "Держи" : "Отдых") + ": " + esc(hold.title) + ", подход " + (hold.i + 1) + " из " + hold.list.length) + '</span></div>' +
       '<div class="hb-actions">' +
-      '<button type="button" class="linkbtn" data-act="hold-pause">' + (hold.paused ? "Дальше" : "Пауза") + '</button>' +
+      (hold.phase === "prep" ? '<button type="button" class="linkbtn" data-act="hold-go">Начать сразу</button>'
+        : '<button type="button" class="linkbtn" data-act="hold-pause">' + (hold.paused ? "Дальше" : "Пауза") + '</button>') +
       '<button type="button" class="tb-icon" data-act="hold-stop" aria-label="Остановить таймер">✕</button>' +
       '</div></div><div class="hb-track"><i style="width:' + pct.toFixed(1) + '%"></i></div>';
   }
@@ -7824,26 +7858,52 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     {id: "r100",     e: "💯", n: "Сотня",               d: "100 повторений за всё время",              g: 100,  k: "reps"},
     {id: "r1k",      e: "🏅", n: "Тысяча",              d: "1000 повторений за всё время",             g: 1000, k: "reps"},
     {id: "r5k",      e: "🏆", n: "Пять тысяч",          d: "5000 повторений за всё время",             g: 5000, k: "reps"},
+    {id: "r10k", e: "🎖️", n: "Десять тысяч", d: "10 000 повторений за всё время", g: 10000, k: "reps"},
     {id: "pull100",  e: "🧗", n: "Сто подтягиваний",    d: "100 подтягиваний",                         g: 100,  k: "pull"},
+    {id: "pull500", e: "🏔️", n: "Покоритель турника", d: "500 подтягиваний", g: 500, k: "pull"},
+    {id: "pull1k", e: "🦅", n: "Тысяча подтягиваний", d: "1000 подтягиваний", g: 1000, k: "pull"},
+    {id: "pullset10", e: "🔟", n: "Десять подряд", d: "10 подтягиваний в одном подходе или тесте", g: 10, k: "bestPull"},
+    {id: "pullset20", e: "👑", n: "Двадцать подряд", d: "20 подтягиваний в одном подходе или тесте", g: 20, k: "bestPull"},
     {id: "push500",  e: "💪", n: "Полтысячи от пола",   d: "500 отжиманий, обычных и на доске",        g: 500,  k: "push"},
+    {id: "push2k", e: "🦾", n: "Две тысячи от пола", d: "2000 отжиманий, обычных и на доске", g: 2000, k: "push"},
     {id: "board300", e: "🎛️", n: "Хозяин доски",        d: "300 отжиманий на доске",                   g: 300,  k: "board"},
     {id: "squat1k",  e: "🦵", n: "Тысяча приседаний",   d: "1000 приседаний",                          g: 1000, k: "squat"},
+    {id: "squat5k", e: "⛰️", n: "Пять тысяч приседаний", d: "5000 приседаний", g: 5000, k: "squat"},
+    {id: "dumb500", e: "🏋️", n: "Железо", d: "500 повторений с гантелями", g: 500, k: "dumb"},
     {id: "set30",    e: "🔥", n: "Тридцатка",           d: "30 повторений в одном подходе",            g: 30,   k: "bestSet"},
+    {id: "set50", e: "🚀", n: "Полсотни за раз", d: "50 повторений в одном подходе", g: 50, k: "bestSet"},
     {id: "hold60",   e: "⏱️", n: "Железная выдержка",   d: "Удержание или планка на 60 секунд",        g: 60,   k: "bestHold"},
+    {id: "hang60", e: "🦇", n: "Минута на перекладине", d: "Вис 60 секунд", g: 60, k: "bestHang"},
+    {id: "plank180", e: "🪨", n: "Каменная планка", d: "Планка 3 минуты", g: 180, k: "bestPlank"},
     {id: "cardio60", e: "🫀", n: "Час кардио",          d: "60 минут кардио за всё время",             g: 60,   k: "cardio"},
     {id: "cardio600", e: "🏃", n: "Выносливость",       d: "600 минут кардио за всё время",            g: 600,  k: "cardio"},
+    {id: "cardio3000", e: "🌍", n: "Кругосветка", d: "50 часов кардио за всё время", g: 3000, k: "cardio"},
+    {id: "cardioseg30", e: "🛤️", n: "Полчаса без остановки", d: "Отрезок кардио или тест выносливости на 30 минут", g: 30, k: "cardioSeg"},
+    {id: "stretch60", e: "🧘", n: "Час растяжки", d: "60 минут растяжки за всё время", g: 60, k: "stretch"},
+    {id: "stretch600", e: "🤸", n: "Гибкость", d: "600 минут растяжки за всё время", g: 600, k: "stretch"},
     {id: "streak3",  e: "📅", n: "Три дня подряд",      d: "Заниматься три дня подряд",                g: 3,    k: "streak"},
     {id: "streak7",  e: "🗓️", n: "Неделя без пропусков", d: "Заниматься семь дней подряд",             g: 7,    k: "streak"},
+    {id: "streak14", e: "📆", n: "Две недели подряд", d: "Заниматься 14 дней подряд", g: 14, k: "streak"},
     {id: "streak30", e: "🌊", n: "Месяц в строю",       d: "Заниматься 30 дней подряд",                g: 30,   k: "streak"},
+    {id: "days100", e: "🌳", n: "Сто дней", d: "100 дней с тренировками, не обязательно подряд", g: 100, k: "days"},
     {id: "fin10",    e: "🎯", n: "Десять тренировок",   d: "Завершить 10 тренировок",                  g: 10,   k: "fins"},
+    {id: "fin50", e: "🏁", n: "Полсотни тренировок", d: "Завершить 50 тренировок", g: 50, k: "fins"},
+    {id: "fin100", e: "💎", n: "Сто тренировок", d: "Завершить 100 тренировок", g: 100, k: "fins"},
+    {id: "cycle", e: "🎓", n: "Программа пройдена", d: "Пройти все 30 тренировок любой программы", g: 1, k: "cycles"},
     {id: "circuit",  e: "🔄", n: "Круговорот",          d: "Пройти все круги круговой тренировки",     g: 1,    k: "circuits"},
+    {id: "alltabs", e: "🧩", n: "Многоборец", d: "Заниматься во всех шести разделах", g: 6, k: "sections"},
+    {id: "double", e: "⚔️", n: "Двойная смена", d: "Завершить за один день тренировки в двух разных разделах", g: 1, k: "double"},
     {id: "test",     e: "📈", n: "Новый максимум",      d: "Пройти тест максимума",                    g: 1,    k: "tests"},
+    {id: "gain5", e: "📊", n: "Прибавка", d: "Максимум в программе вырос на 5 от первого теста или стартового уровня", g: 5, k: "gain"},
     {id: "record",   e: "⚡", n: "Рекордсмен",          d: "Побить свой лучший подход",                g: 1,    k: "pr"},
     {id: "early",    e: "🌅", n: "Ранняя пташка",       d: "Отметить подход с 4 до 7 утра",            g: 1,    k: "early"},
+    {id: "lunch", e: "🥪", n: "Обеденный перерыв", d: "Отметить подход с 12 до 14 часов", g: 1, k: "lunch"},
     {id: "night",    e: "🌙", n: "Ночная смена",        d: "Отметить подход после 23:00",              g: 1,    k: "night"},
     {id: "cam",      e: "📷", n: "Под присмотром",      d: "Посчитать подход камерой",                 g: 1,    k: "cam"},
     {id: "share",    e: "📣", n: "Делюсь успехом",      d: "Поделиться картинкой результата или программой", g: 1, k: "share"},
-    {id: "friend",   e: "🤝", n: "Вместе веселее",      d: "Добавить друга",                           g: 1,    k: "friends"}
+    {id: "friend",   e: "🤝", n: "Вместе веселее",      d: "Добавить друга",                           g: 1,    k: "friends"},
+    {id: "friends3", e: "👥", n: "Своя компания",       d: "Трое друзей в приложении",                 g: 3,    k: "friends"},
+    {id: "cheer10",  e: "🙌", n: "Болельщик",           d: "Поддержать друзей 10 раз",                 g: 10,   k: "cheers"}
   ];
   function dayNum(ts){ var d = new Date(ts); return Math.round(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 864e5); }
   function medalCtx(){
@@ -7851,19 +7911,27 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       pull: PULL.total(), push: PUSH.total() + BOARD.total(), board: BOARD.total(), squat: SQUAT.total(), cardio: cardioMinutes(),
       fins: Object.keys(state.fin || {}).length,
       cam: state.flags && state.flags.cam ? 1 : 0, share: state.flags && state.flags.share ? 1 : 0, pr: state.flags && state.flags.pr ? 1 : 0,
-      friends: FR && FR.list ? FR.list.length : 0};
+      friends: FR && FR.list ? FR.list.length : 0,
+      dumb: DUMB.total(), stretch: tMinutes(), bestPull: 0, bestHang: 0, bestPlank: 0, cardioSeg: 0, days: 0, sections: 0,
+      double: 0, cycles: 0, gain: 0, cheers: 0, lunch: 0};
+    var segMax = 0, tabsSeen = {}, MAIN = {pull: 1, push: 1, squat: 1, dumb: 1, cardio: 1, stretch: 1};
     Object.keys(state.logs || {}).forEach(function(k){
       var w = dayOfKey(k);
       if(!w || w.test) return;
-      var log = state.logs[k] || [], all = items(w), full = all.length > 0, cz = isCardioKey(k);
+      var log = state.logs[k] || [], all = items(w), full = all.length > 0, cz = isCardioKey(k), tb = tabOfKey(k), any = false;
       all.forEach(function(it){
         var v = log[it.idx];
         if(v == null){ full = false; return; }
-        c.sets++;
-        if(cz && isSec(it.kind)) return;
-        if(isSec(it.kind)){ if(v > c.bestHold) c.bestHold = v; }
-        else { c.reps += v; if(v > c.bestSet) c.bestSet = v; }
+        c.sets++; any = true;
+        if(cz && isSec(it.kind)){ if(v > segMax) segMax = v; return; }
+        if(isSec(it.kind)){
+          if(v > c.bestHold) c.bestHold = v;
+          if(it.kind === "hang" && v > c.bestHang) c.bestHang = v;
+          if(it.kind === "plank" && v > c.bestPlank) c.bestPlank = v;
+        }
+        else { c.reps += v; if(v > c.bestSet) c.bestSet = v; if(tb === "pull" && v > c.bestPull) c.bestPull = v; }
       });
+      if(any && MAIN[tb]) tabsSeen[tb] = 1;
       if(full && w.groups.some(function(g){ return g.circ && g.rows.length >= 3; })) c.circuits++;
     });
     ["u", "p", "s", "b", "g", "h", "j", "r"].forEach(function(p){ if(state[p] && state[p].tests && Object.keys(state[p].tests).length) c.tests = 1; });
@@ -7874,12 +7942,42 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       var hr = new Date(ts).getHours();
       if(hr >= 4 && hr < 7) c.early = 1;
       if(hr >= 23 || hr < 4) c.night = 1;
+      if(hr >= 12 && hr < 14) c.lunch = 1;
       days[dayNum(ts)] = 1;
     }
     Object.keys(state.times || {}).forEach(function(k){ seen(state.times[k]); });
     Object.keys(state.fin || {}).forEach(function(k){ seen(state.fin[k]); });
     var list = Object.keys(days).map(Number).sort(function(a, b){ return a - b; }), run = 0, prev = null;
     list.forEach(function(dn){ run = prev != null && dn === prev + 1 ? run + 1 : 1; if(run > c.streak) c.streak = run; prev = dn; });
+    c.days = list.length;
+    c.sections = Object.keys(tabsSeen).length;
+    // тесты: подтягивания подряд, выносливость в минутах, прибавка от первого теста или стартового уровня
+    c.cardioSeg = Math.floor(segMax / 60);
+    ["u", "p", "s", "b", "g", "h", "j", "r"].forEach(function(p){
+      var sp = state[p]; if(!sp || !sp.tests) return;
+      var ks = Object.keys(sp.tests).filter(function(i){ return typeof sp.tests[i] === "number"; }).sort(function(a, b){ return a - b; });
+      if(!ks.length) return;
+      var vals = ks.map(function(i){ return sp.tests[i]; }), top = Math.max.apply(null, vals);
+      if(p === "u" && top > c.bestPull) c.bestPull = top;
+      if((p === "h" || p === "j" || p === "r") && top > c.cardioSeg) c.cardioSeg = top;
+      var gain = vals.length > 1 ? vals[vals.length - 1] - vals[0] : vals[0] - (sp.startMax || vals[0]);
+      if(gain > c.gain) c.gain = gain;
+    });
+    // две тренировки разных разделов, завершённые в один день
+    var finDays = {};
+    Object.keys(state.fin || {}).forEach(function(k){
+      if(!state.fin[k]) return;
+      var dn = dayNum(state.fin[k]), tb = tabOfKey(k);
+      (finDays[dn] = finDays[dn] || {})[tb] = 1;
+      if(Object.keys(finDays[dn]).length >= 2) c.double = 1;
+    });
+    // пройденные программы целиком: закрыта последняя, 30-я тренировка
+    Object.keys(CHAINS).forEach(function(p){ try { if(CHAINS[p].done(CCOUNT - 1)) c.cycles++; } catch(e){} });
+    try { if(tDone(TCOUNT - 1)) c.cycles++; } catch(e){}
+    Object.keys(state.reacts || {}).forEach(function(fid){
+      var r = state.reacts[fid];
+      c.cheers += r && r.all && typeof r.all === "object" ? Object.keys(r.all).length : (r && r.e ? 1 : 0);
+    });
     return c;
   }
   var medalT = null;
@@ -7898,7 +7996,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(!got.length) return;
     got.slice(0, 3).forEach(function(m){ feedPush({k: "medal", t: m.n, e: m.e, d: m.d}); });
     save();
-    flash(got.length === 1 ? "Новая медаль: " + got[0].e + " " + got[0].n : "Новые медали: " + got.map(function(m){ return m.e + " " + m.n; }).join(", "),
+    flash(got.length === 1 ? "Новая медаль: " + got[0].e + " " + got[0].n : got.length > 3 ? "Открыто новых медалей: " + got.length + " — " + got.slice(0, 3).map(function(m){ return m.e; }).join(" ") + "…" : "Новые медали: " + got.map(function(m){ return m.e + " " + m.n; }).join(", "),
       {label: "Смотреть", act: "medals-open"});
     var tst = document.getElementById("toast");
     if(tst) setTimeout(function(){ confetti(tst); }, 60);
@@ -8295,7 +8393,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     var inf = itemInfo(focusKey);
     if(!inf || inf.done || !inf.it || inf.it.idx !== t.next || !isSec(inf.it.kind)) return false;
     setTimeout(function(){
-      if(!focusKey || FH || FC) return;
+      if(!focusKey || FH || FC || FP) return;
       var i2 = itemInfo(focusKey);
       if(i2 && !i2.done && i2.it && i2.it.idx === inf.it.idx) fhStart(i2, true);
     }, 250);
@@ -8558,6 +8656,10 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   // ---------- что нового ----------
   var WN_KEY = "pullups-seen-ver", WN = null;
   var NEWS = [
+    {v: 306, items: [
+      {e: "⏳", t: "Отсчёт перед таймером", d: "Таймер виса, удержания, планки, растяжки и кардио стартует не сразу: сначала 5 секунд, чтобы взяться за перекладину или встать в позицию. В режиме тренировки голос говорит «Приготовься!» и считает «три, два, один». Отсчёт можно сделать 3 или 10 секунд или убрать совсем — в «Звук, тема и данные». Нажми ещё раз во время отсчёта, чтобы начать сразу."},
+      {e: "🏅", t: "26 новых медалей", d: "Теперь их 50: десять тысяч повторений, двадцать подтягиваний подряд, минута в висе, каменная планка, полчаса кардио без остановки, сто дней с тренировками, пройденная программа, многоборец во всех разделах, болельщик и другие. Те, что уже заработаны, откроются сами.", go: "medals-open", btn: "Мои медали"}
+    ]},
     {v: 305, items: [
       {e: "🔄", t: "Синхронизация между устройствами", d: "Открытое приложение раз в минуту проверяет, не отмечал ли ты что-то на другом устройстве, а ещё — когда возвращаешься в окно и когда компьютер просыпается. Пришедшие отметки показываются коротким сообщением. Если интернет пропал посреди отправки, синхронизация больше не замирает до перезагрузки страницы. А максимум, поднятый на одном устройстве, не откатывается назад, если на другом долго не открывал приложение."}
     ]},
@@ -10843,24 +10945,60 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(!info || info.done) return;
     if(isSec(info.it.kind)){
       if(FH) fhFinish(true);
+      else if(FP) fpGo();
       else fhStart(info);
       return;
     }
     focusMark();
   }
-  function fhStart(info, auto){
+  // отсчёт перед удержанием в режиме тренировки: «Приготовься!», затем «три, два, один»
+  var FP = null;
+  function fpStart(info){
+    unlockAudio();
+    FP = {key: focusKey, idx: info.it.idx, len: PREP, end: Date.now() + PREP * 1000, last: null, iv: null};
+    FP.iv = setInterval(fpTick, 200);
+    if(coachActive()) say("Приготовься!");
+    try { if(navigator.vibrate) navigator.vibrate(30); } catch(e){}
+    renderFocus();
+  }
+  function fpStop(){ if(FP){ clearInterval(FP.iv); FP = null; } }
+  function fpGo(){
+    if(!FP) return;
+    var key = FP.key, idx = FP.idx;
+    fpStop();
+    if(focusKey !== key) return;
+    var info = itemInfo(focusKey);
+    if(info && !info.done && info.it && info.it.idx === idx) fhStart(info, false, true);
+    else renderFocus();
+  }
+  function fpTick(){
+    if(!FP) return;
+    if(FP.key !== focusKey){ fpStop(); return; }
+    var left = (FP.end - Date.now()) / 1000;
+    if(left <= 0){ fpGo(); return; }
+    var n = Math.ceil(left);
+    if(n !== FP.last){
+      FP.last = n;
+      var b = document.querySelector("#focus .fc-big b");
+      if(b) b.textContent = n;
+      if(n <= 3){ if(coachActive()) say(["", "Один", "Два", "Три"][n]); else if(soundOn) playSig(tabOfKey(focusKey), "tick"); }
+    }
+    setRing(1 - left / FP.len);
+  }
+  function fhStart(info, auto, now){
     var target = focusVal == null ? info.it.target : focusVal;
     if(target <= 0) return;
+    if(!auto && !now && PREP > 0){ fpStart(info); return; }
     if(auto) focusVal = null;
     unlockAudio();
     FH = {key: focusKey, idx: info.it.idx, target: target, start: Date.now(), end: Date.now() + target * 1000, last: null, iv: null};
     FH.iv = setInterval(fhTick, 200);
     if(soundOn) playSig(tabOfKey(focusKey), "start");
     try { if(navigator.vibrate) navigator.vibrate(40); } catch(e){}
-    if(coachActive()) say(isCardioKey(focusKey) ? (auto ? "Поехали! " : "") + focusName(info) + ", " + spokenDur(target) + "." : "Держим!");
+    if(coachActive()) say(isCardioKey(focusKey) ? (auto || now ? "Поехали! " : "") + focusName(info) + ", " + spokenDur(target) + "." : "Держим!");
     renderFocus();
   }
-  function fhStop(){ if(FH){ clearInterval(FH.iv); FH = null; } }
+  function fhStop(){ fpStop(); if(FH){ clearInterval(FH.iv); FH = null; } }
   function fhFinish(early){
     if(!FH) return;
     var sec = early ? Math.max(0, Math.round((Date.now() - FH.start) / 1000)) : FH.target;
@@ -11034,30 +11172,31 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       var it = info.it, sec = isSec(it.kind), val = focusVal == null ? it.target : focusVal;
       var hint = splitHint(info.group.hint).lead, round = focusRound(info), next = focusNext(focusKey, info);
       var camMode = focusCamMode(focusKey, info);
-      var ringF = FH ? Math.min(1, (Date.now() - FH.start) / (FH.target * 1000)) : ri ? ri.f : 1;
-      var ringCls = FH ? "hold" : ri && !ri.due ? "rest" : ri && ri.due ? "due" : "ready";
+      var fp = FP && FP.key === focusKey && FP.idx === info.it.idx ? FP : null, busy = !!(FH || fp);
+      var ringF = FH ? Math.min(1, (Date.now() - FH.start) / (FH.target * 1000)) : fp ? Math.min(1, 1 - (fp.end - Date.now()) / (fp.len * 1000)) : ri ? ri.f : 1;
+      var ringCls = FH ? "hold" : fp ? "prep" : ri && !ri.due ? "rest" : ri && ri.due ? "due" : "ready";
       h += '<div class="fc-mid"><p class="fc-ex">' + esc(focusName(info)) + '</p>';
       var cz = isCardioKey(focusKey) && sec;
       h += '<p class="fc-sub">' + (round ? round + " · " : "") + (cz ? "отрезок " : "подход ") + info.n + " из " + info.total + (sec ? (cz ? " · " + cDur(it.target) : " · держать " + it.target + " с") : "") + '</p>';
       if(hint) h += '<p class="fc-lead">' + esc(hint) + '</p>';
       if(info.group.board) h += '<div class="fc-map">' + boardMapHtml(info.group.board, "Схема доски: " + info.group.title) + '</div>';
       h += focusDots(focusKey, info);
-      var bigLab = FH ? (cz ? "идёт · нажми, чтобы закончить" : "держи · нажми, чтобы закончить") : sec ? (cz ? (val >= 60 ? "нажми, чтобы начать" : "секунд · нажми, чтобы начать") : "секунд · нажми, чтобы начать") : "повторений · отметить";
-      var bigVal = FH ? Math.max(1, Math.ceil((FH.end - Date.now()) / 1000)) : val;
-      if(sec && bigVal >= 60) bigVal = holdFmt(bigVal);
-      h += '<div class="fc-val"><button type="button" class="fc-step" data-act="focus-less" aria-label="Меньше"' + (FH ? " disabled" : "") + '>−</button>' +
+      var bigLab = fp ? "приготовься · нажми, чтобы начать сразу" : FH ? (cz ? "идёт · нажми, чтобы закончить" : "держи · нажми, чтобы закончить") : sec ? (val >= 60 ? "нажми, чтобы начать" : "секунд · нажми, чтобы начать") : "повторений · отметить";
+      var bigVal = fp ? Math.max(1, Math.ceil((fp.end - Date.now()) / 1000)) : FH ? Math.max(1, Math.ceil((FH.end - Date.now()) / 1000)) : val;
+      if(sec && !fp && bigVal >= 60) bigVal = holdFmt(bigVal);
+      h += '<div class="fc-val"><button type="button" class="fc-step" data-act="focus-less" aria-label="Меньше"' + (busy ? " disabled" : "") + '>−</button>' +
         '<div class="fc-ringwrap ' + ringCls + '">' + focusRing(ringF, 120) +
-        '<button type="button" class="fc-big' + (FH ? " holding" : "") + '" data-act="focus-mark"><b>' + bigVal + '</b><span>' + bigLab + '</span></button></div>' +
-        '<button type="button" class="fc-step" data-act="focus-more" aria-label="Больше"' + (FH ? " disabled" : "") + '>+</button></div>';
-      if(ri && !ri.due && !FH) h += '<button type="button" class="fc-state fc-set" data-act="timer-set" aria-label="Изменить время отдыха"><b>' + fmt(Math.ceil(ri.left)) + '</b> ' + esc(ri.t.rl || "отдых") + PEN_IC + '</button>';
-      else if(ri && ri.due && !FH) h += '<p class="fc-state due" role="status"><b>Пора</b> отдых закончился, делай подход</p>';
-      var tools = (camMode && !FH ? '<button type="button" class="fc-tool" data-act="focus-cam">' + CAM_IC + 'Считать камерой</button>' : '') + coachBtn() +
-        (!FH ? '<button type="button" class="fc-tool" data-act="iv-open">' + IC_CLOCK + 'Интервалы</button>' : '');
+        '<button type="button" class="fc-big' + (FH ? " holding" : fp ? " prep" : "") + '" data-act="focus-mark"><b>' + bigVal + '</b><span>' + bigLab + '</span></button></div>' +
+        '<button type="button" class="fc-step" data-act="focus-more" aria-label="Больше"' + (busy ? " disabled" : "") + '>+</button></div>';
+      if(ri && !ri.due && !busy) h += '<button type="button" class="fc-state fc-set" data-act="timer-set" aria-label="Изменить время отдыха"><b>' + fmt(Math.ceil(ri.left)) + '</b> ' + esc(ri.t.rl || "отдых") + PEN_IC + '</button>';
+      else if(ri && ri.due && !busy) h += '<p class="fc-state due" role="status"><b>Пора</b> отдых закончился, делай подход</p>';
+      var tools = (camMode && !busy ? '<button type="button" class="fc-tool" data-act="focus-cam">' + CAM_IC + 'Считать камерой</button>' : '') + coachBtn() +
+        (!busy ? '<button type="button" class="fc-tool" data-act="iv-open">' + IC_CLOCK + 'Интервалы</button>' : '');
       if(tools) h += '<div class="fc-tools">' + tools + '</div>';
       if(next) h += '<p class="fc-next">Дальше: ' + esc(next) + '</p>';
       h += '<p class="vh">Отмечено ' + (info.n - 1) + ' из ' + info.total + '</p></div>';
       h += '<div class="fc-bot">';
-      if(ri && !ri.due && !FH){
+      if(ri && !ri.due && !busy){
         var st = ri.small ? 15 : 60, lab = ri.small ? "15 с" : "1 мин";
         h += '<div class="fc-restbtns"><button type="button" class="tb-icon" data-act="timer-minus" data-s="' + st + '" aria-label="Отдых короче на ' + lab + '">−' + (ri.small ? "15" : "1") + '</button>' +
           '<button type="button" class="fc-skip" data-act="timer-skip">Пропустить отдых</button>' +
@@ -11448,7 +11587,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(MTABS[TAB]) renderMounted(TAB);
     if(TAB === "push" || TAB === "squat") renderCounter();
     if(TAB === "profile"){ renderSync(); renderProfile(); }
-    renderSound(); renderNotify(); renderAcc(); renderTabPick(); renderBoardKey(); renderHead();
+    renderSound(); renderNotify(); renderPrep(); renderAcc(); renderTabPick(); renderBoardKey(); renderHead();
     animateFills();
     animateNums();
     renderHold();
@@ -11698,9 +11837,21 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(act === "hold-run"){ holdStart(b.getAttribute("data-key"), +b.getAttribute("data-gi")); return; }
     if(act === "hold-pause"){
       if(!hold) return;
-      if(hold.paused){ hold.end = Date.now() + hold.left * 1000; hold.paused = false; }
-      else hold.paused = true;
-      renderHold();
+      if(hold.paused){
+        hold.paused = false;
+        // после паузы с перекладины уже спрыгнул: короткий отсчёт, чтобы снова взяться
+        if(hold.phase === "work" && PREP > 0){ hold.after = hold.left; hold.phase = "prep"; hold.prepLen = hold.left = Math.min(PREP, 5); holdBuzz(30); }
+        hold.end = Date.now() + hold.left * 1000;
+        render();
+      } else { hold.paused = true; renderHold(); }
+      return;
+    }
+    if(act === "hold-go"){ if(hold && hold.phase === "prep"){ hold.end = Date.now(); holdNext(); } return; }
+    if(act === "prep-set"){
+      PREP = +b.getAttribute("data-s") || 0;
+      try { localStorage.setItem(PREPKEY, String(PREP)); } catch(e){}
+      renderPrep();
+      flash(PREP ? "Перед таймером — отсчёт " + PREP + " " + plural(PREP, ["секунда","секунды","секунд"]) : "Таймер запускается сразу, без отсчёта");
       return;
     }
     if(act === "hold-stop"){ holdStop(); flash("Таймер остановлен"); return; }
