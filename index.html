@@ -1769,6 +1769,23 @@ button.fig:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .fv-ctl .linkbtn{flex:none;margin:0;white-space:nowrap}
 .fv-title{font-family:"Onest",system-ui,sans-serif;font-size:17px;font-weight:600;margin-top:12px}
 .fv-text{margin:6px 0 0;font-size:15px;line-height:1.5}
+/* 3.08: раздел «Пресс» и вес тела */
+.bw-add{align-items:flex-end}
+.bw-add .field{flex:1 1 130px;min-width:0}
+.field input[type="date"]{min-height:var(--ctl-h);padding:0 12px;border-radius:var(--r-sm);border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);font:inherit;font-size:var(--fs-md);min-width:0;width:100%;box-sizing:border-box;color-scheme:light}
+:root[data-theme="dark"] .field input[type="date"]{color-scheme:dark}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .field input[type="date"]{color-scheme:dark}}
+.field input[type="date"]:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+.bw-add .primary{flex:0 0 auto}
+.bw-nudge{color:var(--accent);font-weight:600}
+#bwBox{scroll-margin-top:84px}
+.bw-list{list-style:none;margin:8px 0 0;padding:0}
+.bw-list li{display:flex;align-items:center;gap:10px;padding:2px 0;border-bottom:1px solid var(--line)}
+.bw-list li:last-child{border-bottom:0}
+.bw-list li span{flex:1;color:var(--muted);font-size:var(--fs-sm)}
+.bw-list li b{font-variant-numeric:tabular-nums}
+.tchart text.bwm{fill:#fff;font-weight:700;font-size:11px}
+.bw-pull .linkbtn{margin-left:4px}
 /* 3.07: снег — поверх страницы, но под окнами; нажатия проходят сквозь холст */
 #snow{position:fixed;left:0;top:0;width:100%;height:100vh;pointer-events:none;z-index:12;opacity:0;transition:opacity .35s ease}
 #snow.on{opacity:1;transition:opacity 1.2s ease}
@@ -1797,7 +1814,7 @@ button.fig:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
   <header class="topbar">
     <div>
     <h1>Тренировки</h1>
-    <p class="lede">Семь программ: турник, отжимания, приседания, гантели, кардио, растяжка и своя. Везде короткие подходы вместо одной тяжёлой тренировки — в своём темпе и с запасом сил.</p>
+    <p class="lede">Восемь программ: турник, отжимания, приседания, пресс, гантели, кардио, растяжка и своя. Везде короткие подходы вместо одной тяжёлой тренировки — в своём темпе и с запасом сил.</p>
     </div>
     <button type="button" class="syncpill" id="syncPill" data-syncpill data-act="sync-pill" aria-label="Состояние сохранения" hidden></button>
     <button type="button" class="accbtn" id="accBtn" data-act="acc" aria-label="Войти в аккаунт" aria-pressed="false"></button>
@@ -1809,6 +1826,7 @@ button.fig:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
     <button type="button" role="tab" id="tab-pull" data-act="tab" data-tab="pull" aria-controls="panel-pull" aria-selected="true">Турник</button>
     <button type="button" role="tab" id="tab-push" data-act="tab" data-tab="push" aria-controls="panel-push" aria-selected="false">Отжимания</button>
     <button type="button" role="tab" id="tab-squat" data-act="tab" data-tab="squat" aria-controls="panel-squat" aria-selected="false">Приседания</button>
+    <button type="button" role="tab" id="tab-abs" data-act="tab" data-tab="abs" aria-controls="panel-abs" aria-selected="false">Пресс</button>
     <button type="button" role="tab" id="tab-dumb" data-act="tab" data-tab="dumb" aria-controls="panel-dumb" aria-selected="false">Гантели</button>
     <button type="button" role="tab" id="tab-cardio" data-act="tab" data-tab="cardio" aria-controls="panel-cardio" aria-selected="false">Кардио</button>
     <button type="button" role="tab" id="tab-stretch" data-act="tab" data-tab="stretch" aria-controls="panel-stretch" aria-selected="false">Растяжка</button>
@@ -1822,6 +1840,7 @@ button.fig:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
     <section class="panel" id="profileBox"></section>
     <div id="levelSlot"></div>
     <div id="weekSlot"></div>
+    <div id="bwSlot"></div>
     <div id="medalsSlot"></div>
     <div id="friendsBox"></div>
 
@@ -2343,6 +2362,64 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     </section>
   </section>
 
+  <section id="panel-abs" role="tabpanel" aria-labelledby="tab-abs" hidden>
+    <section class="phead" aria-label="Ход программы">
+      <div class="hd-top">
+        <div class="rig-cap"><span id="acapRange"></span><span id="acapLeft"></span></div>
+        <div class="hd-arrows">
+          <button type="button" class="hd-arrow" id="aprev" data-act="cprev" data-c="a" aria-label="Предыдущая тренировка">‹</button>
+          <button type="button" class="hd-arrow" id="anext" data-act="cnext" data-c="a" aria-label="Следующая тренировка">›</button>
+        </div>
+      </div>
+      <nav class="rig pushrig" aria-label="Тренировки программы"><div class="weeks" id="aweeks"></div></nav>
+      <p class="vh" id="anavLabel" aria-live="polite"></p>
+      <p class="pstatus" id="astatus"></p>
+      <div class="pchips">
+        <button type="button" class="pchip" data-act="hd" data-w="set" aria-expanded="false" aria-controls="ahdset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></svg><span class="vh">Нагрузка и темп: </span><span class="setsum" id="asetSum"></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button>
+      </div>
+      <div class="hdbody" id="ahdset" data-hd="set" hidden>
+      <div class="maxrow">
+        <p id="amaxText"></p>
+        <div class="stepper" role="group" aria-label="Рабочий максимум скручиваний">
+          <button type="button" data-act="cmax-" data-c="a" aria-label="Уменьшить">−</button>
+          <output id="amaxOut">20</output>
+          <button type="button" data-act="cmax+" data-c="a" aria-label="Увеличить">+</button>
+        </div>
+        <div class="modebox" id="amode"></div>
+      </div>
+
+      <div class="legend" aria-hidden="true">
+        <span><i></i>Запланировано, нажми после подхода</span>
+        <span><i class="d"></i>Выполнено</span>
+        <span><i class="p"></i>Меньше плана</span>
+        <span><i class="h"></i>Секунды: планка и «лодочка»</span>
+      </div>
+      </div>
+    </section>
+
+    <main><div id="awork"></div></main>
+
+    <section class="pfoot" aria-label="Прогресс и правила">
+      <div class="pchips">
+        <button type="button" class="pchip" data-act="hd" data-w="ring" aria-expanded="false" aria-controls="aftring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5" opacity=".35"/><path d="M12 3.5a8.5 8.5 0 0 1 8.2 10.7"/></svg><span>Прогресс</span><span class="ftsum" id="aringSum"></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button>
+        <button type="button" class="pchip" data-act="hd" data-w="rules" aria-expanded="false" aria-controls="aftrules"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4.5h10.5A3.5 3.5 0 0 1 19 8v11.5H8.5A3.5 3.5 0 0 1 5 16z"/><path d="M5 16a3.5 3.5 0 0 1 3.5-3.5H19"/></svg><span>Правила</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button>
+      </div>
+      <div class="hdbody" id="aftring" data-hd="ring" hidden><div id="aring"></div></div>
+      <div class="hdbody rules" id="aftrules" data-hd="rules" hidden><p class="rules-t">Правила для пресса</p>
+      <ul>
+        <li>Максимум считается в скручиваниях: сколько чистых повторений выходит за один подход. От него строятся все упражнения.</li>
+        <li>Не доходи до отказа: заканчивай подход, когда в запасе ещё 2–3 повторения.</li>
+        <li>Во всех упражнениях лёжа на спине поясница прижата к полу. Если она отрывается, уменьши амплитуду или согни колени.</li>
+        <li>Голову руками не тяни: руки у висков или тянутся к коленям, между подбородком и грудью — расстояние в кулак.</li>
+        <li>Дыши ровно: выдох на подъёме, задерживать дыхание не нужно.</li>
+        <li>«Супермен» и «мёртвый жук» укрепляют спину и учат держать корпус ровно — они нужны, даже если цель только пресс.</li>
+        <li>Во время беременности и после родов, при болях в пояснице или после операций на животе и спине сначала посоветуйся с врачом.</li>
+        <li>Тренировки идут подряд, а не по дням недели. Пропустил день — ничего не сгорает, просто продолжай со следующей.</li>
+      </ul>
+      </div>
+    </section>
+  </section>
+
   <section id="panel-dumb" role="tabpanel" aria-labelledby="tab-dumb" hidden>
     <section class="phead" aria-label="Ход программы">
       <div class="hd-top">
@@ -2643,7 +2720,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   var DONATE = "https://www.donationalerts.com/r/denstar02";
   var CONSENT_V = "2026-10-17";   // поменяй дату, если существенно изменишь согласие, — все подтвердят заново
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 3, APP_BUILD_N = 7;
+  var APP_MAJOR = 3, APP_BUILD_N = 8;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var APP_BUILD = APP_MAJOR * 100 + APP_BUILD_N;   // 1.35 → 135, 2.01 → 201
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
@@ -2659,9 +2736,9 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   }
   applyTheme();
   var TAB = "pull";
-  try { var tb = localStorage.getItem(TKEY); if(tb === "push" || tb === "squat" || tb === "dumb" || tb === "cardio" || tb === "stretch" || tb === "custom") TAB = tb; } catch(e){}
+  try { var tb = localStorage.getItem(TKEY); if(tb === "push" || tb === "squat" || tb === "abs" || tb === "dumb" || tb === "cardio" || tb === "stretch" || tb === "custom") TAB = tb; } catch(e){}
   // ---------- какие разделы показывать ----------
-  var TABDEF = [{t: "pull", n: "Турник"}, {t: "push", n: "Отжимания"}, {t: "squat", n: "Приседания"},
+  var TABDEF = [{t: "pull", n: "Турник"}, {t: "push", n: "Отжимания"}, {t: "squat", n: "Приседания"}, {t: "abs", n: "Пресс"},
                 {t: "dumb", n: "Гантели"}, {t: "cardio", n: "Кардио"}, {t: "stretch", n: "Растяжка"}, {t: "custom", n: "Создать"}];
   var HIDEKEY = "pullups-tabs-off", tabsOff = {};
   try { var ho = JSON.parse(localStorage.getItem(HIDEKEY) || "{}"); if(ho && typeof ho === "object" && !Array.isArray(ho)) tabsOff = ho; } catch(e){}
@@ -2678,7 +2755,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   normalizeTab();
   var SETS = ["подход","подхода","подходов"];
   // тип дня: 0 — смазка канавки, 1 — удержания и подходы, 2 — лесенки/тест
-  function fresh(){ return {v:4, profile:{name:"", photo:""}, fin:{}, lastEvent:null, notes:{}, reacts:{}, feed:[], onb:{done:false}, updatedAt:0, mode:{pull:"short", push:"short", squat:"short", stretch:"short", cardio:"short"}, variant:{push:"classic", cardio:"home"}, start:null, timer:null, p:{startMax:15, max:null, tests:{}}, s:{startMax:25, max:null, tests:{}}, b:{startMax:12, max:null, tests:{}}, g:{startMax:12, max:null, tests:{}, weight:0, autoAt:0}, h:{startMax:6, max:null, tests:{}}, j:{startMax:3, max:null, tests:{}}, r:{startMax:3, max:null, tests:{}}, t:{front:40, side:45, tests:{}}, u:{startMax:4, max:null, tests:{}, legacy:0}, custom:{progs:[], cur:null, mount:{pull:null, push:null, squat:null, cardio:null, stretch:null}}, startMax:4, test4:null, test8:null, logs:{}, times:{}, cycles:[]}; }
+  function fresh(){ return {v:4, profile:{name:"", photo:""}, fin:{}, lastEvent:null, notes:{}, reacts:{}, feed:[], onb:{done:false}, updatedAt:0, mode:{pull:"short", push:"short", squat:"short", abs:"short", stretch:"short", cardio:"short"}, variant:{push:"classic", cardio:"home"}, start:null, timer:null, p:{startMax:15, max:null, tests:{}}, s:{startMax:25, max:null, tests:{}}, b:{startMax:12, max:null, tests:{}}, g:{startMax:12, max:null, tests:{}, weight:0, autoAt:0}, a:{startMax:20, max:null, tests:{}}, bw:{}, h:{startMax:6, max:null, tests:{}}, j:{startMax:3, max:null, tests:{}}, r:{startMax:3, max:null, tests:{}}, t:{front:40, side:45, tests:{}}, u:{startMax:4, max:null, tests:{}, legacy:0}, custom:{progs:[], cur:null, mount:{pull:null, push:null, squat:null, abs:null, cardio:null, stretch:null}}, startMax:4, test4:null, test8:null, logs:{}, times:{}, cycles:[]}; }
   function normalize(s){
     var f = fresh();
     if(!s || typeof s !== "object") return f;
@@ -2746,7 +2823,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     };
     var MD = s.mode && typeof s.mode === "object" ? s.mode : MD0;
     f.mode = {};
-    ["pull","push","squat","dumb","stretch","cardio"].forEach(function(tb){
+    ["pull","push","squat","abs","dumb","stretch","cardio"].forEach(function(tb){
       f.mode[tb] = (MD[tb] === "short" || MD[tb] === "day") ? MD[tb] : "short";
     });
     f.mode.cardio = "short";
@@ -2785,7 +2862,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     var C0 = s.custom && typeof s.custom === "object" ? s.custom : {};
     f.custom = {progs: [], cur: typeof C0.cur === "string" ? C0.cur : null, mount: {}};
     var M0 = C0.mount && typeof C0.mount === "object" ? C0.mount : {};
-    ["pull", "push", "squat", "dumb", "cardio", "stretch"].forEach(function(tb2){ f.custom.mount[tb2] = typeof M0[tb2] === "string" ? M0[tb2] : null; });
+    ["pull", "push", "squat", "abs", "dumb", "cardio", "stretch"].forEach(function(tb2){ f.custom.mount[tb2] = typeof M0[tb2] === "string" ? M0[tb2] : null; });
     (Array.isArray(C0.progs) ? C0.progs : []).forEach(function(p){
       var np = normProg(p);
       if(np) f.custom.progs.push(np);
@@ -2796,7 +2873,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       side: clampInt(T.side, 0, 120, 45),
       tests: (T.tests && typeof T.tests === "object" && !Array.isArray(T.tests)) ? T.tests : {}
     };
-    [["p", 15], ["s", 25], ["b", 12], ["g", 12], ["h", 6], ["j", 3], ["r", 3]].forEach(function(pair){
+    [["p", 15], ["s", 25], ["b", 12], ["g", 12], ["h", 6], ["j", 3], ["r", 3], ["a", 20]].forEach(function(pair){
       var src = s[pair[0]] && typeof s[pair[0]] === "object" ? s[pair[0]] : {};
       f[pair[0]] = {
         startMax: clampInt(src.startMax, 1, 500, pair[1]),
@@ -2808,6 +2885,20 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       };
     });
     f.timer = (s.timer && typeof s.timer === "object" && typeof s.timer.key === "string" && typeof s.timer.due === "number") ? s.timer : null;
+    f.bw = {};
+    if(s.bw && typeof s.bw === "object" && !Array.isArray(s.bw)) Object.keys(s.bw).forEach(function(d){
+      var e = s.bw[d];
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(d) || !e || typeof e !== "object" || typeof e.at !== "number") return;
+      var w = e.w == null ? null : +e.w;
+      if(w != null && !(isFinite(w) && w >= 25 && w <= 300)) return;
+      f.bw[d] = {w: w == null ? null : Math.round(w * 10) / 10, at: e.at};
+    });
+    // в копии от версии до 3.08 нет раздела «Пресс»: отмечаем это (в JSON метка не попадает), чтобы при сложении копий
+    // взять настройки из другой копии, а не значения по умолчанию
+    var miss = {};
+    if(!(s.a && typeof s.a === "object")) miss.a = 1;
+    if(!(s.mode && typeof s.mode === "object" && (s.mode.abs === "short" || s.mode.abs === "day"))) miss.abs = 1;
+    try { Object.defineProperty(f, "_miss", {value: miss, enumerable: false, configurable: true, writable: true}); } catch(e){}
     return f;
   }
   function clampInt(v, lo, hi, dflt){ v = parseInt(v, 10); if(isNaN(v)) return dflt; return Math.min(hi, Math.max(lo, v)); }
@@ -2829,7 +2920,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
             kind: (e && e.kind) === "sec" ? "sec" : "rep",
             val: clampInt(e && e.val, 0, (e && e.kind) === "sec" ? 10800 : 600, 0),
             rest: clampInt(e && e.rest, 0, 10800, 0),
-            cat: ["pull","push","squat","dumb","cardio","stretch"].indexOf(e && e.cat) >= 0 ? e.cat : "",
+            cat: ["pull","push","squat","abs","dumb","cardio","stretch"].indexOf(e && e.cat) >= 0 ? e.cat : "",
             hint: String((e && e.hint) || "").slice(0, 200)
           };
         })
@@ -2855,9 +2946,9 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   // не откатится дома, даже если дома потом нажали «Оставить как есть» или переключили режим.
   var CLK = (function(){
     var a = [];
-    ["u", "p", "s", "b", "g", "h", "j", "r"].forEach(function(c){ ["startMax", "max", "weight"].forEach(function(f){ a.push(c + "." + f); }); });
+    ["u", "p", "s", "b", "g", "h", "j", "r", "a"].forEach(function(c){ ["startMax", "max", "weight"].forEach(function(f){ a.push(c + "." + f); }); });
     ["front", "side"].forEach(function(f){ a.push("t." + f); });
-    ["pull", "push", "squat", "dumb", "stretch", "cardio"].forEach(function(f){ a.push("mode." + f); });
+    ["pull", "push", "squat", "abs", "dumb", "stretch", "cardio"].forEach(function(f){ a.push("mode." + f); });
     ["push", "cardio"].forEach(function(f){ a.push("variant." + f); });
     return a;
   })(), CLKB = null;
@@ -3420,6 +3511,47 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
           {p: [80, 64], a: [32, 48], b: [32, 48], l: fS(77), r: fS(83)},
           {p: [80, 62], a: [32, 48], b: [32, 48], l: fS(77, 105, 0), r: fS(82, 96, 0)}]}
   };
+// фигурки для раздела «Пресс»: всё лёжа на полу, вид сбоку, голова слева (на спине) или справа (на животе)
+  // на спине: таз на полу (93, 104), корпус влево; колени согнуты, стопы на полу
+  var AB_BACK = {p: [93, 104], t: -90, a: [107, 0], b: [105, 0], l: fS(118), r: fS(116)};
+  var AB_CRUP = fK(AB_BACK, {t: -70, c: -6, n: 24, a: [118, 0], b: [116, 0]});
+  // ноги прямые над полом и вертикально
+  var AB_LEGDN = {p: [90, 104], t: -90, a: [84, 0], b: [82, 0], l: [97, 0, 0], r: [96, 0, 0]};
+  var AB_LEGUP = fK(AB_LEGDN, {l: [172, 0, 0], r: [171, 0, 0]});
+  // обратные скручивания: колени под прямым углом, таз подкручивается вверх
+  var AB_RVDN = {p: [93, 104], t: -90, a: [80, 0], b: [78, 0], l: [178, 88, 0], r: [177, 88, 0]};
+  var AB_RVUP = fK(AB_RVDN, {p: [96, 99], t: -101, l: [214, 92, 0], r: [213, 92, 0]});
+  // велосипед: плечи приподняты, руки за головой, ноги по очереди
+  var AB_BK = {p: [93, 104], t: -70, c: -3, n: 20, a: {x: 53, y: 86, k: 1}, b: {x: 54, y: 87, k: 1}};
+  var AB_BK1 = fK(AB_BK, {l: [204, 112, 0], r: [104, 4, 0]});
+  var AB_BK2 = fK(AB_BK, {l: [104, 4, 0], r: [204, 112, 0]});
+  // «мёртвый жук»: руки вверх, колени над тазом; противоположные рука и нога уходят к полу
+  var AB_DB = {p: [93, 104], t: -90, a: [178, 0], b: [176, 0], l: [178, 88, 0], r: [176, 88, 0]};
+  var AB_DB1 = fK(AB_DB, {a: [258, 0], r: [98, 2, 0]});
+  var AB_DB2 = fK(AB_DB, {b: [258, 0], l: [98, 2, 0]});
+  // «супермен» на животе: голова справа
+  var AB_SM = {p: [70, 104], t: 90, n: -4, a: [99, 0], b: [98, 0], l: [-91, 0, -90], r: [-90, 0, -90]};
+  var AB_SMUP = fK(AB_SM, {t: 80, n: -8, a: [109, 0], b: [108, 0], l: [-101, 0, -90], r: [-100, 0, -90]});
+  // «лодочка»: плечи и прямые ноги над полом, руки за головой
+  var AB_HL = {p: [90, 104], t: -75, c: -3, n: 16, a: [97, 0], b: [95, 0], l: [114, 0, 0], r: [113, 0, 0]};
+  (function(o){ for(var k in o) FIGS[k] = o[k]; })({
+    crunch: {v: "s", d: 2.8, at: [0, .38, .5, .88], still: .44,
+      label: "Скручивание: лопатки отрываются от пола, поясница прижата, руки тянутся к коленям", k: [AB_BACK, AB_CRUP, AB_CRUP, AB_BACK]},
+    crunchslow: {v: "s", d: 5.5, at: [0, .36, .5, .95], still: .44,
+      label: "Медленное скручивание: две секунды вверх, задержка, три секунды вниз", k: [AB_BACK, AB_CRUP, AB_CRUP, AB_BACK]},
+    legraise: {v: "s", d: 3.6, at: [0, .32, .42, .94], still: .38,
+      label: "Подъём ног лёжа: прямые ноги поднимаются до вертикали и медленно опускаются, не касаясь пола", k: [AB_LEGDN, AB_LEGUP, AB_LEGUP, AB_LEGDN]},
+    revcrunch: {v: "s", d: 3, at: [0, .4, .52, .9], still: .46,
+      label: "Обратное скручивание: колени тянутся к груди, таз чуть отрывается от пола", k: [AB_RVDN, AB_RVUP, AB_RVUP, AB_RVDN]},
+    bicycle: {v: "s", d: 2.4, m: "s", still: 0,
+      label: "Велосипед: лопатки приподняты, ноги по очереди подтягиваются к груди", k: [AB_BK1, AB_BK2]},
+    deadbug: {v: "s", d: 5, at: [0, .2, .5, .7], still: .2,
+      label: "«Мёртвый жук»: противоположные рука и нога медленно уходят к полу, поясница прижата", k: [AB_DB, AB_DB1, AB_DB, AB_DB2]},
+    superman: {v: "s", d: 3.2, at: [0, .35, .6, .92], still: .45,
+      label: "«Супермен»: лёжа на животе, руки, грудь и ноги чуть отрываются от пола", k: [AB_SM, AB_SMUP, AB_SMUP, AB_SM]},
+    hollow: {v: "s", d: 4, still: 0,
+      label: "«Лодочка»: плечи и прямые ноги над полом, поясница прижата", k: [AB_HL, fK(AB_HL, {t: -76, l: [112, 0, 0], r: [111, 0, 0]})]}
+  });
   // ---------- фигурка крупно ----------
   var FIGV = null;
   function figvOpen(k, title, hint){
@@ -3665,7 +3797,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   function pad(n){ return (n < 10 ? "0" : "") + n; }
   function scrollTo(el){ if(el && el.scrollIntoView) try { el.scrollIntoView({behavior: REDUCED ? "auto" : "smooth", block: "start"}); } catch(e){} }
   function goToCard(key){
-    var cg0 = /^([psubghjr])[dq](\d+)$/.exec(key);
+    var cg0 = /^([psubghjra])[dq](\d+)$/.exec(key);
     if(cg0){
       var ch0 = CHAINS[cg0[1]];
       if(TAB !== ch0.cfg.tab){ TAB = ch0.cfg.tab; try { localStorage.setItem(TKEY, TAB); } catch(e){} }
@@ -3693,7 +3825,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   var SKEY = "pullups-sound", soundOn = true, audio = null, alerted = null, baseTitle = document.title;
   try { soundOn = localStorage.getItem(SKEY) !== "0"; } catch(e){}
   function dayOfKey(key){
-    var cm0 = /^([psubghjr])([dq])(\d+)$/.exec(key);
+    var cm0 = /^([psubghjra])([dq])(\d+)$/.exec(key);
     if(cm0) return CHAINS[cm0[1]].build(+cm0[3] - 1, cm0[2] === "q" ? "short" : "day");
     var tm0 = /^t([dq])(\d+)$/.exec(key);
     if(tm0) return buildTDay(+tm0[2] - 1, tm0[1] === "q" ? "short" : "day");
@@ -3727,11 +3859,11 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     var it = itemOf(t.key, t.next); if(!it) return "";
     var mk2 = /^m([a-z]+)_[a-z0-9]+-(\d+)$/.exec(t.key);
     var xk = /^x([a-z0-9]+)-(\d+)$/.exec(t.key);
-    var cm2 = /^([psubghjr])[dq](\d+)$/.exec(t.key);
+    var cm2 = /^([psubghjra])[dq](\d+)$/.exec(t.key);
     var tm2 = /^t[dq](\d+)$/.exec(t.key);
     var dname = mk2 ? (MTABS[mk2[1]] || "Своя программа") + ", занятие " + mk2[2]
       : xk ? "Своя программа, занятие " + xk[2]
-      : cm2 ? ({p: "Отжимания", s: "Приседания", u: "Турник", b: "Доска", g: "Гантели", h: "Кардио дома", j: "Скакалка", r: "Бег"})[cm2[1]] + ", тренировка " + cm2[2]
+      : cm2 ? ({p: "Отжимания", s: "Приседания", u: "Турник", b: "Доска", g: "Гантели", h: "Кардио дома", j: "Скакалка", r: "Бег", a: "Пресс"})[cm2[1]] + ", тренировка " + cm2[2]
       : tm2 ? "Растяжка, занятие " + tm2[1]
       : "Тренировка";
     var all = items(dayOfKey(t.key)), n = 0;
@@ -3821,17 +3953,19 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     pull:    {name: "Турник",      type: "triangle", gain: .30, tick: [{f: 784, d: .05}],  start: [{f: 784, d: .10}], done: [{f: 784, d: .10}, {f: 1175, d: .20, at: .11}], due: [{f: 1175, d: .12}, {f: 784, d: .12, at: .16}, {f: 1175, d: .18, at: .32}], rep: [{f: 988, d: .08}]},
     push:    {name: "Отжимания",   type: "sine",     gain: .34, tick: [{f: 659, d: .05}],  start: [{f: 659, d: .10}], done: [{f: 659, d: .10}, {f: 988, d: .20, at: .11}],  due: [{f: 988, d: .12}, {f: 659, d: .12, at: .16}, {f: 988, d: .18, at: .32}],  rep: [{f: 880, d: .08}]},
     squat:   {name: "Приседания",  type: "sawtooth", gain: .18, tick: [{f: 392, d: .05}],  start: [{f: 392, d: .10}], done: [{f: 392, d: .10}, {f: 587, d: .22, at: .11}],  due: [{f: 587, d: .12}, {f: 392, d: .12, at: .16}, {f: 587, d: .20, at: .32}],  rep: [{f: 523, d: .08}]},
+    abs:     {name: "Пресс",       type: "triangle", gain: .26, tick: [{f: 466, d: .05}],  start: [{f: 466, d: .10}], done: [{f: 466, d: .10}, {f: 698, d: .20, at: .11}],  due: [{f: 698, d: .12}, {f: 466, d: .12, at: .16}, {f: 698, d: .18, at: .32}],  rep: [{f: 587, d: .08}]},
     stretch: {name: "Растяжка",    type: "sine",     gain: .26, tick: [{f: 523, d: .06}],  start: [{f: 523, d: .14}], done: [{f: 523, d: .16}, {f: 784, d: .30, at: .17}],  due: [{f: 784, d: .18}, {f: 523, d: .26, at: .22}],                            rep: [{f: 698, d: .10}]},
     cardio:  {name: "Кардио",      type: "square",   gain: .14, tick: [{f: 698, d: .05}],  start: [{f: 698, d: .09}, {f: 932, d: .09, at: .1}], done: [{f: 932, d: .10}, {f: 1397, d: .20, at: .11}], due: [{f: 698, d: .10}, {f: 932, d: .10, at: .13}, {f: 1397, d: .16, at: .26}], rep: [{f: 1047, d: .07}]},
     custom:  {name: "Своя",        type: "triangle", gain: .28, tick: [{f: 587, d: .05}],  start: [{f: 587, d: .10}], done: [{f: 587, d: .10}, {f: 880, d: .20, at: .11}],  due: [{f: 880, d: .12}, {f: 587, d: .12, at: .16}, {f: 880, d: .18, at: .32}], rep: [{f: 740, d: .08}]}
   };
-  var DUE_TITLE = {pull: "Пора подтягиваться", push: "Пора отжиматься", squat: "Пора приседать", dumb: "Пора к гантелям", cardio: "Пора на кардио", stretch: "Пора тянуться", custom: "Пора на подход"};
+  var DUE_TITLE = {pull: "Пора подтягиваться", push: "Пора отжиматься", squat: "Пора приседать", abs: "Пора качать пресс", dumb: "Пора к гантелям", cardio: "Пора на кардио", stretch: "Пора тянуться", custom: "Пора на подход"};
   function dueTitle(key){ return DUE_TITLE[tabOfKey(key)] || "Пора на подход"; }
   function tabOfKey(key){
     if(!key) return "custom";
     if(/^u[dq]\d+$/.test(key)) return "pull";
     if(/^[pb][dq]\d+$/.test(key)) return "push";
     if(/^s[dq]\d+$/.test(key)) return "squat";
+    if(/^a[dq]\d+$/.test(key)) return "abs";
     if(/^t[dq]\d+$/.test(key)) return "stretch";
     if(/^g[dq]\d+$/.test(key)) return "dumb";
     if(/^[hjr][dq]\d+$/.test(key)) return "cardio";
@@ -3927,7 +4061,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
 
   // ---------- отмена последнего действия ----------
   var UNDO = [];
-  var UNDO_KEYS = ["logs", "times", "fin", "notes", "cycles", "lastEvent", "feed", "p", "s", "b", "g", "h", "j", "r", "t", "u", "test4", "test8", "startMax", "variant"];
+  var UNDO_KEYS = ["logs", "times", "fin", "notes", "cycles", "lastEvent", "feed", "p", "s", "b", "g", "h", "j", "r", "a", "bw", "t", "u", "test4", "test8", "startMax", "variant"];
   function undoSnap(){
     var o = {}, i;
     for(i = 0; i < UNDO_KEYS.length; i++){ var k = UNDO_KEYS[i]; if(state[k] !== undefined) o[k] = state[k]; }
@@ -4287,6 +4421,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
         '<p class="hint">Всего ' + cfg.unit[2] + ' за программу. До отметки ' + goal + ' осталось ' + Math.max(0, goal - total) + '.</p></div>';
       var chart = testChart(C);
       if(chart) h += '<details class="subdet"><summary>' + (cfg.chartTitle || "Рост максимума") + '</summary>' + chart + '</details>';
+      if(cfg.pre === "u") h += pullWeightHtml(C);
       var othr = cfg.secs ? 0 : C.totalOther();
       if(cfg.siblings){
         var sb3 = [];
@@ -4649,6 +4784,78 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     buildDay: dumbDay,
     testHint: "Разомнись двумя лёгкими подходами. Через 5 минут — один подход жима гантелей лёжа до момента, когда техника начнёт ломаться. Это и есть рабочий максимум."
   });
+  // ---------- пресс ----------
+  // рабочий максимум — скручивания за один подход; остальные упражнения считаются от него
+  var AB_EX = {
+    crunch: {n: "Скручивания", s: "Скручив.", h: "Лёжа на спине, колени согнуты, стопы на полу. Отрывай от пола лопатки, поясница остаётся прижатой. Руки тянутся к коленям или лежат у висков — голову руками не тяни.", a: "crunch"},
+    legraise: {n: "Подъёмы ног лёжа", s: "Ноги", h: "Лёжа на спине, руки вдоль тела, поясница прижата к полу. Почти прямые ноги поднимай до вертикали и медленно опускай, не касаясь пола. Если поясница отрывается — согни колени.", a: "legraise"},
+    revcrunch: {n: "Обратные скручивания", s: "Обратные", h: "Лёжа на спине, колени согнуты под прямым углом. Подтягивай колени к груди так, чтобы таз чуть оторвался от пола, и медленно возвращайся — без рывка ногами.", a: "revcrunch"},
+    bicycle: {n: "Велосипед", s: "Велосипед", h: "Лёжа на спине, лопатки приподняты, руки у головы. Тяни локоть к противоположному колену, вторая нога выпрямляется над полом. Считается каждое касание.", a: "bicycle"},
+    deadbug: {n: "«Мёртвый жук»", s: "Жук", h: "Лёжа на спине, руки вверх, колени над тазом. Медленно опускай к полу противоположные руку и ногу и возвращай. Поясница всё время прижата. Считается каждая сторона.", a: "deadbug"},
+    superman: {n: "«Супермен»", s: "Супермен", h: "Лёжа на животе, подними руки, грудь и ноги на пару сантиметров, задержись на секунду и опустись. Это для спины: корпус крепче, когда мышцы спины работают вместе с прессом.", a: "superman"},
+    hollow: {n: "«Лодочка» на спине", s: "Лодочка", h: "Лёжа на спине, поясница прижата. Плечи и прямые ноги над полом, руки тянутся вперёд. Если поясница отрывается — согни колени или подними ноги выше.", a: "hollow"},
+    plank: {n: "Планка", s: "Планка", h: "Упор на предплечьях, тело прямое от пяток до макушки, поясница не провисает, живот подтянут.", a: "plank"}
+  };
+  function absDay(ctx){
+    var t = ctx.type, MP = ctx.MP, list = ctx.list, re = ctx.re, b = ctx.block, base = ctx.base, M = ctx.max, groups = [], next = "";
+    // «Подряд» — короткий отдых, как принято для пресса; «На весь день» — подход раз в 45–60 минут
+    var day = MP === MODES.day, rest = day ? MP.restSet : 60, gap = day ? MP.restSet : 90;
+    var restHint = day ? MP.setHint : "Отдых минута между подходами, полторы — между упражнениями.";
+    function g(ex, sets, reps, kind, extra, name){
+      var e = AB_EX[ex], sec = isSec(kind), row = list(sets, reps, kind, sec ? (day ? MP.holdRest : 60) : rest, gap);
+      row.forEach(function(it){ it.ex = ex; });
+      groups.push({ex: ex, title: (name || e.n) + ": " + sets + " " + plural(sets, SETS) + " по " + reps + (sec ? " " + plural(reps, ["секунде","секунды","секунд"]) : ""),
+        hint: e.h + (extra ? " " + extra : "") + " " + (sec ? (day ? MP.holdHint : "Отдых минута между подходами.") : restHint),
+        rows: [row], anim: kind === "slow" && ex === "crunch" ? "crunchslow" : e.a});
+    }
+    if(t === "vol"){
+      g("crunch", Math.min(6, 3 + Math.floor(b / 2)), re(base + 0.15), "rep");
+      g("legraise", Math.min(4, 2 + Math.floor(b / 3)), re((base + 0.15) * 0.5), "rep");
+      next = "Следующую тренировку делай завтра или через день.";
+    } else if(t === "slow"){
+      g("crunch", Math.min(4, 2 + Math.floor(b / 3)), re(base), "slow", "Поднимайся 2 секунды, задержись наверху и опускайся 3 секунды.", "Медленные скручивания");
+      g("revcrunch", 3, re(base * 0.6), "rep");
+      g("superman", 3, Math.min(12, 6 + b), "rep");
+      next = "После медленных мышцы могут побаливать: следующую тренировку лучше через день.";
+    } else if(t === "lad"){
+      var rounds = MP.ladRounds(b), order = ["crunch", "bicycle", "legraise", "deadbug"], rows = [];
+      var rr = {crunch: re(base), bicycle: re(base), legraise: re(base * 0.5), deadbug: re(base * 0.6)};
+      var inR = day ? MP.ladIn : 20, outR = day ? MP.ladOut : 90;
+      for(var q = 0; q < rounds; q++) rows.push(order.map(function(ex, j){
+        var last = j === order.length - 1, lastRound = q === rounds - 1;
+        var it = list(1, rr[ex], "rep", null, last ? (lastRound ? null : outR) : inR)[0];
+        it.lab = AB_EX[ex].s; it.ex = ex;
+        return it;
+      }));
+      groups.push({circ: true, title: rounds + " " + plural(rounds, ["круг","круга","кругов"]) + ": скручивания, велосипед, ноги, «жук»",
+        hint: "Круг — четыре упражнения подряд: " + rr.crunch + " скручиваний, " + rr.bicycle + " касаний в велосипеде, " + rr.legraise + " подъёмов ног и " + rr.deadbug + " раз «мёртвого жука». " +
+          (day ? MP.ladHint : "Между упражнениями 20 секунд, между кругами полторы минуты.") + " Поясница всё время прижата к полу.",
+        rows: rows, ladder: true, anim: "bicycle"});
+      next = "Следующую тренировку делай завтра или через день.";
+    } else {
+      g("plank", 3, Math.min(60, 20 + 5 * b), "plank");
+      g("hollow", 2, Math.min(40, 15 + 3 * b), "sec");
+      g("crunch", MP.lightSets, Math.max(1, Math.floor(0.3 * M)), "rep");
+      next = "Лёгкая тренировка восстанавливает: следующую можно уже завтра.";
+    }
+    // после последнего подхода дня отдыхать уже не нужно
+    var lg = groups[groups.length - 1], lr = lg.rows[lg.rows.length - 1];
+    lr[lr.length - 1].rest = null;
+    return {no: ctx.i + 1, title: ctx.name(t), groups: groups, next: next};
+  }
+  var ABS = makeChain({
+    pre: "a", dom: "a", tab: "abs",
+    unit: ["повторение","повторения","повторений"],
+    maxLabel: "Рабочий максимум скручиваний",
+    pace: "Пресс можно качать каждый день или через день, как удобно.",
+    didToday: "качал пресс",
+    names: {vol: "Верх и низ", slow: "Медленно и спина", lad: "Круг", easy: "Планка"},
+    form: "", slowHint: "",
+    hold: {title: "Планка", hint: "", kind: "plank"},
+    anim: {rep: "crunch", slow: "crunchslow", hold: "plank"},
+    buildDay: absDay,
+    testHint: "Разомнись: 10 спокойных скручиваний и минута отдыха. Потом один подход скручиваний до момента, когда техника начнёт ломаться: поясница отрывается от пола или хочется тянуть голову руками. Сколько чистых повторений вышло — это и есть рабочий максимум."
+  });
   // ---------- кардио: три варианта по инвентарю — дома без инвентаря, скакалка, бег ----------
   // Максимум здесь — выносливость: сколько минут держишь ровный темп без остановки. От него строятся отрезки.
   // Все отметки — в секундах (kind "sec"), итоги считаются в минутах.
@@ -4880,8 +5087,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   function cardioMinutes(){ return Math.round(cardioSecs() / 60); }
   // слова для секунд: в кардио это не «удержания»
   function secWord(key, many){ return isCardioKey(key) ? "кардио" : (many ? "удержаний" : "удержания"); }
-  var CHAINS = {p: PUSH, s: SQUAT, u: PULL, b: BOARD, g: DUMB, h: CHOME, j: CROPE, r: CRUN};
-  function chainOfTab(){ return TAB === "squat" ? SQUAT : TAB === "dumb" ? DUMB : TAB === "pull" ? PULL : TAB === "cardio" ? cardioChain() : pushChain(); }
+  var CHAINS = {p: PUSH, s: SQUAT, u: PULL, b: BOARD, g: DUMB, h: CHOME, j: CROPE, r: CRUN, a: ABS};
+  function chainOfTab(){ return TAB === "squat" ? SQUAT : TAB === "abs" ? ABS : TAB === "dumb" ? DUMB : TAB === "pull" ? PULL : TAB === "cardio" ? cardioChain() : pushChain(); }
   // кнопки общей панели: «p» — текущий вариант отжиманий, «c» — текущий вариант кардио
   function chainBy(pre){ return pre === "p" ? pushChain() : pre === "c" ? cardioChain() : CHAINS[pre]; }
 
@@ -5534,7 +5741,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       var d2 = prog.days[+el.getAttribute("data-di")]; if(!d2) return;
       var ex = d2.ex[+el.getAttribute("data-xi")]; if(!ex) return;
       if(k === "n") ex.n = v.slice(0, 60);
-      else if(k === "cat") ex.cat = ["pull","push","squat","dumb","cardio","stretch"].indexOf(v) >= 0 ? v : "";
+      else if(k === "cat") ex.cat = ["pull","push","squat","abs","dumb","cardio","stretch"].indexOf(v) >= 0 ? v : "";
       else if(k === "hint") ex.hint = v.slice(0, 200);
       else if(k === "kind") ex.kind = v === "sec" ? "sec" : "rep";
       else if(k === "sets") ex.sets = Math.max(1, Math.min(30, parseInt(v, 10) || 1));
@@ -5546,7 +5753,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   }
 
   // ---------- своя программа, разложенная по разделам ----------
-  var MTABS = {pull: "Турник", push: "Отжимания", squat: "Приседания", dumb: "Гантели", cardio: "Кардио", stretch: "Растяжка"};
+  var MTABS = {pull: "Турник", push: "Отжимания", squat: "Приседания", abs: "Пресс", dumb: "Гантели", cardio: "Кардио", stretch: "Растяжка"};
   var mountView = {};
   function mountedProg(tab){ var id = state.custom.mount ? state.custom.mount[tab] : null; return id ? custProgById(id) : null; }
   function mountedDays(prog, tab){
@@ -5676,7 +5883,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       rows.push({tab: tab, title: title, line: (unitWord || "Тренировка") + " " + (i + 1) + " из " + total + ", " + (w.title || "").toLowerCase(),
         done: st.done, plan: st.plan, key: key, today: dayStamp(state.times[key]) === today, fin: fin});
     }
-    [["pull", PULL], ["push", pushChain()], ["squat", SQUAT], ["dumb", DUMB]].forEach(function(pair){
+    [["pull", PULL], ["push", pushChain()], ["squat", SQUAT], ["abs", ABS], ["dumb", DUMB]].forEach(function(pair){
       var tab = pair[0], C = pair[1], mp = mountedProg(tab);
       if(mp){
         var mi = mountedCurrent(tab, mp);
@@ -5778,7 +5985,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     var box = document.getElementById("soundTest");
     if(!box) return;
     var h = "";
-    ["pull", "push", "squat", "cardio", "stretch", "custom"].forEach(function(k){
+    ["pull", "push", "squat", "abs", "cardio", "stretch", "custom"].forEach(function(k){
       h += '<button type="button" class="blockbtn" data-act="sound-test" data-s="' + k + '">' + SOUND[k].name + '</button>';
     });
     box.innerHTML = h;
@@ -5850,6 +6057,12 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     var newer = (a.updatedAt || 0) >= (b.updatedAt || 0) ? a : b, older = newer === a ? b : a;
     var out = normalize(JSON.parse(JSON.stringify(newer)));
     var old = normalize(JSON.parse(JSON.stringify(older)));
+    // копия из версии до 3.08 не знает раздела «Пресс»: его настройки берём из другой копии, а не из значений по умолчанию
+    var nm = newer._miss || {}, om = older._miss || {};
+    if(nm.a && !om.a) out.a = old.a;
+    if(nm.abs && !om.abs) out.mode.abs = old.mode.abs;
+    // вес тела: по каждому дню берём более позднюю правку (удаление — тоже правка)
+    Object.keys(old.bw || {}).forEach(function(d){ if(!out.bw[d] || old.bw[d].at > out.bw[d].at) out.bw[d] = old.bw[d]; });
     // отметки: объединяем, ничего не теряем
     Object.keys(old.logs || {}).forEach(function(k){
       var ol = old.logs[k];
@@ -5878,7 +6091,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     });
     if(Object.keys(clk).length) out.clk = clk;
     // максимумы и тесты программ
-    ["u", "p", "s", "b", "g", "h", "j", "r"].forEach(function(k){
+    ["u", "p", "s", "b", "g", "h", "j", "r", "a"].forEach(function(k){
       if(!out[k] || !old[k]) return;
       Object.keys(old[k].tests || {}).forEach(function(i){ if(out[k].tests[i] == null) out[k].tests[i] = old[k].tests[i]; });
       if(out[k].max == null && old[k].max != null) out[k].max = old[k].max;
@@ -7559,6 +7772,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       {v: PULL.total(), u: ["подтягивание","подтягивания","подтягиваний"], tail: ""},
       {v: PUSH.total() + BOARD.total(), u: ["отжимание","отжимания","отжиманий"], tail: ""},
       {v: SQUAT.total(), u: ["приседание","приседания","приседаний"], tail: ""},
+      {v: ABS.total(), u: ["повторение","повторения","повторений"], tail: " на пресс"},
       {v: DUMB.total(), u: ["повторение","повторения","повторений"], tail: " с гантелями"},
       {v: cardioMinutes(), u: ["минута","минуты","минут"], tail: " кардио"},
       {v: tMinutes(), u: ["минута","минуты","минут"], tail: " растяжки"}
@@ -7582,7 +7796,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   }
   function myStats(){
     return {
-      pull: PULL.total(), push: PUSH.total() + BOARD.total(), squat: SQUAT.total(),
+      pull: PULL.total(), push: PUSH.total() + BOARD.total(), squat: SQUAT.total(), abs: ABS.total(),
       dumb: DUMB.total(), cardio: cardioMinutes(), stretch: tMinutes(), ts: Date.now(), at: lastMarkTs() || null, last: state.lastEvent || null, reacts: state.reacts || {},
       wk: {id: weekId(), reps: weekReps()}, feed: (state.feed || []).slice(-15),
       lv: (function(){ var xx = xpCalc().xp; return {n: levelOf(xx), xp: xx}; })(),
@@ -7907,20 +8121,21 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     return !any;
   }
   function onbStart(){
-    ONB = {step: 0, gear: {}, mode: "short", max: {u: 4, p: 15, s: 25, g: 12}};
+    ONB = {step: 0, gear: {}, mode: "short", max: {u: 4, p: 15, s: 25, a: 20, g: 12}};
     renderOnb();
   }
   function onbClose(skip){
     if(!state.onb) state.onb = {};
     state.onb.done = true;
     if(!skip && ONB){
-      ["pull", "push", "squat", "dumb", "stretch"].forEach(function(t){ state.mode[t] = ONB.mode; });
+      ["pull", "push", "squat", "abs", "dumb", "stretch"].forEach(function(t){ state.mode[t] = ONB.mode; });
       if(ONB.gear.board) state.variant.push = "board";
       if(ONB.gear.rope) state.variant.cardio = "rope";
       state.u.startMax = ONB.max.u;
       state.p.startMax = ONB.max.p;
       state.b.startMax = Math.max(1, Math.round(ONB.max.p * 0.8));
       state.s.startMax = ONB.max.s;
+      state.a.startMax = ONB.max.a;
       state.g.startMax = ONB.max.g;
       if(!ONB.keepTab) TAB = ONB.gear.bar ? "pull" : ONB.gear.dumb ? "dumb" : ONB.gear.board ? "push" : "push";
     }
@@ -7967,6 +8182,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       if(ONB.gear.bar) h += onbMaxRow("u", "Подтягивания");
       h += onbMaxRow("p", "Отжимания");
       h += onbMaxRow("s", "Приседания");
+      h += onbMaxRow("a", "Скручивания");
       if(ONB.gear.dumb) h += onbMaxRow("g", "Повторений с гантелями");
     }
     h += '<div class="warm-actions">' +
@@ -8021,8 +8237,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     return {best: best, bestKey: bestKey, day: day, dayKey: dayKey, hold: hold, holdKey: holdKey, cardio: Math.round(cardio / 60)};
   }
   function keyName(k){
-    var m = /^([psubghjr])[dq]\d+$/.exec(k);
-    if(m) return ({p: "отжимания", s: "приседания", u: "турник", b: "доска", g: "гантели", h: "кардио", j: "скакалка", r: "бег"})[m[1]];
+    var m = /^([psubghjra])[dq]\d+$/.exec(k);
+    if(m) return ({p: "отжимания", s: "приседания", u: "турник", b: "доска", g: "гантели", h: "кардио", j: "скакалка", r: "бег", a: "пресс"})[m[1]];
     if(/^t[dq]\d+$/.test(k)) return "растяжка";
     if(/^x/.test(k)) return "своя программа";
     var mm = /^m([a-z]+)_/.exec(k);
@@ -8060,6 +8276,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     {id: "squat1k",  e: "🦵", n: "Тысяча приседаний",   d: "1000 приседаний",                          g: 1000, k: "squat"},
     {id: "squat5k", e: "⛰️", n: "Пять тысяч приседаний", d: "5000 приседаний", g: 5000, k: "squat"},
     {id: "dumb500", e: "🏋️", n: "Железо", d: "500 повторений с гантелями", g: 500, k: "dumb"},
+    {id: "abs500", e: "🍫", n: "Кубики", d: "500 повторений на пресс", g: 500, k: "abs"},
+    {id: "abs3k", e: "🛡️", n: "Стальной пресс", d: "3000 повторений на пресс", g: 3000, k: "abs"},
     {id: "set30",    e: "🔥", n: "Тридцатка",           d: "30 повторений в одном подходе",            g: 30,   k: "bestSet"},
     {id: "set50", e: "🚀", n: "Полсотни за раз", d: "50 повторений в одном подходе", g: 50, k: "bestSet"},
     {id: "hold60",   e: "⏱️", n: "Железная выдержка",   d: "Удержание или планка на 60 секунд",        g: 60,   k: "bestHold"},
@@ -8081,7 +8299,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     {id: "fin100", e: "💎", n: "Сто тренировок", d: "Завершить 100 тренировок", g: 100, k: "fins"},
     {id: "cycle", e: "🎓", n: "Программа пройдена", d: "Пройти все 30 тренировок любой программы", g: 1, k: "cycles"},
     {id: "circuit",  e: "🔄", n: "Круговорот",          d: "Пройти все круги круговой тренировки",     g: 1,    k: "circuits"},
-    {id: "alltabs", e: "🧩", n: "Многоборец", d: "Заниматься во всех шести разделах", g: 6, k: "sections"},
+    {id: "alltabs", e: "🧩", n: "Многоборец", d: "Заниматься во всех семи разделах", g: 7, k: "sections"},
     {id: "double", e: "⚔️", n: "Двойная смена", d: "Завершить за один день тренировки в двух разных разделах", g: 1, k: "double"},
     {id: "test",     e: "📈", n: "Новый максимум",      d: "Пройти тест максимума",                    g: 1,    k: "tests"},
     {id: "gain5", e: "📊", n: "Прибавка", d: "Максимум в программе вырос на 5 от первого теста или стартового уровня", g: 5, k: "gain"},
@@ -8098,13 +8316,13 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   function dayNum(ts){ var d = new Date(ts); return Math.round(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 864e5); }
   function medalCtx(){
     var c = {sets: 0, reps: 0, bestSet: 0, bestHold: 0, early: 0, night: 0, circuits: 0, tests: 0, streak: 0,
-      pull: PULL.total(), push: PUSH.total() + BOARD.total(), board: BOARD.total(), squat: SQUAT.total(), cardio: cardioMinutes(),
+      pull: PULL.total(), push: PUSH.total() + BOARD.total(), board: BOARD.total(), squat: SQUAT.total(), abs: ABS.total(), cardio: cardioMinutes(),
       fins: Object.keys(state.fin || {}).length,
       cam: state.flags && state.flags.cam ? 1 : 0, share: state.flags && state.flags.share ? 1 : 0, pr: state.flags && state.flags.pr ? 1 : 0,
       friends: FR && FR.list ? FR.list.length : 0,
       dumb: DUMB.total(), stretch: tMinutes(), bestPull: 0, bestHang: 0, bestPlank: 0, cardioSeg: 0, days: 0, sections: 0,
       double: 0, cycles: 0, gain: 0, cheers: 0, lunch: 0};
-    var segMax = 0, tabsSeen = {}, MAIN = {pull: 1, push: 1, squat: 1, dumb: 1, cardio: 1, stretch: 1};
+    var segMax = 0, tabsSeen = {}, MAIN = {pull: 1, push: 1, squat: 1, abs: 1, dumb: 1, cardio: 1, stretch: 1};
     Object.keys(state.logs || {}).forEach(function(k){
       var w = dayOfKey(k);
       if(!w || w.test) return;
@@ -8124,7 +8342,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       if(any && MAIN[tb]) tabsSeen[tb] = 1;
       if(full && w.groups.some(function(g){ return g.circ && g.rows.length >= 3; })) c.circuits++;
     });
-    ["u", "p", "s", "b", "g", "h", "j", "r"].forEach(function(p){ if(state[p] && state[p].tests && Object.keys(state[p].tests).length) c.tests = 1; });
+    ["u", "p", "s", "b", "g", "h", "j", "r", "a"].forEach(function(p){ if(state[p] && state[p].tests && Object.keys(state[p].tests).length) c.tests = 1; });
     if(state.t && state.t.tests && Object.keys(state.t.tests).length) c.tests = 1;
     var days = {};
     function seen(ts){
@@ -8143,7 +8361,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     c.sections = Object.keys(tabsSeen).length;
     // тесты: подтягивания подряд, выносливость в минутах, прибавка от первого теста или стартового уровня
     c.cardioSeg = Math.floor(segMax / 60);
-    ["u", "p", "s", "b", "g", "h", "j", "r"].forEach(function(p){
+    ["u", "p", "s", "b", "g", "h", "j", "r", "a"].forEach(function(p){
       var sp = state[p]; if(!sp || !sp.tests) return;
       var ks = Object.keys(sp.tests).filter(function(i){ return typeof sp.tests[i] === "number"; }).sort(function(a, b){ return a - b; });
       if(!ks.length) return;
@@ -8273,8 +8491,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(xd){ var xp0 = custProgById(xd[1]); return (xp0 ? xp0.name : "Своя программа") + ", " + fromYmd(xd[2]).toLocaleDateString("ru-RU", {day: "numeric", month: "long"}); }
     var xk = /^x([a-z0-9]+)-(\d+)$/.exec(key);
     if(xk){ var xp = custProgById(xk[1]); return (xp ? xp.name : "Своя программа") + ", занятие " + xk[2]; }
-    var cm = /^([psubghjr])[dq](\d+)$/.exec(key);
-    if(cm) return ({p: "Отжимания", s: "Приседания", u: "Турник", b: "Отжимания на доске", g: "Гантели", h: "Кардио дома", j: "Кардио со скакалкой", r: "Бег"})[cm[1]] + ", тренировка " + cm[2];
+    var cm = /^([psubghjra])[dq](\d+)$/.exec(key);
+    if(cm) return ({p: "Отжимания", s: "Приседания", u: "Турник", b: "Отжимания на доске", g: "Гантели", h: "Кардио дома", j: "Кардио со скакалкой", r: "Бег", a: "Пресс"})[cm[1]] + ", тренировка " + cm[2];
     var tm = /^t[dq](\d+)$/.exec(key);
     if(tm) return "Растяжка, занятие " + tm[1];
     return "Тренировка";
@@ -8447,6 +8665,10 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     var sec = isSec(it.kind);
     if(!sec && it.kind !== "rep") return null;
     if(/^t[dq]\d+$/.test(key) || (isCardioKey(key) && (sec || /^[hjr]/.test(key)))) return null;
+    if(/^a[dq]\d+$/.test(key)){
+      var ax = it.ex || (g && g.ex);
+      if(ax && AB_EX[ax]) return {id: "a:" + ax + (sec ? ":s" : ":r"), name: AB_EX[ax].n, sec: sec};
+    }
     var cm = /^([psub])[dq]\d+$/.exec(key);
     if(cm) return sec ? {id: cm[1] + ":s:" + it.kind, name: PR_SEC[it.kind] || "Удержание", sec: true}
       : {id: cm[1] + ":r", name: PR_NAMES[cm[1]], sec: false};
@@ -8616,13 +8838,13 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
 
   // ---------- итоги недели ----------
   function addDays(ts, n){ var d = new Date(ts); d.setDate(d.getDate() + n); return d.getTime(); }
-  var CAT_NAMES = {p: "Отжимания", s: "Приседания", u: "Турник", b: "Отжимания на доске", g: "Гантели", h: "Кардио", j: "Кардио", r: "Кардио"};
+  var CAT_NAMES = {p: "Отжимания", s: "Приседания", u: "Турник", b: "Отжимания на доске", g: "Гантели", h: "Кардио", j: "Кардио", r: "Кардио", a: "Пресс"};
   function catOfKey(k){
     var xk = /^x([a-z0-9]+)-/.exec(k);
     if(xk){ var xp = custProgById(xk[1]); return xp ? xp.name : "Своя программа"; }
     var mk = /^m([a-z]+)_([a-z0-9]+)-/.exec(k);
     if(mk){ var mp = custProgById(mk[2]); return mp ? mp.name : (MTABS[mk[1]] || "Своя программа"); }
-    var cm = /^([psubghjr])[dq]\d+$/.exec(k);
+    var cm = /^([psubghjra])[dq]\d+$/.exec(k);
     if(cm) return CAT_NAMES[cm[1]];
     if(/^t[dq]\d+$/.test(k)) return "Растяжка";
     return "Тренировка";
@@ -8846,6 +9068,11 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   // ---------- что нового ----------
   var WN_KEY = "pullups-seen-ver", WN = null;
   var NEWS = [
+    {v: 308, items: [
+      {e: "🍫", t: "Раздел «Пресс»", d: "30 тренировок: скручивания, подъёмы ног, велосипед, планка, «лодочка» и упражнения для спины. Нагрузка считается от твоего максимума скручиваний, тесты — на 12-й и 24-й тренировке. Убрать раздел с панели можно в «Звук, тема и данные».", go: "abs-open", btn: "Открыть «Пресс»"},
+      {e: "⚖️", t: "Вес тела", d: "Записывай вес в профиле раз в неделю — появится график, а в «Турнике» вес будет виден рядом с результатами тестов подтягиваний. Вес видишь только ты: друзьям он не показывается.", go: "bw-open", btn: "Записать вес"},
+      {e: "🎖️", t: "Две новые медали", d: "«Кубики» и «Стальной пресс» — за 500 и 3000 повторений на пресс. «Многоборец» теперь за занятия во всех семи разделах."}
+    ]},
     {v: 307, items: [
       {e: "❄️", t: "Пошёл снег", d: "До конца февраля в приложении падают снежинки. Нажимать на кнопки они не мешают, а в режиме тренировки, в окнах и пока работает камера снег прячется. Выключить его или оставить на весь год можно в «Звук, тема и данные».", go: "snow-set", btn: "Настроить снег"}
     ]},
@@ -8966,6 +9193,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       if(sdt){ sdt.open = true; setTimeout(function(){ var sr = document.getElementById("snowRow"); if(sr && sr.scrollIntoView) try { sr.scrollIntoView({behavior: REDUCED ? "auto" : "smooth", block: "center"}); } catch(e){} }, 60); }
     }
     else if(go === "fig-demo") figvOpen("run", "Лёгкий бег", "Нажми на любую фигурку в тренировке — она откроется вот так. Кнопка «Замедлить» показывает движение вдвое медленнее.");
+    else if(go === "abs-open"){ if(tabsOff.abs){ delete tabsOff.abs; tabsOffSave(); } TAB = "abs"; try { localStorage.setItem(TKEY, TAB); } catch(e){} navPush(); render(); }
+    else if(go === "bw-open") bwFocus();
     else if(go === "cardio-open"){ if(tabsOff.cardio){ delete tabsOff.cardio; tabsOffSave(); } TAB = "cardio"; try { localStorage.setItem(TKEY, TAB); } catch(e){} navPush(); render(); }
     else if(go === "ps-open"){ goProfile("pushBox"); if(!loggedIn()) flash("Уведомления работают с аккаунтом: войди или зарегистрируйся"); }
     else if(go === "fr-find"){ goProfile("frCode"); setTimeout(function(){ var fq = document.getElementById("frCode"); if(fq) try { fq.focus({preventScroll: true}); } catch(e){} }, 350); }
@@ -8998,6 +9227,10 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     box.innerHTML = h;
     var f = box.querySelector(".primary");
     if(f) try { f.focus({preventScroll: true}); } catch(e){}
+  }
+  function bwFocus(){
+    goProfile("bwBox");
+    setTimeout(function(){ var bi = document.getElementById("bwIn"); if(bi) try { bi.focus({preventScroll: true}); } catch(e){} }, 380);
   }
   function goProfile(anchor){
     var mt0 = document.getElementById("toast"); if(mt0) mt0.hidden = true;
@@ -9407,7 +9640,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   // ---------- уровни и опыт ----------
   // опыт считается из того, что уже отмечено: ничего лишнего не храним, кроме последнего отпразднованного уровня
   var XP_RULES = [
-    ["подтягивание", 3], ["отжимание, приседание, повтор с гантелями", 1], ["3 секунды удержания или растяжки", 1], ["10 секунд кардио", 1],
+    ["подтягивание", 3], ["отжимание, приседание, повтор с гантелями или на пресс", 1], ["3 секунды удержания или растяжки", 1], ["10 секунд кардио", 1],
     ["завершённая тренировка", 25], ["день с тренировкой", 10], ["медаль", 50]
   ];
   var RANKS = [[1, "Новичок", "🌱"], [3, "Любитель", "🏃"], [5, "Атлет", "💪"], [8, "Боец", "🥊"], [12, "Ветеран", "🎖️"],
@@ -10080,6 +10313,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       {v: st.pull || 0, u: ["подтягивание","подтягивания","подтягиваний"]},
       {v: st.push || 0, u: ["отжимание","отжимания","отжиманий"]},
       {v: st.squat || 0, u: ["приседание","приседания","приседаний"]},
+      {v: st.abs || 0, u: ["повтор на пресс","повтора на пресс","повторов на пресс"]},
       {v: st.dumb || 0, u: ["повтор с гантелями","повтора с гантелями","повторов с гантелями"]},
       {v: st.cardio || 0, u: ["минута кардио","минуты кардио","минут кардио"]},
       {v: st.stretch || 0, u: ["минута растяжки","минуты растяжки","минут растяжки"]}
@@ -10574,6 +10808,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       {v: st.pull || 0, u: ["подтягивание","подтягивания","подтягиваний"]},
       {v: st.push || 0, u: ["отжимание","отжимания","отжиманий"]},
       {v: st.squat || 0, u: ["приседание","приседания","приседаний"]},
+      {v: st.abs || 0, u: ["повтор на пресс","повтора на пресс","повторов на пресс"]},
       {v: st.dumb || 0, u: ["повтор с гантелями","повтора с гантелями","повторов с гантелями"]},
       {v: st.cardio || 0, u: ["минута кардио","минуты кардио","минут кардио"]},
       {v: st.stretch || 0, u: ["минута растяжки","минуты растяжки","минут растяжки"]}
@@ -10960,11 +11195,128 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     s2 += '<path d="' + d + '" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>';
     pts.forEach(function(p, i){
       s2 += '<circle cx="' + x(i).toFixed(1) + '" cy="' + y(p.v).toFixed(1) + '" r="4" fill="var(--accent)"/>';
-      s2 += '<text x="' + x(i).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="middle">' + (i ? "тест " + p.i : "старт") + '</text>';
+      s2 += '<text x="' + x(i).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="' + (i && i === pts.length - 1 ? "end" : "middle") + '">' + (i ? "тест " + p.i : "старт") + '</text>';
     });
     return s2 + '</svg>';
   }
 
+  // ---------- вес тела ----------
+  // Записи по дням: {"2026-11-08": {w: 78.4, at: время правки}}. Вес лежит в прогрессе, который читает только хозяин,
+  // и не уходит в профиль для друзей.
+  var BW = {date: null, open: false};
+  function bwList(){
+    var o = state.bw || {};
+    return Object.keys(o).filter(function(d){ return o[d] && o[d].w != null; }).sort().map(function(d){ return {d: d, w: o[d].w}; });
+  }
+  function kgFmt(w){ return String(Math.round(w * 10) / 10).replace(".", ","); }
+  function bwDelta(v){ var r = Math.round(v * 10) / 10; return (r > 0 ? "+" : r < 0 ? "−" : "") + kgFmt(Math.abs(r)) + "\u00a0кг"; }
+  function dateRu(d, year){ return fromYmd(d).toLocaleDateString("ru-RU", year ? {day: "numeric", month: "long", year: "numeric"} : {day: "numeric", month: "long"}); }
+  function dateShort(d){ return fromYmd(d).toLocaleDateString("ru-RU", {day: "numeric", month: "short"}).replace(".", ""); }
+  function bwParse(v){
+    var w = parseFloat(String(v || "").replace(",", ".").replace(/[^\d.]/g, ""));
+    return isFinite(w) && w >= 25 && w <= 300 ? Math.round(w * 10) / 10 : null;
+  }
+  // вес на дату: последняя запись не позже неё
+  function bwAt(list, d){ var v = null; list.forEach(function(e){ if(e.d <= d) v = e.w; }); return v; }
+  // график веса; marks — отметки сверху (результаты тестов подтягиваний) на той же оси времени
+  function bwChart(list, marks){
+    marks = (marks || []).filter(function(m){ return m.d >= list[0].d; });
+    var W = 320, top = marks.length ? 30 : 10, base = top + 70, H = base + 18, padL = 34, padR = 12;
+    var t0 = fromYmd(list[0].d).getTime(), t1 = Math.max(fromYmd(list[list.length - 1].d).getTime(), marks.length ? fromYmd(marks[marks.length - 1].d).getTime() : 0);
+    if(t1 - t0 < 864e5) t1 = t0 + 864e5;
+    var lo = Infinity, hi = -Infinity;
+    list.forEach(function(e){ lo = Math.min(lo, e.w); hi = Math.max(hi, e.w); });
+    if(hi - lo < 2){ var mid = (hi + lo) / 2; lo = mid - 1; hi = mid + 1; }
+    function x(d){ return padL + (W - padL - padR) * ((fromYmd(d).getTime() - t0) / (t1 - t0)); }
+    function y(w){ return base - 8 - (base - top - 16) * ((w - lo) / (hi - lo)); }
+    var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" class="tchart bwchart" role="img" aria-label="Вес тела с ' + esc(dateRu(list[0].d)) + ': от ' + kgFmt(list[0].w) + ' до ' + kgFmt(list[list.length - 1].w) + ' кг' +
+      (marks.length ? ', тесты подтягиваний: ' + marks.map(function(m){ return m.v; }).join(", ") : "") + '">';
+    s += '<line x1="' + padL + '" x2="' + (W - padR) + '" y1="' + base + '" y2="' + base + '" stroke="var(--line)"/>';
+    s += '<text x="0" y="' + (y(hi) + 4).toFixed(1) + '">' + kgFmt(hi) + '</text><text x="0" y="' + (y(lo) + 4).toFixed(1) + '">' + kgFmt(lo) + '</text>';
+    marks.forEach(function(m){
+      var mx = x(m.d).toFixed(1);
+      s += '<line x1="' + mx + '" x2="' + mx + '" y1="' + (top - 6) + '" y2="' + base + '" stroke="var(--done)" stroke-opacity=".35" stroke-dasharray="2 3"/>' +
+        '<circle cx="' + mx + '" cy="' + (top - 16) + '" r="10" fill="var(--done)"/><text x="' + mx + '" y="' + (top - 12.5) + '" text-anchor="middle" class="bwm">' + m.v + '</text>';
+    });
+    s += '<path d="' + list.map(function(e, i){ return (i ? "L" : "M") + x(e.d).toFixed(1) + " " + y(e.w).toFixed(1); }).join(" ") + '" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>';
+    list.forEach(function(e, i){
+      var lastP = i === list.length - 1;
+      if(list.length <= 24 || lastP) s += '<circle cx="' + x(e.d).toFixed(1) + '" cy="' + y(e.w).toFixed(1) + '" r="' + (lastP ? 4.5 : 3) + '" fill="var(--accent)"/>';
+    });
+    var dEnd = marks.length && marks[marks.length - 1].d > list[list.length - 1].d ? marks[marks.length - 1].d : list[list.length - 1].d;
+    s += '<text x="' + padL + '" y="' + (H - 3) + '">' + esc(dateShort(list[0].d)) + '</text><text x="' + (W - padR) + '" y="' + (H - 3) + '" text-anchor="end">' + esc(dateShort(dEnd)) + '</text>';
+    return s + '</svg>';
+  }
+  function bwSummary(list){
+    var last = list[list.length - 1], first = list[0], parts = [];
+    var monthAgo = ymdOf(new Date(fromYmd(last.d).getTime() - 30 * 864e5)), m = bwAt(list, monthAgo);
+    if(m != null) parts.push("за месяц " + bwDelta(last.w - m));
+    parts.push("с " + dateRu(first.d, first.d.slice(0, 4) !== last.d.slice(0, 4)) + " " + bwDelta(last.w - first.w));
+    return "Изменение: " + parts.join(", ") + ".";
+  }
+  function bwPanelHtml(){
+    var list = bwList(), last = list[list.length - 1], today = ymdOf(new Date());
+    var d = BW.date && BW.date <= today ? BW.date : today, cur = state.bw && state.bw[d] && state.bw[d].w != null ? state.bw[d].w : null;
+    var h = '<section class="panel bwp" id="bwBox"><div class="md-head"><h2>Вес тела</h2><span class="md-count">' +
+      (last ? kgFmt(last.w) + "\u00a0кг · " + (last.d === today ? "сегодня" : esc(dateRu(last.d))) : "пока без записей") + '</span></div>';
+    if(list.length >= 2) h += bwChart(list.slice(-60)) + '<p class="hint">' + esc(bwSummary(list)) + '</p>';
+    else if(last) h += '<p class="hint">Первая запись есть. Запиши вес ещё раз через неделю — появится график.</p>';
+    else h += '<p class="hint">Записывай вес раз в неделю: здесь появится график, а в разделе «Турник» — вес рядом с результатами тестов подтягиваний.</p>';
+    h += '<div class="test bw-add">' +
+      '<label class="field" for="bwIn">Вес, кг<input type="text" id="bwIn" inputmode="decimal" autocomplete="off" maxlength="6" placeholder="' + (last ? kgFmt(last.w) : "например 75,5") + '" value="' + (cur != null ? kgFmt(cur) : "") + '"></label>' +
+      '<label class="field" for="bwDate">Дата<input type="date" id="bwDate" max="' + today + '" value="' + d + '"></label>' +
+      '<button type="button" class="primary" data-act="bw-save">' + (cur != null ? "Исправить" : "Записать") + '</button></div>';
+    if(last && last.d !== today && Date.now() - fromYmd(last.d).getTime() >= 7 * 864e5) h += '<p class="hint bw-nudge">С последней записи прошла неделя — самое время взвеситься.</p>';
+    h += '<p class="hint">Взвешивайся утром, до завтрака — так цифры сравнимы. Вес видишь только ты: друзьям он не показывается.</p>';
+    if(list.length) h += '<details class="subdet" id="bwAll"' + (BW.open ? " open" : "") + '><summary>Все записи: ' + list.length + '</summary><ul class="bw-list">' +
+      list.slice().reverse().slice(0, 100).map(function(e){
+        return '<li><span>' + esc(dateRu(e.d, true)) + '</span><b>' + kgFmt(e.w) + '\u00a0кг</b><button type="button" class="tb-icon bw-del" data-act="bw-del" data-d="' + e.d + '" aria-label="Удалить запись за ' + esc(dateRu(e.d, true)) + '">✕</button></li>';
+      }).join("") + '</ul></details>';
+    return h + '</section>';
+  }
+  function renderBw(){
+    var slot = document.getElementById("bwSlot");
+    if(!slot) return;
+    // пока человек вводит вес или дату, панель не перерисовываем — иначе потеряется набранное
+    var ae = document.activeElement;
+    if(ae && (ae.id === "bwIn" || ae.id === "bwDate") && slot.contains(ae)) return;
+    slot.innerHTML = bwPanelHtml();
+  }
+  function bwSave(){
+    var inp = document.getElementById("bwIn"), di = document.getElementById("bwDate"), today = ymdOf(new Date());
+    var w = bwParse(inp && inp.value), d = di && /^\d{4}-\d{2}-\d{2}$/.test(di.value) ? di.value : today;
+    if(d > today) d = today;
+    if(w == null){ flash("Впиши вес в килограммах, например 75,5"); if(inp) try { inp.focus(); } catch(e){} return; }
+    var was = state.bw && state.bw[d] && state.bw[d].w != null ? state.bw[d].w : null;
+    undoPush(was != null ? "Прежний вес вернул" : "Запись веса отменена");
+    if(!state.bw) state.bw = {};
+    state.bw[d] = {w: w, at: Date.now()};
+    BW.date = null;
+    if(inp) inp.blur();
+    save(); render();
+    flash((was != null ? "Вес исправлен: " : "Вес записан: ") + kgFmt(w) + "\u00a0кг" + (d !== today ? " за " + dateRu(d) : ""), true);
+  }
+  // в «Турнике»: вес на одной оси времени с результатами тестов подтягиваний
+  function pullWeightHtml(C){
+    var list = bwList();
+    if(!list.length) return '<p class="hint bw-pull">Записывай вес тела в профиле — здесь он появится рядом с результатами тестов подтягиваний. <button type="button" class="linkbtn alt" data-act="bw-go">Записать вес</button></p>';
+    var marks = [], st2 = state[C.cfg.pre], last = list[list.length - 1];
+    Object.keys(st2.tests || {}).forEach(function(k){
+      var i = +k, tm = Math.max(state.times[C.keyIn(i, "short")] || 0, state.times[C.keyIn(i, "day")] || 0);
+      if(st2.tests[k] != null && tm) marks.push({d: ymdOf(new Date(tm)), v: st2.tests[k]});
+    });
+    marks.sort(function(a, b){ return a.d < b.d ? -1 : a.d > b.d ? 1 : 0; });
+    var h = '<details class="subdet"><summary>Вес и подтягивания</summary>';
+    if(list.length >= 2) h += bwChart(list.slice(-60), marks);
+    var txt = "Вес " + kgFmt(last.w) + "\u00a0кг (" + (last.d === ymdOf(new Date()) ? "сегодня" : dateRu(last.d)) + ")";
+    if(list.length >= 2) txt += ", " + bwSummary(list).replace(/^Изменение: /, "").replace(/\.$/, "");
+    txt += ". Рабочий максимум подтягиваний — " + C.max() + ".";
+    if(marks.length) txt += " Зелёные кружки — результаты тестов: видно, как менялся максимум вместе с весом.";
+    else if(list.length >= 2) txt += " Результаты тестов появятся на графике после первого теста.";
+    h += '<p class="hint">' + esc(txt) + ' <button type="button" class="linkbtn alt" data-act="bw-go">Записать вес</button></p>';
+    return h + '</details>';
+  }
+  document.addEventListener("toggle", function(ev){ if(ev.target && ev.target.id === "bwAll") BW.open = ev.target.open; }, true);
   // ---------- выгрузка в CSV ----------
   function csvDump(){
     var rows = [["программа", "тренировка", "подход", "тип", "план", "сделано", "дата"]];
@@ -11013,6 +11365,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(TAB === "pull") return {prev: "uprev", next: "unext"};
     if(TAB === "push") return {prev: "pprev", next: "pnext"};
     if(TAB === "squat") return {prev: "sprev", next: "snext"};
+    if(TAB === "abs") return {prev: "aprev", next: "anext"};
     if(TAB === "dumb") return {prev: "gprev", next: "gnext"};
     if(TAB === "cardio") return {prev: "cprev", next: "cnext"};
     return null;
@@ -11483,6 +11836,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(wslot) wslot.innerHTML = weekPanelHtml();
     var lslot = document.getElementById("levelSlot");
     if(lslot) lslot.innerHTML = levelPanelHtml();
+    renderBw();
     renderAwStatus();
     if(FP) renderFrDlg();
     var h = "";
@@ -11698,6 +12052,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     document.getElementById("panel-pull").hidden = TAB !== "pull";
     document.getElementById("panel-push").hidden = TAB !== "push";
     document.getElementById("panel-squat").hidden = TAB !== "squat";
+    var abp = document.getElementById("panel-abs");
+    if(abp) abp.hidden = TAB !== "abs";
     var dp = document.getElementById("panel-dumb");
     if(dp) dp.hidden = TAB !== "dumb";
     var cdp = document.getElementById("panel-cardio");
@@ -11707,7 +12063,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     var pp = document.getElementById("panel-profile");
     if(pp) pp.hidden = TAB !== "profile";
     if(TAB === "profile"){
-      ["pull", "push", "squat", "dumb", "cardio", "stretch", "custom"].forEach(function(t){
+      ["pull", "push", "squat", "abs", "dumb", "cardio", "stretch", "custom"].forEach(function(t){
         var el2 = document.getElementById("panel-" + t);
         if(el2) el2.hidden = true;
       });
@@ -11777,6 +12133,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(TAB === "pull") PULL.render();
     else if(TAB === "push") pushChain().render();
     else if(TAB === "squat") SQUAT.render();
+    else if(TAB === "abs") ABS.render();
     else if(TAB === "dumb") DUMB.render();
     else if(TAB === "cardio") cardioChain().render();
     else if(TAB === "stretch") renderStretch();
@@ -11814,6 +12171,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   function save(){
     // время правки только растёт: если часы на устройствах расходятся, свежая правка всё равно считается свежей
     state.updatedAt = Math.max(Date.now(), (state.updatedAt || 0) + 1);
+    if(state._miss) state._miss = {};
     clkMark();
     persistLocal();
     REV.r++; revSave();
@@ -11997,7 +12355,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     }
     if(act === "tab-vis"){ tabVisToggle(b.getAttribute("data-t")); return; }
     if(act === "theme"){ theme = theme === "light" ? "dark" : theme === "dark" ? "auto" : "light"; try { localStorage.setItem(THKEY, theme); } catch(e){} applyTheme(); return; }
-    if(act === "tab"){ var tv2 = b.getAttribute("data-tab"); if(!tabOn(tv2)) return; prevTab = tv2; if(cam) camFinish(false); var tbf = TAB; TAB = (tv2 === "push" || tv2 === "squat" || tv2 === "dumb" || tv2 === "cardio" || tv2 === "stretch" || tv2 === "custom") ? tv2 : "pull"; sel = null; cntVal = null; try { localStorage.setItem(TKEY, TAB); } catch(e){} if(TAB !== tbf) navPush(); render(); return; }
+    if(act === "tab"){ var tv2 = b.getAttribute("data-tab"); if(!tabOn(tv2)) return; prevTab = tv2; if(cam) camFinish(false); var tbf = TAB; TAB = (tv2 === "push" || tv2 === "squat" || tv2 === "abs" || tv2 === "dumb" || tv2 === "cardio" || tv2 === "stretch" || tv2 === "custom") ? tv2 : "pull"; sel = null; cntVal = null; try { localStorage.setItem(TKEY, TAB); } catch(e){} if(TAB !== tbf) navPush(); render(); return; }
     if(act === "cmax-" || act === "cmax+"){
       var chm = chainBy(b.getAttribute("data-c"));
       state[chm.cfg.pre].startMax = clampInt(state[chm.cfg.pre].startMax + (act === "cmax+" ? 1 : -1), 1, 500, 15);
@@ -12051,6 +12409,18 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       flash(PREP ? "Перед таймером — отсчёт " + PREP + " " + plural(PREP, ["секунда","секунды","секунд"]) : "Таймер запускается сразу, без отсчёта");
       return;
     }
+    if(act === "bw-save"){ bwSave(); return; }
+    if(act === "bw-del"){
+      var bd = b.getAttribute("data-d");
+      if(!bd || !state.bw || !state.bw[bd] || state.bw[bd].w == null) return;
+      var bwv = state.bw[bd].w;
+      undoPush("Запись веса вернул");
+      state.bw[bd] = {w: null, at: Date.now()};
+      save(); render();
+      flash("Удалил запись: " + kgFmt(bwv) + "\u00a0кг за " + dateRu(bd), true);
+      return;
+    }
+    if(act === "bw-go"){ bwFocus(); return; }
     if(act === "snow-set"){
       var sv = b.getAttribute("data-v");
       SNOW = sv === "on" || sv === "off" ? sv : "auto";
@@ -12244,6 +12614,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       if(CHAINS.u && mtab === "pull") CHAINS.u.view = null;
       if(mtab === "push"){ PUSH.view = null; BOARD.view = null; }
       if(CHAINS.s && mtab === "squat") CHAINS.s.view = null;
+      if(mtab === "abs") ABS.view = null;
       if(mtab === "stretch") tView = null;
       save(); render();
       flash(mval === "short" ? "Режим «Подряд»: подходы с коротким отдыхом" : "Режим «На весь день»: подходы с длинным отдыхом");
@@ -12518,6 +12889,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(ev.key === "Escape" && FIGV){ figvClose(); return; }
     if(ev.key === "Escape" && LVT && !document.getElementById("lvlUp").hidden){ lvlUpHide(); return; }
     if(ev.key === "Enter" && ev.target && ev.target.id === "frCode"){ ev.preventDefault(); frAdd(); return; }
+    if(ev.key === "Enter" && ev.target && ev.target.id === "bwIn"){ ev.preventDefault(); bwSave(); return; }
     if(ev.key === "Escape" && DOC){ docClose(); return; }
     if(ev.key === "Escape" && DEL){ delClose(); return; }
     if(ev.key === "Escape" && CNS){ CNS = null; CNS_LATER = true; renderCns(); return; }
@@ -12619,6 +12991,13 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       var nk = t3.getAttribute("data-note"), nv = String(t3.value || "").slice(0, 140);
       if(nv) state.notes[nk] = nv; else delete state.notes[nk];
       save();
+      return;
+    }
+    if(t3.id === "bwDate"){
+      BW.date = /^\d{4}-\d{2}-\d{2}$/.test(t3.value) ? t3.value : null;
+      var bwe = BW.date && state.bw && state.bw[BW.date], bin = document.getElementById("bwIn"), bsv = document.querySelector('[data-act="bw-save"]');
+      if(bin) bin.value = bwe && bwe.w != null ? kgFmt(bwe.w) : "";
+      if(bsv) bsv.textContent = bwe && bwe.w != null ? "Исправить" : "Записать";
       return;
     }
     if(t3.id === "gweight"){
