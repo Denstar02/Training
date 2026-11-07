@@ -1769,6 +1769,10 @@ button.fig:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .fv-ctl .linkbtn{flex:none;margin:0;white-space:nowrap}
 .fv-title{font-family:"Onest",system-ui,sans-serif;font-size:17px;font-weight:600;margin-top:12px}
 .fv-text{margin:6px 0 0;font-size:15px;line-height:1.5}
+/* 3.07: снег — поверх страницы, но под окнами; нажатия проходят сквозь холст */
+#snow{position:fixed;left:0;top:0;width:100%;height:100vh;pointer-events:none;z-index:12;opacity:0;transition:opacity .35s ease}
+#snow.on{opacity:1;transition:opacity 1.2s ease}
+@media print{#snow{display:none}}
 /* 3.06: отсчёт перед таймером */
 .chip.run.prep{animation:none;border-style:dashed;background:transparent}
 .fc-ringwrap.prep .fr-bar{stroke:#93C5FD;transition:stroke-dasharray .2s linear}
@@ -2576,6 +2580,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       <div class="picker" id="soundTest"></div>
       <div id="notifyRow"></div>
       <div id="prepRow"></div>
+      <div id="snowRow"></div>
 
     <p class="hint"><strong>Разделы на панели.</strong> Нажми, чтобы убрать ненужные: они пропадут с панели вкладок и из строки «Сегодня», а отметки и прогресс останутся.</p>
     <div class="picker" id="tabPick" role="group" aria-label="Какие разделы показывать"></div>
@@ -2638,7 +2643,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   var DONATE = "https://www.donationalerts.com/r/denstar02";
   var CONSENT_V = "2026-10-17";   // поменяй дату, если существенно изменишь согласие, — все подтвердят заново
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 3, APP_BUILD_N = 6;
+  var APP_MAJOR = 3, APP_BUILD_N = 7;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var APP_BUILD = APP_MAJOR * 100 + APP_BUILD_N;   // 1.35 → 135, 2.01 → 201
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
@@ -2650,6 +2655,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     else document.documentElement.setAttribute("data-theme", theme);
     var tb = document.getElementById("themeBtn");
     if(tb) tb.textContent = theme === "light" ? "Тёмная тема" : theme === "dark" ? "Как в системе" : "Светлая тема";
+    snowRetheme();
   }
   applyTheme();
   var TAB = "pull";
@@ -7175,6 +7181,190 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     });
     el.innerHTML = h + '</div>';
   }
+  // ---------- снег ----------
+  // «Зимой» — с 1 ноября до конца февраля, если в системе не просили поменьше движения; «Всегда»; «Выключен».
+  // Холст лежит поверх страницы, но под окнами, и пропускает нажатия. В режиме тренировки, в окнах и пока
+  // работает камера он гаснет и не рисует; в скрытой вкладке браузер сам останавливает кадры.
+  var SNOWKEY = "pullups-snow", SNOW = "auto", SN = null;
+  try { var sw0 = localStorage.getItem(SNOWKEY); if(sw0 === "on" || sw0 === "off" || sw0 === "auto") SNOW = sw0; } catch(e){}
+  function snowSeason(){ var m = new Date().getMonth(); return m >= 10 || m <= 1; }
+  function snowWanted(){ return SNOW === "on" || (SNOW === "auto" && !REDUCED && snowSeason()); }
+  function renderSnow(){
+    var el = document.getElementById("snowRow");
+    if(!el) return;
+    var h = '<p class="hint"><strong>Снег.</strong> «Зимой» — снег идёт с 1 ноября до конца февраля' +
+      (REDUCED ? ', но в системе включено уменьшение движения, поэтому в этом режиме его нет — включи «Всегда», если хочется' : '') +
+      '. Снежинки не мешают нажимать на кнопки, а в режиме тренировки и в окнах снег прячется.</p>' +
+      '<div class="seg prepseg" role="radiogroup" aria-label="Снег">';
+    [["auto", "Зимой"], ["on", "Всегда"], ["off", "Выключен"]].forEach(function(o){
+      h += '<button type="button" role="radio" data-act="snow-set" data-v="' + o[0] + '" aria-checked="' + (SNOW === o[0]) + '">' + o[1] + '</button>';
+    });
+    el.innerHTML = h + '</div>';
+  }
+  function snowDark(){
+    var a = document.documentElement.getAttribute("data-theme");
+    if(a) return a === "dark";
+    try { return !!window.matchMedia("(prefers-color-scheme: dark)").matches; } catch(e){ return false; }
+  }
+  // снежинки рисуются один раз в маленькие холсты и потом только копируются — так кадр почти ничего не стоит
+  function snowSprites(dark){
+    function mk(draw){ var c = document.createElement("canvas"); c.width = c.height = 64; draw(c.getContext("2d"), 64); return c; }
+    var far = mk(function(x, s){
+      var g = x.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
+      g.addColorStop(0, "rgba(255,255,255,1)"); g.addColorStop(.4, "rgba(255,255,255,.9)");
+      g.addColorStop(.62, "rgba(230,242,255,.28)"); g.addColorStop(1, "rgba(230,242,255,0)");
+      x.fillStyle = g; x.fillRect(0, 0, s, s);
+    });
+    // на светлой теме белое на белом не видно: ближним снежинкам — мягкая голубоватая тень снизу
+    var near = dark ? far : mk(function(x, s){
+      var o = s * .07, g2 = x.createRadialGradient(s / 2, s / 2 + o, 0, s / 2, s / 2 + o, s / 2 - o);
+      g2.addColorStop(0, "rgba(60,95,140,.44)"); g2.addColorStop(.5, "rgba(60,95,140,.19)"); g2.addColorStop(1, "rgba(60,95,140,0)");
+      x.fillStyle = g2; x.fillRect(0, 0, s, s);
+      var g = x.createRadialGradient(s / 2, s / 2 - s * .015, 0, s / 2, s / 2 - s * .015, s * .24);
+      g.addColorStop(0, "#fff"); g.addColorStop(.72, "rgba(255,255,255,.97)"); g.addColorStop(1, "rgba(255,255,255,0)");
+      x.fillStyle = g; x.fillRect(0, 0, s, s);
+    });
+    // шестилучевой кристалл с веточками
+    var cry = mk(function(x, s){
+      var R = s / 2 - 6;
+      x.translate(s / 2, s / 2); x.lineCap = "round"; x.lineJoin = "round";
+      function arms(lw, col){
+        x.strokeStyle = col; x.lineWidth = lw;
+        for(var i = 0; i < 6; i++){
+          x.save(); x.rotate(i * Math.PI / 3); x.beginPath();
+          x.moveTo(0, 0); x.lineTo(0, -R);
+          x.moveTo(0, -R * .46); x.lineTo(-R * .24, -R * .66); x.moveTo(0, -R * .46); x.lineTo(R * .24, -R * .66);
+          x.moveTo(0, -R * .72); x.lineTo(-R * .15, -R * .85); x.moveTo(0, -R * .72); x.lineTo(R * .15, -R * .85);
+          x.stroke(); x.restore();
+        }
+      }
+      arms(dark ? 10 : 9, dark ? "rgba(220,236,255,.22)" : "rgba(70,105,150,.26)");
+      arms(4.2, "#fff");
+    });
+    return {far: far, near: near, cry: cry};
+  }
+  // z — глубина: 0 — далеко (мелкая, медленная, бледная), 1 — близко; далёких больше
+  function snowFlake(f, w, h, top){
+    var z = Math.random(); z *= z;
+    f.z = z; f.x = Math.random() * w; f.y = top ? -12 - Math.random() * 40 : Math.random() * h;
+    f.ph = Math.random() * 6.283; f.om = .5 + Math.random() * .9; f.ax = 3 + z * 14;
+    f.vy = (14 + z * 50) * (.85 + Math.random() * .3); f.wk = .35 + z * .9;
+    f.c = z > .5 && Math.random() < .35;
+    if(f.c){ f.s = 9 + (z - .5) * 9 + Math.random() * 2; f.rot = Math.random() * 6.283; f.vr = (Math.random() < .5 ? -1 : 1) * (.15 + Math.random() * .4); }
+    else f.r = .75 + z * 2.5 + Math.random() * .3;
+    return f;
+  }
+  function snowSize(){
+    var cv = SN.cv, w = cv.clientWidth || window.innerWidth, h = cv.clientHeight || window.innerHeight;
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    if(w * h * dpr * dpr > 5e6) dpr = Math.max(1, Math.sqrt(5e6 / (w * h)));
+    if(!w || !h || (w === SN.w && h === SN.h && dpr === SN.dpr)) return;
+    var ow = SN.w, oh = SN.h, n = Math.max(24, Math.min(150, Math.round(w * h / 7000)));
+    SN.w = w; SN.h = h; SN.dpr = dpr;
+    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+    if(ow) SN.fl.forEach(function(f){ f.x *= w / ow; f.y *= h / oh; });
+    while(SN.fl.length < n) SN.fl.push(snowFlake({}, w, h, false));
+    SN.fl.length = n;
+  }
+  function snowStep(dt){
+    var w = SN.w, h = SN.h, t = (SN.t += dt);
+    // общий ветер медленно меняет силу и направление; ближние снежинки сносит сильнее
+    var wind = 9 * Math.sin(t * .09) + 4 * Math.sin(t * .23 + 1.3);
+    for(var i = 0; i < SN.fl.length; i++){
+      var f = SN.fl[i];
+      f.y += f.vy * dt; f.x += wind * f.wk * dt; f.ph += f.om * dt;
+      if(f.c) f.rot += f.vr * dt;
+      if(f.y - (f.c ? f.s : f.r * 5) > h) snowFlake(f, w, h, true);
+      else if(f.x < -30) f.x += w + 60;
+      else if(f.x > w + 30) f.x -= w + 60;
+    }
+  }
+  function snowDraw(){
+    var cx = SN.cx, dpr = SN.dpr, dark = SN.dark, sp = SN.spr;
+    cx.setTransform(1, 0, 0, 1, 0, 0);
+    cx.clearRect(0, 0, SN.cv.width, SN.cv.height);
+    for(var i = 0; i < SN.fl.length; i++){
+      var f = SN.fl[i], x = f.x + Math.sin(f.ph) * f.ax, y = f.y;
+      if(f.c){
+        var co = Math.cos(f.rot) * dpr, si = Math.sin(f.rot) * dpr;
+        cx.globalAlpha = dark ? .85 : .95;
+        cx.setTransform(co, si, -si, co, x * dpr, y * dpr);
+        cx.drawImage(sp.cry, -f.s / 2, -f.s / 2, f.s, f.s);
+      } else {
+        var nr = !dark && f.z > .3, d = f.r * (nr ? 4.17 : 4.8);
+        cx.globalAlpha = dark ? .4 + f.z * .5 : .66 + f.z * .34;
+        cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        cx.drawImage(nr ? sp.near : sp.far, x - d / 2, y - d / 2, d, d);
+      }
+    }
+    cx.globalAlpha = 1;
+    SN.drawn++;
+    if(!SN.cv.classList.contains("on")) SN.cv.classList.add("on");
+  }
+  // когда снегу лучше не идти: окно, режим тренировки, камера, праздник нового уровня, скрытая вкладка
+  function snowQuiet(){
+    if(document.hidden || cam || document.body.classList.contains("modal-open")) return true;
+    var lu = document.getElementById("lvlUp");
+    return !!(lu && !lu.hidden);
+  }
+  function snowFrame(now){
+    if(!SN) return;
+    SN.raf = 0;
+    if(snowQuiet()){
+      SN.cv.classList.remove("on");
+      if(!SN.to) SN.to = setTimeout(snowWake, 600);
+      return;
+    }
+    if(SN.last && now - SN.last < SN.gap){ SN.raf = requestAnimationFrame(snowFrame); return; }
+    var dt = SN.last ? Math.min(.1, (now - SN.last) / 1000) : 0;
+    SN.last = now;
+    if(SN.rs){ SN.rs = 0; snowSize(); }
+    snowStep(dt);
+    snowDraw();
+    SN.raf = requestAnimationFrame(snowFrame);
+  }
+  function snowWake(){
+    if(!SN) return;
+    clearTimeout(SN.to); SN.to = 0;
+    if(snowQuiet()){ SN.to = setTimeout(snowWake, 600); return; }
+    if(!SN.raf){ SN.last = 0; SN.raf = requestAnimationFrame(snowFrame); }
+  }
+  function snowApply(){
+    if(!snowWanted() || !window.CanvasRenderingContext2D || typeof requestAnimationFrame !== "function"){ snowOff(); return; }
+    if(SN) return;
+    var cv = document.createElement("canvas"), cx = cv.getContext && cv.getContext("2d");
+    if(!cx) return;
+    cv.id = "snow"; cv.setAttribute("aria-hidden", "true");
+    document.body.appendChild(cv);
+    var fine = false;
+    try { fine = window.matchMedia("(pointer: fine)").matches; } catch(e){}
+    // на телефоне 30 кадров в секунду (бережём батарею), с мышью — до 60
+    SN = {cv: cv, cx: cx, w: 0, h: 0, dpr: 0, fl: [], t: Math.random() * 300, raf: 0, to: 0, last: 0, drawn: 0, rs: 0,
+          gap: fine ? 12 : 28, dark: snowDark()};
+    SN.spr = snowSprites(SN.dark);
+    snowSize();
+    snowWake();
+  }
+  function snowOff(){
+    if(!SN) return;
+    var o = SN; SN = null;
+    if(o.raf) cancelAnimationFrame(o.raf);
+    clearTimeout(o.to);
+    o.cv.classList.remove("on");
+    setTimeout(function(){ if(o.cv.parentNode) o.cv.parentNode.removeChild(o.cv); }, 500);
+  }
+  function snowRetheme(){
+    if(!SN) return;
+    var d = snowDark();
+    if(d !== SN.dark){ SN.dark = d; SN.spr = snowSprites(d); }
+  }
+  try {
+    var snowMq = window.matchMedia("(prefers-color-scheme: dark)");
+    if(snowMq.addEventListener) snowMq.addEventListener("change", snowRetheme); else if(snowMq.addListener) snowMq.addListener(snowRetheme);
+  } catch(e){}
+  document.addEventListener("visibilitychange", function(){ if(!document.hidden) snowWake(); });
+  window.addEventListener("resize", function(){ if(SN) SN.rs = 1; });
+  setTimeout(snowApply, 700);
   function holdStart(key, gi){
     var day = dayOfKey(key);
     if(!day || !day.groups || !day.groups[gi]) return;
@@ -8656,6 +8846,9 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   // ---------- что нового ----------
   var WN_KEY = "pullups-seen-ver", WN = null;
   var NEWS = [
+    {v: 307, items: [
+      {e: "❄️", t: "Пошёл снег", d: "До конца февраля в приложении падают снежинки. Нажимать на кнопки они не мешают, а в режиме тренировки, в окнах и пока работает камера снег прячется. Выключить его или оставить на весь год можно в «Звук, тема и данные».", go: "snow-set", btn: "Настроить снег"}
+    ]},
     {v: 306, items: [
       {e: "⏳", t: "Отсчёт перед таймером", d: "Таймер виса, удержания, планки, растяжки и кардио стартует не сразу: сначала 5 секунд, чтобы взяться за перекладину или встать в позицию. В режиме тренировки голос говорит «Приготовься!» и считает «три, два, один». Отсчёт можно сделать 3 или 10 секунд или убрать совсем — в «Звук, тема и данные». Нажми ещё раз во время отсчёта, чтобы начать сразу."},
       {e: "🏅", t: "26 новых медалей", d: "Теперь их 50: десять тысяч повторений, двадцать подтягиваний подряд, минута в висе, каменная планка, полчаса кардио без остановки, сто дней с тренировками, пройденная программа, многоборец во всех разделах, болельщик и другие. Те, что уже заработаны, откроются сами.", go: "medals-open", btn: "Мои медали"}
@@ -8768,6 +8961,10 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     else if(go === "iv-open") ivOpen();
     else if(go === "doc-health") docOpen("health");
     else if(go === "cust-open"){ if(tabsOff.custom){ delete tabsOff.custom; tabsOffSave(); } TAB = "custom"; try { localStorage.setItem(TKEY, TAB); } catch(e){} navPush(); render(); scrollTo(document.getElementById("custEditor")); }
+    else if(go === "snow-set"){
+      var sdt = document.querySelector("details.settings");
+      if(sdt){ sdt.open = true; setTimeout(function(){ var sr = document.getElementById("snowRow"); if(sr && sr.scrollIntoView) try { sr.scrollIntoView({behavior: REDUCED ? "auto" : "smooth", block: "center"}); } catch(e){} }, 60); }
+    }
     else if(go === "fig-demo") figvOpen("run", "Лёгкий бег", "Нажми на любую фигурку в тренировке — она откроется вот так. Кнопка «Замедлить» показывает движение вдвое медленнее.");
     else if(go === "cardio-open"){ if(tabsOff.cardio){ delete tabsOff.cardio; tabsOffSave(); } TAB = "cardio"; try { localStorage.setItem(TKEY, TAB); } catch(e){} navPush(); render(); }
     else if(go === "ps-open"){ goProfile("pushBox"); if(!loggedIn()) flash("Уведомления работают с аккаунтом: войди или зарегистрируйся"); }
@@ -11587,7 +11784,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(MTABS[TAB]) renderMounted(TAB);
     if(TAB === "push" || TAB === "squat") renderCounter();
     if(TAB === "profile"){ renderSync(); renderProfile(); }
-    renderSound(); renderNotify(); renderPrep(); renderAcc(); renderTabPick(); renderBoardKey(); renderHead();
+    renderSound(); renderNotify(); renderPrep(); renderSnow(); renderAcc(); renderTabPick(); renderBoardKey(); renderHead();
     animateFills();
     animateNums();
     renderHold();
@@ -11852,6 +12049,17 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       try { localStorage.setItem(PREPKEY, String(PREP)); } catch(e){}
       renderPrep();
       flash(PREP ? "Перед таймером — отсчёт " + PREP + " " + plural(PREP, ["секунда","секунды","секунд"]) : "Таймер запускается сразу, без отсчёта");
+      return;
+    }
+    if(act === "snow-set"){
+      var sv = b.getAttribute("data-v");
+      SNOW = sv === "on" || sv === "off" ? sv : "auto";
+      try { localStorage.setItem(SNOWKEY, SNOW); } catch(e){}
+      renderSnow();
+      snowApply();
+      flash(SNOW === "off" ? "Снег выключен" : SNOW === "on" ? "Снег идёт круглый год" :
+            REDUCED ? "В системе включено уменьшение движения — «Зимой» снега не будет" :
+            snowSeason() ? "Снег идёт до конца февраля" : "Снег пойдёт 1 ноября");
       return;
     }
     if(act === "hold-stop"){ holdStop(); flash("Таймер остановлен"); return; }
