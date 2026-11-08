@@ -1769,6 +1769,11 @@ button.fig:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .fv-ctl .linkbtn{flex:none;margin:0;white-space:nowrap}
 .fv-title{font-family:"Onest",system-ui,sans-serif;font-size:17px;font-weight:600;margin-top:12px}
 .fv-text{margin:6px 0 0;font-size:15px;line-height:1.5}
+/* 3.09: следующий круг программы */
+.cycfin{margin:0 0 14px;padding:16px 18px;border-radius:22px;border:1px solid color-mix(in srgb, var(--done) 45%, var(--line));background:color-mix(in srgb, var(--done) 10%, color-mix(in srgb, var(--surface) 84%, transparent));box-shadow:var(--shadow-1)}
+.cycfin-t{margin:0 0 4px;font-weight:800;font-size:1.15rem;color:var(--ink)}
+.cycfin .hint{margin:6px 0 0}
+.cycfin .test{margin-top:12px;flex-wrap:wrap}
 /* 3.08: раздел «Пресс» и вес тела */
 .bw-add{align-items:flex-end}
 .bw-add .field{flex:1 1 130px;min-width:0}
@@ -2720,7 +2725,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   var DONATE = "https://www.donationalerts.com/r/denstar02";
   var CONSENT_V = "2026-10-17";   // поменяй дату, если существенно изменишь согласие, — все подтвердят заново
   // версия: APP_MAJOR — крупные изменения, APP_BUILD_N — номер сборки, каждая новая прибавляет сотую
-  var APP_MAJOR = 3, APP_BUILD_N = 8;
+  var APP_MAJOR = 3, APP_BUILD_N = 9;
   var APP_VERSION = (APP_MAJOR + APP_BUILD_N / 100).toFixed(2);
   var APP_BUILD = APP_MAJOR * 100 + APP_BUILD_N;   // 1.35 → 135, 2.01 → 201
   var KEY = "pullups-v1", TKEY = "pullups-tab", THKEY = "pullups-theme";
@@ -2836,7 +2841,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       max: U0.max != null ? clampInt(U0.max, 1, 100, null) : (s.test8 != null ? clampInt(s.test8, 1, 100, null) : (s.test4 != null ? clampInt(s.test4, 1, 100, null) : null)),
       tests: (U0.tests && typeof U0.tests === "object" && !Array.isArray(U0.tests)) ? U0.tests : {},
       legacy: clampInt(U0.legacy, 0, 100000, 0),
-      weight: 0, autoAt: clampInt(U0.autoAt, 0, 1000, 0), breakAt: typeof U0.breakAt === "number" ? U0.breakAt : 0
+      weight: 0, autoAt: clampInt(U0.autoAt, 0, 1000, 0), breakAt: typeof U0.breakAt === "number" ? U0.breakAt : 0,
+      cyc: clampInt(U0.cyc, 0, 99, 0), hist: cycHist(U0.hist)
     };
     if(!(s.v >= 4)){
       var legacySum = 0;
@@ -2871,7 +2877,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     f.t = {
       front: clampInt(T.front, 0, 120, 40),
       side: clampInt(T.side, 0, 120, 45),
-      tests: (T.tests && typeof T.tests === "object" && !Array.isArray(T.tests)) ? T.tests : {}
+      tests: (T.tests && typeof T.tests === "object" && !Array.isArray(T.tests)) ? T.tests : {},
+      cyc: clampInt(T.cyc, 0, 99, 0), hist: cycHist(T.hist)
     };
     [["p", 15], ["s", 25], ["b", 12], ["g", 12], ["h", 6], ["j", 3], ["r", 3], ["a", 20]].forEach(function(pair){
       var src = s[pair[0]] && typeof s[pair[0]] === "object" ? s[pair[0]] : {};
@@ -2880,6 +2887,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       weight: (function(){ var w = parseFloat(src.weight); return isFinite(w) && w > 0 && w <= 200 ? Math.round(w * 2) / 2 : 0; })(),
       autoAt: clampInt(src.autoAt, 0, 1000, 0),
       breakAt: typeof src.breakAt === "number" ? src.breakAt : 0,
+      cyc: clampInt(src.cyc, 0, 99, 0), hist: cycHist(src.hist),
         max: src.max == null ? null : clampInt(src.max, 1, 500, null),
         tests: (src.tests && typeof src.tests === "object" && !Array.isArray(src.tests)) ? src.tests : {}
       };
@@ -2900,6 +2908,16 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(!(s.mode && typeof s.mode === "object" && (s.mode.abs === "short" || s.mode.abs === "day"))) miss.abs = 1;
     try { Object.defineProperty(f, "_miss", {value: miss, enumerable: false, configurable: true, writable: true}); } catch(e){}
     return f;
+  }
+  // история пройденных кругов программы: {n: номер круга, from: максимум в начале, to: итоговый тест, at: когда начат следующий}
+  function cycHist(a){
+    return Array.isArray(a) ? a.filter(function(e){ return e && typeof e === "object" && typeof e.n === "number" && typeof e.at === "number"; }).slice(-60)
+      .map(function(e){ return {n: e.n, from: typeof e.from === "number" ? e.from : null, to: typeof e.to === "number" ? e.to : null, at: e.at}; }) : [];
+  }
+  function cycHistMerge(a, b){
+    var by = {};
+    (a || []).concat(b || []).forEach(function(e){ if(!by[e.n] || e.at > by[e.n].at) by[e.n] = e; });
+    return Object.keys(by).map(function(k){ return by[k]; }).sort(function(x, y){ return x.n - y.n; });
   }
   function clampInt(v, lo, hi, dflt){ v = parseInt(v, 10); if(isNaN(v)) return dflt; return Math.min(hi, Math.max(lo, v)); }
   // одна своя программа: чистим всё, что пришло из памяти, облака или по ссылке
@@ -3801,7 +3819,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(cg0){
       var ch0 = CHAINS[cg0[1]];
       if(TAB !== ch0.cfg.tab){ TAB = ch0.cfg.tab; try { localStorage.setItem(TKEY, TAB); } catch(e){} }
-      ch0.view = +cg0[2] - 1; sel = null; render();
+      var rel0 = +cg0[2] - 1 - ch0.off();
+      ch0.view = rel0 >= 0 && rel0 < CCOUNT ? rel0 : null; sel = null; render();
       scrollTo(document.getElementById("card-" + key));
       return;
     }
@@ -3826,9 +3845,9 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   try { soundOn = localStorage.getItem(SKEY) !== "0"; } catch(e){}
   function dayOfKey(key){
     var cm0 = /^([psubghjra])([dq])(\d+)$/.exec(key);
-    if(cm0) return CHAINS[cm0[1]].build(+cm0[3] - 1, cm0[2] === "q" ? "short" : "day");
+    if(cm0) return CHAINS[cm0[1]].build((+cm0[3] - 1) % CCOUNT, cm0[2] === "q" ? "short" : "day");
     var tm0 = /^t([dq])(\d+)$/.exec(key);
-    if(tm0) return buildTDay(+tm0[2] - 1, tm0[1] === "q" ? "short" : "day");
+    if(tm0) return buildTDay((+tm0[2] - 1) % TCOUNT, tm0[1] === "q" ? "short" : "day");
     var mm2 = /^m([a-z]+)_([a-z0-9]+)-(\d+)$/.exec(key);
     if(mm2){ var mp = custProgById(mm2[2]); return mp ? mountedBuild(mm2[1], mp, +mm2[3] - 1) : null; }
     var xd = /^x([a-z0-9]+)-(\d{4}-\d{2}-\d{2})$/.exec(key);
@@ -3863,8 +3882,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     var tm2 = /^t[dq](\d+)$/.exec(t.key);
     var dname = mk2 ? (MTABS[mk2[1]] || "Своя программа") + ", занятие " + mk2[2]
       : xk ? "Своя программа, занятие " + xk[2]
-      : cm2 ? ({p: "Отжимания", s: "Приседания", u: "Турник", b: "Доска", g: "Гантели", h: "Кардио дома", j: "Скакалка", r: "Бег", a: "Пресс"})[cm2[1]] + ", тренировка " + cm2[2]
-      : tm2 ? "Растяжка, занятие " + tm2[1]
+      : cm2 ? ({p: "Отжимания", s: "Приседания", u: "Турник", b: "Доска", g: "Гантели", h: "Кардио дома", j: "Скакалка", r: "Бег", a: "Пресс"})[cm2[1]] + ", тренировка " + ((+cm2[2] - 1) % CCOUNT + 1)
+      : tm2 ? "Растяжка, занятие " + ((+tm2[1] - 1) % TCOUNT + 1)
       : "Тренировка";
     var all = items(dayOfKey(t.key)), n = 0;
     all.forEach(function(a, i){ if(a.idx === t.next) n = i + 1; });
@@ -4169,10 +4188,10 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   function chainAdvice(C){
     var st2 = state[C.cfg.pre];
     if(!st2) return null;
-    var a = chainAudit(C);
-    if(a.count <= (st2.autoAt || 0)) return null;
-    if(a.clean >= 3 && a.count >= 3) return {dir: 1, count: a.count};
-    if(a.weak >= 2) return {dir: -1, count: a.count};
+    var a = chainAudit(C), base = C.off ? C.off() : 0;
+    if(base + a.count <= (st2.autoAt || 0)) return null;
+    if(a.clean >= 3 && a.count >= 3) return {dir: 1, count: base + a.count};
+    if(a.weak >= 2) return {dir: -1, count: base + a.count};
     return null;
   }
   function adviceHtmlFor(C){
@@ -4192,16 +4211,37 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       '<button type="button" class="linkbtn alt" data-act="auto-no" data-c="' + C.cfg.pre + '" data-n="' + adv.count + '">Оставить как есть</button></div></div>';
   }
 
+  // ---------- следующий круг программы ----------
+  var CYCV = {};   // результат теста перед новым кругом, пока кнопку не нажали
+  function cycleCardHtml(C){
+    var pre = C.cfg.pre, secs = C.cfg.secs, st2 = state[pre], n = (st2.cyc || 0) + 1;
+    var v = CYCV[pre] != null ? CYCV[pre] : C.max();
+    return '<div class="cycfin"><p class="cycfin-t">🎓 ' + (n > 1 ? "Круг " + n + " пройден" : "Программа пройдена") + '</p>' +
+      '<p class="hint">Отдохни 2–3 дня, потом сделай тест. ' + (C.cfg.testHint || "") + '</p>' +
+      '<p class="hint">' + (secs ? "Результат станет выносливостью" : "Результат станет рабочим максимумом") + ' следующего круга: 30 тренировок начнутся сначала и посчитаются от него. ' +
+      'Пройденный круг сохранится — отметки, рекорды, опыт, медали и графики останутся.</p>' +
+      '<div class="test"><div class="stepper" role="group" aria-label="' + (secs ? "Выносливость по тесту, минут" : "Результат теста") + '">' +
+      '<button type="button" data-act="cyc-" data-c="' + pre + '" aria-label="Уменьшить">−</button><output>' + v + '</output>' +
+      '<button type="button" data-act="cyc+" data-c="' + pre + '" aria-label="Увеличить">+</button></div>' +
+      '<span>' + (CYCV[pre] == null ? (secs ? "Сейчас " + v + " мин — поставь результат теста" : "Сейчас " + v + " — поставь результат теста") : (secs ? "Выносливость по тесту, мин" : "Результат теста")) + '</span></div>' +
+      '<div class="test"><button type="button" class="primary" data-act="cyc-new" data-c="' + pre + '">Начать круг ' + (n + 1) + '</button></div></div>';
+  }
   function makeChain(cfg){
     var C = {cfg: cfg, view: null};
     function st(){ return state[cfg.pre]; }
     function id(sfx){ return (cfg.dom || cfg.pre) + sfx; }
     function el(sfx){ return document.getElementById(id(sfx)); }
     function re(f){ return Math.max(1, Math.round(f * C.max())); }
+    // круг: номер тренировки в ключе сквозной — 31-я отметка турника лежит в uq31 и т. д.
+    function off(){ return (st().cyc || 0) * CCOUNT; }
+    function absCount(){ return off() + CCOUNT; }
+    C.off = off;
 
     C.mode = function(){ return tabMode(cfg.tab); };
     C.name = function(t){ return (cfg.names && cfg.names[t]) || CNAME[t]; };
-    C.keyIn = function(i, m){ return cfg.pre + modeLetter(m) + (i + 1); };
+    C.keyIn = function(i, m){ return cfg.pre + modeLetter(m) + (off() + i + 1); };
+    C.keyAbs = function(a, m){ return cfg.pre + modeLetter(m) + (a + 1); };
+    C.tv = function(i){ return st().tests[off() + i]; };
     function hasMarks(k){
       var l = state.logs[k], j;
       if(l) for(j = 0; j < l.length; j++) if(l[j] != null) return true;
@@ -4272,18 +4312,18 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     };
     C.done = function(i){
       var w = C.build(i); if(!w) return false;
-      if(w.test) return st().tests[i] != null;
+      if(w.test) return C.tv(i) != null;
       var k = C.key(i);
       return allLogged(w, k) && isFin(k);
     };
     C.any = function(i){
       var w = C.build(i); if(!w) return false;
-      if(w.test) return st().tests[i] != null;
+      if(w.test) return C.tv(i) != null;
       return statsOf(w, C.key(i)).done > 0;
     };
     C.reps = function(i){
       var w = C.build(i); if(!w) return 0;
-      if(w.test) return st().tests[i] || 0;
+      if(w.test) return C.tv(i) || 0;
       return statsOf(w, C.key(i)).reps;
     };
     C.current = function(){ for(var i = 0; i < CCOUNT; i++) if(!C.done(i)) return i; return CCOUNT - 1; };
@@ -4294,38 +4334,35 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       return z;
     }
     C.secOf = secOf;
-    C.repsMode = function(i, m){
-      var w = C.build(i, m);
-      if(!w) return 0;
-      if(w.test) return 0;
-      return cfg.secs ? secOf(w, C.key(i, m)).done : statsOf(w, C.key(i, m)).reps;
-    };
+    // сделано в тренировке по сквозному номеру — для итогов по всем кругам
+    function repsAbs(a, m){
+      var w = C.build(a % CCOUNT, m);
+      if(!w || w.test) return 0;
+      var k = C.keyAbs(a, m);
+      return cfg.secs ? secOf(w, k).done : statsOf(w, k).reps;
+    }
+    C.repsMode = function(i, m){ return repsAbs(off() + i, m); };
+    // всего за все круги: прошлые круги не обнуляют кольцо, профиль и медали
     C.total = function(){
-      if(cfg.secs){
-        var sec = 0, k;
-        for(k = 0; k < CCOUNT; k++){
-          if(C.isTest(k)){ sec += (st().tests[k] || 0) * 60; continue; }
-          sec += C.repsMode(k, "day") + C.repsMode(k, "short");
-        }
-        return Math.round(sec / 60);
+      var n = absCount(), a, rel, tv, k1 = cfg.secs ? 60 : 1, sum = cfg.secs ? 0 : +(st().legacy || 0);
+      for(a = 0; a < n; a++){
+        rel = a % CCOUNT; tv = st().tests[a];
+        if(C.isTest(rel)){ sum += (tv || 0) * k1; continue; }
+        sum += repsAbs(a, "day") + repsAbs(a, "short");
+        if(rel === CCOUNT - 1 && tv != null) sum += tv * k1;   // итоговый тест перед новым кругом
       }
-      var t = +(st().legacy || 0), i;
-      for(i = 0; i < CCOUNT; i++){
-        if(C.isTest(i)){ t += st().tests[i] || 0; continue; }
-        t += C.repsMode(i, "day") + C.repsMode(i, "short");
-      }
-      return t;
+      return cfg.secs ? Math.round(sum / 60) : sum;
     };
     C.totalOther = function(){
-      var other = C.mode() === "short" ? "day" : "short", t = 0, i;
-      for(i = 0; i < CCOUNT; i++) if(!C.isTest(i)) t += C.repsMode(i, other);
+      var other = C.mode() === "short" ? "day" : "short", t = 0, n = absCount(), a;
+      for(a = 0; a < n; a++) if(!C.isTest(a % CCOUNT)) t += repsAbs(a, other);
       return cfg.secs ? Math.round(t / 60) : t;
     };
     C.ownLast = function(){
-      var t = 0, i, v;
-      for(i = 0; i < CCOUNT; i++){
-        v = state.times[C.keyIn(i, "day")]; if(v > t) t = v;
-        v = state.times[C.keyIn(i, "short")]; if(v > t) t = v;
+      var t = 0, n = absCount(), a, v;
+      for(a = 0; a < n; a++){
+        v = state.times[C.keyAbs(a, "day")]; if(v > t) t = v;
+        v = state.times[C.keyAbs(a, "short")]; if(v > t) t = v;
       }
       return t;
     };
@@ -4341,16 +4378,16 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     C.v = function(){ if(C.view == null) C.view = C.current(); return Math.max(0, Math.min(CCOUNT - 1, C.view)); };
     C.fill = function(i){
       var w = C.build(i); if(!w) return 0;
-      if(w.test) return st().tests[i] != null ? 100 : 0;
+      if(w.test) return C.tv(i) != null ? 100 : 0;
       var s2 = statsOf(w, C.key(i));
       return s2.plan ? Math.round(100 * s2.done / s2.plan) : 0;
     };
     C.setTest = function(i, dir, base){
-      var cur = st().tests[i];
+      var a = off() + i, cur = st().tests[a];
       if(cur == null) cur = dir > 0 ? base : 0;
       else cur += dir;
-      if(cur < 0) delete st().tests[i];
-      else { st().tests[i] = Math.min(500, cur); state.times[C.keyIn(i, C.mode())] = Date.now(); }
+      if(cur < 0) delete st().tests[a];
+      else { st().tests[a] = Math.min(500, cur); state.times[C.keyIn(i, C.mode())] = Date.now(); }
       var ks = Object.keys(st().tests).sort(function(a, b){ return a - b; });
       st().max = ks.length ? st().tests[ks[ks.length - 1]] : null;
     };
@@ -4387,6 +4424,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
         else if(days === 1) h = "<strong>Вчера была тренировка.</strong> Сегодня можно сделать следующую или отдохнуть день.";
         else h = "<strong>Последняя тренировка была " + days + " " + plural(days, ["день","дня","дней"]) + " назад.</strong> Самое время вернуться.";
       }
+      if(C.done(CCOUNT - 1)) h = "<strong>" + (st().cyc ? "Круг " + (st().cyc + 1) + " пройден." : "Программа пройдена.") + "</strong> Отдохни 2–3 дня, сделай тест и начни следующий круг — кнопка в карточке тренировки.";
       el("status").innerHTML = h;
     }
     function renderTrack(){
@@ -4401,7 +4439,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       h += '</div>';
       el("weeks").innerHTML = h;
       el("capRange").innerHTML = "Тренировка <strong>" + (view + 1) + "</strong> из " + CCOUNT;
-      el("capLeft").textContent = capLeftText(done, CCOUNT, view, cur, "тренировка");
+      el("capLeft").textContent = [st().cyc ? "круг " + (st().cyc + 1) : "", capLeftText(done, CCOUNT, view, cur, "тренировка")].filter(Boolean).join(" · ");
     }
     function renderRing(){
       var rsum = el("ringSum");
@@ -4434,8 +4472,16 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
         if(sibTotal) h += '<p class="hint">В варианте «' + cfg.siblingName + '» набрано ещё ' + sibTotal + " " + plural(sibTotal, cfg.unit) + ', в профиле они складываются.</p>';
       }
       if(st().legacy) h += '<p class="hint">Включая ' + st().legacy + " " + plural(st().legacy, cfg.unit) + ' из прежней программы по расписанию.</p>';
-      var tests = Object.keys(st().tests).sort(function(a, b){ return a - b; });
-      if(tests.length) h += '<p class="hint">Тесты: ' + tests.map(function(k){ return "тренировка " + (+k + 1) + " — " + st().tests[k] + (cfg.secs ? " мин" : ""); }).join(", ") + '. ' + (cfg.secs ? "Стартовый уровень был " + st().startMax + " мин." : "Стартовый максимум был " + st().startMax + ".") + '</p>';
+      var tests = Object.keys(st().tests).filter(function(k){ return st().tests[k] != null; }).sort(function(a, b){ return a - b; });
+      if(tests.length){
+        var byCyc = [], multi = !!st().cyc || tests.some(function(k){ return +k % CCOUNT === CCOUNT - 1; });
+        tests.forEach(function(k){
+          var c = Math.floor(+k / CCOUNT), rel = +k % CCOUNT;
+          (byCyc[c] = byCyc[c] || []).push((rel === CCOUNT - 1 ? "итоговый тест" : "тренировка " + (rel + 1)) + " — " + st().tests[k] + (cfg.secs ? " мин" : ""));
+        });
+        h += '<p class="hint">Тесты: ' + byCyc.map(function(list, c){ return list ? (multi ? "круг " + (c + 1) + ": " : "") + list.join(", ") : ""; }).filter(Boolean).join("; ") + '. ' +
+          (cfg.secs ? "Стартовый уровень был " + st().startMax + " мин." : "Стартовый максимум был " + st().startMax + ".") + '</p>';
+      }
       el("ring").innerHTML = h;
     }
     function renderWork(){
@@ -4445,12 +4491,12 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       el("navLabel").innerHTML = "Тренировка <strong>" + (i + 1) + "</strong> из " + CCOUNT + ", " + C.name(C.type(i)).toLowerCase();
       el("prev").disabled = i === 0;
       el("next").disabled = i === CCOUNT - 1;
-      h += breakHtml(C) + adviceHtmlFor(C);
+      h += C.done(CCOUNT - 1) ? cycleCardHtml(C) : breakHtml(C) + adviceHtmlFor(C);
       if(i !== cur) h += '<div class="jumprow"><button type="button" class="linkbtn alt" data-act="cgo" data-c="' + cfg.pre + '" data-i="' + cur + '">Перейти к тренировке ' + (cur + 1) + '</button></div>';
       h += '<article class="day' + (i === cur ? " today" : "") + '" id="card-' + key + '"><div class="day-head"><div><p class="when">Тренировка ' + (i + 1) +
         (i === cur ? ' <span class="badge">текущая</span>' : C.done(i) ? ' <span class="badge ok">готово</span>' : "") + '</p><h2>' + esc(w.title) + '</h2></div>';
       if(w.test){
-        var tv = st().tests[i], prevMax = C.max();
+        var tv = C.tv(i), prevMax = C.max();
         h += '</div><p class="hint" style="margin-top:10px">' + cfg.testHint + '</p>';
         h += '<div class="test"><div class="stepper" role="group" aria-label="Результат теста">' +
           '<button type="button" data-act="ctest-" data-c="' + cfg.pre + '" data-i="' + i + '" aria-label="Уменьшить">−</button>' +
@@ -6098,10 +6144,14 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       if(k === "u") out[k].legacy = Math.max(out[k].legacy || 0, old[k].legacy || 0);
       out[k].autoAt = Math.max(out[k].autoAt || 0, old[k].autoAt || 0);
       if(old[k].breakAt || out[k].breakAt) out[k].breakAt = Math.max(out[k].breakAt || 0, old[k].breakAt || 0);
+      out[k].cyc = Math.max(out[k].cyc || 0, old[k].cyc || 0);
+      out[k].hist = cycHistMerge(out[k].hist, old[k].hist);
     });
     Object.keys((old.t && old.t.tests) || {}).forEach(function(i){
       if(!out.t.tests[i]) out.t.tests[i] = old.t.tests[i];
     });
+    out.t.cyc = Math.max(out.t.cyc || 0, (old.t && old.t.cyc) || 0);
+    out.t.hist = cycHistMerge(out.t.hist, old.t && old.t.hist);
     // свои программы: объединяем по идентификатору
     var byId = {};
     (out.custom.progs || []).forEach(function(p){ byId[p.id] = true; });
@@ -6614,7 +6664,9 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
        h: "Спокойное завершение занятия."}
     ]; }
   };
-  function keyT(i, m){ return "t" + modeLetter(m || tabMode("stretch")) + (i + 1); }
+  function tOff(){ return ((state.t && state.t.cyc) || 0) * TCOUNT; }
+  function keyT(i, m){ return "t" + modeLetter(m || tabMode("stretch")) + (tOff() + i + 1); }
+  function keyTAbs(a, m){ return "t" + modeLetter(m) + (a + 1); }
   function tIsTest(i){ return (i + 1) % 10 === 0; }
   function tType(i){ return tIsTest(i) ? "M" : ["A","B","C"][i % 3]; }
   function buildTDay(i, m){
@@ -6645,17 +6697,21 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   function tCurrent(){ for(var i = 0; i < TCOUNT; i++) if(!tDone(i)) return i; return TCOUNT - 1; }
   function tFill(i){ var w = buildTDay(i); if(!w) return 0; var s2 = statsOf(w, keyT(i)); return s2.plan ? Math.round(100 * s2.done / s2.plan) : 0; }
   function tMinutes(){
-    var total = 0;
+    var total = 0, n = tOff() + TCOUNT;
     ["day", "short"].forEach(function(m){
-      for(var i = 0; i < TCOUNT; i++){
-        var w = buildTDay(i, m); if(!w) continue;
-        var lg = state.logs[keyT(i, m)] || [];
+      for(var a = 0; a < n; a++){
+        var w = buildTDay(a % TCOUNT, m); if(!w) continue;
+        var lg = state.logs[keyTAbs(a, m)] || [];
         items(w).forEach(function(it){ if(it.kind === "sec" && lg[it.idx] != null) total += lg[it.idx]; });
       }
     });
     return Math.round(total / 60);
   }
-  function tLastTime(){ var t = 0; for(var i = 0; i < TCOUNT; i++){ var v = state.times[keyT(i)]; if(v > t) t = v; } return t; }
+  function tLastTime(){
+    var t = 0, n = tOff() + TCOUNT;
+    for(var a = 0; a < n; a++) ["day", "short"].forEach(function(m){ var v = state.times[keyTAbs(a, m)]; if(v > t) t = v; });
+    return t;
+  }
   var tView = null;
   function tV(){ if(tView == null) tView = tCurrent(); return Math.max(0, Math.min(TCOUNT - 1, tView)); }
   function tMeasure(which){
@@ -6693,6 +6749,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       else if(days === 1) h = "<strong>Вчера было занятие.</strong> Сегодня можно сделать следующее.";
       else h = "<strong>Последнее занятие было " + days + " " + plural(days, ["день","дня","дней"]) + " назад.</strong> Возвращайся, перерывы откатывают прогресс быстрее всего.";
     }
+    if(tDone(TCOUNT - 1)) h = "<strong>" + (state.t.cyc ? "Круг " + (state.t.cyc + 1) + " пройден." : "Программа растяжки пройдена.") + "</strong> Можно пройти её ещё раз — кнопка в карточке занятия.";
     document.getElementById("tstatus").innerHTML = h;
   }
   function renderTTrack(){
@@ -6707,7 +6764,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     h += '</div>';
     document.getElementById("tweeks").innerHTML = h;
     document.getElementById("tcapRange").innerHTML = "Занятие <strong>" + (view + 1) + "</strong> из " + TCOUNT;
-    document.getElementById("tcapLeft").textContent = capLeftText(done, TCOUNT, view, cur, "занятие");
+    document.getElementById("tcapLeft").textContent = [state.t.cyc ? "круг " + (state.t.cyc + 1) : "", capLeftText(done, TCOUNT, view, cur, "занятие")].filter(Boolean).join(" · ");
   }
   function renderTRing(){
     var tsum = document.getElementById("tringSum");
@@ -6724,8 +6781,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     h += '<p class="hint">Всего в удержаниях: <strong>' + tMinutes() + '</strong> ' + plural(tMinutes(), ["минута","минуты","минут"]) + '.</p>';
     var ks = Object.keys(state.t.tests).sort(function(a, b){ return a - b; });
     if(ks.length) h += '<p class="hint">Замеры: ' + ks.map(function(k){
-      var m = state.t.tests[k] || {};
-      return "занятие " + (+k + 1) + " — " + (m.front != null ? m.front : "—") + " и " + (m.side != null ? m.side : "—") + " см";
+      var m = state.t.tests[k] || {}, c = Math.floor(+k / TCOUNT);
+      return "занятие " + (+k % TCOUNT + 1) + (state.t.cyc ? " (круг " + (c + 1) + ")" : "") + " — " + (m.front != null ? m.front : "—") + " и " + (m.side != null ? m.side : "—") + " см";
     }).join(", ") + '.</p>';
     document.getElementById("tring").innerHTML = h;
   }
@@ -6735,6 +6792,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     document.getElementById("tprev").disabled = i === 0;
     document.getElementById("tnext").disabled = i === TCOUNT - 1;
     var st2 = statsOf(w, key);
+    if(tDone(TCOUNT - 1)) h += tCycleHtml();
     if(i !== cur) h += '<div class="jumprow"><button type="button" class="linkbtn alt" data-act="tgo" data-i="' + cur + '">Перейти к занятию ' + (cur + 1) + '</button></div>';
     h += '<article class="day head-card" id="card-' + key + '"><div class="day-head"><div><p class="when">Занятие ' + (i + 1) +
       (i === cur ? ' <span class="badge">текущее</span>' : tDone(i) ? ' <span class="badge ok">готово</span>' : "") + '</p><h2>' + esc(w.title) + '</h2></div>' +
@@ -6743,7 +6801,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       h += '<article class="day">' + groupsHtml({groups: [g]}, key, gi) + '</article>';
     });
     if(w.measure != null){
-      var m = state.t.tests[i] || {};
+      var m = state.t.tests[tOff() + i] || {};
       h += '<article class="day"><div class="group"><h3>Замер после занятия</h3><p class="hint">Разогретым опустись в каждый шпагат до комфортного предела и замерь расстояние от таза до пола линейкой или стопкой книг.</p>' +
         '<div class="test"><span>Продольный</span><div class="stepper" role="group" aria-label="Продольный шпагат, см">' +
         '<button type="button" data-act="tmeas-" data-i="' + i + '" data-k="front" aria-label="Уменьшить">−</button>' +
@@ -6758,6 +6816,13 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(!tDone(i) && allLogged(w, key)) h += finishHtml(key);
     else if(tDone(i) && i < TCOUNT - 1) h += '<div class="test"><button type="button" class="primary" data-act="tgo" data-i="' + (i + 1) + '">Дальше: занятие ' + (i + 2) + '</button></div>';
     document.getElementById("twork").innerHTML = h;
+  }
+  function tCycleHtml(){
+    var n = (state.t.cyc || 0) + 1;
+    return '<div class="cycfin"><p class="cycfin-t">🎓 ' + (n > 1 ? "Круг " + n + " пройден" : "Программа пройдена") + '</p>' +
+      '<p class="hint">Можно пройти программу ещё раз: 30 занятий начнутся сначала, а прогресс шпагатов продолжит отсчёт от последних замеров. ' +
+      'Пройденный круг сохранится — минуты, опыт, медали и замеры останутся.</p>' +
+      '<div class="test"><button type="button" class="primary" data-act="tcyc-new">Начать круг ' + (n + 1) + '</button></div></div>';
   }
   function renderStretch(){ renderTSum(); renderTMode(); renderTMax(); renderTStatus(); renderTTrack(); renderTRing(); renderTWork(); }
 
@@ -8298,6 +8363,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     {id: "fin50", e: "🏁", n: "Полсотни тренировок", d: "Завершить 50 тренировок", g: 50, k: "fins"},
     {id: "fin100", e: "💎", n: "Сто тренировок", d: "Завершить 100 тренировок", g: 100, k: "fins"},
     {id: "cycle", e: "🎓", n: "Программа пройдена", d: "Пройти все 30 тренировок любой программы", g: 1, k: "cycles"},
+    {id: "cycle2", e: "🔁", n: "Второй круг", d: "Пройти одну программу два раза", g: 2, k: "cycleOne"},
     {id: "circuit",  e: "🔄", n: "Круговорот",          d: "Пройти все круги круговой тренировки",     g: 1,    k: "circuits"},
     {id: "alltabs", e: "🧩", n: "Многоборец", d: "Заниматься во всех семи разделах", g: 7, k: "sections"},
     {id: "double", e: "⚔️", n: "Двойная смена", d: "Завершить за один день тренировки в двух разных разделах", g: 1, k: "double"},
@@ -8321,7 +8387,7 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       cam: state.flags && state.flags.cam ? 1 : 0, share: state.flags && state.flags.share ? 1 : 0, pr: state.flags && state.flags.pr ? 1 : 0,
       friends: FR && FR.list ? FR.list.length : 0,
       dumb: DUMB.total(), stretch: tMinutes(), bestPull: 0, bestHang: 0, bestPlank: 0, cardioSeg: 0, days: 0, sections: 0,
-      double: 0, cycles: 0, gain: 0, cheers: 0, lunch: 0};
+      double: 0, cycles: 0, cycleOne: 0, gain: 0, cheers: 0, lunch: 0};
     var segMax = 0, tabsSeen = {}, MAIN = {pull: 1, push: 1, squat: 1, abs: 1, dumb: 1, cardio: 1, stretch: 1};
     Object.keys(state.logs || {}).forEach(function(k){
       var w = dayOfKey(k);
@@ -8380,8 +8446,9 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       if(Object.keys(finDays[dn]).length >= 2) c.double = 1;
     });
     // пройденные программы целиком: закрыта последняя, 30-я тренировка
-    Object.keys(CHAINS).forEach(function(p){ try { if(CHAINS[p].done(CCOUNT - 1)) c.cycles++; } catch(e){} });
-    try { if(tDone(TCOUNT - 1)) c.cycles++; } catch(e){}
+    // пройденные круги: прошлые (номер круга) плюс текущий, если в нём закрыта последняя тренировка
+    Object.keys(CHAINS).forEach(function(p){ try { var cn = ((state[p] && state[p].cyc) || 0) + (CHAINS[p].done(CCOUNT - 1) ? 1 : 0); c.cycles += cn; c.cycleOne = Math.max(c.cycleOne, cn); } catch(e){} });
+    try { var tn = (state.t.cyc || 0) + (tDone(TCOUNT - 1) ? 1 : 0); c.cycles += tn; c.cycleOne = Math.max(c.cycleOne, tn); } catch(e){}
     Object.keys(state.reacts || {}).forEach(function(fid){
       var r = state.reacts[fid];
       c.cheers += r && r.all && typeof r.all === "object" ? Object.keys(r.all).length : (r && r.e ? 1 : 0);
@@ -8492,9 +8559,9 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     var xk = /^x([a-z0-9]+)-(\d+)$/.exec(key);
     if(xk){ var xp = custProgById(xk[1]); return (xp ? xp.name : "Своя программа") + ", занятие " + xk[2]; }
     var cm = /^([psubghjra])[dq](\d+)$/.exec(key);
-    if(cm) return ({p: "Отжимания", s: "Приседания", u: "Турник", b: "Отжимания на доске", g: "Гантели", h: "Кардио дома", j: "Кардио со скакалкой", r: "Бег", a: "Пресс"})[cm[1]] + ", тренировка " + cm[2];
+    if(cm) return ({p: "Отжимания", s: "Приседания", u: "Турник", b: "Отжимания на доске", g: "Гантели", h: "Кардио дома", j: "Кардио со скакалкой", r: "Бег", a: "Пресс"})[cm[1]] + ", тренировка " + ((+cm[2] - 1) % CCOUNT + 1);
     var tm = /^t[dq](\d+)$/.exec(key);
-    if(tm) return "Растяжка, занятие " + tm[1];
+    if(tm) return "Растяжка, занятие " + ((+tm[1] - 1) % TCOUNT + 1);
     return "Тренировка";
   }
   function cardData(key){
@@ -9068,6 +9135,10 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   // ---------- что нового ----------
   var WN_KEY = "pullups-seen-ver", WN = null;
   var NEWS = [
+    {v: 309, items: [
+      {e: "🎓", t: "Программу можно пройти ещё раз", d: "Когда закрыты все 30 тренировок, в разделе появляется «Начать круг 2»: впиши результат теста — следующие 30 тренировок начнутся сначала и посчитаются от него. Пройденный круг остаётся: отметки, рекорды, опыт, медали и графики никуда не деваются. Работает во всех разделах, включая растяжку."},
+      {e: "🔁", t: "Медаль «Второй круг»", d: "За то, что прошёл одну программу два раза."}
+    ]},
     {v: 308, items: [
       {e: "🍫", t: "Раздел «Пресс»", d: "30 тренировок: скручивания, подъёмы ног, велосипед, планка, «лодочка» и упражнения для спины. Нагрузка считается от твоего максимума скручиваний, тесты — на 12-й и 24-й тренировке. Убрать раздел с панели можно в «Звук, тема и данные».", go: "abs-open", btn: "Открыть «Пресс»"},
       {e: "⚖️", t: "Вес тела", d: "Записывай вес в профиле раз в неделю — появится график, а в «Турнике» вес будет виден рядом с результатами тестов подтягиваний. Вес видишь только ты: друзьям он не показывается.", go: "bw-open", btn: "Записать вес"},
@@ -11178,10 +11249,11 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
   function testChart(C){
     var st2 = state[C.cfg.pre];
     if(!st2) return "";
-    var pts = [{i: 0, v: st2.startMax}];
+    var pts = [{i: 0, a: -1, v: st2.startMax}];
     Object.keys(st2.tests || {}).sort(function(a, b){ return a - b; }).forEach(function(k){
-      if(st2.tests[k] != null) pts.push({i: +k + 1, v: st2.tests[k]});
+      if(st2.tests[k] != null) pts.push({i: +k % CCOUNT + 1, a: +k, v: st2.tests[k]});
     });
+    var multi = pts.some(function(p){ return p.a >= CCOUNT - 1; });
     if(pts.length < 2) return '<p class="hint">После первого теста максимума здесь появится график роста.</p>';
     var W = 320, H = 110, pad = 26, maxV = 1, minV = Infinity;
     pts.forEach(function(p){ maxV = Math.max(maxV, p.v); minV = Math.min(minV, p.v); });
@@ -11194,8 +11266,14 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     s2 += '<text x="0" y="14">' + maxV + '</text><text x="0" y="' + (H - 22) + '">' + minV + '</text>';
     s2 += '<path d="' + d + '" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>';
     pts.forEach(function(p, i){
+      // граница кругов: пунктир и подпись «круг N» после итогового теста
+      if(i > 1 && Math.floor(p.a / CCOUNT) > Math.floor(pts[i - 1].a / CCOUNT) && pts[i - 1].a % CCOUNT === CCOUNT - 1){
+        var bx = ((x(i) + x(i - 1)) / 2).toFixed(1);
+        s2 += '<line x1="' + bx + '" x2="' + bx + '" y1="4" y2="' + (H - 20) + '" stroke="var(--line)" stroke-dasharray="3 3"/><text x="' + bx + '" y="12" text-anchor="middle">круг ' + (Math.floor(p.a / CCOUNT) + 1) + '</text>';
+      }
       s2 += '<circle cx="' + x(i).toFixed(1) + '" cy="' + y(p.v).toFixed(1) + '" r="4" fill="var(--accent)"/>';
-      s2 += '<text x="' + x(i).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="' + (i && i === pts.length - 1 ? "end" : "middle") + '">' + (i ? "тест " + p.i : "старт") + '</text>';
+      var lab = !i ? "старт" : p.a % CCOUNT === CCOUNT - 1 ? "итог" : (multi ? "" : "тест ") + p.i;
+      s2 += '<text x="' + x(i).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="' + (i && i === pts.length - 1 ? "end" : "middle") + '">' + lab + '</text>';
     });
     return s2 + '</svg>';
   }
@@ -11302,7 +11380,8 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
     if(!list.length) return '<p class="hint bw-pull">Записывай вес тела в профиле — здесь он появится рядом с результатами тестов подтягиваний. <button type="button" class="linkbtn alt" data-act="bw-go">Записать вес</button></p>';
     var marks = [], st2 = state[C.cfg.pre], last = list[list.length - 1];
     Object.keys(st2.tests || {}).forEach(function(k){
-      var i = +k, tm = Math.max(state.times[C.keyIn(i, "short")] || 0, state.times[C.keyIn(i, "day")] || 0);
+      var a = +k, tm = Math.max(state.times[C.keyAbs(a, "short")] || 0, state.times[C.keyAbs(a, "day")] || 0);
+      if(a % CCOUNT === CCOUNT - 1) (st2.hist || []).forEach(function(e){ if(e.n === Math.floor(a / CCOUNT) + 1) tm = e.at; });
       if(st2.tests[k] != null && tm) marks.push({d: ymdOf(new Date(tm)), v: st2.tests[k]});
     });
     marks.sort(function(a, b){ return a.d < b.d ? -1 : a.d > b.d ? 1 : 0; });
@@ -12447,6 +12526,31 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       flash("Тренировка засчитана", true);
       return;
     }
+    if(act === "cyc-" || act === "cyc+"){
+      var yc0 = chainBy(b.getAttribute("data-c"));
+      if(!yc0) return;
+      var yp = yc0.cfg.pre, yv0 = CYCV[yp] != null ? CYCV[yp] : yc0.max();
+      CYCV[yp] = Math.max(1, Math.min(500, yv0 + (act === "cyc+" ? 1 : -1)));
+      render(); return;
+    }
+    if(act === "cyc-new"){
+      var yc = chainBy(b.getAttribute("data-c"));
+      if(!yc || !yc.done(CCOUNT - 1)) return;
+      var ys = state[yc.cfg.pre], yn = ys.cyc || 0, yv = CYCV[yc.cfg.pre] != null ? CYCV[yc.cfg.pre] : yc.max();
+      var yfrom = yn && ys.tests[yn * CCOUNT - 1] != null ? ys.tests[yn * CCOUNT - 1] : ys.startMax;
+      undoPush("Новый круг отменён");
+      if(!ys.hist) ys.hist = [];
+      ys.hist.push({n: yn + 1, from: yfrom, to: yv, at: Date.now()});
+      // итоговый тест записываем на место последней тренировки круга: так он попадает в график и в «последний тест»
+      ys.tests[yn * CCOUNT + CCOUNT - 1] = yv;
+      ys.max = yv;
+      ys.cyc = yn + 1;
+      delete CYCV[yc.cfg.pre];
+      yc.view = null; sel = null;
+      save(); render();
+      flash("Начался круг " + (yn + 2) + ": " + (yc.cfg.secs ? "выносливость " + yv + " мин" : "максимум " + yv), true);
+      return;
+    }
     if(act === "auto-yes" || act === "auto-no"){
       var ac = chainBy(b.getAttribute("data-c"));
       if(!ac) return;
@@ -12756,8 +12860,19 @@ grant execute on function public.admin_hide(uuid, text) to authenticated;</code>
       state.t[sk] = clampInt(state.t[sk] + (act === "tstart+" ? 1 : -1), 0, 120, sk === "front" ? 40 : 45);
       save(); render(); return;
     }
+    if(act === "tcyc-new"){
+      if(!tDone(TCOUNT - 1)) return;
+      undoPush("Новый круг отменён");
+      if(!state.t.hist) state.t.hist = [];
+      state.t.hist.push({n: (state.t.cyc || 0) + 1, from: null, to: null, at: Date.now()});
+      state.t.cyc = (state.t.cyc || 0) + 1;
+      tView = null; sel = null;
+      save(); render();
+      flash("Начался круг " + (state.t.cyc + 1) + " растяжки", true);
+      return;
+    }
     if(act === "tmeas-" || act === "tmeas+"){
-      var mi = +b.getAttribute("data-i"), mk = b.getAttribute("data-k");
+      var mi = tOff() + +b.getAttribute("data-i"), mk = b.getAttribute("data-k");
       var rec = state.t.tests[mi] || (state.t.tests[mi] = {});
       var cv = rec[mk];
       if(cv == null) cv = act === "tmeas+" ? +b.getAttribute("data-base") : 0;
